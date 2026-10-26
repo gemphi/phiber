@@ -7,9 +7,9 @@
 //! Blender's 4.
 
 use phiber::phiphx::Phx;
-use phiber::v2::app::seed::seed_render_props;
-use phiber::v2::scene::render_set;
-use phiber::v2::state::BState;
+use phiber::app::seed::seed_render_props;
+use phiber::scene::render_set;
+use phiber::state::BState;
 
 const FILE: &str = "assets/CW-Fashion/Epic-Pods-Female-01/Female-01-Chatty-Whims-Rigged-Lace.blend";
 
@@ -48,7 +48,7 @@ fn the_engine_comes_from_the_file() {
     let Some((state, model)) = opened() else { return };
     assert_eq!(model.render.engine, "CYCLES");
     assert_eq!(
-        state.get(phiber::v2::state::ButsKey::Value("engine")),
+        state.get(phiber::state::ButsKey::Value("engine")),
         Some("CYCLES"),
         "Render Engine does not show what the file saved"
     );
@@ -62,9 +62,9 @@ fn the_engine_comes_from_the_file() {
 fn a_files_sample_count_is_believed_and_a_missing_one_opens_at_the_default() {
     use phiber::phiphx::blend::{BIdGroup, BIdValue};
     use phiber::phiphx::scene::SceneModel;
-    use phiber::v2::scene::render_quality::BRenderQuality;
-    use phiber::v2::scene::render_set;
-    use phiber::v2::state::{BState, ButsKey, val::BValue};
+    use phiber::scene::render_quality::BRenderQuality;
+    use phiber::scene::render_set;
+    use phiber::state::{BState, ButsKey, val::BValue};
 
     let seeded = |saved: Option<i32>| {
         let mut model = SceneModel::default();
@@ -74,10 +74,10 @@ fn a_files_sample_count_is_believed_and_a_missing_one_opens_at_the_default() {
         }
         model.render.cycles = cycles;
         let mut s = BState::new();
-        phiber::v2::app::seed::seed_render_props(&mut s, &model);
-        phiber::v2::scene::source::set_loaded_scene(Some(model));
+        phiber::app::seed::seed_render_props(&mut s, &model);
+        phiber::scene::source::set_loaded_scene(Some(model));
         let samples = render_set(&s).samples;
-        phiber::v2::scene::source::set_loaded_scene(None);
+        phiber::scene::source::set_loaded_scene(None);
         (s, samples)
     };
 

@@ -8,10 +8,10 @@
 use gpui::{TestAppContext, px, size};
 use phiber::phiphx::blend::{BlendFile, BlendImageFormat};
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::state::val::BValue;
-use phiber::v2::state::{BKey as _, ButsKey, ModalKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::state::val::BValue;
+use phiber::state::{BKey as _, ButsKey, ModalKey};
+use phiber::view::BAction;
 use std::path::PathBuf;
 
 fn model_of(path: &std::path::Path) -> SceneModel {
@@ -33,9 +33,9 @@ async fn the_render_and_output_tabs_are_written_by_ctrl_s(cx: &mut TestAppContex
     cx.simulate_resize(size(px(1280.0), px(800.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::v2::scene::loaded_path_key(), blend.to_string_lossy().to_string());
-        phiber::v2::app::seed::seed_render_props(&mut app.state, &model);
-        phiber::v2::app::seed::seed_output_props(&mut app.state, &model);
+        app.state.set(&phiber::scene::loaded_path_key(), blend.to_string_lossy().to_string());
+        phiber::app::seed::seed_render_props(&mut app.state, &model);
+        phiber::app::seed::seed_output_props(&mut app.state, &model);
         app.scene_cache = Some((blend.to_string_lossy().to_string(), std::sync::Arc::new(model)));
         cx.notify();
     });
@@ -69,15 +69,15 @@ async fn the_render_and_output_tabs_are_written_by_ctrl_s(cx: &mut TestAppContex
     assert_eq!(saved.render.engine, "CYCLES");
     assert!(saved.render.film_transparent, "Film ▸ Transparent (`r.alphamode`)");
     // And the render plan carries it to the tracer (`Camera::film`).
-    let look = phiber::v2::view::draw::canvas::view3d::rendered::BRayLook { sky: gpui::black(), grid: gpui::white(), grid_hide: 0, world: None, lights: Vec::new(), wire: None, view: [0.0, 0.0, 1.0, 0.0], environment: None, set: Default::default(), studio: false };
-    let set = app.read_with(cx, |a, _| phiber::v2::scene::render_set(&a.state));
+    let look = phiber::view::draw::canvas::view3d::rendered::BRayLook { sky: gpui::black(), grid: gpui::white(), grid_hide: 0, world: None, lights: Vec::new(), wire: None, view: [0.0, 0.0, 1.0, 0.0], environment: None, set: Default::default(), studio: false };
+    let set = app.read_with(cx, |a, _| phiber::scene::render_set(&a.state));
     assert!(set.film_transparent);
-    assert_eq!(phiber::v2::scene::render_plan(&saved, set, &look, gpui::white()).expect("the factory camera").camera.film, [1, 0, 0, 0]);
+    assert_eq!(phiber::scene::render_plan(&saved, set, &look, gpui::white()).expect("the factory camera").camera.film, [1, 0, 0, 0]);
     assert_eq!((cycles("samples"), cycles("use_denoising"), cycles("diffuse_bounces")), (Some(48), Some(0), Some(2)), "Ctrl S wrote the Cycles settings");
     assert_eq!(cycles("pixel_filter_type"), Some(1), "the enumeration as Blender's number (Gaussian)");
     // Opened again, the panel shows Gaussian.
-    let mut again = phiber::v2::state::BState::new();
-    phiber::v2::app::seed::seed_render_props(&mut again, &saved);
+    let mut again = phiber::state::BState::new();
+    phiber::app::seed::seed_render_props(&mut again, &saved);
     assert_eq!(again.get(ButsKey::Value("cycles.pixel_filter_type")), Some("GAUSSIAN"));
     assert_eq!(saved.render.cycles.get("sampling_pattern").and_then(|v| v.as_int()), Some(1), "what the file already carried is kept");
     let out = &saved.render.output;

@@ -4,12 +4,12 @@
 //! after the jump arrows — and the jump moves by what Time Jump says.
 
 use gpui::{Modifiers, MouseButton, Point, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::part::playback::settings;
-use phiber::v2::scene::marker::BMarkerList;
-use phiber::v2::state::{CtxKey, ModalKey, val::BValue};
-use phiber::v2::view::BAction;
-use phiber::v2::view::draw::canvas::time::marker::BAND_HEIGHT;
+use phiber::app::BPhiberApp;
+use phiber::part::playback::settings;
+use phiber::scene::marker::BMarkerList;
+use phiber::state::{CtxKey, ModalKey, val::BValue};
+use phiber::view::BAction;
+use phiber::view::draw::canvas::time::marker::BAND_HEIGHT;
 
 fn pt(x: f32, y: f32) -> Point<gpui::Pixels> {
     Point::new(px(x), px(y))
@@ -39,10 +39,10 @@ async fn a_drag_over_the_empty_band_box_selects_the_markers_it_spans(cx: &mut Te
         cx.run_until_parked();
     }
     assert_eq!(app.read_with(cx, |a, _| BMarkerList::selected(&a.state)), [80, 120], "live, while the box is swept");
-    assert!(app.read_with(cx, |a, _| phiber::v2::scene::grab::BMarkerBox::now(&a.state)).is_some(), "the box is drawn while the button is down");
+    assert!(app.read_with(cx, |a, _| phiber::scene::grab::BMarkerBox::now(&a.state)).is_some(), "the box is drawn while the button is down");
     cx.simulate_mouse_up(pt(x_of(140.0), band_y), MouseButton::Left, Modifiers::none());
     cx.run_until_parked();
-    assert!(app.read_with(cx, |a, _| phiber::v2::scene::grab::BMarkerBox::now(&a.state)).is_none(), "released: the box is gone");
+    assert!(app.read_with(cx, |a, _| phiber::scene::grab::BMarkerBox::now(&a.state)).is_none(), "released: the box is gone");
     assert_eq!(app.read_with(cx, |a, _| BMarkerList::selected(&a.state)), [80, 120], "and B and C stay selected");
     assert_eq!(app.read_with(cx, |a, _| a.state.get(CtxKey::Frame).map(str::to_string)), frame_before, "a box is not a scrub");
 

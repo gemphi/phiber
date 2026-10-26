@@ -6,12 +6,12 @@
 
 use gpui::{TestAppContext, px, size};
 use phiber::phiphx::blend::{BlendRenderBorder, BlendViewBorder};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::render_border::BRenderBorder;
-use phiber::v2::scene::view_border::BViewBorder;
-use phiber::v2::scene::view_slot::BViewSlot;
-use phiber::v2::state::{BKey as _, CtxKey, ModalKey, OpKey, View3dKey, val::V_TRUE};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::scene::render_border::BRenderBorder;
+use phiber::scene::view_border::BViewBorder;
+use phiber::scene::view_slot::BViewSlot;
+use phiber::state::{BKey as _, CtxKey, ModalKey, OpKey, View3dKey, val::V_TRUE};
+use phiber::view::BAction;
 
 fn region(v: &str) -> BAction {
     BAction::Set(OpKey::RenderBorder.path(), v.into())
@@ -28,7 +28,7 @@ async fn ctrl_b_outside_the_camera_view_sets_the_viewports_own_region(cx: &mut T
     cx.run_until_parked();
     // The viewport of the workspace showing, the pointer over it, not
     // looking through the camera.
-    let scope = app.read_with(cx, |a, _| phiber::v2::space::BSpaceList::active(&a.state).slug());
+    let scope = app.read_with(cx, |a, _| phiber::space::BSpaceList::active(&a.state).slug());
     let slot = BViewSlot::new(scope, "Center");
     slot.hover();
     assert!(app.read_with(cx, |a, _| a.state.get(View3dKey::Camera(scope, "Center")) != Some(V_TRUE)));

@@ -30,11 +30,11 @@
 //! `the_strips_read_as_one_surface.rs`.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState, CtxKey, ModalKey};
-use phiber::v2::theme::{BPaletteName, BResolvedUiStyle, ui_style_defaults};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::space::BSpaceType;
+use phiber::state::{BState, CtxKey, ModalKey};
+use phiber::theme::{BPaletteName, BResolvedUiStyle, ui_style_defaults};
 
 fn style() -> BResolvedUiStyle {
     BResolvedUiStyle::from(ui_style_defaults(BPaletteName::DEFAULT))
@@ -42,7 +42,7 @@ fn style() -> BResolvedUiStyle {
 
 /// The renderer's own source: `region_fill` is private, and which fill a
 /// region kind takes is exactly what this is about.
-const REGION: &str = include_str!("../src/v2/view/draw/region/mod.rs");
+const REGION: &str = include_str!("../src/view/draw/region/mod.rs");
 
 #[test]
 fn a_vertical_strip_paints_a_shade_of_its_own() {
@@ -61,7 +61,7 @@ fn a_content_region_still_paints_nothing() {
 
 #[test]
 fn the_active_tab_is_the_accordion_heading_beside_it() {
-    use phiber::v2::theme::BSurfaceTone;
+    use phiber::theme::BSurfaceTone;
     let style = style();
     let tab = style.tab_active_gradient(BHostType::Buts);
     let head = style.heading_surface(BSurfaceTone::Card);
@@ -112,7 +112,7 @@ fn the_strip_steps_by_the_same_pitch_as_the_panels_beside_it() {
     //
     // Asserted against the source because the gap is written where the strip
     // is built; the point is that ONE number is shared, not what it is.
-    let rail = include_str!("../src/v2/view/draw/rail.rs");
+    let rail = include_str!("../src/view/draw/rail.rs");
     let strip = rail.split("let strip = element").nth(1).expect("the strip column");
     let strip = &strip[..strip.find("into_any_element").unwrap_or(strip.len())];
     // Comments out: the note explaining the fix names the number it replaced,
@@ -134,7 +134,7 @@ fn the_strip_steps_by_the_same_pitch_as_the_panels_beside_it() {
     );
 
     // The region beside it is the other half of the pair.
-    let region = include_str!("../src/v2/view/draw/region/mod.rs");
+    let region = include_str!("../src/view/draw/region/mod.rs");
     assert!(
         region.contains(".gap(BSpace::GapXs)"),
         "the panel column's gap is the one the strip is matching"
@@ -155,7 +155,7 @@ fn the_clusters_holder_paints_nothing() {
     // The foot cluster's holder is not clickable, so it must not light up
     // under the pointer: it paints nothing, and its controls are the rail's
     // own square tiles.
-    let rail = include_str!("../src/v2/view/draw/rail.rs");
+    let rail = include_str!("../src/view/draw/rail.rs");
     let bar = rail.split("fn bar(").nth(1).expect("the foot holder");
     let bar = &bar[..bar.find("\n    }").unwrap_or(bar.len())];
     assert!(!bar.contains("paint"), "the holder takes no paint: {bar}");
@@ -178,7 +178,7 @@ async fn the_tabs_and_the_cluster_are_one_tile(cx: &mut TestAppContext) {
     let arrow = cx.debug_bounds("tab-chevron_right-chevron_right").expect("the expand arrow");
     let span = |b: &gpui::Bounds<gpui::Pixels>| (f32::from(b.origin.x), f32::from(b.origin.x + b.size.width));
     let (sl, sr) = span(&strip);
-    let inset = phiber::v2::theme::style::metric::DEFAULT_SPACING.pad_xs;
+    let inset = phiber::theme::style::metric::DEFAULT_SPACING.pad_xs;
     // A tab and the expand arrow are the same tile, the same pad in from both
     // edges of the strip.
     for (name, b) in [("tab", tab), ("arrow", arrow)] {

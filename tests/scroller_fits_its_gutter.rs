@@ -12,8 +12,8 @@
 //! changes its colour instead. These pin the geometry that makes that true;
 //! `view/draw/scroller.rs` is the only caller.
 
-use phiber::v2::theme::style::metric::DEFAULT_SPACING;
-use phiber::v2::view::scroll;
+use phiber::theme::style::metric::DEFAULT_SPACING;
+use phiber::view::scroll;
 
 #[test]
 fn the_thumb_is_two_pixels_under_the_inset_bar() {
@@ -45,7 +45,7 @@ fn the_thumb_never_swells_under_the_pointer() {
     // One width, whatever the pointer is doing: the paint code reads
     // `THUMB_WIDTH` once and branches only on colour and alpha. A `near`
     // branch that picked a width is what this is here to stop coming back.
-    let source = include_str!("../src/v2/view/draw/scroller.rs");
+    let source = include_str!("../src/view/draw/scroller.rs");
     let width_line = source
         .lines()
         .find(|line| line.trim_start().starts_with("let width ="))

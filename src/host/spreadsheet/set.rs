@@ -1,0 +1,47 @@
+//! Spreadsheet regions, panes and parts — the content of the host.
+//!
+//! Spreadsheet host. Blender ref: `space_spreadsheet/space_spreadsheet.cc:795-`.
+//! Regions: WINDOW, HEADER, FOOTER, UI, TOOLS — the last being the
+//! dataset region, one row per geometry domain.
+
+use crate::host::header;
+use crate::pane::{BPaneSpec, BPaneType};
+use crate::part::BPartType;
+use crate::region::{BRegionSpec, BRegionType};
+
+static CENTER_PANES: &[BPaneSpec] = &[
+    // Blender's dataset region, not a toolbar: the Spreadsheet has no tools
+    // (`space_spreadsheet.cc`, `spreadsheet_dataset_draw.cc`). It held the
+    // generic Toolbar until the domains it lists had anything behind them.
+    BPaneSpec {
+        kind: BPaneType::Left,
+        parts: &[BPartType::Dataset],
+    },
+    BPaneSpec {
+        kind: BPaneType::Center,
+        parts: &[BPartType::Custom],
+    },
+    BPaneSpec {
+        kind: BPaneType::Right,
+        parts: &[BPartType::Sidebar],
+    },
+];
+static FOOTER_PANES: &[BPaneSpec] = &[BPaneSpec {
+    kind: BPaneType::Center,
+    parts: &[BPartType::Statusbar],
+}];
+
+pub static REGIONS: &[BRegionSpec] = &[
+    BRegionSpec {
+        kind: BRegionType::Header,
+        panes: header::EDITOR,
+    },
+    BRegionSpec {
+        kind: BRegionType::Center,
+        panes: CENTER_PANES,
+    },
+    BRegionSpec {
+        kind: BRegionType::Footer,
+        panes: FOOTER_PANES,
+    },
+];

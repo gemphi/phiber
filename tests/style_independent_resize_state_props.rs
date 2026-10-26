@@ -1,8 +1,8 @@
 //! Feature: phiber-resolved-ui-style-settings, Property 12
 //! **Validates: Requirements 7.8, 11.4**
 
-use phiber::v2::state::key::ui_style as style_key;
-use phiber::v2::{
+use phiber::state::key::ui_style as style_key;
+use phiber::{
     area::{
         area_fraction, area_size_key, boundary_pair, normalize,
         size::apply_drag_with_min_extent,

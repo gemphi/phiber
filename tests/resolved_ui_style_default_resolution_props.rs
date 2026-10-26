@@ -3,7 +3,7 @@
 //! Feature: phiber-resolved-ui-style-settings, Property 1
 //! **Validates: Requirements 1.7, 2.2, 2.7, 12.1, 13.1**
 
-use phiber::v2::{
+use phiber::{
     state::BState,
     theme::{
         BPaletteName, BRadiusScale, BResolvedUiStyle, BShadowStyle, BUiStyleDefaults,

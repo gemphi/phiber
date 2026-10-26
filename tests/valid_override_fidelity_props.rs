@@ -1,7 +1,7 @@
 //! Feature: phiber-resolved-ui-style-settings, Property 2
 //! Validates: Requirements 2.3, 13.2.
 
-use phiber::v2::{
+use phiber::{
     state::BState,
     theme::{
         BFontFamily, BPaletteName, BShadowStyle, BStyleParser, BStyleValue, UI_STYLE_DESCRIPTORS,
@@ -77,8 +77,9 @@ fn arb_valid_override() -> impl Strategy<Value = ValidOverride> {
                     })
                     .boxed()
             }
+            BStyleParser::Weight => number_strategy(index, 100.0, 900.0),
             BStyleParser::Font => {
-                proptest::sample::select(BFontFamily::ALL.to_vec())
+                proptest::sample::select(BFontFamily::all())
                     .prop_map(move |family| {
                         let value = BStyleValue::Font(family);
                         ValidOverride {

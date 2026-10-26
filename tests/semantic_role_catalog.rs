@@ -3,7 +3,7 @@
 //! Feature: phiber-resolved-ui-style-settings, Property 7
 //! Validates: Requirements 4.2, 4.6, 4.7, 13.4.
 
-use phiber::v2::theme::{
+use phiber::theme::{
     BPaletteName, BRadiusScale, BRadiusToken, BResolvedUiStyle, BStyleRole, ui_style_defaults,
 };
 use proptest::prelude::*;

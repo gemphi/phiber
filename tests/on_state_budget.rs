@@ -23,8 +23,8 @@
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
-fn v2() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2")
+fn src_dir() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src")
 }
 
 fn sources(dir: &Path, out: &mut Vec<PathBuf>) {
@@ -87,13 +87,13 @@ const KNOWN_QUIET: &[&str] = &[
 #[test]
 fn a_control_that_ticks_also_lights() {
     let mut files = Vec::new();
-    sources(&v2(), &mut files);
+    sources(&src_dir(), &mut files);
     assert!(files.len() > 100, "the view tree was found: {}", files.len());
 
     let mut quiet: BTreeSet<String> = BTreeSet::new();
     let mut rows: Vec<String> = Vec::new();
     for file in &files {
-        let rel = file.strip_prefix(v2()).unwrap().to_string_lossy().replace('\\', "/");
+        let rel = file.strip_prefix(src_dir()).unwrap().to_string_lossy().replace('\\', "/");
         let Ok(text) = std::fs::read_to_string(file) else { continue };
         for (line, chain) in control_chains(&text) {
             // Only chains that CHOOSE a glyph by state. A fixed one is not a
@@ -133,15 +133,15 @@ fn a_control_that_ticks_also_lights() {
 /// the ones every other site inherits from, so they are the ones that matter.
 #[test]
 fn the_shared_builders_say_both() {
-    let pick = include_str!("../src/v2/view/prim/menu.rs");
+    let pick = include_str!("../src/view/prim/menu.rs");
     assert!(
         pick.contains("with_active(ticked)"),
         "`BPick::item` is THE picker row; it had picked the glyph alone, so every picker built on it was quieter than the same dropdown built through `BCtrlKind::Select`"
     );
-    let ctrl = include_str!("../src/v2/view/draw/ctrl/mod.rs");
+    let ctrl = include_str!("../src/view/draw/ctrl/mod.rs");
     // The checkbox is a glyph, not a tile: it lights by taking the accent.
     assert!(ctrl.contains("if on { (on_icon, ctx.style.colors.accent) }"), "`flag` — the checkbox — lights");
-    let tree = include_str!("../src/v2/part/menubar/tree/mod.rs");
+    let tree = include_str!("../src/part/menubar/tree/mod.rs");
     assert!(tree.contains(".with_active(on)"), "a checkable menu row lights");
 }
 
@@ -149,10 +149,10 @@ fn the_shared_builders_say_both() {
 #[test]
 fn every_popover_anchor_shows_that_it_is_open() {
     let mut files = Vec::new();
-    sources(&v2(), &mut files);
+    sources(&src_dir(), &mut files);
     let mut idle: Vec<String> = Vec::new();
     for file in &files {
-        let rel = file.strip_prefix(v2()).unwrap().to_string_lossy().replace('\\', "/");
+        let rel = file.strip_prefix(src_dir()).unwrap().to_string_lossy().replace('\\', "/");
         let Ok(text) = std::fs::read_to_string(file) else { continue };
         if !text.contains("BView::popover(") {
             continue;
@@ -182,7 +182,7 @@ fn every_popover_anchor_shows_that_it_is_open() {
 /// fixed. Without this, none of the above is visible to any view test.
 #[test]
 fn the_snapshot_prints_whether_a_button_or_a_row_is_on() {
-    let text = include_str!("../src/v2/view/text.rs");
+    let text = include_str!("../src/view/text.rs");
     for kind in ["BView::Button(ctl)", "BView::MenuItem(ctl)"] {
         let arm = text.split(kind).nth(1).unwrap_or("").split('\n').next().unwrap_or("");
         assert!(

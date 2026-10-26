@@ -6,10 +6,10 @@
 
 use phiber::phiphx::phx::Phx;
 use phiber::phiphx::scene::{SceneMesh, SceneModel};
-use phiber::v2::scene::pose::BPoser;
-use phiber::v2::scene::source::{clear_loaded_scene, scene_objects, set_loaded_at};
-use phiber::v2::scene::{BObject3D, current_scene};
-use phiber::v2::state::{BState, CtxKey};
+use phiber::scene::pose::BPoser;
+use phiber::scene::source::{clear_loaded_scene, scene_objects, set_loaded_at};
+use phiber::scene::{BObject3D, current_scene};
+use phiber::state::{BState, CtxKey};
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::{Duration, Instant};

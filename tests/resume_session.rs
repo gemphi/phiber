@@ -1,14 +1,14 @@
 //! Resuming the last session: the layout is restored and the last file is
 //! armed for reopen with Load UI off, so the file's own saved layout does not
 //! overwrite the restored one. The persistence itself (durable vs transient,
-//! the snapshot round-trip) is unit-tested in `v2::app::session`; this checks
+//! the snapshot round-trip) is unit-tested in `app::session`; this checks
 //! the whole-app resume decision through `apply_session`.
 
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::state::{CtxKey, FileKey};
+use phiber::app::BPhiberApp;
+use phiber::state::{CtxKey, FileKey};
 
 fn snapshot(pairs: &[(&str, &str)]) -> String {
     let map: BTreeMap<String, String> =
@@ -32,7 +32,7 @@ fn resuming_restores_the_workspace_and_arms_the_reopen_with_load_ui_off() {
     assert_eq!(app.state.get(CtxKey::Space), Some("Shading"), "the workspace is restored");
     assert_eq!(app.state.get(FileKey::LoadUi), Some("false"), "the reopen is Load UI off");
     // The file is armed for a fresh read, not claimed already-loaded.
-    assert_eq!(app.state.get(&phiber::v2::scene::loaded_path_key()), None);
+    assert_eq!(app.state.get(&phiber::scene::loaded_path_key()), None);
 }
 
 #[test]

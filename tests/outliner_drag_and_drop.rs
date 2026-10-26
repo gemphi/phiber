@@ -7,10 +7,10 @@
 use gpui::{Modifiers, MouseButton, TestAppContext, px, size};
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::part::outliner::tree::{BRowKind, flatten};
-use phiber::v2::state::{BKey as _, ModalKey, OpKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::part::outliner::tree::{BRowKind, flatten};
+use phiber::state::{BKey as _, ModalKey, OpKey};
+use phiber::view::BAction;
 use std::path::PathBuf;
 
 fn drag(cx: &mut gpui::VisualTestContext, from: &str, onto: &str) {
@@ -36,7 +36,7 @@ async fn dragging_rows_moves_and_parents_objects_and_the_save_keeps_it(cx: &mut 
     cx.simulate_resize(size(px(1400.0), px(900.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::v2::scene::loaded_path_key(), path.clone());
+        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
         app.scene_cache = Some((path.clone(), std::sync::Arc::new(model)));
         cx.notify();
     });
@@ -51,7 +51,7 @@ async fn dragging_rows_moves_and_parents_objects_and_the_save_keeps_it(cx: &mut 
     // The Camera onto the Cube: parented, one level under it once it opens.
     drag(cx, "ob:Camera", "ob:Cube");
     app.update(cx, |app, cx| {
-        app.state.set(phiber::v2::state::OutlinerKey::Expanded("Cube"), "true");
+        app.state.set(phiber::state::OutlinerKey::Expanded("Cube"), "true");
         cx.notify();
     });
     cx.run_until_parked();
@@ -62,7 +62,7 @@ async fn dragging_rows_moves_and_parents_objects_and_the_save_keeps_it(cx: &mut 
     // The Cube onto its own child: a loop, refused.
     app.update(cx, |app, cx| app.handle_action(&BAction::Set(OpKey::OutlinerDrop.path(), "ob:Cube>ob:Camera".into()), cx));
     cx.run_until_parked();
-    let parented = app.read_with(cx, |a, _| phiber::v2::scene::links::BSceneLinks::now(&a.state).parented);
+    let parented = app.read_with(cx, |a, _| phiber::scene::links::BSceneLinks::now(&a.state).parented);
     assert_eq!(parented, [("Camera".to_string(), "Cube".to_string())]);
 
     // Ctrl S: the file has both.

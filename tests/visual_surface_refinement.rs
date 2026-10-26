@@ -2,7 +2,7 @@
 //!
 //! Validates: Requirements 3.4, 3.5, 7.3, 7.5-7.8, 10.1, 11.4
 
-use phiber::v2::{
+use phiber::{
     host::BHostType,
     state::BState,
     theme::{BPaletteName, BSurfaceTone, resolve_ui_style, ui_style_defaults},
@@ -11,7 +11,7 @@ use std::{fs, path::PathBuf};
 
 fn renderer(relative: &str) -> String {
     let path = module_file(PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("src/v2/view/draw")
+        .join("src/view/draw")
         .join(relative));
     fs::read_to_string(&path).unwrap_or_else(|error| panic!("{}: {error}", path.display()))
 }
@@ -274,7 +274,7 @@ fn the_activity_bar_takes_the_toolbars_treatment() {
     assert!(tab.contains("pub fn rail(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {"));
     assert!(tab.contains("cap_view(ctl, BCapSide::Free, &ctx.floating())"));
     let semantic = std::fs::read_to_string(
-        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2/theme/semantic/set.rs"),
+        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/theme/semantic/set.rs"),
     )
     .expect("semantic style");
     // Both rest on the control shade; only what happens under the pointer

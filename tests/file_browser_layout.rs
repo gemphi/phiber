@@ -5,15 +5,15 @@
 //! column beside the file list, and the content gap under the strips — the
 //! same rules a workspace lays the editor out by, not a second set.
 
-use phiber::v2::state::{BKey as _, CtxKey, ModalKey};
-use phiber::v2::state::FileKey;
+use phiber::state::{BKey as _, CtxKey, ModalKey};
+use phiber::state::FileKey;
 use gpui::{Pixels as px_t, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::state::{
+use phiber::app::BPhiberApp;
+use phiber::state::{
     BState,
     val::{V_MODAL_FILE_BROWSER, V_TRUE},
 };
-use phiber::v2::theme::METRICS;
+use phiber::theme::METRICS;
 
 async fn dialog(cx: &mut TestAppContext, filter_open: bool) -> &mut gpui::VisualTestContext {
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
@@ -42,7 +42,7 @@ fn bottom(b: gpui::Bounds<px_t>) -> f32 {
     f32::from(b.origin.y) + f32::from(b.size.height)
 }
 /// The rule a content header closes with, drawn below its band.
-const RULE: f32 = phiber::v2::theme::style::metric::DEFAULT_STROKES.border;
+const RULE: f32 = phiber::theme::style::metric::DEFAULT_STROKES.border;
 
 /// A strip's one centre line: the centre of its cap band — the strip less
 /// the rule under it and the menu gap above it. Every control sits on it.
@@ -79,7 +79,7 @@ async fn the_strips_are_one_height_and_the_content_sits_a_gutter_below(cx: &mut 
     let sources = bounds(cx, "panel-sidebar-column");
     // A browser's columns stand a seam from everything round them, the gap
     // between the columns themselves (`region::pad`).
-    let seam = phiber::v2::theme::ui_style_defaults(phiber::v2::theme::BPaletteName::DEFAULT).resize.gap;
+    let seam = phiber::theme::ui_style_defaults(phiber::theme::BPaletteName::DEFAULT).resize.gap;
     assert_eq!(top(files) - bottom(path), seam, "the file list sits a seam under the strips");
     assert_eq!(top(sources), top(files), "the source list and the file list start on one line");
     assert_eq!(bottom(sources), bottom(files), "and end on one line");
@@ -113,7 +113,7 @@ async fn the_fields_and_buttons_sit_on_the_strips_centre_line(cx: &mut TestAppCo
     // less its inset, so its fill clears the strip's edges. (The editor
     // switcher beside it is a menu cap, which meets the strip's bottom edge
     // for its dropdown to open out of, as a tab does.)
-    let tile = phiber::v2::theme::style::metric::DEFAULT_DIMENSIONS.tile_size();
+    let tile = phiber::theme::style::metric::DEFAULT_DIMENSIONS.tile_size();
     assert_eq!(f32::from(radio.size.height), tile, "the display-mode toggles are tiles");
     // The strip reads as the columns under it: the folder tools (refresh,
     // then New Folder, as Blender's) end where the source list does, and the
@@ -127,7 +127,7 @@ async fn the_fields_and_buttons_sit_on_the_strips_centre_line(cx: &mut TestAppCo
     let source = bounds(cx, "panel-sidebar-column");
     assert_eq!(pane.origin.x, tools.origin.x, "the strip's left pane is the tools region");
     assert_eq!(pane.size.width, tools.size.width);
-    let seam = phiber::v2::theme::ui_style_defaults(phiber::v2::theme::BPaletteName::DEFAULT).resize.gap;
+    let seam = phiber::theme::ui_style_defaults(phiber::theme::BPaletteName::DEFAULT).resize.gap;
     assert!((f32::from(pane.origin.x) + seam - f32::from(source.origin.x)).abs() < 0.51, "the folder moves start where the source list does");
     assert!((f32::from(new_folder.origin.x) + f32::from(new_folder.size.width) - (f32::from(source.origin.x) + f32::from(source.size.width))).abs() < 0.51, "the folder tools end where the source list does");
     assert!((f32::from(directory.origin.x) - f32::from(list.origin.x)).abs() < 0.51, "the directory field starts where the file list does");
@@ -194,11 +194,11 @@ fn geometry(cx: &mut gpui::VisualTestContext) -> [f32; 5] {
 async fn the_columns_are_one_gutter_apart_and_a_workspace_area_matches_the_dialog(cx: &mut TestAppContext) {
     let dialog_cx = dialog(cx, false).await;
     let in_dialog = geometry(dialog_cx);
-    let edge = phiber::v2::theme::ui_style_defaults(phiber::v2::theme::BPaletteName::DEFAULT).resize.gap;
+    let edge = phiber::theme::ui_style_defaults(phiber::theme::BPaletteName::DEFAULT).resize.gap;
     assert_eq!(in_dialog[0], edge, "the source cards sit a seam in from the host");
     // The two columns are a seam apart — the gap between two areas of a
     // workspace — not a content pad, which spaced them twice as far.
-    let seam = phiber::v2::theme::ui_style_defaults(phiber::v2::theme::BPaletteName::DEFAULT).resize.gap;
+    let seam = phiber::theme::ui_style_defaults(phiber::theme::BPaletteName::DEFAULT).resize.gap;
     let source = bounds(dialog_cx, "panel-sidebar-column");
     let files = bounds(dialog_cx, "panel-body-surface");
     let apart = f32::from(files.origin.x) - (f32::from(source.origin.x) + f32::from(source.size.width));
@@ -215,7 +215,7 @@ async fn the_columns_are_one_gutter_apart_and_a_workspace_area_matches_the_dialo
     app.update(cx, |app, cx| {
         app.state = BState::new();
         app.state.set(CtxKey::Space, "layout");
-        app.state.set(&phiber::v2::state::AreaKey::Host("Layout", "Center", "view3d").path(), "file");
+        app.state.set(&phiber::state::AreaKey::Host("Layout", "Center", "view3d").path(), "file");
         cx.notify();
     });
     cx.run_until_parked();
@@ -238,11 +238,11 @@ async fn the_columns_are_one_gutter_apart_and_a_workspace_area_matches_the_dialo
 /// quietly out of the first.
 #[test]
 fn the_dialog_and_the_area_are_the_same_browser() {
-    use phiber::v2::host::{BHostItem, BHostType};
-    use phiber::v2::modal::file_browser::BFileBrowserModal;
-    use phiber::v2::view::layout::BRenderer;
-    use phiber::v2::view::text::BAsciiRenderer;
-    use phiber::v2::view::{BView, BViewItem};
+    use phiber::host::{BHostItem, BHostType};
+    use phiber::modal::file_browser::BFileBrowserModal;
+    use phiber::view::layout::BRenderer;
+    use phiber::view::text::BAsciiRenderer;
+    use phiber::view::{BView, BViewItem};
 
     let mut s = BState::new();
     s.set(CtxKey::Space, "layout");

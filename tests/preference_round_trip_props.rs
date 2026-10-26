@@ -1,7 +1,7 @@
 //! Feature: phiber-resolved-ui-style-settings, Property 10
 //! Validates: Requirements 9.3, 9.4, 9.5.
 
-use phiber::v2::{
+use phiber::{
     part::props::pref::{BPreferenceControls, BPreferenceEditor, BPreferenceRow, SECTIONS},
     state::{BState, action::apply_action},
     theme::{
@@ -42,6 +42,8 @@ fn generated_value(
             BShadowStyle::None
         }),
         BStyleParser::Font => BStyleValue::Font(if extra_large_shadow { BFontFamily::Menlo } else { BFontFamily::System }),
+        // A weight round-trips as one of the choices Preferences offers.
+        BStyleParser::Weight => BStyleValue::Number(if extra_large_shadow { 700.0 } else { 300.0 }),
     }
 }
 

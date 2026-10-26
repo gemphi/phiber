@@ -3,7 +3,7 @@
 
 Phiber's own manual, mirroring [Blender's manual](./blender-manual/manual/index.rst)
 section-for-section, keyed to the v2 store/state/view code tree at
-`crates/phiber/src/v2/`.
+`crates/phiber/src/`.
 
 Every table maps a Blender concept to the exact file path in the codebase.
 When a section says "sourced from X", `X` is the Blender source of truth
@@ -377,7 +377,7 @@ Honest gap analysis:
       placeholder rows.
 - [x] **`pub mod v2;`** is wired in `src/lib.rs`; `cargo check -p phiber --tests` is clean.
 - [x] **Bootstrap**: `main.rs → app::run()` opens the window with
-      `v2::app::BPhiberApp` as the root view.
+      `app::BPhiberApp` as the root view.
 
 `cargo run -p phiber` opens the Layout workspace with the welcome window.
 What remains for Blender parity is tracked in

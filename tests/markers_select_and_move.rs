@@ -4,10 +4,10 @@
 //! still scrubs (`ed_marker_select`, `marker.move`, `anim.change_frame`).
 
 use gpui::{Modifiers, MouseButton, Point, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::marker::BMarkerList;
-use phiber::v2::state::CtxKey;
-use phiber::v2::view::draw::canvas::time::marker::BAND_HEIGHT;
+use phiber::app::BPhiberApp;
+use phiber::scene::marker::BMarkerList;
+use phiber::state::CtxKey;
+use phiber::view::draw::canvas::time::marker::BAND_HEIGHT;
 
 fn pt(x: f32, y: f32) -> Point<gpui::Pixels> {
     Point::new(px(x), px(y))
@@ -18,7 +18,7 @@ async fn a_press_on_a_marker_selects_it_and_a_drag_moves_it(cx: &mut TestAppCont
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1400.0), px(800.0)));
     app.update(cx, |app, cx| {
-        app.state.remove(phiber::v2::state::ModalKey::Open);
+        app.state.remove(phiber::state::ModalKey::Open);
         app.state.set(CtxKey::Markers, "60=Cut|120=End");
         cx.notify();
     });
@@ -59,7 +59,7 @@ async fn a_press_on_a_marker_selects_it_and_a_drag_moves_it(cx: &mut TestAppCont
     cx.run_until_parked();
     let list = app.read_with(cx, |a, _| BMarkerList::now(&a.state).list);
     let cut = list.iter().find(|(_, n)| n == "Cut").map(|(f, _)| *f).expect("Cut is still there");
-    let log: Vec<String> = phiber::v2::state::log::entries().iter().map(|e| e.text.clone()).collect();
+    let log: Vec<String> = phiber::state::log::entries().iter().map(|e| e.text.clone()).collect();
     assert!((cut - 90).abs() <= 1, "dragged to about 90: {list:?}; log {log:?}");
     assert_eq!(app.read_with(cx, |a, _| BMarkerList::selected(&a.state)), [cut], "and stays selected");
 

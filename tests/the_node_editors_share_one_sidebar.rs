@@ -11,12 +11,12 @@
 //! each of which is a per-node-type `draw_buttons_ext` rather than a table;
 //! they stay named in `an_open_sidebar_paints_its_panels`.
 
-use phiber::v2::host::BHostType;
-use phiber::v2::part::sidebar::node;
-use phiber::v2::part::sidebar::panel::BSidebarPanels;
-use phiber::v2::part::sidebar::set::{BSidebarBody, tabs_for};
-use phiber::v2::state::{BPath, BState};
-use phiber::v2::view::BView;
+use phiber::host::BHostType;
+use phiber::part::sidebar::node;
+use phiber::part::sidebar::panel::BSidebarPanels;
+use phiber::part::sidebar::set::{BSidebarBody, tabs_for};
+use phiber::state::{BPath, BState};
+use phiber::view::BView;
 
 const EDITORS: [BHostType; 4] =
     [BHostType::Shader, BHostType::Node, BHostType::GeoNode, BHostType::Compositor];

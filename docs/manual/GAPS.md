@@ -1,6 +1,6 @@
 # Gap list
 
-Generated from `v2::manual::set`. 0 of 99 pages done; 85 still stubs.
+Generated from `manual::set`. 0 of 99 pages done; 85 still stubs.
 
 ## Getting Started — 0 of 4 written
 

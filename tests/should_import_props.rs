@@ -6,8 +6,8 @@
 //! `should_import(prev, selected)` is `true` iff `selected` ends in `.blend`
 //! (case-insensitive) AND differs as a raw string from `prev`.
 
-use phiber::v2::app::import::should_import;
-use phiber::v2::scene::is_blend_path;
+use phiber::app::import::should_import;
+use phiber::scene::is_blend_path;
 use proptest::prelude::*;
 
 /// Strategy: an arbitrary ASCII string, possibly empty.

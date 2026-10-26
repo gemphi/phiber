@@ -14,11 +14,11 @@
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
-fn v2() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2")
+fn src_dir() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src")
 }
 
-/// Every `.rs` under `src/v2`, relative to it.
+/// Every `.rs` under `src`, relative to it.
 fn source_list() -> Vec<PathBuf> {
     fn walk(dir: &Path, root: &Path, out: &mut Vec<PathBuf>) {
         let Ok(entry_list) = std::fs::read_dir(dir) else { return };
@@ -31,7 +31,7 @@ fn source_list() -> Vec<PathBuf> {
             }
         }
     }
-    let root = v2();
+    let root = src_dir();
     let mut out = Vec::new();
     walk(&root, &root, &mut out);
     out.sort();
@@ -78,14 +78,16 @@ fn declared_in(text: &str) -> (BTreeSet<String>, BTreeSet<String>) {
 /// by name, or by an explicit `#[path]`.
 #[test]
 fn no_source_file_is_unwired() {
-    let root = v2();
+    let root = src_dir();
     let mut unwired = Vec::new();
     for file in source_list() {
         let name = file.file_stem().unwrap().to_string_lossy().to_string();
         let file_name = file.file_name().unwrap().to_string_lossy().to_string();
-        // `v2/mod.rs` is the crate's own entry; a folder's `mod.rs` is
-        // declared by its PARENT, which the folder case below covers.
-        if file_name == "mod.rs" {
+        // `lib.rs` and `main.rs` at the top are the crate's own entries; a
+        // folder's `mod.rs` is declared by its PARENT, which the folder case
+        // below covers.
+        let at_top = file.parent().is_some_and(|p| p.as_os_str().is_empty());
+        if file_name == "mod.rs" || (at_top && (file_name == "lib.rs" || file_name == "main.rs")) {
             continue;
         }
         let dir = root.join(file.parent().unwrap());
@@ -115,7 +117,7 @@ fn no_source_file_is_unwired() {
 /// is an entire subtree the build does not see.
 #[test]
 fn no_folder_is_unwired() {
-    let root = v2();
+    let root = src_dir();
     let mut unwired = Vec::new();
     fn walk(dir: &Path, root: &Path, out: &mut Vec<String>) {
         let Ok(entry_list) = std::fs::read_dir(dir) else { return };
@@ -126,7 +128,8 @@ fn no_folder_is_unwired() {
             }
             if path.join("mod.rs").exists() {
                 let name = path.file_name().unwrap().to_string_lossy().to_string();
-                let owner = dir.join("mod.rs");
+                // The top-level folders are declared by the crate root.
+                let owner = if dir == root { dir.join("lib.rs") } else { dir.join("mod.rs") };
                 let declared = std::fs::read_to_string(&owner)
                     .map(|text| declared_in(&text).0.contains(&name))
                     .unwrap_or(false);

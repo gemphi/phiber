@@ -12,13 +12,13 @@
 use gpui::{Modifiers, TestAppContext, px, size};
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::{SceneAction, SceneModel};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::action::BSceneActions;
-use phiber::v2::scene::transform::{BTransform, BTransforms};
-use phiber::v2::scene::{BObject3D, scene_objects};
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BKey as _, CtxKey, ModalKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::scene::action::BSceneActions;
+use phiber::scene::transform::{BTransform, BTransforms};
+use phiber::scene::{BObject3D, scene_objects};
+use phiber::space::BSpaceType;
+use phiber::state::{BKey as _, CtxKey, ModalKey};
+use phiber::view::BAction;
 use std::path::PathBuf;
 
 type Cx<'a> = &'a mut gpui::VisualTestContext;
@@ -47,7 +47,7 @@ fn press_i(cx: Cx, over: &'static str) {
 /// The Cube's action as the editors read it.
 fn cube_action(cx: Cx) -> SceneAction {
     cx.run_until_parked();
-    phiber::v2::scene::source::with_loaded(|m| m.and_then(|m| m.actions.iter().find(|a| a.name == "CubeAction").cloned())).expect("CubeAction")
+    phiber::scene::source::with_loaded(|m| m.and_then(|m| m.actions.iter().find(|a| a.name == "CubeAction").cloned())).expect("CubeAction")
 }
 
 fn cube_x(app: &gpui::Entity<BPhiberApp>, cx: Cx) -> f32 {
@@ -71,7 +71,7 @@ async fn i_keys_the_cube_where_it_stands_and_its_animation_then_drives_it(cx: &m
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
         app.state.set(CtxKey::Space, BSpaceType::Animation.slug());
-        app.state.set(&phiber::v2::scene::loaded_path_key(), path.clone());
+        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
         app.scene_cache = Some((path.clone(), std::sync::Arc::new(model)));
         cx.notify();
     });
@@ -84,10 +84,10 @@ async fn i_keys_the_cube_where_it_stands_and_its_animation_then_drives_it(cx: &m
     let e = edits(&app, cx);
     assert_eq!(e.made, [("CubeAction".to_string(), String::new())], "id_action_ensure: <Object>Action");
     assert_eq!((e.assigned[0].action.as_str(), e.assigned[0].slot.as_str()), ("CubeAction", "OBCube"));
-    let phiber::v2::scene::action::retime::BKeyStep::Insert(first) = &e.keyed[0] else { panic!("an insert") };
+    let phiber::scene::action::retime::BKeyStep::Insert(first) = &e.keyed[0] else { panic!("an insert") };
     let channels: Vec<String> = first.channels.iter().map(|c| format!("{}[{}]={}", c.path, c.index, c.value)).collect();
     assert_eq!(channels, ["location[0]=0", "location[1]=0", "location[2]=0", "rotation_euler[0]=0", "rotation_euler[1]=0", "rotation_euler[2]=0", "scale[0]=1", "scale[1]=1", "scale[2]=1"]);
-    let said = phiber::v2::state::log::latest().map(|e| e.text).unwrap_or_default();
+    let said = phiber::state::log::latest().map(|e| e.text).unwrap_or_default();
     assert_eq!(said, "Keyed Cube at frame 1");
     let action = cube_action(cx);
     assert_eq!((action.users.as_slice(), action.curves.len(), action.keys.as_slice()), (&["Cube".to_string()][..], 9, &[1.0][..]));

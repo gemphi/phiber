@@ -2,8 +2,8 @@
 //! as Blender's header regions do, instead of clipping its right end.
 
 use gpui::{Point, ScrollDelta, ScrollWheelEvent, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::state::ModalKey;
+use phiber::app::BPhiberApp;
+use phiber::state::ModalKey;
 
 const MAGNET: &str = "btn-icon-set-ctx.buts.use_snap_playhead-true-magnet";
 

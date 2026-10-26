@@ -18,15 +18,15 @@ const LEVEL: &[&str] = &["space", "zone", "area", "host", "region", "pane", "par
 /// doing more than one job, and the split is nearly always obvious.
 const CAP: usize = 240;
 
-fn v2() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2")
+fn src_dir() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src")
 }
 
 fn lines(path: &Path) -> usize {
     std::fs::read_to_string(path).map(|s| s.lines().count()).unwrap_or(0)
 }
 
-/// Every `.rs` under `src/v2`, relative to it.
+/// Every `.rs` under `src`, relative to it.
 fn source_list() -> Vec<PathBuf> {
     fn walk(dir: &Path, root: &Path, out: &mut Vec<PathBuf>) {
         let Ok(entry_list) = std::fs::read_dir(dir) else { return };
@@ -39,7 +39,7 @@ fn source_list() -> Vec<PathBuf> {
             }
         }
     }
-    let root = v2();
+    let root = src_dir();
     let mut out = Vec::new();
     walk(&root, &root, &mut out);
     out.sort();
@@ -48,7 +48,7 @@ fn source_list() -> Vec<PathBuf> {
 
 #[test]
 fn every_level_is_a_folder_with_a_mod_and_a_set() {
-    let root = v2();
+    let root = src_dir();
     let mut wrong = Vec::new();
     for level in LEVEL {
         let dir = root.join(level);
@@ -72,7 +72,7 @@ fn every_level_is_a_folder_with_a_mod_and_a_set() {
 
 #[test]
 fn a_member_of_a_level_is_a_folder_not_a_loose_file() {
-    let root = v2();
+    let root = src_dir();
     let mut wrong = Vec::new();
     for level in LEVEL {
         let Ok(entry_list) = std::fs::read_dir(root.join(level)) else { continue };
@@ -97,7 +97,7 @@ fn a_member_of_a_level_is_a_folder_not_a_loose_file() {
 /// seventeen places.
 #[test]
 fn no_file_sits_beside_a_folder_of_the_same_name() {
-    let root = v2();
+    let root = src_dir();
     let pair: Vec<String> = source_list()
         .into_iter()
         .filter(|path| {
@@ -113,7 +113,7 @@ fn no_file_sits_beside_a_folder_of_the_same_name() {
 fn no_source_file_outgrows_a_read() {
     let over: Vec<String> = source_list()
         .into_iter()
-        .map(|path| (lines(&v2().join(&path)), path))
+        .map(|path| (lines(&src_dir().join(&path)), path))
         .filter(|(n, _)| *n > CAP)
         .map(|(n, path)| format!("{} ({n})", path.display()))
         .collect();

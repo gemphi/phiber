@@ -9,8 +9,8 @@
 //! have invisible stripes. This test is the guard: it fails the moment that
 //! becomes possible, rather than the moment somebody notices.
 
-use phiber::v2::state::BState;
-use phiber::v2::theme::{
+use phiber::state::BState;
+use phiber::theme::{
     BPaletteName, BSurfaceTone, BThemeMode, resolve_ui_style, ui_style_defaults_in,
 };
 

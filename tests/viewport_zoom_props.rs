@@ -8,7 +8,7 @@
 //! `[min, max]`, and repeated zoom-in stays monotonically increasing
 //! until the ceiling is hit.
 
-use phiber::v2::state::BState;
+use phiber::state::BState;
 use proptest::prelude::*;
 
 const NODE_MIN: f32 = 0.25;

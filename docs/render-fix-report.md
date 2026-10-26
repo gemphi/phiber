@@ -58,13 +58,13 @@ message). A blank Render Result is never the only evidence again.
 ### 2. The engine and sample defaults never reached the app — *fixed*
 
 `BRenderQuality` — "Phiray is the engine, 2048 is the sample floor" — existed
-only inside `v2::cli`. The app's own F12 read neither. Pose 26 therefore
+only inside `cli`. The app's own F12 read neither. Pose 26 therefore
 rendered as **Cycles at 20 samples**, the count the file was saved with for a
 turntable preview.
 
 ![Max Samples reading 20, straight from the file](images/03-max-samples-20.jpg)
 
-`BRenderQuality` now lives in `v2::scene::render_quality` and the command
+`BRenderQuality` now lives in `scene::render_quality` and the command
 line re-exports it, so there is one owner:
 
 - **Engine.** A file naming CYCLES or EEVEE resolves to **Phiray**, which is
@@ -251,16 +251,16 @@ Passing alongside them, unchanged: `render_engine_row`,
 
 | File | Change |
 |---|---|
-| `crates/phiber/src/v2/scene/render_quality.rs` | **new** — the one owner of the engine and sample-floor policy |
-| `crates/phiber/src/v2/scene/mod.rs` | declares it |
-| `crates/phiber/src/v2/scene/render_set.rs` | `engine_at` resolves a file's engine to one Phiber has |
-| `crates/phiber/src/v2/scene/render_engine.rs` | `Phiray` is the default |
-| `crates/phiber/src/v2/app/seed.rs` | the sample floor applied as a file is read |
-| `crates/phiber/src/v2/cli/set.rs` | re-exports the policy instead of a second copy |
+| `crates/phiber/src/scene/render_quality.rs` | **new** — the one owner of the engine and sample-floor policy |
+| `crates/phiber/src/scene/mod.rs` | declares it |
+| `crates/phiber/src/scene/render_set.rs` | `engine_at` resolves a file's engine to one Phiber has |
+| `crates/phiber/src/scene/render_engine.rs` | `Phiray` is the default |
+| `crates/phiber/src/app/seed.rs` | the sample floor applied as a file is read |
+| `crates/phiber/src/cli/set.rs` | re-exports the policy instead of a second copy |
 | `crates/phiray/src/trace/mod.rs` | **`why_not`** — names the limit a declined scene hit |
 | `crates/phiray/src/gpu/mod.rs`, `…/gpu/array.rs`, `…/lib.rs` | **`PatienceFor`** — the readback budget is the caller's, not a fixed 5 s |
 | `…/view3d/rendered/still.rs` | reports the reason instead of returning silently; `still()` now bands through `still_stepwise` |
-| `crates/phiber/src/v2/cli/render.rs` | `frame_path` — Blender's `-o` naming; prints each saved path |
+| `crates/phiber/src/cli/render.rs` | `frame_path` — Blender's `-o` naming; prints each saved path |
 | `…/view3d/rendered/mod.rs` | `scene_fit`, the sizes behind a blank render |
 | `…/canvas/image/set.rs`, `…/image/mod.rs` | the info line clears the floating toolbar |
 | `crates/phiber/tests/render_engine_row.rs`, `…/render_props_come_from_the_file.rs` | the tests above |

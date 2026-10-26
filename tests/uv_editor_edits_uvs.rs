@@ -13,14 +13,14 @@
 use gpui::{Modifiers, MouseButton, MouseDownEvent, MouseUpEvent, TestAppContext, px, size};
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::part::image::uv::BUvShown;
-use phiber::v2::part::modebar::active_mode;
-use phiber::v2::scene::uv_edit::BUvEdit;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BKey as _, CtxKey, ModalKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::part::image::uv::BUvShown;
+use phiber::part::modebar::active_mode;
+use phiber::scene::uv_edit::BUvEdit;
+use phiber::space::BSpaceType;
+use phiber::state::{BKey as _, CtxKey, ModalKey};
+use phiber::view::BAction;
 use std::path::PathBuf;
 
 type Cx<'a> = &'a mut gpui::VisualTestContext;
@@ -58,7 +58,7 @@ fn editing(app: &gpui::Entity<BPhiberApp>, cx: Cx) {
     cx.simulate_resize(size(px(1600.0), px(900.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::v2::scene::loaded_path_key(), key.clone());
+        app.state.set(&phiber::scene::loaded_path_key(), key.clone());
         app.scene_cache = Some((key, std::sync::Arc::new(model)));
         cx.notify();
     });

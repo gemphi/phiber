@@ -7,10 +7,10 @@
 use gpui::{Modifiers, MouseButton, TestAppContext, px, size};
 use phiber::phiphx::blend::{BlendFile, BlendPlayback, BlendSyncMode, TIME_ALL_3D_WIN};
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::part::playback::settings;
-use phiber::v2::state::{BKey as _, CtxKey, ModalKey, val::BValue};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::part::playback::settings;
+use phiber::state::{BKey as _, CtxKey, ModalKey, val::BValue};
+use phiber::view::BAction;
 use std::path::PathBuf;
 
 fn click(cx: &mut gpui::VisualTestContext, selector: &'static str) {
@@ -49,7 +49,7 @@ async fn the_playback_popover_opens_stays_open_for_its_boxes_and_closes_for_a_me
     assert!(cx.debug_bounds("section-Sync").is_some(), "a panel stays open while its boxes are ticked");
     assert!(cx.debug_bounds("switch-ctx.buts.use_audio_scrub").is_some(), "and the box is still there to untick");
     // A menu opening takes the panel down.
-    app.update(cx, |app, cx| app.handle_action(&BAction::Toggle(phiber::v2::state::MenuKey::Top("time", "View").path()), cx));
+    app.update(cx, |app, cx| app.handle_action(&BAction::Toggle(phiber::state::MenuKey::Top("time", "View").path()), cx));
     cx.run_until_parked();
     assert!(cx.debug_bounds("section-Sync").is_none(), "a menu opening closes the panel");
 }
@@ -73,7 +73,7 @@ async fn the_settings_are_read_from_the_file_and_written_back_on_save(cx: &mut T
     cx.simulate_resize(size(px(1280.0), px(800.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::v2::scene::loaded_path_key(), path.clone());
+        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
         settings::seed(&mut app.state, &model.playback);
         app.scene_cache = Some((path.clone(), std::sync::Arc::new(model)));
         cx.notify();

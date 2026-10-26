@@ -5,10 +5,10 @@
 //! its toolbar and its inspector.
 
 use gpui::{Modifiers, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{CtxKey, PlayKey};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::space::BSpaceType;
+use phiber::state::{CtxKey, PlayKey};
 
 fn selectors(cx: &mut gpui::VisualTestContext) -> Vec<String> {
     cx.all_debug_bounds().into_iter().map(|(selector, _)| selector).collect()
@@ -19,9 +19,9 @@ fn show(app: &gpui::Entity<BPhiberApp>, cx: &mut gpui::VisualTestContext, host: 
     let area = space.spec().areas.iter().find(|a| a.default_host == BHostType::Time).copied().expect("the Timeline area");
     assert!(area.hosts.contains(&host), "{host:?} is offered beside the Timeline");
     app.update(cx, |app, cx| {
-        app.state.remove(phiber::v2::state::ModalKey::Open);
+        app.state.remove(phiber::state::ModalKey::Open);
         app.state.set(CtxKey::Space, space.slug());
-        app.state.set(&phiber::v2::area::area_key(space, &area), host.slug());
+        app.state.set(&phiber::area::area_key(space, &area), host.slug());
         cx.notify();
     });
     cx.run_until_parked();

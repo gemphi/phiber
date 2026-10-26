@@ -4,8 +4,8 @@
 //! moves stay the ones read from the file.
 
 use phiber::phiphx::phx::Phx;
-use phiber::v2::scene::{BObject3D, current_scene};
-use phiber::v2::state::{BState, CtxKey};
+use phiber::scene::{BObject3D, current_scene};
+use phiber::state::{BState, CtxKey};
 use std::path::PathBuf;
 
 fn at_frame(frame: &str) -> BState {

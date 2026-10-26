@@ -1,7 +1,7 @@
 //! Focused examples for descriptor-backed B-prefixed preference controls.
 //! Validates: Requirements 9.1-9.5, 10.1-10.3.
 
-use phiber::v2::{
+use phiber::{
     part::props::pref::{BPreferenceControls, BPreferenceEditor, BPreferenceRow, SECTIONS},
     state::{BState, action::apply_action},
     theme::{BPaletteName, BStyleParseError, BStyleParser, ui_style_defaults},

@@ -1,0 +1,41 @@
+//! Asset Browser regions, panes and parts — the content of the host.
+//!
+//! Asset Browser host — Blender's `space_file` in asset mode, so it declares
+//! the file browser's regions: the path strip (`ui`), the library and
+//! catalog tree (`tools`), the asset grid (`window`) and the asset details
+//! sidebar. No execute region: assets are dragged, not opened.
+
+use crate::pane::{BPaneSpec, BPaneType};
+use crate::part::BPartType;
+use crate::region::{BRegionSpec, BRegionType};
+
+static TOOLS_PANES: &[BPaneSpec] = &[BPaneSpec {
+    kind: BPaneType::Center,
+    parts: &[BPartType::SourceList],
+}];
+// The file list alone: its bookmarks and options are the source list's
+// cards, so no N-sidebar tab strip stands beside it (one sat there empty,
+// a strip wide, and doubled the list's right-hand gap).
+static CENTER_PANES: &[BPaneSpec] = &[BPaneSpec {
+    kind: BPaneType::Center,
+    parts: &[BPartType::Custom],
+}];
+
+pub static REGIONS: &[BRegionSpec] = &[
+    BRegionSpec {
+        kind: BRegionType::Header,
+        panes: crate::host::file::set::HEADER_PANES,
+    },
+    BRegionSpec {
+        kind: BRegionType::ToolHeader,
+        panes: crate::host::file::set::PATH_PANES,
+    },
+    BRegionSpec {
+        kind: BRegionType::Tools,
+        panes: TOOLS_PANES,
+    },
+    BRegionSpec {
+        kind: BRegionType::Center,
+        panes: CENTER_PANES,
+    },
+];

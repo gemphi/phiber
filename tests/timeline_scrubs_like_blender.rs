@@ -5,8 +5,8 @@
 //! tree, so a canvas that painted but never took the pointer would fail.
 
 use gpui::{Modifiers, MouseButton, Point, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::state::{BKey as _, CtxKey};
+use phiber::app::BPhiberApp;
+use phiber::state::{BKey as _, CtxKey};
 
 fn pt(x: f32, y: f32) -> Point<gpui::Pixels> {
     Point::new(px(x), px(y))
@@ -18,7 +18,7 @@ async fn pressing_and_dragging_in_the_timeline_window_scrubs_the_frame(cx: &mut 
     cx.simulate_resize(size(px(1400.0), px(800.0)));
     app.update(cx, |app, cx| {
         // Boot opens the splash; the Timeline is under it.
-        app.state.remove(phiber::v2::state::ModalKey::Open);
+        app.state.remove(phiber::state::ModalKey::Open);
         cx.notify();
     });
     cx.run_until_parked();
@@ -53,7 +53,7 @@ async fn the_transport_buttons_are_painted_in_the_header(cx: &mut TestAppContext
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1400.0), px(800.0)));
     app.update(cx, |app, cx| {
-        app.state.remove(phiber::v2::state::ModalKey::Open);
+        app.state.remove(phiber::state::ModalKey::Open);
         cx.notify();
     });
     cx.run_until_parked();

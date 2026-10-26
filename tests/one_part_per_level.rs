@@ -14,7 +14,7 @@
 use std::path::{Path, PathBuf};
 
 fn draw_root() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("src/v2/view/draw")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("src/view/draw")
 }
 
 fn rust_files(dir: &Path, out: &mut Vec<PathBuf>) {

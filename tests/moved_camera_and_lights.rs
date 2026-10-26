@@ -8,13 +8,13 @@
 use gpui::{TestAppContext, px, size};
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::motion::{active_camera_at, scoped_frame};
-use phiber::v2::scene::source::with_loaded;
-use phiber::v2::scene::transform::{BTransform, BTransforms};
-use phiber::v2::scene::{scene_cameras, scene_lights};
-use phiber::v2::state::{BKey as _, ModalKey, SceneKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::scene::motion::{active_camera_at, scoped_frame};
+use phiber::scene::source::with_loaded;
+use phiber::scene::transform::{BTransform, BTransforms};
+use phiber::scene::{scene_cameras, scene_lights};
+use phiber::state::{BKey as _, ModalKey, SceneKey};
+use phiber::view::BAction;
 use std::path::PathBuf;
 
 fn close(a: [f32; 3], b: [f32; 3]) -> bool {
@@ -32,7 +32,7 @@ async fn the_camera_view_the_lamps_and_f12_follow_the_edits(cx: &mut TestAppCont
     cx.simulate_resize(size(px(1280.0), px(800.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::v2::scene::loaded_path_key(), key.clone());
+        app.state.set(&phiber::scene::loaded_path_key(), key.clone());
         app.scene_cache = Some((key, std::sync::Arc::new(model)));
         cx.notify();
     });
@@ -61,8 +61,8 @@ async fn the_camera_view_the_lamps_and_f12_follow_the_edits(cx: &mut TestAppCont
     // F12's camera: the eye (`pivot + back · dist`) is the moved camera.
     let render = with_loaded(|m| {
         let m = m.unwrap();
-        let (w, h) = phiber::v2::scene::render_size(m);
-        phiber::v2::scene::camera_of(&active_camera_at(m, scoped_frame()).unwrap(), w, h)
+        let (w, h) = phiber::scene::render_size(m);
+        phiber::scene::camera_of(&active_camera_at(m, scoped_frame()).unwrap(), w, h)
     });
     let eye: [f32; 3] = std::array::from_fn(|k| render.pivot[k] + render.back[k] * render.dist);
     assert!(close(eye, [0.0, -10.0, 1.0]), "the render's eye: {eye:?}");

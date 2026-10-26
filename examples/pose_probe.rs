@@ -2,11 +2,11 @@
 //! set resolves to, and what a render produces.
 //!   cargo run -p phiber --example pose_probe -- FILE [OUT.png]
 use phiber::phiphx::Phx;
-use phiber::v2::app::seed::{seed_output_props, seed_render_props, seed_view_layer};
-use phiber::v2::part::outliner::key::BHidden;
-use phiber::v2::scene::{current_scene, render_plan, render_set, source::set_loaded_scene};
-use phiber::v2::state::BState;
-use phiber::v2::view::draw::canvas::view3d::rendered::{BRayLook, environment, still, view_words};
+use phiber::app::seed::{seed_output_props, seed_render_props, seed_view_layer};
+use phiber::part::outliner::key::BHidden;
+use phiber::scene::{current_scene, render_plan, render_set, source::set_loaded_scene};
+use phiber::state::BState;
+use phiber::view::draw::canvas::view3d::rendered::{BRayLook, environment, still, view_words};
 
 fn main() {
     let mut args = std::env::args().skip(1);
@@ -53,7 +53,7 @@ fn main() {
     let hidden = BHidden::now(&s);
     let objects: Vec<_> = current_scene(&s, Some(&model))
         .into_iter()
-        .filter(|o| !matches!(o, phiber::v2::scene::BObject3D::Loaded { name, .. } if hidden.hides(&s, name)))
+        .filter(|o| !matches!(o, phiber::scene::BObject3D::Loaded { name, .. } if hidden.hides(&s, name)))
         .collect();
     println!("  objects reaching the render {}", objects.len());
 
@@ -61,7 +61,7 @@ fn main() {
         sky: gpui::hsla(0.0, 0.0, 0.14, 1.0),
         grid: gpui::hsla(0.0, 0.0, 0.3, 1.0),
         world: Some(model.world.background.radiance()),
-        lights: phiber::v2::scene::scene_lights(),
+        lights: phiber::scene::scene_lights(),
         wire: None,
         view: view_words(&s),
         grid_hide: 0,

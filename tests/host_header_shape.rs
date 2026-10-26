@@ -2,13 +2,13 @@
 //! its icon and name first (that is the switch trigger), its search in the
 //! middle when it has one, everything else after.
 
-use phiber::v2::host::BHostType;
-use phiber::v2::part::BPartType;
-use phiber::v2::part::search::search_key;
-use phiber::v2::pane::BPaneType;
-use phiber::v2::region::{BRegionItem, BRegionType};
-use phiber::v2::state::BState;
-use phiber::v2::view::{BView, BViewItem};
+use phiber::host::BHostType;
+use phiber::part::BPartType;
+use phiber::part::search::search_key;
+use phiber::pane::BPaneType;
+use phiber::region::{BRegionItem, BRegionType};
+use phiber::state::BState;
+use phiber::view::{BView, BViewItem};
 
 /// The parts of `pane` in the host's header, in order.
 fn parts(host: BHostType, s: &BState, want: BPaneType) -> Vec<BPartType> {

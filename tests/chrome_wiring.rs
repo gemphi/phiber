@@ -1,19 +1,19 @@
 //! Window chrome + activity bar + modal wiring.
 
-use phiber::v2::state::{BKey as _, ActivityKey, CtxKey, ModalKey};
-use phiber::v2::host::BHostType;
-use phiber::v2::modal::{BModalItem, BModalType};
-use phiber::v2::part::caption::{BCaption, BCaptionSide, CAPTION};
-use phiber::v2::state::{BState, action::apply_action};
-use phiber::v2::view::prim::BAction;
-use phiber::v2::view::{BView, BViewItem};
+use phiber::state::{BKey as _, ActivityKey, CtxKey, ModalKey};
+use phiber::host::BHostType;
+use phiber::modal::{BModalItem, BModalType};
+use phiber::part::caption::{BCaption, BCaptionSide, CAPTION};
+use phiber::state::{BState, action::apply_action};
+use phiber::view::prim::BAction;
+use phiber::view::{BView, BViewItem};
 
 /// Every primary opens its panel beside the rail, as Slack's do; the panel's
 /// rows are what raise a dialog — a channel opens the collaboration window,
 /// New File the splash.
 #[test]
 fn every_primary_opens_its_panel_and_its_rows_raise_the_dialogs() {
-    use phiber::v2::part::activity::option;
+    use phiber::part::activity::option;
     for label in ["Home", "Chat", "Stream", "Profile"] {
         let mut s = BState::default();
         apply_action(&mut s, &BAction::Set(ActivityKey::Tab.path(), label.into()));
@@ -23,7 +23,7 @@ fn every_primary_opens_its_panel_and_its_rows_raise_the_dialogs() {
     let mut s = BState::default();
     apply_action(&mut s, &BAction::Set(ActivityKey::Pick.path(), "Home:new".into()));
     assert_eq!(s.get(ModalKey::Open), Some("splash"));
-    s.set(phiber::v2::state::AppKey::CollabChannel("0"), "renders\tann");
+    s.set(phiber::state::AppKey::CollabChannel("0"), "renders\tann");
     apply_action(&mut s, &BAction::Set(ActivityKey::Tab.path(), "Chat".into()));
     let chat = option::open_group(&s).unwrap();
     assert_eq!(chat.options_for(&s)[0].label.as_deref(), Some("renders"));
@@ -33,7 +33,7 @@ fn every_primary_opens_its_panel_and_its_rows_raise_the_dialogs() {
 
 #[test]
 fn a_grouping_entry_opens_its_secondary_strip_instead_of_a_dialog() {
-    use phiber::v2::part::activity::option;
+    use phiber::part::activity::option;
     
     for label in ["Spaces", "Settings"] {
         let mut s = BState::default();
@@ -53,11 +53,11 @@ fn a_grouping_entry_opens_its_secondary_strip_instead_of_a_dialog() {
 
 #[test]
 fn an_option_from_the_strip_does_what_it_names() {
-    use phiber::v2::part::activity::option;
+    use phiber::part::activity::option;
     
     let mut s = BState::default();
     apply_action(&mut s, &BAction::Set(ActivityKey::Pick.path(), "Spaces:Shading".into()));
-    assert_eq!(s.get(CtxKey::Space), Some(phiber::v2::space::BSpaceType::Shading.slug()));
+    assert_eq!(s.get(CtxKey::Space), Some(phiber::space::BSpaceType::Shading.slug()));
     assert_eq!(s.get(ActivityKey::Pick), None, "the pick does not linger");
 
     let mut s = BState::default();
@@ -82,7 +82,7 @@ fn settings_modal_is_the_preferences_host() {
     // Host. The Preferences dialog is the Prefs editor in a Center area.
     let v = BModalItem::new(BModalType::Settings).build(&BState::default());
     let BView::Modal { body, .. } = v else { panic!("modal") };
-    let BView::Zone { kind: phiber::v2::zone::BZoneType::Center, list } = *body else {
+    let BView::Zone { kind: phiber::zone::BZoneType::Center, list } = *body else {
         panic!("the dialog's body is its Center zone, got {body:?}")
     };
     let [BView::Area { child, .. }] = list.as_slice() else { panic!("one area") };
@@ -95,17 +95,17 @@ fn settings_modal_is_the_preferences_host() {
 
 #[test]
 fn command_palette_searches_every_menu_leaf() {
-    use phiber::v2::modal::command::palette;
+    use phiber::modal::command::palette;
     let hits = palette::hits("open", None);
     assert!(hits.iter().any(|h| h.path == "File ▸ Open…" || h.path.starts_with("File ▸ Open")), "{:?}", hits.iter().map(|h| &h.path).collect::<Vec<_>>());
     assert!(palette::hits("", None).len() > 30);
     // Render ▸ Render Turnaround is a leaf the palette finds, firing the op.
     let turnaround = palette::hits("turnaround", None);
     let hit = turnaround.iter().find(|h| h.path == "Render ▸ Render Turnaround").expect("the turnaround command is in the Render menu");
-    assert_eq!(hit.action, BAction::Set(phiber::v2::state::OpKey::Render.path(), "turnaround".to_string()));
+    assert_eq!(hit.action, BAction::Set(phiber::state::OpKey::Render.path(), "turnaround".to_string()));
     // Over an editor, its menus are searched after the Topbar's: the
     // Timeline's Marker menu is found there and nowhere else.
-    let over = phiber::v2::host::BHostType::Time;
+    let over = phiber::host::BHostType::Time;
     assert!(palette::hits("", Some(over)).len() > palette::hits("", None).len());
     assert!(palette::hits("marker", Some(over)).iter().any(|h| h.path.starts_with("Marker ▸")), "the Timeline's Marker menu");
     assert!(!palette::hits("marker", None).iter().any(|h| h.path.starts_with("Marker ▸")), "not without the Timeline");

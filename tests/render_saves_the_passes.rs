@@ -5,8 +5,8 @@
 //! pass the tracer cannot produce is left out rather than written as black,
 //! and that each layer holds its own data rather than a copy of the image.
 
-use phiber::v2::scene::render_job::BRenderShot;
-use phiber::v2::scene::render_save::{BSaveKind, kind_of, save_to, written_pass};
+use phiber::scene::render_job::BRenderShot;
+use phiber::scene::render_save::{BSaveKind, kind_of, save_to, written_pass};
 use phiphx::blend::{BPassKind, BlendImageFormat, BlendOutput, BlendPassSet};
 use std::collections::BTreeSet;
 

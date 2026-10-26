@@ -104,7 +104,7 @@ fn c1_bobject_links_to_a_phiphx_mesh_type() {
     let _mesh_type_exists: fn() -> phiber::phiphx::PhiQuiMeshType =
         || phiber::phiphx::PhiQuiMeshType::Cube;
 
-    let scene = code_only(&read(&src("v2/scene/mod.rs")));
+    let scene = code_only(&read(&src("scene/mod.rs")));
     let links_mesh = scene.contains("PhiQuiMeshType")
         || scene.contains("SpatialObject3D")
         || scene.contains("phiphx")
@@ -123,7 +123,7 @@ fn c1_view3d_resolves_a_real_mesh_not_a_flat_glyph() {
     // The View3D render path was split into `view3d.rs` + focused submodules
     // (`view3d/mesh.rs`, etc.); read the whole tree so the mesh-sourcing
     // check sees the submodule that actually resolves the phiphx geometry.
-    let view3d = code_only(&read_tree("v2/view/draw/canvas/view3d"));
+    let view3d = code_only(&read_tree("view/draw/canvas/view3d"));
 
     // Fixed code sources geometry from the shared phiphx mesh library.
     let sources_phiphx_mesh = view3d.contains("phiphx")
@@ -163,26 +163,26 @@ fn c2_resize_seams_use_resolved_geometry() {
     // Every seam shares one overlay geometry, so the hit band and its inset
     // are read at that single site rather than repeated per seam.
     let overlay = code_only(&read(&src(
-        "v2/view/draw/resize.rs",
+        "view/draw/resize.rs",
     )));
     let area_seam = format!(
         "{}\n{}\n{overlay}",
-        code_only(&read(&src("v2/view/draw/zone/mod.rs"))),
-        code_only(&read(&src("v2/view/draw/zone/seam.rs")))
+        code_only(&read(&src("view/draw/zone/mod.rs"))),
+        code_only(&read(&src("view/draw/zone/seam.rs")))
     );
     let zone_seam = format!(
         "{}\n{}\n{overlay}",
-        code_only(&read(&src("v2/view/draw/space/mod.rs"))),
-        code_only(&read(&src("v2/view/draw/space/seam.rs")))
+        code_only(&read(&src("view/draw/space/mod.rs"))),
+        code_only(&read(&src("view/draw/space/seam.rs")))
     );
 
     // Containers take their gap as the `BSpace::Seam` token, which resolves to
     // `ctx.style.resize.gap` in one place (`flex/token.rs`).
-    let tokens = code_only(&read(&src("v2/view/draw/flex/token.rs")));
+    let tokens = code_only(&read(&src("view/draw/flex/token.rs")));
     let seam_resolves = tokens.contains("Self::Seam => ctx.style.resize.gap");
     let zone_seam = format!(
         "{zone_seam}\n{}",
-        code_only(&read(&src("v2/view/draw/space/part.rs")))
+        code_only(&read(&src("view/draw/space/part.rs")))
     );
     for (name, source) in [("area", area_seam), ("zone", zone_seam)] {
         for field in [
@@ -212,9 +212,9 @@ fn c2_resize_seams_use_resolved_geometry() {
 
 #[test]
 fn c3_zone_view_uses_the_resolved_resize_gap() {
-    let zone = code_only(&read(&src("v2/view/draw/zone/mod.rs")));
+    let zone = code_only(&read(&src("view/draw/zone/mod.rs")));
 
-    let tokens = code_only(&read(&src("v2/view/draw/flex/token.rs")));
+    let tokens = code_only(&read(&src("view/draw/flex/token.rs")));
     assert!(
         zone.contains(".gap(BSpace::Seam)") && tokens.contains("Self::Seam => ctx.style.resize.gap"),
         "C3: zone::view does not separate adjacent areas with the resolved resize gap"
@@ -236,7 +236,7 @@ fn c3_zone_view_uses_the_resolved_resize_gap() {
 
 #[test]
 fn c4_empty_submenu_renders_a_visible_panel() {
-    let popover = code_only(&read(&src("v2/view/draw/popover/mod.rs")));
+    let popover = code_only(&read(&src("view/draw/popover/mod.rs")));
 
     // Fixed code makes an empty body still read as a visible panel: it either
     // guards `body.is_empty()` or gives the panel a min-height / placeholder
@@ -267,10 +267,10 @@ fn c4_empty_submenu_renders_a_visible_panel() {
 
 #[test]
 fn c5_activity_list_partitions_into_three_regions_with_spacers() {
-    use phiber::v2::part::activity::BActivityList;
-    use phiber::v2::part::activity::set::{BActivityGroup, ENTRIES};
-    use phiber::v2::state::BState;
-    use phiber::v2::view::{BRailGroup, BView, BViewList};
+    use phiber::part::activity::BActivityList;
+    use phiber::part::activity::set::{BActivityGroup, ENTRIES};
+    use phiber::state::BState;
+    use phiber::view::{BRailGroup, BView, BViewList};
 
     // The entries genuinely span all three groups, so a correct layout MUST
     // produce a 3-region structure — the flattening is a real defect.
@@ -304,7 +304,7 @@ fn c5_activity_list_partitions_into_three_regions_with_spacers() {
 
 #[test]
 fn c5_activity_list_source_honors_activity_group() {
-    let list = code_only(&read(&src("v2/part/activity/mod.rs")));
+    let list = code_only(&read(&src("part/activity/mod.rs")));
     assert!(
         list.contains("BActivityGroup") || list.contains(".group"),
         "C5: BActivityList::items never references BActivityGroup. \
@@ -324,7 +324,7 @@ fn c5_activity_list_source_honors_activity_group() {
 #[test]
 fn c6_compass_uses_blender_navigate_shapes_not_orbiting_balls() {
     let compass = code_only(&read(&src(
-        "v2/view/draw/canvas/gizmo/compass/mod.rs",
+        "view/draw/canvas/gizmo/compass/mod.rs",
     )));
 
     let uses_orbiting_balls = compass.contains("fn pos_ball") || compass.contains("fn neg_ball");
@@ -338,7 +338,7 @@ fn c6_compass_uses_blender_navigate_shapes_not_orbiting_balls() {
 
 #[test]
 fn c6_control_cluster_uses_blender_shapes_not_generic_discs() {
-    let gizmo = code_only(&read(&src("v2/view/draw/canvas/gizmo/mod.rs")));
+    let gizmo = code_only(&read(&src("view/draw/canvas/gizmo/mod.rs")));
 
     // The generic disc control is `nav_btn` (a `rounded_full` icon disc used
     // for zoom / pan / camera / perspective). Blender-matching shapes replace

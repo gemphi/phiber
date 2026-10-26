@@ -2,9 +2,9 @@
 //!
 //! Validates: Requirements 6.1-6.6, 10.1, 11.3, 12.7, 13.8
 
-use phiber::v2::state::BKey as _;
-use phiber::v2::state::FileKey;
-use phiber::v2::{
+use phiber::state::BKey as _;
+use phiber::state::FileKey;
+use phiber::{
     host::BHostType,
     part::{
         file::{BFileKind, BFileRow, BFileSort, listing, table},
@@ -42,7 +42,7 @@ fn folder(name: &str) -> BFileRow {
     }
 }
 
-fn header_cells(state: &BState) -> &[phiber::v2::view::BTableCell] {
+fn header_cells(state: &BState) -> &[phiber::view::BTableCell] {
     let header = Box::leak(Box::new(table::header(state)));
     let BView::TableHeader { cell_list } = header else {
         panic!("shared File Browser header must use TableHeader")
@@ -50,7 +50,7 @@ fn header_cells(state: &BState) -> &[phiber::v2::view::BTableCell] {
     cell_list
 }
 
-fn sort_header(cell: &phiber::v2::view::BTableCell) -> (&str, Option<BSortDirection>, &BAction) {
+fn sort_header(cell: &phiber::view::BTableCell) -> (&str, Option<BSortDirection>, &BAction) {
     let BView::SortHeader {
         label,
         direction,
@@ -95,7 +95,7 @@ fn normal_file_rows_are_flat_and_keep_full_row_selection_identity() {
     assert_eq!(shade, BRowShade::Selected);
 
     // After the prim.rs → prim.rs split, table row logic lives in table.rs.
-    let renderer = source("src/v2/view/draw/table.rs");
+    let renderer = source("src/view/draw/table.rs");
     let table_row = renderer
         .split("pub fn view_row(")
         .nth(1)
@@ -137,7 +137,7 @@ fn shared_header_and_body_keep_flexible_name_and_fixed_metadata_geometry() {
     // Table cell/row geometry lives in table.rs, described with `BFlex`: a
     // name column takes the free space, a date and a size column keep the
     // width the theme gives them.
-    let renderer = source("src/v2/view/draw/table.rs");
+    let renderer = source("src/view/draw/table.rs");
     assert!(renderer.contains("BColWidth::Flex => cell.fills().min_width(BLen::Zero)"));
     assert!(renderer.contains(".gap(BSpace::GapMd)"));
     assert!(renderer.contains("ctx.style.dimensions.file_date_column_width"));
@@ -190,7 +190,7 @@ fn all_headers_sort_and_repeated_clicks_toggle_a_stable_direction_slot() {
     // not this is the sorted column, and the hover is the shared token
     // rather than a `.hover(|s| s.bg(…))` of its own. As Blender's File
     // View, the sorted column is told by its arrow alone: no lit fill.
-    let focused = source("src/v2/view/draw/sort.rs");
+    let focused = source("src/view/draw/sort.rs");
     assert!(focused.contains("Self::Indicator {"), "the arrow slot is a part of the heading enum");
     assert!(focused.contains(".size(px(size))"));
     // Every heading has its arrow: the sorted one always, the others while
@@ -198,7 +198,7 @@ fn all_headers_sort_and_repeated_clicks_toggle_a_stable_direction_slot() {
     assert!(focused.contains("None => (BSortDirection::Ascending, true)"));
     assert!(focused.contains("slot.revealed_by(HEADING)"));
     // The hover is the cell's, the column and the gap before it alike.
-    assert!(source("src/v2/view/draw/table.rs").contains(".hovered(BFill::ItemHover)"));
+    assert!(source("src/view/draw/table.rs").contains(".hovered(BFill::ItemHover)"));
     assert!(!focused.contains("BFill::ControlActive"), "the sorted heading is not lit");
     assert!(!focused.contains("div()"), "the heading no longer builds a bare div");
 }
@@ -245,9 +245,9 @@ fn properties_heading_owns_one_full_width_toggle_action() {
     assert_eq!(path.encode(), "ctx.buts.material.surface.expanded");
     assert_eq!(value, V_FALSE);
 
-    let focused = source("src/v2/view/draw/card.rs");
+    let focused = source("src/view/draw/card.rs");
     // The header's gestures (click, Ctrl-click, drag-sweep) live in `fold.rs`.
-    let gestures = source("src/v2/view/draw/fold.rs");
+    let gestures = source("src/view/draw/fold.rs");
     assert_eq!(
         focused.matches(".on_click(").count() + gestures.matches(".on_click(").count(),
         1,
@@ -265,16 +265,16 @@ fn properties_heading_owns_one_full_width_toggle_action() {
 /// and the rows and buttons under it are one module and line up.
 #[test]
 fn the_card_heading_is_blenders_panel_header() {
-    let focused = source("src/v2/view/draw/card.rs");
+    let focused = source("src/view/draw/card.rs");
     assert!(focused.contains(r#"if open { "triangle_down" } else { "triangle_right" }"#));
     assert!(focused.contains(r#"BView::icon("grip")"#));
     assert!(focused.contains("BCardPart::Glyph { dimmed: true }"));
     assert!(focused.contains("BDim::CardHead"), "a card heading is the card-head module, not the area header's");
     assert!(!focused.contains("BDim::HeaderHeight"));
-    let style = phiber::v2::theme::ui_style_defaults(phiber::v2::theme::BPaletteName::DEFAULT);
+    let style = phiber::theme::ui_style_defaults(phiber::theme::BPaletteName::DEFAULT);
     // The card-head module: the button plus `CONTROL_CLEAR` above and below,
     // so a button in a heading or a row never reaches its edges.
-    let clear = phiber::v2::theme::style::metric::CONTROL_CLEAR;
+    let clear = phiber::theme::style::metric::CONTROL_CLEAR;
     assert_eq!(style.dimensions.card_head_height(), style.dimensions.button_height + 2.0 * clear, "a heading is the button plus its clearance");
     let fold = focused.find("card-fold-").unwrap();
     let title = focused.find("card-title-").unwrap();
@@ -287,18 +287,18 @@ fn properties_keep_transparent_rows_outer_border_and_bounded_scroll_owner() {
     let BView::Card(column) = BPanel::new(BHostType::Buts).build(&BState::new()) else {
         panic!("Properties content must be owned by a bounded Body scroller")
     };
-    assert_eq!(column.kind, phiber::v2::view::prim::BCardKind::Column(phiber::v2::view::prim::BColumn::Body));
+    assert_eq!(column.kind, phiber::view::prim::BCardKind::Column(phiber::view::prim::BColumn::Body));
 
     // The property-split row (`split.rs`) is transparent in every host, not
     // just Properties: a label/value row is text and a control on whatever
     // it sits on, with no section tone boxed behind its label.
-    let section = source("src/v2/view/draw/split.rs");
+    let section = source("src/view/draw/split.rs");
     assert!(section.contains("    Row,\n"), "the row part carries no tone");
     assert!(!section.contains("BSurfaceTone::Section"), "no section tone behind a row");
 
     // A panel's rounding and surface are the card's frame — a ground, with no
     // border round it — and it does not clip (a row's dropdown escapes it).
-    let card = source("src/v2/view/draw/card.rs");
+    let card = source("src/view/draw/card.rs");
     assert!(!card.contains("BCardKind::Panel => column.radius(BRadius::Role(BStyleRole::Card)).border(BEdge::All)"), "a panel is a ground, not a box");
     assert!(card.contains(".radius(BRadius::Role(BStyleRole::Card))"));
     // The frame still fills from the panel tone — through `panel_fill`, which
@@ -315,7 +315,7 @@ fn properties_keep_transparent_rows_outer_border_and_bounded_scroll_owner() {
     assert!(frame.contains("BCardKind::Bare if *open => column.radius(BRadius::Role(BStyleRole::Card)).fill("));
 
     // Body scroll ownership is in body.rs.
-    let body = source("src/v2/view/draw/body.rs");
+    let body = source("src/view/draw/body.rs");
     for required in [
         ".flex_1()",
         ".w_full()",
@@ -339,7 +339,7 @@ fn bounded_content_keeps_paint_on_outer_surfaces() {
         // tone (a sidebar holds cards, and a card carries its own surface).
         (
             "Body",
-            "src/v2/view/draw/body.rs",
+            "src/view/draw/body.rs",
             "BFill::Tone(if headed { BSurfaceTone::Card } else { BSurfaceTone::Body }).background(ctx)",
         ),
     ] {
@@ -385,7 +385,7 @@ fn bounded_content_keeps_paint_on_outer_surfaces() {
     // The area is described through `BFlex`: its card (`fn card`) carries the
     // paint and never scrolls; the scroller (`BAreaScroll`) fills its slot,
     // may shrink on both axes, and is the only part that scrolls.
-    let area = source("src/v2/view/draw/area.rs");
+    let area = source("src/view/draw/area.rs");
     let area_surface = area
         .split("fn card(")
         .nth(1)
@@ -419,7 +419,7 @@ fn bounded_content_keeps_paint_on_outer_surfaces() {
         "area inner no longer scrolls"
     );
 
-    let card = source("src/v2/view/draw/card.rs");
+    let card = source("src/view/draw/card.rs");
     for paint in [
         // Through `panel_fill`, which picks swept or flat from the panel tone.
         ".fill(panel_fill(ctx))",
@@ -434,8 +434,8 @@ fn bounded_content_keeps_paint_on_outer_surfaces() {
     // A row is a strip along the horizontal axis, so its bounds live with the
     // rest of the strip geometry (`strip`), shared with the rail.
     for relative in [
-        "src/v2/view/draw/strip.rs",
-        "src/v2/view/draw/column.rs",
+        "src/view/draw/strip.rs",
+        "src/view/draw/column.rs",
     ] {
         let renderer = source(relative);
         // `min_height(BLen::Zero)` is the `BFlex` spelling of `.min_h_0()`:
@@ -454,8 +454,8 @@ fn bounded_content_keeps_paint_on_outer_surfaces() {
 
 #[test]
 fn focused_renderers_keep_named_ownership_and_delegation_only_routers() {
-    let prim = source("src/v2/view/draw/prim.rs");
-    let panel = source("src/v2/view/draw/card.rs");
+    let prim = source("src/view/draw/prim.rs");
+    let panel = source("src/view/draw/card.rs");
     for router in [&prim] {
         assert!(!router.contains("div()"), "router owns a GPUI builder body");
         assert!(!router.contains("BConcreteRenderer"));
@@ -468,7 +468,7 @@ fn focused_renderers_keep_named_ownership_and_delegation_only_routers() {
         ("table.rs", "BTableRow"),
         ("tree/mod.rs", "BTreeRow"),
     ] {
-        let focused = source(&format!("src/v2/view/draw/{file}"));
+        let focused = source(&format!("src/view/draw/{file}"));
         assert!(
             focused.contains(&format!("pub struct {owner}")),
             "{file} lost {owner}"
@@ -481,7 +481,7 @@ fn focused_renderers_keep_named_ownership_and_delegation_only_routers() {
     // Body and Sidebar are region columns (`BCardKind::Column`): the card
     // renderer hands them to their focused renderers.
     for (module, owner) in [("body.rs", "BBody"), ("sidebar.rs", "BSidebar")] {
-        let focused = source(&format!("src/v2/view/draw/{module}"));
+        let focused = source(&format!("src/view/draw/{module}"));
         assert!(focused.contains(&format!("pub struct {owner}")), "{module} lost {owner}");
         assert!(panel.contains(&format!("super::{}::{owner}(&card.body).render(ctx)", module.trim_end_matches(".rs"))), "{owner} is not delegated");
     }
@@ -491,13 +491,13 @@ fn focused_renderers_keep_named_ownership_and_delegation_only_routers() {
 fn task_scoped_renderers_consume_only_the_resolved_style() {
     for relative in [
         // row.rs composes; the strip it delegates to owns the style reads.
-        "src/v2/view/draw/column.rs",
-        "src/v2/view/draw/list.rs",
-        "src/v2/view/draw/table.rs",
-        "src/v2/view/draw/tree/mod.rs",
-        "src/v2/view/draw/button.rs",
-        "src/v2/view/draw/anchor.rs",
-        "src/v2/view/draw/strip.rs",
+        "src/view/draw/column.rs",
+        "src/view/draw/list.rs",
+        "src/view/draw/table.rs",
+        "src/view/draw/tree/mod.rs",
+        "src/view/draw/button.rs",
+        "src/view/draw/anchor.rs",
+        "src/view/draw/strip.rs",
     ] {
         let focused = source(relative);
         assert!(
@@ -520,7 +520,7 @@ fn task_scoped_renderers_consume_only_the_resolved_style() {
         "body.rs",
         "sidebar.rs",
     ] {
-        let relative = format!("src/v2/view/draw/{file}");
+        let relative = format!("src/view/draw/{file}");
         let focused = source(&relative);
         assert!(
             !focused.contains("METRICS"),
@@ -540,7 +540,7 @@ fn task_scoped_renderers_consume_only_the_resolved_style() {
 fn gate1_table_has_public_compatibility_wrappers() {
     // Gate 1 requires public compatibility wrappers so the dispatcher can
     // call named entry points without re-owning GPUI composition.
-    let table = source("src/v2/view/draw/table.rs");
+    let table = source("src/view/draw/table.rs");
     assert!(
         table.contains("pub fn view_row("),
         "table.rs must expose pub fn view_row() compatibility wrapper"
@@ -566,7 +566,7 @@ fn gate1_bounded_scroll_ownership_is_characterized() {
     // the bounded inner scroller owns overflow_y_scroll only.
     // Applies to both BBody and BSidebar.
     for (name, path) in [
-        ("BBody",    "src/v2/view/draw/body.rs"),
+        ("BBody",    "src/view/draw/body.rs"),
     ] {
         let src = source(path);
         // Outer surface: must own all paint properties.
@@ -608,7 +608,7 @@ fn gate1_bounded_scroll_ownership_is_characterized() {
 /// bounded inner child still owns the scrolling.
 #[test]
 fn the_sidebar_column_frames_nothing_and_its_inner_child_scrolls() {
-    let src = source("src/v2/view/draw/sidebar.rs");
+    let src = source("src/view/draw/sidebar.rs");
     let outer = src.split("let outer = div()").nth(1).expect("outer column")
         .split("let mut inner = div()").next().expect("outer end");
     for frame in [".border(px(", ".border_color(", ".rounded("] {
@@ -627,17 +627,17 @@ fn gate1_all_focused_modules_free_of_legacy_reads() {
     // Extends task_scoped_renderers_consume_only_the_resolved_style to
     // include all panel role files in a single characterization assertion.
     let all_focused = [
-        "src/v2/view/draw/row.rs",
-        "src/v2/view/draw/column.rs",
-        "src/v2/view/draw/list.rs",
-        "src/v2/view/draw/table.rs",
-        "src/v2/view/draw/tree/mod.rs",
-        "src/v2/view/draw/card.rs",
-        "src/v2/view/draw/bar.rs",
-        "src/v2/view/draw/sort.rs",
-        "src/v2/view/draw/body.rs",
-        "src/v2/view/draw/split.rs",
-        "src/v2/view/draw/sidebar.rs",
+        "src/view/draw/row.rs",
+        "src/view/draw/column.rs",
+        "src/view/draw/list.rs",
+        "src/view/draw/table.rs",
+        "src/view/draw/tree/mod.rs",
+        "src/view/draw/card.rs",
+        "src/view/draw/bar.rs",
+        "src/view/draw/sort.rs",
+        "src/view/draw/body.rs",
+        "src/view/draw/split.rs",
+        "src/view/draw/sidebar.rs",
     ];
     for path in all_focused {
         let src = source(path);

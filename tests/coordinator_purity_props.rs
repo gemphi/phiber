@@ -12,9 +12,9 @@
 //! `BView` tree and asserts no `Row`/`Column`/`Panel`/etc. variant appears
 //! at coordinator depth (i.e. above any `BView::Part`).
 
-use phiber::v2::space::{BSpaceItem, BSpaceType};
-use phiber::v2::state::default_state;
-use phiber::v2::view::{BView, BViewItem};
+use phiber::space::{BSpaceItem, BSpaceType};
+use phiber::state::default_state;
+use phiber::view::{BView, BViewItem};
 
 /// True iff `v` is a primitive variant (never legal at coordinator depth).
 fn is_primitive(v: &BView) -> bool {
@@ -66,7 +66,7 @@ fn find_primitive_above_part<'a>(v: &'a BView, inside_part: bool) -> Option<&'a 
             }
             None
         }
-        BView::Card(card) if matches!(card.kind, phiber::v2::view::prim::BCardKind::Column(_)) => card.body.iter().find_map(|c| find_primitive_above_part(c, inside_part)),
+        BView::Card(card) if matches!(card.kind, phiber::view::prim::BCardKind::Column(_)) => card.body.iter().find_map(|c| find_primitive_above_part(c, inside_part)),
         BView::Popover { anchor, body, .. } => find_primitive_above_part(anchor, inside_part)
             .or_else(|| {
                 body.iter()

@@ -11,9 +11,9 @@
 //! so the panel reads as the header's own drawer rather than a floating box.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BKey as _, BState, CtxKey, OutlinerKey, val::V_TRUE};
+use phiber::app::BPhiberApp;
+use phiber::space::BSpaceType;
+use phiber::state::{BKey as _, BState, CtxKey, OutlinerKey, val::V_TRUE};
 
 #[gpui::test]
 async fn the_outliner_filter_popover_spans_its_side_panel_header(cx: &mut TestAppContext) {
@@ -39,10 +39,10 @@ async fn the_outliner_filter_popover_spans_its_side_panel_header(cx: &mut TestAp
     let lead = find("pane-Left-Outliner");
     let trail = find("pane-Right-Outliner");
 
-    let style = phiber::v2::theme::resolve_ui_style(
-        phiber::v2::theme::ui_style_defaults_in(
-            phiber::v2::theme::BPaletteName::DEFAULT,
-            phiber::v2::theme::BThemeMode::DEFAULT,
+    let style = phiber::theme::resolve_ui_style(
+        phiber::theme::ui_style_defaults_in(
+            phiber::theme::BPaletteName::DEFAULT,
+            phiber::theme::BThemeMode::DEFAULT,
         ),
         &BState::new(),
     );

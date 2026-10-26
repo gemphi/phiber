@@ -13,12 +13,12 @@
 //! So there is one table and one key scope here, and these pin that — four
 //! copies of it is how they would drift.
 
-use phiber::v2::host::BHostType;
-use phiber::v2::part::filter::{dope, filters_channels, has_filter};
-use phiber::v2::part::search::search_key;
-use phiber::v2::state::val::{V_FALSE, V_TRUE};
-use phiber::v2::state::{BKey as _, BState, DopeKey};
-use phiber::v2::view::BView;
+use phiber::host::BHostType;
+use phiber::part::filter::{dope, filters_channels, has_filter};
+use phiber::part::search::search_key;
+use phiber::state::val::{V_FALSE, V_TRUE};
+use phiber::state::{BKey as _, BState, DopeKey};
+use phiber::view::BView;
 
 const EDITORS: [BHostType; 4] =
     [BHostType::Action, BHostType::Ipo, BHostType::Drivers, BHostType::Nla];

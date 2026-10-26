@@ -13,11 +13,11 @@
 use gpui::{Modifiers, TestAppContext, px, size};
 use phiber::phiphx::blend::{BlendFile, STRIP_ACTIVE, STRIP_MUTED, STRIP_SELECT, TRACK_ACTIVE, TRACK_SELECTED};
 use phiber::phiphx::scene::{SceneModel, SceneNla};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::scene::{BObject3D, scene_objects};
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{CtxKey, ModalKey};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::scene::{BObject3D, scene_objects};
+use phiber::space::BSpaceType;
+use phiber::state::{CtxKey, ModalKey};
 use std::path::PathBuf;
 
 type Cx<'a> = &'a mut gpui::VisualTestContext;
@@ -75,7 +75,7 @@ fn menu(cx: Cx, title: &str, item: &str) {
 /// is selected and active, and its strips' `(name, selected, active, muted)`.
 fn stack(cx: Cx) -> Vec<(String, bool, bool, Vec<(String, bool, bool, bool)>)> {
     cx.run_until_parked();
-    let nla: SceneNla = phiber::v2::scene::source::with_loaded(|m| m.and_then(|m| m.nla.iter().find(|n| n.object == "Cube").cloned())).expect("the Cube's NLA");
+    let nla: SceneNla = phiber::scene::source::with_loaded(|m| m.and_then(|m| m.nla.iter().find(|n| n.object == "Cube").cloned())).expect("the Cube's NLA");
     let bit = |flag: u32, b: u32| flag & b != 0;
     nla.tracks
         .iter()
@@ -88,7 +88,7 @@ fn picked(cx: Cx) -> Vec<(String, bool)> {
 }
 
 fn said() -> String {
-    phiber::v2::state::log::latest().map(|e| e.text).unwrap_or_default()
+    phiber::state::log::latest().map(|e| e.text).unwrap_or_default()
 }
 
 fn cube_x(app: &gpui::Entity<BPhiberApp>, cx: Cx, frame: i32) -> f32 {
@@ -119,8 +119,8 @@ fn open<'a>(cx: &'a mut TestAppContext, dir: &std::path::Path) -> (gpui::Entity<
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
         app.state.set(CtxKey::Space, space.slug());
-        app.state.set(&phiber::v2::area::area_key(space, &area), BHostType::Nla.slug());
-        app.state.set(&phiber::v2::scene::loaded_path_key(), path.clone());
+        app.state.set(&phiber::area::area_key(space, &area), BHostType::Nla.slug());
+        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
         app.state.set(CtxKey::Object, "Cube");
         app.state.set(CtxKey::FrameStart, "1");
         app.state.set(CtxKey::FrameEnd, "250");
@@ -227,7 +227,7 @@ async fn add_action_puts_a_strip_at_the_frame_in_the_active_track(cx: &mut TestA
     assert_eq!(said(), "Added a strip of Idle");
     let overlay: Vec<String> = stack(cx)[1].3.iter().map(|x| x.0.clone()).collect();
     assert_eq!(overlay, ["Idle", "Walk Again"]);
-    let range = phiber::v2::scene::source::with_loaded(|m| m.and_then(|m| m.nla.iter().find(|n| n.object == "Cube").map(|n| (n.tracks[1].strips[0].start, n.tracks[1].strips[0].end))));
+    let range = phiber::scene::source::with_loaded(|m| m.and_then(|m| m.nla.iter().find(|n| n.object == "Cube").map(|n| (n.tracks[1].strips[0].start, n.tracks[1].strips[0].end))));
     assert_eq!(range, Some((100.0, 120.0)));
     // Again from the menu: no room there — a new track on top.
     let title = cx.debug_bounds("btn-label-toggle-ctx.menu.nla.Add-text").expect("the Add menu").center();

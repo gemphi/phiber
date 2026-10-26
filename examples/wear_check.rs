@@ -3,7 +3,7 @@
 //! drawing's — written as PNGs, each with its overlap.
 //!
 //!   cargo run --release -p phiber --example wear_check -- OUT_DIR
-use phiber::v2::part::project::check::{checks, image, key, overlap};
+use phiber::part::project::check::{checks, image, key, overlap};
 
 fn main() {
     let out = std::path::PathBuf::from(std::env::args().nth(1).expect("out dir"));

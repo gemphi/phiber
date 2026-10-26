@@ -7,7 +7,7 @@
 
 fn source(relative: &str) -> String {
     std::fs::read_to_string(
-        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2").join(relative),
+        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src").join(relative),
     )
     .unwrap_or_else(|error| panic!("{relative}: {error}"))
 }

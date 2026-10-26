@@ -18,13 +18,13 @@
 //! The dump's columns are `owner, identifier, name, letters, length`. Every
 //! row is checked: either phiber prints Blender's name for it, or the
 //! identifier is one of the four in
-//! [`row::name::AMBIGUOUS`](phiber::v2::view::draw::canvas::time::row::name::AMBIGUOUS)
+//! [`row::name::AMBIGUOUS`](phiber::view::draw::canvas::time::row::name::AMBIGUOUS)
 //! whose owner the path does not carry — and then the recorded spelling has
 //! to be exactly what phiber prints and exactly what Blender showed for one
 //! of the owners. There is no third outcome and nothing is skipped.
 
 use phiber::phiphx::blend::BFCurve;
-use phiber::v2::view::draw::canvas::time::row::name::{AMBIGUOUS, OWNED, fcurve_name};
+use phiber::view::draw::canvas::time::row::name::{AMBIGUOUS, OWNED, fcurve_name};
 use std::collections::BTreeSet;
 use std::path::PathBuf;
 

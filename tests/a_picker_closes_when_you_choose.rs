@@ -14,10 +14,10 @@
 //! Opening is a `Toggle`, which does not run the sweep — otherwise a picker
 //! would close itself the instant it opened.
 
-use phiber::v2::state::val::{V_FALSE, V_TRUE};
-use phiber::v2::state::action::apply_action;
-use phiber::v2::state::{BKey as _, BPath, BState, ButsKey, MenuKey};
-use phiber::v2::view::prim::BAction;
+use phiber::state::val::{V_FALSE, V_TRUE};
+use phiber::state::action::apply_action;
+use phiber::state::{BKey as _, BPath, BState, ButsKey, MenuKey};
+use phiber::view::prim::BAction;
 
 /// The Device picker from the Render tab, as `prop_view` keys it.
 fn device_open() -> BPath {

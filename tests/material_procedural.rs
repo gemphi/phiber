@@ -5,8 +5,8 @@
 
 use phiber::phiphx::Phx;
 use phiber::phiphx::blend::shade::procedural::{BlendProcCoord, BlendProcKind};
-use phiber::v2::scene::{BObject3D, current_scene};
-use phiber::v2::state::BState;
+use phiber::scene::{BObject3D, current_scene};
+use phiber::state::BState;
 
 #[test]
 fn the_scene_carries_the_procedural_textures() {

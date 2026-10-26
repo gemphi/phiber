@@ -1,7 +1,7 @@
 //! phiray skinning gives the same opened scene as phiphx's CPU Armature path.
 
 use phiber::phiphx::phx::{Phx, SceneModel};
-use phiber::v2::scene::RaySkin;
+use phiber::scene::RaySkin;
 use std::path::PathBuf;
 use std::sync::Arc;
 

@@ -8,8 +8,8 @@
 //! run in sequence inside one test rather than as separate ones racing for it.
 
 use phiber::phiphx::scene::SceneCamera;
-use phiber::v2::scene::{BObject3D, BRenderPlan, BShading, camera_of, render_job};
-use phiber::v2::view::draw::canvas::view3d::rendered::BStillLook;
+use phiber::scene::{BObject3D, BRenderPlan, BShading, camera_of, render_job};
+use phiber::view::draw::canvas::view3d::rendered::BStillLook;
 
 fn plan(samples: u32) -> BRenderPlan {
     let cam = SceneCamera {
@@ -32,7 +32,7 @@ fn plan(samples: u32) -> BRenderPlan {
 }
 
 fn a_cube() -> Vec<BObject3D> {
-    vec![BObject3D::Primitive { name: "Cube".into(), shape: phiber::v2::scene::BShape::Cube, x: 0.0, y: 0.0 }]
+    vec![BObject3D::Primitive { name: "Cube".into(), shape: phiber::scene::BShape::Cube, x: 0.0, y: 0.0 }]
 }
 
 /// Wait for a condition, or give up — a render on a software GPU is slow but
@@ -93,9 +93,9 @@ fn a_render_reports_progress_then_an_image_and_can_be_cancelled() {
     // (`render_view_cancel`), the Rendering workspace, a playing viewport —
     // as Blender's `G.is_break` is; with no render under way it closes the
     // window as before.
-    use phiber::v2::app::keymap::{BKeystroke, action_for};
-    use phiber::v2::view::prim::BAction;
-    use phiber::v2::state::{BKey, BState, ModalKey, OpKey, val::V_MODAL_RENDER};
+    use phiber::app::keymap::{BKeystroke, action_for};
+    use phiber::view::prim::BAction;
+    use phiber::state::{BKey, BState, ModalKey, OpKey, val::V_MODAL_RENDER};
     let mut s = BState::new();
     s.set(ModalKey::Open, V_MODAL_RENDER);
     let esc = BKeystroke::parse("Escape").unwrap();
@@ -104,13 +104,13 @@ fn a_render_reports_progress_then_an_image_and_can_be_cancelled() {
     assert!(until(render_job::rendering));
     assert_eq!(action_for(&esc, &s).unwrap().0, BAction::Set(OpKey::Render.path(), "cancel".to_string()), "rendering: Esc cancels");
     let mut playing = BState::new();
-    playing.set(phiber::v2::state::CtxKey::Playing, "true");
+    playing.set(phiber::state::CtxKey::Playing, "true");
     assert_eq!(action_for(&esc, &playing).unwrap().0, BAction::Set(OpKey::Render.path(), "cancel".to_string()), "and in a playing Rendering workspace too, before it stops playback");
     // The Image editor's header shows the render's bar and a Cancel beside
     // the Render Result while it runs — not only the status bar's X.
-    use phiber::v2::part::image::header::BImageBlock;
-    use phiber::v2::view::{BView, BViewItem};
-    let header = BImageBlock::new(phiber::v2::host::BHostType::Image).build(&s);
+    use phiber::part::image::header::BImageBlock;
+    use phiber::view::{BView, BViewItem};
+    let header = BImageBlock::new(phiber::host::BHostType::Image).build(&s);
     let BView::Row { list, .. } = header.shown().clone() else { panic!("a row") };
     let cancel = list.iter().find_map(|v| match v {
         BView::Button(c) if c.label.as_deref() == Some("Cancel") => c.action.clone(),
@@ -128,8 +128,8 @@ fn a_render_reports_progress_then_an_image_and_can_be_cancelled() {
 #[test]
 fn a_workbench_file_plans_a_solid_render_from_the_displays_shading() {
     use phiber::phiphx::scene::{SceneDisplayShading, SceneModel};
-    use phiber::v2::scene::{BRenderSet, render_plan};
-    use phiber::v2::view::draw::canvas::view3d::rendered::BRayLook;
+    use phiber::scene::{BRenderSet, render_plan};
+    use phiber::view::draw::canvas::view3d::rendered::BRayLook;
     let mut model = SceneModel::default();
     model.cameras.push(SceneCamera {
         name: "Camera".into(),
@@ -157,7 +157,7 @@ fn a_workbench_file_plans_a_solid_render_from_the_displays_shading() {
     // file's only until the panel holds one — so a plan asked for Workbench
     // is asked for on the set, not by editing the model.
     model.render.engine = "BLENDER_WORKBENCH".into();
-    let set = BRenderSet { engine: phiber::v2::scene::render_engine::BRenderEngine::Workbench, ..set };
+    let set = BRenderSet { engine: phiber::scene::render_engine::BRenderEngine::Workbench, ..set };
     let mut display = SceneDisplayShading::default();
     display.solid_fx.shadow = true;
     display.solid_fx.cavity = true;

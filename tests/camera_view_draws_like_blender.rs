@@ -6,15 +6,15 @@
 //! view as `view3d_get_name` does.
 
 use phiber::phiphx::scene::{SceneCamera, SceneModel};
-use phiber::v2::area::BAreaType;
-use phiber::v2::host::BHostType;
-use phiber::v2::scene::camera_view::{BCameraFrame, BCameraSlot, camera_view_key, set::BCameraView};
-use phiber::v2::view::BAction;
-use phiber::v2::scene::source::{clear_loaded_scene, set_loaded_scene};
-use phiber::v2::space::{BSpaceItem, BSpaceType};
-use phiber::v2::state::{BState, CtxKey, V_FALSE, V_TRUE};
-use phiber::v2::theme::{BPaletteName, resolve_ui_style, ui_style_defaults};
-use phiber::v2::view::{BView, BViewItem};
+use phiber::area::BAreaType;
+use phiber::host::BHostType;
+use phiber::scene::camera_view::{BCameraFrame, BCameraSlot, camera_view_key, set::BCameraView};
+use phiber::view::BAction;
+use phiber::scene::source::{clear_loaded_scene, set_loaded_scene};
+use phiber::space::{BSpaceItem, BSpaceType};
+use phiber::state::{BState, CtxKey, V_FALSE, V_TRUE};
+use phiber::theme::{BPaletteName, resolve_ui_style, ui_style_defaults};
+use phiber::view::{BView, BViewItem};
 
 fn camera() -> SceneCamera {
     SceneCamera {
@@ -79,10 +79,10 @@ fn the_animation_workspaces_left_viewport_looks_through_the_camera_when_there_is
     set_loaded_scene(Some(scene_with_camera()));
     assert_eq!(animation(&state), [(BAreaType::Center, false), (BAreaType::Left, true)]);
     // Each viewport keeps its own choice.
-    let left = BSpaceType::Animation.spec().areas_in(phiber::v2::zone::BZoneType::Left)[0];
+    let left = BSpaceType::Animation.spec().areas_in(phiber::zone::BZoneType::Left)[0];
     state.set(&camera_view_key(BSpaceType::Animation.slug(), &left), V_FALSE);
     assert_eq!(animation(&state), [(BAreaType::Center, false), (BAreaType::Left, false)]);
-    let center = BSpaceType::Animation.spec().areas_in(phiber::v2::zone::BZoneType::Center)[0];
+    let center = BSpaceType::Animation.spec().areas_in(phiber::zone::BZoneType::Center)[0];
     state.set(&camera_view_key(BSpaceType::Animation.slug(), &center), V_TRUE);
     assert_eq!(animation(&state), [(BAreaType::Center, true), (BAreaType::Left, false)]);
     // Layout never opens a camera view on its own.
@@ -120,7 +120,7 @@ fn the_frame_is_blenders_camera_border_and_the_view_is_the_cameras() {
 
 #[test]
 fn the_overlay_names_the_view_and_the_frame_takes_the_themes_darkest_shade() {
-    use phiber::v2::view::draw::canvas::overlay::view_name;
+    use phiber::view::draw::canvas::overlay::view_name;
     assert_eq!(view_name(Some(true), true), "Camera Perspective");
     assert_eq!(view_name(Some(false), true), "Camera Orthographic");
     assert_eq!(view_name(None, true), "User Perspective");
@@ -137,7 +137,7 @@ fn the_overlay_names_the_view_and_the_frame_takes_the_themes_darkest_shade() {
 #[test]
 fn the_gizmos_camera_button_toggles_this_areas_view_and_an_orbit_leaves_it_carrying_the_view_over() {
     // The button: into the camera view, or out of it, for this area's key.
-    let left = BSpaceType::Animation.spec().areas_in(phiber::v2::zone::BZoneType::Left)[0];
+    let left = BSpaceType::Animation.spec().areas_in(phiber::zone::BZoneType::Left)[0];
     let key = camera_view_key(BSpaceType::Animation.slug(), &left);
     let slot = BCameraSlot { key: Some(key.clone()), through: true };
     assert_eq!(slot.toggle(), Some(BAction::Set(key.clone(), "false".into())));
@@ -151,13 +151,13 @@ fn the_gizmos_camera_button_toggles_this_areas_view_and_an_orbit_leaves_it_carry
     let mut state = BState::new();
     state.set(CtxKey::Space, BSpaceType::Animation.slug());
     for action in view.leave(&key) {
-        phiber::v2::state::action::apply_action(&mut state, &action);
+        phiber::state::action::apply_action(&mut state, &action);
     }
-    use phiber::v2::scene::{is_perspective, view_pitch, view_yaw, view_zoom};
+    use phiber::scene::{is_perspective, view_pitch, view_yaw, view_zoom};
     assert!((view_yaw(&state) - view.yaw).abs() < 1e-2 && (view_pitch(&state) - view.pitch).abs() < 1e-2);
     assert!((view_zoom(&state) - view.zoom).abs() < 1e-3);
     assert_eq!(is_perspective(&state), view.perspective);
-    let pivot = phiber::v2::scene::camera::view_pivot(&state);
+    let pivot = phiber::scene::camera::view_pivot(&state);
     for axis in 0..3 {
         assert!((pivot[axis] - view.pivot[axis]).abs() < 1e-4, "the orbit pivots where the camera view did");
     }

@@ -6,9 +6,9 @@
 //! lit, and nothing said which marks were buttons.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::state::{CtxKey, ModalKey};
-use phiber::v2::theme::{BControlState, BPaletteName, BResolvedUiStyle, ui_style_defaults};
+use phiber::app::BPhiberApp;
+use phiber::state::{CtxKey, ModalKey};
+use phiber::theme::{BControlState, BPaletteName, BResolvedUiStyle, ui_style_defaults};
 
 #[gpui::test]
 async fn the_transport_buttons_are_equal_squares(cx: &mut TestAppContext) {
@@ -43,7 +43,7 @@ fn a_tile_at_rest_is_the_whole_control_shade_not_a_wash() {
     assert!(tile.3 > wash.3 * 1.5, "at its whole weight, not the wash: {} vs {}", tile.3, wash.3);
     // And the button draws every icon-only button — in a strip, a panel or
     // a list alike — as a tile with that fill (`button.rs`).
-    let button = include_str!("../src/v2/view/draw/button.rs");
+    let button = include_str!("../src/view/draw/button.rs");
     assert!(button.contains("let tile = label.is_none() || action_button || is_row;"));
     assert!(button.contains("BRenderCtx { floating: true, ..ctx.clone() }"));
 }

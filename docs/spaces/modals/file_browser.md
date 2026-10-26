@@ -1,7 +1,7 @@
 # File Browser - Full Documentation
 
 > **Types:** `BModalType::FileBrowser` (dialog) · `BHostType::File` / `BHostType::Asset` (editors)
-> **Source:** `src/v2/part/custom/file/*` (shared) · `src/v2/modal/file_browser/*` (re-exports)
+> **Source:** `src/part/custom/file/*` (shared) · `src/modal/file_browser/*` (re-exports)
 > **Blender ref:** `scripts/startup/bl_ui/space_filebrowser.py`, `editors/space_file/space_file.cc`
 > **Status (2026-09-16):** one implementation for dialog and editors; headings, sections and menus at Blender parity.
 

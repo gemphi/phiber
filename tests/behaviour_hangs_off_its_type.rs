@@ -24,10 +24,10 @@
 
 use std::collections::BTreeSet;
 
-/// Every `.rs` under `src/v2`.
+/// Every `.rs` under `src`.
 fn sources() -> Vec<(String, String)> {
     let mut out = Vec::new();
-    let mut stack = vec![std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2")];
+    let mut stack = vec![std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src")];
     while let Some(dir) = stack.pop() {
         let Ok(entries) = std::fs::read_dir(&dir) else { continue };
         for entry in entries.flatten() {
@@ -124,10 +124,10 @@ fn these_types_own_their_own_behaviour() {
 fn and_still_have_the_methods_they_gained() {
     // A guard that passes because the functions were deleted is no guard.
     let wanted: &[(&str, &str, &[&str])] = &[
-        ("src/v2/part/file/listing.rs", "BFileRow", &["format_size", "format_time"]),
-        ("src/v2/part/filter/dope.rs", "BDopeFilterSpec", &["key"]),
-        ("src/v2/part/activity/option.rs", "BActivityEntry", &["is_grouping"]),
-        ("src/v2/part/props/prop_view.rs", "BPropSpec", &["value_key", "open_key"]),
+        ("src/part/file/listing.rs", "BFileRow", &["format_size", "format_time"]),
+        ("src/part/filter/dope.rs", "BDopeFilterSpec", &["key"]),
+        ("src/part/activity/option.rs", "BActivityEntry", &["is_grouping"]),
+        ("src/part/props/prop_view.rs", "BPropSpec", &["value_key", "open_key"]),
     ];
     for (file, ty, names) in wanted {
         let at = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(file);

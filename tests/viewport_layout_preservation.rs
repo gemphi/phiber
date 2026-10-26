@@ -27,14 +27,14 @@
 //! imports; the kit-boundary and structural guards (clause 3.8) are separate
 //! test binaries confirmed green by the checkpoint.
 
-use phiber::v2::state::{BKey as _, ActivityKey, CtxKey};
-use phiber::v2::scene::{
+use phiber::state::{BKey as _, ActivityKey, CtxKey};
+use phiber::scene::{
     BShape, OBJECTS, ZOOM_MAX, ZOOM_MIN, view_yaw, view_zoom, yaw_key, zoom_key, zoom_step,
 };
-use phiber::v2::state::{
+use phiber::state::{
     BState, V_TRUE, apply_open, apply_toggle, MenuKey,
 };
-use phiber::v2::view::prim::BAction;
+use phiber::view::prim::BAction;
 use proptest::prelude::*;
 
 // ===========================================================================
@@ -157,8 +157,8 @@ fn compass_axis_click_payloads_are_fixed_angles() {
 /// driven by the single OBJECTS table and by `CtxKey::Object.path()`.
 #[test]
 fn selection_loop_reads_single_scene_table_and_writes_k_object() {
-    use phiber::v2::part::outliner::BOutlinerItem;
-    use phiber::v2::view::{BView, BViewItem};
+    use phiber::part::outliner::BOutlinerItem;
+    use phiber::view::{BView, BViewItem};
 
     // Fully-expanded outliner so object rows are present.
     let state = BState::new();
@@ -182,7 +182,7 @@ fn selection_loop_reads_single_scene_table_and_writes_k_object() {
                     collect_object_sets(c, out);
                 }
             }
-            BView::Card(card) if matches!(card.kind, phiber::v2::view::prim::BCardKind::Column(_)) => {
+            BView::Card(card) if matches!(card.kind, phiber::view::prim::BCardKind::Column(_)) => {
                 for c in &card.body {
                     collect_object_sets(c, out);
                 }
@@ -244,14 +244,14 @@ fn scene_table_is_the_single_object_source() {
 /// Mirror of `zone::view`'s handle-count logic: the number of resize handles a
 /// zone emits equals `n - 1` when `n > 1`, else `0`, where `n` is the count of
 /// non-empty area children.
-fn handle_count_for(list: &[phiber::v2::view::BView]) -> usize {
+fn handle_count_for(list: &[phiber::view::BView]) -> usize {
     let n = list.iter().filter(|ch| !ch.is_empty()).count();
     if n > 1 { n - 1 } else { 0 }
 }
 
 #[test]
 fn no_handle_when_fewer_than_two_areas() {
-    use phiber::v2::view::BView;
+    use phiber::view::BView;
 
     // 0 areas → no handle.
     assert_eq!(handle_count_for(&[]), 0);
@@ -269,7 +269,7 @@ proptest! {
     /// stack, and then there is exactly one seam between each adjacent pair.
     #[test]
     fn handle_count_tracks_nonempty_areas(reals in 0usize..8, empties in 0usize..5) {
-        use phiber::v2::view::BView;
+        use phiber::view::BView;
         let mut list: Vec<BView> = Vec::new();
         for _ in 0..reals { list.push(BView::label("x")); }
         for _ in 0..empties { list.push(BView::empty()); }
@@ -296,7 +296,7 @@ fn non_empty_menu_toggle_logic_unchanged() {
     let mut state = BState::new();
     apply_toggle(&mut state, &MenuKey::Top("topbar", "File").path());
     assert_eq!(state.get(&MenuKey::Top("topbar", "File").path()), Some(V_TRUE));
-    assert!(phiber::v2::state::is_menubar_active(&state));
+    assert!(phiber::state::is_menubar_active(&state));
 
     // Top-close: toggling a peer closes the first (at most one open top).
     apply_toggle(&mut state, &MenuKey::Top("topbar", "Edit").path());
@@ -328,7 +328,7 @@ fn non_empty_menu_toggle_logic_unchanged() {
 
 #[test]
 fn hover_open_only_when_menubar_active() {
-    use phiber::v2::state::hover_open_if_menubar_active;
+    use phiber::state::hover_open_if_menubar_active;
 
     // Menubar closed: hover is a no-op.
     let mut closed = BState::new();
@@ -358,9 +358,9 @@ fn hover_open_only_when_menubar_active() {
 
 #[test]
 fn activity_active_mark_reads_from_activity_tab() {
-    use phiber::v2::part::activity::BActivityList;
-    use phiber::v2::part::activity::set::ENTRIES;
-        use phiber::v2::view::BView;
+    use phiber::part::activity::BActivityList;
+    use phiber::part::activity::set::ENTRIES;
+        use phiber::view::BView;
 
     // No active tab → nothing is marked active.
     let none = BState::new();

@@ -8,9 +8,9 @@
 //!   - Every `ctx.menu.*` key is V_FALSE.
 //!   - Every non-menu, non-space key is unchanged from the input.
 
-use phiber::v2::space::BSpaceType;
-use phiber::v2::space::switch_space;
-use phiber::v2::state::{BPath, BState, CtxKey, MenuKey, V_FALSE};
+use phiber::space::BSpaceType;
+use phiber::space::switch_space;
+use phiber::state::{BPath, BState, CtxKey, MenuKey, V_FALSE};
 use proptest::prelude::*;
 
 fn arb_space() -> impl Strategy<Value = BSpaceType> {

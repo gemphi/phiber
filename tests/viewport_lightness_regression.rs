@@ -14,7 +14,7 @@
 //! Feature: phiber-blender-space-parity
 //! Validates: Requirement 13.6
 
-use phiber::v2::{
+use phiber::{
     state::BState,
     theme::{BPaletteName, BSurfaceTone, resolve_ui_style, ui_style_defaults},
 };
@@ -83,7 +83,7 @@ fn the_sweep_lift_is_never_painted_as_an_opacity() {
     // Ember, Cyberpunk, where `gradients: false` zeroes the lift.
     // Those two lines were invisible in six of eleven themes, and choosing a
     // flat theme is exactly when a camera frame still has to be there.
-    let src = include_str!("../src/v2/view/draw/canvas/view3d/mod.rs");
+    let src = include_str!("../src/view/draw/canvas/view3d/mod.rs");
     let lift = "vp.a = ctx.style.viewport_sweep_lift();";
     assert!(src.contains(lift), "the tracer's sky still carries the lift");
     assert_eq!(src.matches(lift).count(), 1, "in one place");
@@ -112,7 +112,7 @@ fn a_final_render_stands_in_the_same_light_as_the_viewport() {
     // near-black ground under every palette while the viewport beside it
     // followed the theme. Same two tokens now, and through `resolve_ui_style`
     // so a colour edited in Preferences reaches a render too.
-    let src = include_str!("../src/v2/app/op/render.rs");
+    let src = include_str!("../src/app/op/render.rs");
     assert!(src.contains("style.viewport_surface()"), "the render's sky is the canvas shade");
     assert!(src.contains("style.viewport_grid_stroke()"), "and its grid is the grid stroke");
     assert!(src.contains("resolve_ui_style"), "with the overrides on it");

@@ -5,10 +5,10 @@
 //! keeps the module's gap under the header.
 
 use gpui::{Bounds, Pixels, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::state::{BPath, ModalKey, V_MODAL_SETTINGS};
-use phiber::v2::theme::{BPaletteName, ui_style_defaults};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::state::{BPath, ModalKey, V_MODAL_SETTINGS};
+use phiber::theme::{BPaletteName, ui_style_defaults};
 
 /// Show Preferences on `category`.
 fn show(app: &gpui::Entity<BPhiberApp>, cx: &mut gpui::VisualTestContext, category: &str) {

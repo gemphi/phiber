@@ -17,12 +17,12 @@
 //! So `rendered::paint` answers whether it painted, the CPU painter stands
 //! in when it did not, and the table carries Blender's defaults.
 
-use phiber::v2::part::props::prop::{BDefault, BPropSpec};
-use phiber::v2::part::props::tool::{OPTIONS, OVERLAYS};
-use phiber::v2::scene::BShading;
+use phiber::part::props::prop::{BDefault, BPropSpec};
+use phiber::part::props::tool::{OPTIONS, OVERLAYS};
+use phiber::scene::BShading;
 
 fn source(path: &str) -> String {
-    let full = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2").join(path);
+    let full = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src").join(path);
     std::fs::read_to_string(&full).unwrap_or_else(|_| panic!("{}", full.display()))
 }
 

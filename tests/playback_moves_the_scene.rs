@@ -7,7 +7,7 @@ use phiber::phiphx::blend::{BFCurve, BKey, BlendMotion, BlendMotionList, ObjectT
 use phiber::phiphx::scene::{
     IDENTITY_M4, SceneCamera, SceneLight, SceneMesh, SceneModel, SceneMotion, SceneNormals, SceneObject,
 };
-use phiber::v2::{
+use phiber::{
     scene::{
         BObject3D, current_scene,
         extra::{BExtraKind, scene_extras_at},

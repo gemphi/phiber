@@ -8,15 +8,15 @@
 use glam::Vec3;
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::scene::camera::BViewSetup;
-use phiber::v2::scene::extra::{BExtraKind, scene_extras_now};
-use phiber::v2::scene::pick::BPickView;
-use phiber::v2::scene::source::set_loaded_scene;
-use phiber::v2::scene::transform::{BTransform, BTransforms};
-use phiber::v2::scene::xform::{BTransformModal, BTransformMode};
-use phiber::v2::state::action::apply_action;
-use phiber::v2::state::{BKey as _, BState, ButsKey, CtxKey};
-use phiber::v2::view::BAction;
+use phiber::scene::camera::BViewSetup;
+use phiber::scene::extra::{BExtraKind, scene_extras_now};
+use phiber::scene::pick::BPickView;
+use phiber::scene::source::set_loaded_scene;
+use phiber::scene::transform::{BTransform, BTransforms};
+use phiber::scene::xform::{BTransformModal, BTransformMode};
+use phiber::state::action::apply_action;
+use phiber::state::{BKey as _, BState, ButsKey, CtxKey};
+use phiber::view::BAction;
 use std::path::PathBuf;
 
 fn load() -> SceneModel {

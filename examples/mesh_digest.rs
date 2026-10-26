@@ -3,10 +3,10 @@
 //!
 //!   cargo run --release -p phiber --example mesh_digest -- FILE
 use phiber::phiphx::Phx;
-use phiber::v2::app::seed::seed_view_layer;
-use phiber::v2::part::outliner::key::BHidden;
-use phiber::v2::scene::{BObject3D, current_scene, source::set_loaded_scene};
-use phiber::v2::state::BState;
+use phiber::app::seed::seed_view_layer;
+use phiber::part::outliner::key::BHidden;
+use phiber::scene::{BObject3D, current_scene, source::set_loaded_scene};
+use phiber::state::BState;
 
 fn main() {
     let path = std::env::args().nth(1).expect("file");

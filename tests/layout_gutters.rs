@@ -12,14 +12,14 @@
 //! glyph, at the left), and the row values end under its grip (its last
 //! glyph, at the right).
 
-use phiber::v2::state::{BKey as _, CtxKey};
-use phiber::v2::state::ButsKey;
+use phiber::state::{BKey as _, CtxKey};
+use phiber::state::ButsKey;
 use gpui::{Modifiers, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState};
-use phiber::v2::theme::{BPaletteName, METRICS, resolve_ui_style, ui_style_defaults};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::space::BSpaceType;
+use phiber::state::{BState};
+use phiber::theme::{BPaletteName, METRICS, resolve_ui_style, ui_style_defaults};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 struct Box_ {
@@ -175,7 +175,7 @@ async fn host_headers_pad_horizontally_only(cx: &mut TestAppContext) {
     // The header's rule sits below its band: the strip is the module plus
     // that one stroke, so everything in the band keeps its place and the line
     // is what the pane below meets (`chrome_geometry`).
-    let rule = phiber::v2::theme::style::metric::DEFAULT_STROKES.border;
+    let rule = phiber::theme::style::metric::DEFAULT_STROKES.border;
     assert_eq!(
         f32::from(b.size.height),
         METRICS.h_header + rule,
@@ -246,8 +246,8 @@ async fn card_rows_start_under_their_heading_in_every_host(cx: &mut TestAppConte
         app.state = BState::new();
         app.state.set(CtxKey::Space, BSpaceType::Layout.slug());
         app.state.set(
-            phiber::v2::state::ModalKey::Open,
-            phiber::v2::modal::BModalType::FileBrowser.slug(),
+            phiber::state::ModalKey::Open,
+            phiber::modal::BModalType::FileBrowser.slug(),
         );
         cx.notify();
     });

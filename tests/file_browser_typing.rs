@@ -4,14 +4,14 @@
 //! navigates when you type a path and press Return. These drive the same
 //! path the user does: click the field, press keys, read the rendered list.
 
-use phiber::v2::state::{BKey as _, AppKey, CtxKey};
-use phiber::v2::state::FileKey;
+use phiber::state::{BKey as _, AppKey, CtxKey};
+use phiber::state::FileKey;
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::part::file::listing;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState, edit};
-use phiber::v2::view::prim::BAction;
+use phiber::app::BPhiberApp;
+use phiber::part::file::listing;
+use phiber::space::BSpaceType;
+use phiber::state::{BState, edit};
+use phiber::view::prim::BAction;
 
 /// The fixtures folder, which holds several `.blend` files with known names.
 fn fixtures() -> String {

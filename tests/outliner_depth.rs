@@ -1,10 +1,10 @@
 //! The outliner's rows keep their height, its lines run the whole list, and
 //! every level that holds something can be opened.
 
-use phiber::v2::state::{BKey as _, OutlinerKey};
-use phiber::v2::part::outliner::tree;
-use phiber::v2::state::{BState, val::V_TRUE};
-use phiber::v2::view::{BView, BViewItem};
+use phiber::state::{BKey as _, OutlinerKey};
+use phiber::part::outliner::tree;
+use phiber::state::{BState, val::V_TRUE};
+use phiber::view::{BView, BViewItem};
 
 fn rows(s: &BState) -> Vec<tree::BOutlineRow> {
     tree::flatten(s)
@@ -12,7 +12,7 @@ fn rows(s: &BState) -> Vec<tree::BOutlineRow> {
 
 fn source(relative: &str) -> String {
     std::fs::read_to_string(
-        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2").join(relative),
+        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src").join(relative),
     )
     .unwrap_or_else(|error| panic!("{relative}: {error}"))
 }
@@ -107,5 +107,5 @@ fn every_data_block_icon_has_an_asset() {
     }
     let _ = BView::Empty;
     let _: fn(&BState) -> BView =
-        |s| phiber::v2::part::outliner::BOutlinerItem::new().build(s);
+        |s| phiber::part::outliner::BOutlinerItem::new().build(s);
 }

@@ -3,7 +3,7 @@
 //! Feature: phiber-resolved-ui-style-settings, Property 6
 //! **Validates: Requirements 3.2, 3.3**
 
-use phiber::v2::{
+use phiber::{
     host::BHostType,
     state::BState,
     theme::{BPaletteName, resolve_ui_style, ui_style_defaults},

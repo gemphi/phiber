@@ -5,11 +5,11 @@
 //! to the content region, and they keep clear of the floating strips that
 //! share their corners.
 
-use phiber::v2::state::{CtxKey};
+use phiber::state::{CtxKey};
 use gpui::{Pixels as px_t, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState};
+use phiber::app::BPhiberApp;
+use phiber::space::BSpaceType;
+use phiber::state::{BState};
 
 async fn viewport(cx: &mut TestAppContext) -> &mut gpui::VisualTestContext {
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());

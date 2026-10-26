@@ -5,13 +5,13 @@
 //! shot, so the samples start over at the new count.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::modal::BModalType;
-use phiber::v2::scene::viewport_aa::BViewportAa;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{AppKey, BKey as _, BPath, BState, CtxKey, ModalKey};
-use phiber::v2::view::draw::canvas::view3d::rendered::views_posted;
-use phiber::v2::view::prim::BAction;
+use phiber::app::BPhiberApp;
+use phiber::modal::BModalType;
+use phiber::scene::viewport_aa::BViewportAa;
+use phiber::space::BSpaceType;
+use phiber::state::{AppKey, BKey as _, BPath, BState, CtxKey, ModalKey};
+use phiber::view::draw::canvas::view3d::rendered::views_posted;
+use phiber::view::prim::BAction;
 
 #[gpui::test]
 async fn the_quality_panel_offers_the_counts_and_a_choice_reposts_the_view(cx: &mut TestAppContext) {
@@ -22,7 +22,7 @@ async fn the_quality_panel_offers_the_counts_and_a_choice_reposts_the_view(cx: &
         app.state = BState::new();
         app.state.set(CtxKey::Space, BSpaceType::Layout.slug());
         app.state.set(ModalKey::Open, BModalType::Settings.slug());
-        app.state.set(&BPath::owned(vec![phiber::v2::host::BHostType::Prefs.slug(), "navbar", "tab"]), "Viewport");
+        app.state.set(&BPath::owned(vec![phiber::host::BHostType::Prefs.slug(), "navbar", "tab"]), "Viewport");
         cx.notify();
     });
     cx.run_until_parked();

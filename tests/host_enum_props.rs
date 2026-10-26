@@ -7,7 +7,7 @@
 //! returns `Some(h)`. Every host that appears in `SWITCHABLE` also lives
 //! in `ALL`.
 
-use phiber::v2::host::BHostType;
+use phiber::host::BHostType;
 use proptest::prelude::*;
 
 proptest! {

@@ -17,13 +17,13 @@
 //! - a checked entry showed a 12px glyph and nothing else, where the same
 //!   ticked row in a picker or the file browser's filter takes the fill too.
 
-use phiber::v2::part::menubar::item::{BMenuItem, BMenuKind};
-use phiber::v2::host::BHostType;
-use phiber::v2::part::menubar::BMenuSpec;
-use phiber::v2::part::menubar::tree::item_view;
-use phiber::v2::state::{BKey as _, BState, MenuKey, OpKey, val::*};
-use phiber::v2::view::BView;
-use phiber::v2::view::prim::{BAction, BControl};
+use phiber::part::menubar::item::{BMenuItem, BMenuKind};
+use phiber::host::BHostType;
+use phiber::part::menubar::BMenuSpec;
+use phiber::part::menubar::tree::item_view;
+use phiber::state::{BKey as _, BState, MenuKey, OpKey, val::*};
+use phiber::view::BView;
+use phiber::view::prim::{BAction, BControl};
 
 /// The `Sub` item's anchor row, with `labels` above it, in state `s`.
 fn anchor(s: &BState, labels: &[&'static str], it: &BMenuItem) -> BControl {
@@ -112,7 +112,7 @@ fn the_arrow_is_its_own_column_and_leaves_the_shortcut_free() {
 
 #[test]
 fn the_arrow_is_drawn_as_an_icon_in_a_column_of_its_own() {
-    let menu = include_str!("../src/v2/view/draw/menu.rs");
+    let menu = include_str!("../src/view/draw/menu.rs");
     assert!(menu.contains("Submenu"), "the row has a submenu part");
     assert!(menu.contains("glyph(\"chevron_right\", ctx)"), "drawn as an icon, not as text");
     assert!(menu.contains("fn glyph("), "through the one glyph builder a menu row has");
@@ -124,7 +124,7 @@ fn the_arrow_is_drawn_as_an_icon_in_a_column_of_its_own() {
 
 #[test]
 fn clicking_the_row_that_opened_a_submenu_closes_it_again() {
-    use phiber::v2::state::action::apply_action;
+    use phiber::state::action::apply_action;
     for (labels, it) in every_submenu_item() {
         let mut chain: Vec<&'static str> = labels.clone();
         chain.push(it.label);
@@ -146,7 +146,7 @@ fn clicking_the_row_that_opened_a_submenu_closes_it_again() {
 
 #[test]
 fn hovering_an_open_submenu_leaves_it_open() {
-    use phiber::v2::state::action::apply_action;
+    use phiber::state::action::apply_action;
     // A click is a toggle; a hover only opens. The two arrive as different
     // actions for exactly this reason — crossing the row on the way to its
     // panel must not close the panel.

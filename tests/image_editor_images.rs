@@ -4,13 +4,13 @@
 //! puts it on the clipboard, Reload reads it again and Save As writes it.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::part::file::purpose::BFilePurpose;
-use phiber::v2::part::image::shown::BShownImage;
-use phiber::v2::scene::image_list::BImageList;
-use phiber::v2::state::{BKey as _, ImageKey, ModalKey, OpKey, val::{BValue, V_MODAL_NEW_IMAGE, V_TRUE}};
-use phiber::v2::view::BAction;
-use phiber::v2::view::draw::canvas::image::BImageView;
+use phiber::app::BPhiberApp;
+use phiber::part::file::purpose::BFilePurpose;
+use phiber::part::image::shown::BShownImage;
+use phiber::scene::image_list::BImageList;
+use phiber::state::{BKey as _, ImageKey, ModalKey, OpKey, val::{BValue, V_MODAL_NEW_IMAGE, V_TRUE}};
+use phiber::view::BAction;
+use phiber::view::draw::canvas::image::BImageView;
 
 #[gpui::test]
 async fn an_opened_image_is_shown_changed_copied_and_saved(cx: &mut TestAppContext) {
@@ -60,7 +60,7 @@ async fn an_opened_image_is_shown_changed_copied_and_saved(cx: &mut TestAppConte
 
     // Save As: written where the browser pointed, in the extension's format.
     let out = dir.join("turned.png");
-    app.update(cx, |app, _| phiber::v2::part::file::save_image::BImageSave::to(&mut app.state, &out.to_string_lossy()));
+    app.update(cx, |app, _| phiber::part::file::save_image::BImageSave::to(&mut app.state, &out.to_string_lossy()));
     let saved = image::open(&out).unwrap().to_rgba8();
     assert_eq!((saved.dimensions(), saved.get_pixel(1, 0).0), ((2, 4), [255, 0, 255, 255]));
 

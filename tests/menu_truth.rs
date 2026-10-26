@@ -21,8 +21,8 @@
 //! Where phiber deliberately differs, the difference is a row in [`EXTRA`]
 //! or [`RENAMED`] rather than a silence.
 
-use phiber::v2::part::menubar::item::{BMenuItem, BMenuKind};
-use phiber::v2::part::menubar::topbar::set::TOPBAR;
+use phiber::part::menubar::item::{BMenuItem, BMenuKind};
+use phiber::part::menubar::topbar::set::TOPBAR;
 use std::collections::BTreeSet;
 use std::path::PathBuf;
 

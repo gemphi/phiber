@@ -5,14 +5,14 @@
 //! The tip goes on over the top, as Blender's does.
 
 use gpui::{Modifiers, MouseButton, MouseDownEvent, MouseUpEvent, TestAppContext, point, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::view_slot::BViewSlot;
-use phiber::v2::scene::{view_pitch, view_yaw};
-use phiber::v2::state::ModalKey;
+use phiber::app::BPhiberApp;
+use phiber::scene::view_slot::BViewSlot;
+use phiber::scene::{view_pitch, view_yaw};
+use phiber::state::ModalKey;
 
 fn angles(app: &gpui::Entity<BPhiberApp>, cx: &mut gpui::VisualTestContext) -> (f32, f32) {
     app.read_with(cx, |a, _| {
-        let scope = phiber::v2::space::BSpaceList::active(&a.state).slug();
+        let scope = phiber::space::BSpaceList::active(&a.state).slug();
         BViewSlot::new(scope, "Center").with(|| (view_yaw(&a.state), view_pitch(&a.state)))
     })
 }

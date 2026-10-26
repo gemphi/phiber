@@ -11,21 +11,21 @@
 //! backing `view3d` state changed. This guards that the redesign kept the
 //! cluster both visible and wired to the existing yaw/zoom actions.
 
-use phiber::v2::state::{CtxKey};
+use phiber::state::{CtxKey};
 use gpui::{Modifiers, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::scene::{view_yaw, view_zoom};
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::BState;
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::scene::{view_yaw, view_zoom};
+use phiber::space::BSpaceType;
+use phiber::state::BState;
 
 fn select_view3d(state: &mut BState, space: BSpaceType) {
     state.set(CtxKey::Space, space.slug());
     // The welcome window is seeded open on a fresh state; dismiss it so the
     // workspace under it is what these assertions see.
-    state.set(phiber::v2::state::ModalKey::Open, "");
+    state.set(phiber::state::ModalKey::Open, "");
     // Area slots are keyed per space and per slot, so the editor chosen for
-    // Layout's centre area cannot leak into Shading's (see `v2::area::current`).
+    // Layout's centre area cannot leak into Shading's (see `area::current`).
     for area in space
         .spec()
         .areas
@@ -33,7 +33,7 @@ fn select_view3d(state: &mut BState, space: BSpaceType) {
         .filter(|a| a.hosts.contains(&BHostType::View3D))
     {
         state.set(
-            &phiber::v2::area::area_key(space, area),
+            &phiber::area::area_key(space, area),
             BHostType::View3D.slug(),
         );
     }
@@ -72,7 +72,7 @@ async fn navigate_gizmo_paints_and_stays_interactive(cx: &mut TestAppContext) {
 
     // Clicking zoom-in must change the view zoom (gizmo stays wired to state)
     // — this viewport's own (`scene::view_slot`).
-    let slot = phiber::v2::scene::view_slot::BViewSlot::new(BSpaceType::Modeling.slug(), "Center");
+    let slot = phiber::scene::view_slot::BViewSlot::new(BSpaceType::Modeling.slug(), "Center");
     let z0 = app.read_with(cx, |a, _| slot.with(|| view_zoom(&a.state)));
     cx.simulate_click(zoom_in.center(), Modifiers::none());
     cx.run_until_parked();
@@ -103,7 +103,7 @@ async fn the_compass_tips_with_pitch_not_just_yaw(cx: &mut TestAppContext) {
     app.update(cx, |app, cx| {
         app.state = BState::new();
         app.state.set(CtxKey::Space, BSpaceType::Layout.slug());
-        app.state.set(&phiber::v2::scene::pitch_key(), "10");
+        app.state.set(&phiber::scene::pitch_key(), "10");
         cx.notify();
     });
     cx.run_until_parked();
@@ -111,7 +111,7 @@ async fn the_compass_tips_with_pitch_not_just_yaw(cx: &mut TestAppContext) {
 
     // Look down on the scene: +Z swings towards the middle of the compass.
     app.update(cx, |app, cx| {
-        app.state.set(&phiber::v2::scene::pitch_key(), "80");
+        app.state.set(&phiber::scene::pitch_key(), "80");
         cx.notify();
     });
     cx.run_until_parked();

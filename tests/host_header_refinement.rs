@@ -2,7 +2,7 @@
 //!
 //! Validates: Requirements 3.4, 3.5, 5.1-5.7, 10.1, 11.3, 12.7
 
-use phiber::v2::{
+use phiber::{
     area::current,
     host::BHostType,
     pane::BPaneType,
@@ -16,12 +16,12 @@ use std::{fs, path::PathBuf};
 
 fn source(relative: &str) -> String {
     let path = module_file(PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("src/v2")
+        .join("src")
         .join(relative));
     fs::read_to_string(&path).unwrap_or_else(|error| panic!("{}: {error}", path.display()))
 }
 
-fn layout_center_area() -> phiber::v2::area::BAreaSpec {
+fn layout_center_area() -> phiber::area::BAreaSpec {
     *BSpaceType::Layout
         .spec()
         .areas
@@ -262,13 +262,13 @@ fn a_header_row_pushes_its_right_cell_to_the_right() {
 
 #[test]
 fn host_switch_popup_opens_inside_its_area() {
-    use phiber::v2::view::draw::popover::place::BPlacement;
+    use phiber::view::draw::popover::place::BPlacement;
 
     // The switcher trigger sits at its area's leading edge, so the picker
     // grows into the area. Anchoring it to the trigger's right edge pushed a
     // two-panel-wide panel leftwards, out of the host entirely.
-    let style = phiber::v2::theme::resolve_ui_style(
-        phiber::v2::theme::ui_style_defaults(phiber::v2::theme::BPaletteName::DEFAULT),
+    let style = phiber::theme::resolve_ui_style(
+        phiber::theme::ui_style_defaults(phiber::theme::BPaletteName::DEFAULT),
         &BState::new(),
     );
     assert_eq!(

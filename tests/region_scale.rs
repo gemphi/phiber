@@ -5,9 +5,9 @@
 //! Checked on the file browser's source list (a sidebar in a Tools region).
 
 use gpui::{Modifiers, MouseButton, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::state::val::V_MODAL_FILE_BROWSER;
-use phiber::v2::state::{BState, CtxKey, ModalKey};
+use phiber::app::BPhiberApp;
+use phiber::state::val::V_MODAL_FILE_BROWSER;
+use phiber::state::{BState, CtxKey, ModalKey};
 
 async fn dialog(cx: &mut TestAppContext) -> (gpui::Entity<BPhiberApp>, &mut gpui::VisualTestContext) {
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());

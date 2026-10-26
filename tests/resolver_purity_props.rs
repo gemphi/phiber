@@ -3,7 +3,7 @@
 //! Feature: phiber-resolved-ui-style-settings, Property 5
 //! **Validates: Requirements 2.6**
 
-use phiber::v2::{
+use phiber::{
     state::BState,
     theme::{
         BPaletteName, BResolvedUiStyle, BStyleParser, BUiStyleDefaults, UI_STYLE_DESCRIPTORS,
@@ -45,6 +45,7 @@ fn valid_raw(parser: BStyleParser, a: u16, b: u16, c: u16, d: u16) -> String {
             0 => "none".to_owned(),
             _ => "extra_large".to_owned(),
         },
+        BStyleParser::Weight => ["300", "400", "600", "700"][a as usize % 4].to_owned(),
         BStyleParser::Font => match a % 2 {
             0 => "system".to_owned(),
             _ => "menlo".to_owned(),

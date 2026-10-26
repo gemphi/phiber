@@ -7,8 +7,8 @@
 //! viewport's floating panes cast none. Nothing in the window said which
 //! surface was nearer the reader.
 
-use phiber::v2::state::BState;
-use phiber::v2::theme::{
+use phiber::state::BState;
+use phiber::theme::{
     BElevation, BPaletteName, BShadowStyle, BThemeMode, resolve_ui_style, ui_style_defaults_in,
 };
 
@@ -16,7 +16,7 @@ fn rung(shadow: BShadowStyle) -> usize {
     BShadowStyle::ALL.iter().position(|s| *s == shadow).expect("a known rung")
 }
 
-fn every_style() -> Vec<(BPaletteName, BThemeMode, phiber::v2::theme::BResolvedUiStyle)> {
+fn every_style() -> Vec<(BPaletteName, BThemeMode, phiber::theme::BResolvedUiStyle)> {
     let mut all = Vec::new();
     for name in BPaletteName::ALL.iter().copied() {
         for mode in [BThemeMode::Dark, BThemeMode::Light] {

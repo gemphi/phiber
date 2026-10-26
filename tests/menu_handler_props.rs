@@ -10,7 +10,7 @@
 //! - Property 7 (idempotent open): calling `apply_open(k)` twice with no
 //!   intervening writes produces the same state as one call.
 
-use phiber::v2::state::{BKey as _, BPath, BState, V_TRUE, apply_open, apply_toggle, MenuKey};
+use phiber::state::{BKey as _, BPath, BState, V_TRUE, apply_open, apply_toggle, MenuKey};
 use proptest::prelude::*;
 
 const TOPS: &[&str] = &["Phiber", "File", "Edit", "Render", "Window", "Help"];
@@ -94,14 +94,14 @@ proptest! {
 #[test]
 fn menubar_active_helper_starts_false() {
     let state = BState::new();
-    assert!(!phiber::v2::state::is_menubar_active(&state));
+    assert!(!phiber::state::is_menubar_active(&state));
 }
 
 #[test]
 fn opening_top_makes_menubar_active() {
     let mut state = BState::new();
     apply_toggle(&mut state, &MenuKey::Top(H, "File").path());
-    assert!(phiber::v2::state::is_menubar_active(&state));
+    assert!(phiber::state::is_menubar_active(&state));
 }
 
 /// Regression: two hosts that both declare a menu with the same label must
@@ -137,8 +137,8 @@ fn menubar_active_is_scoped_per_host() {
     let mut state = BState::new();
     apply_toggle(&mut state, &MenuKey::Top("view3d", "View").path());
 
-    assert!(phiber::v2::state::is_menubar_active_in(&state, "view3d"));
-    assert!(!phiber::v2::state::is_menubar_active_in(&state, "outliner"));
+    assert!(phiber::state::is_menubar_active_in(&state, "view3d"));
+    assert!(!phiber::state::is_menubar_active_in(&state, "outliner"));
 }
 
 fn _use_bpath(_: BPath) {}

@@ -135,7 +135,7 @@ const OWNERS: &[Owner] = &[
 ];
 
 fn gpui_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2/view/draw")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/view/draw")
 }
 
 fn fixture(name: &str) -> String {

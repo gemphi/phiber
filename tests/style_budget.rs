@@ -168,7 +168,7 @@ fn walk(dir: &Path, root: &Path, out: &mut BTreeMap<String, usize>) {
 }
 
 fn measured() -> BTreeMap<String, usize> {
-    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2/view/draw");
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/view/draw");
     let mut out = BTreeMap::new();
     walk(&root, &root, &mut out);
     out

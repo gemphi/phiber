@@ -19,7 +19,7 @@
 
 use std::collections::BTreeSet;
 
-const PART_MOD: &str = include_str!("../src/v2/part/mod.rs");
+const PART_MOD: &str = include_str!("../src/part/mod.rs");
 
 /// The body of `BPartItem::body`, which is the dispatcher.
 fn dispatcher() -> &'static str {
@@ -116,14 +116,14 @@ fn each_of_those_five_has_a_type_of_its_own() {
     // The impls themselves, so the guard fails on the file that lost one
     // rather than only on the dispatcher.
     for (source, wanted) in [
-        (include_str!("../src/v2/part/file/nav.rs"), ["BFileNav", "BFileRefresh"].as_slice()),
-        (include_str!("../src/v2/part/file/path_bar.rs"), ["BPathBar", "BTypeFilter"].as_slice()),
-        (include_str!("../src/v2/part/file/sidebar.rs"), ["BSourceList"].as_slice()),
+        (include_str!("../src/part/file/nav.rs"), ["BFileNav", "BFileRefresh"].as_slice()),
+        (include_str!("../src/part/file/path_bar.rs"), ["BPathBar", "BTypeFilter"].as_slice()),
+        (include_str!("../src/part/file/sidebar.rs"), ["BSourceList"].as_slice()),
     ] {
         for name in wanted {
             assert!(
                 source.contains(&format!("impl BViewItem for {name}"))
-                    || source.contains(&format!("impl crate::v2::view::BViewItem for {name}")),
+                    || source.contains(&format!("impl crate::view::BViewItem for {name}")),
                 "{name} has no `BViewItem` impl",
             );
             assert!(
@@ -163,7 +163,7 @@ fn the_part_table_covers_every_variant() {
     // `part/set.rs` held 28 entries for 37 variants and nothing noticed,
     // because nothing reads it and nothing compared it to the enum. Both are
     // still true of the reading; this is the comparing.
-    use phiber::v2::part::{BPartType, SET};
+    use phiber::part::{BPartType, SET};
     // `BPartType` is not `Ord`, so compare by name rather than adding a
     // derive to the enum for a test's convenience.
     let listed: BTreeSet<String> = SET.iter().map(|spec| format!("{:?}", spec.kind)).collect();
@@ -177,7 +177,7 @@ fn the_part_table_covers_every_variant() {
 fn a_parts_label_exists_once() {
     // It used to exist twice — the enum's match and a string per `set.rs`
     // entry — with nothing comparing them. A spec asks the enum now.
-    use phiber::v2::part::{BPartType, SET};
+    use phiber::part::{BPartType, SET};
     for spec in SET {
         assert_eq!(spec.label(), spec.kind.label(), "{:?}", spec.kind);
     }
@@ -188,7 +188,7 @@ fn a_parts_label_exists_once() {
 fn the_enum_and_its_all_slice_agree() {
     // `ALL` is hand-kept beside the enum because Rust cannot walk variants.
     // This is the thing that makes forgetting a line fail.
-    use phiber::v2::part::BPartType;
+    use phiber::part::BPartType;
     let from_source: BTreeSet<String> = {
         let from = PART_MOD.find("pub enum BPartType {").expect("the enum");
         let rest = &PART_MOD[from..];
@@ -219,8 +219,8 @@ fn every_host_is_a_host() {
     // `host/kind/` implementing `BHost` — which is what makes the folder's
     // `SLUG`, `SPEC` and `REGIONS` a compiler-checked shape rather than a
     // convention held up by an exhaustive match on two of the three.
-    use phiber::v2::host::BHostType;
-    let kind = include_str!("../src/v2/host/kind/mod.rs");
+    use phiber::host::BHostType;
+    let kind = include_str!("../src/host/kind/mod.rs");
     let listed: BTreeSet<String> = kind
         .split("hosts! {")
         .nth(1)

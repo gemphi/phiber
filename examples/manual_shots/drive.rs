@@ -316,7 +316,7 @@ impl<'a> Session<'a> {
     /// render nobody asked for would run under every figure after it. Where
     /// the session stands is read from the journal's last "Switched to".
     fn workspace(&mut self, label: &str) -> Res<()> {
-        use phiber::v2::space::BSpaceType;
+        use phiber::space::BSpaceType;
         let all = BSpaceType::ALL;
         let journal = self.journal();
         let here = match journal.contains("Switched to ") {

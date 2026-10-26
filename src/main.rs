@@ -1,8 +1,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use phiber::app;
-use phiber::v2::cli::render::{BHeadlessRender, BLookOverride};
-use phiber::v2::cli::{BCli, help};
+use phiber::cli::render::{BHeadlessRender, BLookOverride};
+use phiber::cli::{BCli, help};
 
 fn main() {
     // Install a panic hook that prints the panic location + payload before
@@ -16,17 +16,16 @@ fn main() {
                 .unwrap_or_else(|| "unknown".to_string())
         );
         let payload = info.payload();
-        if let Some(s) = payload.downcast_ref::<&str>() {
-            eprintln!("Payload: {}", s);
-        } else if let Some(s) = payload.downcast_ref::<String>() {
-            eprintln!("Payload: {}", s);
-        } else {
-            eprintln!("Payload: (non-string panic)");
-        }
+        let text = payload
+            .downcast_ref::<&str>()
+            .copied()
+            .or_else(|| payload.downcast_ref::<String>().map(String::as_str))
+            .unwrap_or("(non-string panic)");
+        eprintln!("Payload: {}", text);
         eprintln!("===========================");
     }));
 
-    // The command line, as Blender takes it (`v2::cli`). Everything the
+    // The command line, as Blender takes it (`cli`). Everything the
     // app itself does is unchanged when no flag asks otherwise, so running
     // the binary with no arguments opens the window exactly as before.
     let argv: Vec<String> = std::env::args().skip(1).collect();
@@ -70,7 +69,7 @@ fn render(cli: &BCli) -> i32 {
         eprintln!("Error: no blend loaded. cannot use '-f / --render-frame'");
         return 1;
     };
-    let model = match phiber::v2::cli::open::open(&file) {
+    let model = match phiber::cli::open::open(&file) {
         Ok(model) => model,
         Err(why) => {
             eprintln!("Error: cannot read '{file}': {why:?}");
@@ -79,7 +78,7 @@ fn render(cli: &BCli) -> i32 {
     };
     // The relative forms in `-f`, `-s` and `-e` are relative to the file's
     // own range, so the frames cannot be resolved until it is open.
-    let scene = phiber::v2::cli::frame::BFrameLimit {
+    let scene = phiber::cli::frame::BFrameLimit {
         first: model.timeline.frame_start,
         last: model.timeline.frame_end,
     };

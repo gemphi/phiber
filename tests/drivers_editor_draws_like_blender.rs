@@ -8,9 +8,9 @@
 use gpui::{TestAppContext, px, size};
 use phiber::phiphx::blend::BFCurve;
 use phiber::phiphx::scene::{SceneDrivers, SceneModel};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::space::BSpaceType;
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::space::BSpaceType;
 
 /// `ANIM_UI_get_channel_name_width`, `UI_TIME_SCRUB_MARGIN_Y`,
 /// `ANIM_UI_get_channel_height` and `_skip`.
@@ -65,9 +65,9 @@ async fn the_drivers_editor_lists_the_drivers_and_crosses_its_cursor_at_the_orig
     assert!(area.hosts.contains(&BHostType::Drivers));
     app.update(cx, |app, cx| {
         app.scene_cache = Some(("drivers-test".into(), std::sync::Arc::new(model)));
-        app.state.remove(phiber::v2::state::ModalKey::Open);
-        app.state.set(phiber::v2::state::CtxKey::Space, space.slug());
-        app.state.set(&phiber::v2::area::area_key(space, &area), BHostType::Drivers.slug());
+        app.state.remove(phiber::state::ModalKey::Open);
+        app.state.set(phiber::state::CtxKey::Space, space.slug());
+        app.state.set(&phiber::area::area_key(space, &area), BHostType::Drivers.slug());
         cx.notify();
     });
     cx.run_until_parked();

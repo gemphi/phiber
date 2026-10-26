@@ -3,12 +3,12 @@
 //! slots, and a working shading radio in the View3D header.
 
 use phiber::phiphx::Phx;
-use phiber::v2::host::BHostType;
-use phiber::v2::scene::extra::{BExtraKind, scene_extras};
-use phiber::v2::scene::{BShading, shading_key, view_shading};
-use phiber::v2::state::{BKey as _, BState};
-use phiber::v2::state::action::apply_action;
-use phiber::v2::view::{BAction, BView, BViewItem};
+use phiber::host::BHostType;
+use phiber::scene::extra::{BExtraKind, scene_extras};
+use phiber::scene::{BShading, shading_key, view_shading};
+use phiber::state::{BKey as _, BState};
+use phiber::state::action::apply_action;
+use phiber::view::{BAction, BView, BViewItem};
 use std::path::PathBuf;
 
 fn fixture() -> Option<PathBuf> {
@@ -62,11 +62,11 @@ fn view3d_header_has_the_four_shading_modes() {
     // `part::filter` — the mode bar contributes only the mode picker.
     let mut actions = Vec::new();
     tabs(
-        &phiber::v2::part::filter::BFilter::new(BHostType::View3D).build(&s),
+        &phiber::part::filter::BFilter::new(BHostType::View3D).build(&s),
         &mut actions,
     );
     // X-ray leads them (`view3d.toggle_xray`), then the four modes.
-    assert!(matches!(actions.first(), Some(BAction::Set(k, v)) if k == &phiber::v2::state::OpKey::View3d.path() && v == "toggle_xray"), "{actions:?}");
+    assert!(matches!(actions.first(), Some(BAction::Set(k, v)) if k == &phiber::state::OpKey::View3d.path() && v == "toggle_xray"), "{actions:?}");
     assert_eq!(actions.iter().filter(|a| matches!(a, BAction::Set(k, _) if k == &shading_key())).count(), 4);
     let wire = actions
         .iter()

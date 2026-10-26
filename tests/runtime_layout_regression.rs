@@ -1,22 +1,22 @@
 //! Runtime regressions for the View3D fill chain and Properties accordion.
 
-use phiber::v2::state::{CtxKey};
+use phiber::state::{CtxKey};
 use gpui::{Modifiers, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::part::BPartType;
-use phiber::v2::part::props::BPanelList;
-use phiber::v2::space::{BSpaceItem, BSpaceType};
-use phiber::v2::state::{BState, V_FALSE, action::apply_action};
-use phiber::v2::view::{BAction, BView, BViewItem, BViewList};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::part::BPartType;
+use phiber::part::props::BPanelList;
+use phiber::space::{BSpaceItem, BSpaceType};
+use phiber::state::{BState, V_FALSE, action::apply_action};
+use phiber::view::{BAction, BView, BViewItem, BViewList};
 
 fn select_view3d(state: &mut BState, space: BSpaceType) {
     state.set(CtxKey::Space, space.slug());
     // The welcome window is seeded open on a fresh state; dismiss it so the
     // workspace under it is what these assertions see.
-    state.set(phiber::v2::state::ModalKey::Open, "");
+    state.set(phiber::state::ModalKey::Open, "");
     // Area slots are keyed per space and per slot, so the editor chosen for
-    // Layout's centre area cannot leak into Shading's (see `v2::area::current`).
+    // Layout's centre area cannot leak into Shading's (see `area::current`).
     for area in space
         .spec()
         .areas
@@ -24,7 +24,7 @@ fn select_view3d(state: &mut BState, space: BSpaceType) {
         .filter(|a| a.hosts.contains(&BHostType::View3D))
     {
         state.set(
-            &phiber::v2::area::area_key(space, area),
+            &phiber::area::area_key(space, area),
             BHostType::View3D.slug(),
         );
     }
@@ -202,7 +202,7 @@ async fn rendered_full_width_heading_toggles_in_every_buts_space(cx: &mut TestAp
             app.state = BState::new();
             app.state.set(CtxKey::Space, space.slug());
             app.state
-                .set(&phiber::v2::area::area_key(space, area), "buts");
+                .set(&phiber::area::area_key(space, area), "buts");
             cx.notify();
         });
         cx.run_until_parked();

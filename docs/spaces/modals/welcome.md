@@ -2,7 +2,7 @@
 
 > **Type:** `BModalType::Splash` (slug `splash`)
 > **Size:** 880 × 560, drawn by the full-screen card renderer
-> **Source:** `src/v2/modal/splash/{mod,set,recent}.rs`
+> **Source:** `src/modal/splash/{mod,set,recent}.rs`
 > **Blender ref:** `WM_MT_splash` — `scripts/startup/bl_operators/wm.py:3431`
 > **Status (2026-09-16):** structure and labels at parity; branding is Phiber's.
 

@@ -3,10 +3,10 @@
 //! undoes or redoes to it (`ed.undo_history`).
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::scene_objects;
-use phiber::v2::state::{BKey as _, CtxKey, MenuKey, ModalKey, OpKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::scene::scene_objects;
+use phiber::state::{BKey as _, CtxKey, MenuKey, ModalKey, OpKey};
+use phiber::view::BAction;
 
 #[gpui::test]
 async fn the_history_lists_every_step_by_name_and_jumps_to_the_one_picked(cx: &mut TestAppContext) {

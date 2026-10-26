@@ -33,7 +33,7 @@ is genuinely missing. `reference/warp/jobs.md` now lists that, with
 evidence, and it is seven lines rather than nine.
 
 **The bottleneck that is left, and it is the big one:** the frame comes back
-to the CPU. `phiber/src/v2/scene/skin.rs:13` says the quiet part out loud —
+to the CPU. `phiber/src/scene/skin.rs:13` says the quiet part out loud —
 *"below this many vertices the CPU is faster than an upload + readback"* —
 and `GpuArray::read_first` makes a staging buffer per read and throws it
 away. Warp needs `RegisteredGLBuffer` to avoid this because CUDA and GL are
@@ -62,7 +62,7 @@ cannot be removed without changing phiphx's model. The per-frame cost is the
 traced frame itself, which is what `spatial/cost.rs` counts.
 once in the viewport, once in the browser, where the copy is worse.
 
-## 2. The spatial module (`phiber/src/v2/spatial/`) — new, this session
+## 2. The spatial module (`phiber/src/spatial/`) — new, this session
 
 What phiray cannot decide for itself is **how much frame to ask for**. A path
 tracer will spend a second on one frame happily; a spatial view has about

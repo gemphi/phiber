@@ -6,9 +6,9 @@
 
 use gpui::{TestAppContext, px, size};
 use phiber::phiphx::scene::{SceneMesh, SceneModel, SceneNormals, SceneObject};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState, CtxKey, ModalKey};
+use phiber::app::BPhiberApp;
+use phiber::space::BSpaceType;
+use phiber::state::{BState, CtxKey, ModalKey};
 use std::time::Instant;
 
 fn sphere(segs: usize) -> SceneMesh {
@@ -53,7 +53,7 @@ async fn orbiting_with_a_large_mesh_selected_costs_no_more_than_with_a_small_one
         let mut s = BState::new();
         s.set(ModalKey::Open, "");
         s.set(CtxKey::Space, BSpaceType::Layout.slug());
-        s.set(&phiber::v2::scene::loaded_path_key(), "heavy.blend".to_string());
+        s.set(&phiber::scene::loaded_path_key(), "heavy.blend".to_string());
         app.scene_cache = Some(("heavy.blend".to_string(), std::sync::Arc::new(model)));
         app.state = s;
         cx.notify();
@@ -68,7 +68,7 @@ async fn orbiting_with_a_large_mesh_selected_costs_no_more_than_with_a_small_one
         // The first orbit finds the extreme points; the ones timed are the rest.
         for i in 0..2 {
             app.update(cx, |app, cx| {
-                app.state.set(phiber::v2::scene::yaw_key(), format!("{}", 30.0 + i as f32));
+                app.state.set(phiber::scene::yaw_key(), format!("{}", 30.0 + i as f32));
                 cx.notify();
             });
             cx.run_until_parked();
@@ -76,7 +76,7 @@ async fn orbiting_with_a_large_mesh_selected_costs_no_more_than_with_a_small_one
         let t = Instant::now();
         for i in 0..6 {
             app.update(cx, |app, cx| {
-                app.state.set(phiber::v2::scene::yaw_key(), format!("{}", 40.0 + i as f32));
+                app.state.set(phiber::scene::yaw_key(), format!("{}", 40.0 + i as f32));
                 cx.notify();
             });
             cx.run_until_parked();

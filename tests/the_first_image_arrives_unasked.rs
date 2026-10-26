@@ -11,7 +11,7 @@
 //! asks for one more frame itself (`wake::ticking`).
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
+use phiber::app::BPhiberApp;
 
 #[gpui::test]
 async fn the_ticker_runs_after_the_first_paint_with_no_input(cx: &mut TestAppContext) {
@@ -21,11 +21,11 @@ async fn the_ticker_runs_after_the_first_paint_with_no_input(cx: &mut TestAppCon
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1200.0), px(700.0)));
     app.update(cx, |app, cx| {
-        app.state.remove(phiber::v2::state::ModalKey::Open);
+        app.state.remove(phiber::state::ModalKey::Open);
         cx.notify();
     });
     cx.run_until_parked();
-    assert!(phiber::v2::view::draw::canvas::view3d::rendered::views_posted() > 0, "the viewport posted its view");
+    assert!(phiber::view::draw::canvas::view3d::rendered::views_posted() > 0, "the viewport posted its view");
     // No input, no notify: the frames the paint itself asks for are all
     // there is — the platform delivers those (`simulate_next_frame` stands
     // in for its frame loop) — and they must be enough to start the ticker.

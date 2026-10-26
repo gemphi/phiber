@@ -2,11 +2,11 @@
 //! and the theme picker (`USERPREF_PT_theme`, `HIDE_HEADER`) has no heading.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::modal::BModalType;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState, CtxKey, ModalKey, action::apply_action};
-use phiber::v2::view::prim::BAction;
+use phiber::app::BPhiberApp;
+use phiber::modal::BModalType;
+use phiber::space::BSpaceType;
+use phiber::state::{BState, CtxKey, ModalKey, action::apply_action};
+use phiber::view::prim::BAction;
 
 async fn settings(cx: &mut TestAppContext) -> (gpui::Entity<BPhiberApp>, &mut gpui::VisualTestContext) {
     cx.update(|cx| cx.set_reduce_motion(true));
@@ -34,8 +34,8 @@ async fn a_preference_section_is_a_panel_that_folds(cx: &mut TestAppContext) {
     assert!(cx.debug_bounds(BODY).is_some(), "and is open by default");
 
     app.update(cx, |app, cx| {
-        let key = phiber::v2::part::props::BPanelItem::expand_key(
-            phiber::v2::host::BHostType::Prefs,
+        let key = phiber::part::props::BPanelItem::expand_key(
+            phiber::host::BHostType::Prefs,
             "Interface",
             "Dimensions",
         );

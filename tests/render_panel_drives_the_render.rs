@@ -6,8 +6,8 @@
 //! count then reaches the `Camera` is checked in-crate, in
 //! `view/draw/canvas/view3d/rendered/tests.rs`, where `BRayLook` lives.
 
-use phiber::v2::scene::{BRenderSet, render_set};
-use phiber::v2::state::{BState, ButsKey};
+use phiber::scene::{BRenderSet, render_set};
+use phiber::state::{BState, ButsKey};
 
 fn state_with(key: &'static str, value: &str) -> BState {
     let mut s = BState::new();

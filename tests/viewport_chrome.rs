@@ -1,11 +1,11 @@
 //! The viewport's own chrome: the tool rail on the left, the sidebar on the
 //! right, and the outliner showing the scene in every workspace.
 
-use phiber::v2::state::{CtxKey};
+use phiber::state::{CtxKey};
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState};
+use phiber::app::BPhiberApp;
+use phiber::space::BSpaceType;
+use phiber::state::{BState};
 
 async fn workspace(cx: &mut TestAppContext, space: BSpaceType) -> &mut gpui::VisualTestContext {
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());

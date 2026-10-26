@@ -2,13 +2,13 @@
 //! collections (not a flat list), Blender object-type icons, the file's
 //! active object, and hidden collections with their eye closed.
 
-use phiber::v2::state::{BKey as _, CtxKey};
-use phiber::v2::state::OutlinerKey;
+use phiber::state::{BKey as _, CtxKey};
+use phiber::state::OutlinerKey;
 use phiber::phiphx::Phx;
-use phiber::v2::app::{import::{ImportOutcome, settle_import}};
-use phiber::v2::part::outliner::tree::{self, BRowKind};
-use phiber::v2::scene::source::{clear_loaded_scene, set_loaded_scene};
-use phiber::v2::state::{BState};
+use phiber::app::{import::{ImportOutcome, settle_import}};
+use phiber::part::outliner::tree::{self, BRowKind};
+use phiber::scene::source::{clear_loaded_scene, set_loaded_scene};
+use phiber::state::{BState};
 use std::path::PathBuf;
 
 fn fixture() -> Option<PathBuf> {
@@ -55,7 +55,7 @@ fn loaded_blend_outliner_mirrors_the_collection_tree() {
     // is closed and everything under it inherits that, as
     // `LAYER_COLLECTION_HIDE` does. Marking each object instead would have
     // left them hidden after the collection's eye was opened again.
-    let hidden = phiber::v2::part::outliner::layer::hidden_by_collections(&s, &settled, phiber::v2::part::outliner::key::is_hidden);
+    let hidden = phiber::part::outliner::layer::hidden_by_collections(&s, &settled, phiber::part::outliner::key::is_hidden);
     assert!(hidden.contains("front_cam"), "front_cam hides with its collection");
     assert!(!tree::is_hidden(&s, "front_cam"), "…not through a flag of its own");
     assert!(!hidden.contains("head_base_geo"));
@@ -63,22 +63,22 @@ fn loaded_blend_outliner_mirrors_the_collection_tree() {
     // A collection row leads with its checkbox; unchecking it excludes the
     // collection from the view layer, so everything under it goes too.
     set_loaded_scene(Some(settled.clone()));
-    let views = phiber::v2::view::BViewItem::build(&phiber::v2::part::outliner::BOutlinerItem::new(), &s);
-    let phiber::v2::view::BView::Column { list } = views.shown() else { panic!("a column") };
+    let views = phiber::view::BViewItem::build(&phiber::part::outliner::BOutlinerItem::new(), &s);
+    let phiber::view::BView::Column { list } = views.shown() else { panic!("a column") };
     let grp = list
         .iter()
-        .find(|v| matches!(v, phiber::v2::view::BView::TreeRow { list, .. } if list.iter().any(|c| matches!(c, phiber::v2::view::BView::Label { text } | phiber::v2::view::BView::Button(phiber::v2::view::prim::BControl { label: Some(text), .. }) if text == "THYMUS-GRP"))))
+        .find(|v| matches!(v, phiber::view::BView::TreeRow { list, .. } if list.iter().any(|c| matches!(c, phiber::view::BView::Label { text } | phiber::view::BView::Button(phiber::view::prim::BControl { label: Some(text), .. }) if text == "THYMUS-GRP"))))
         .expect("the THYMUS-GRP row");
-    let phiber::v2::view::BView::TreeRow { lead, .. } = grp else { panic!() };
-    let phiber::v2::view::BView::Button(check) = &lead[0] else { panic!("a checkbox leads the row: {lead:?}") };
+    let phiber::view::BView::TreeRow { lead, .. } = grp else { panic!() };
+    let phiber::view::BView::Button(check) = &lead[0] else { panic!("a checkbox leads the row: {lead:?}") };
     assert_eq!(check.icon.as_deref(), Some("check_square"), "included: checked");
-    let Some(phiber::v2::view::BAction::Set(key, value)) = &check.action else { panic!() };
+    let Some(phiber::view::BAction::Set(key, value)) = &check.action else { panic!() };
     s.set(key, value.clone());
-    let hidden = phiber::v2::part::outliner::layer::hidden_by_collections(&s, &settled, phiber::v2::part::outliner::key::is_hidden);
+    let hidden = phiber::part::outliner::layer::hidden_by_collections(&s, &settled, phiber::part::outliner::key::is_hidden);
     assert!(hidden.contains("head_base_geo"), "excluded with its collection");
-    let views = phiber::v2::view::BViewItem::build(&phiber::v2::part::outliner::BOutlinerItem::new(), &s);
-    let phiber::v2::view::BView::Column { list } = views.shown() else { panic!() };
-    let unchecked = list.iter().any(|v| matches!(v, phiber::v2::view::BView::TreeRow { lead, .. } if lead.iter().any(|c| matches!(c, phiber::v2::view::BView::Button(b) if b.icon.as_deref() == Some("square")))));
+    let views = phiber::view::BViewItem::build(&phiber::part::outliner::BOutlinerItem::new(), &s);
+    let phiber::view::BView::Column { list } = views.shown() else { panic!() };
+    let unchecked = list.iter().any(|v| matches!(v, phiber::view::BView::TreeRow { lead, .. } if lead.iter().any(|c| matches!(c, phiber::view::BView::Button(b) if b.icon.as_deref() == Some("square")))));
     assert!(unchecked, "the box is drawn unchecked");
     clear_loaded_scene();
     // The file's active object (if any) became Phiber's active object.

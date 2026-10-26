@@ -178,7 +178,7 @@ fn allows_buikit_and_ui_neutral_shared_paths() {
 use apple::buikit::{BButton, BView};
 use apple::appkit::gpu::assets::MeshCache;
 use apple::services::scene::SceneModel;
-use crate::v2::view::BAtom;
+use crate::view::BAtom;
 // apple::puikit::PButton is documentation, not composition.
 const NOTE: &str = "apple::suikit::SButton";
 "#;

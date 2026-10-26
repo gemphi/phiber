@@ -8,7 +8,7 @@
 //! Every space declares the correct number of areas in each zone. Values
 //! are ground-truthed against the requirements document.
 
-use phiber::v2::{
+use phiber::{
     host::BHostType,
     space::{BSpaceItem, BSpaceType},
     state::{BState, key::ui_style as style_key},
@@ -24,7 +24,7 @@ use std::{fs, path::PathBuf};
 
 fn renderer(relative: &str) -> String {
     let path = module_file(PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("src/v2/view/draw")
+        .join("src/view/draw")
         .join(relative));
     fs::read_to_string(&path).unwrap_or_else(|error| panic!("{}: {error}", path.display()))
 }
@@ -358,7 +358,7 @@ proptest! {
 fn zone_flex_containers_prevent_overlay_inflation() {
     let zone_src = std::fs::read_to_string(
         std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("src/v2/view/draw/zone/mod.rs"),
+            .join("src/view/draw/zone/mod.rs"),
     )
     .expect("zone.rs must exist");
 
@@ -372,7 +372,7 @@ fn zone_flex_containers_prevent_overlay_inflation() {
     assert!(zone_src.contains(".gap(BSpace::Seam)"), "zone gap must be the seam token");
     let tokens = std::fs::read_to_string(
         std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("src/v2/view/draw/flex/token.rs"),
+            .join("src/view/draw/flex/token.rs"),
     )
     .expect("flex tokens");
     assert!(
@@ -389,7 +389,7 @@ fn zone_flex_containers_prevent_overlay_inflation() {
 /// seam overlays — so the extras count stays 0 for well-formed spaces.
 #[test]
 fn composition_shape_extras_zero_for_well_known_spaces() {
-    use phiber::v2::state::BState;
+    use phiber::state::BState;
 
     for &space in BSpaceType::EVERY {
         let state = BState::new();

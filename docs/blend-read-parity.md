@@ -15,8 +15,8 @@
 > **Code under review (current paths, 2026-09-16):**
 > - `crates/phiphx/src/importer/blend.rs` + `blend/*` — the native SDNA reader (own workspace crate; phiber re-exports it as `crate::phiphx`). Module map: `blend/README.md`.
 > - `crates/phiphx/src/services/scene/{mod,load,import,collection,geometry}.rs` — `SceneModel` and the blend → scene mapping
-> - `crates/phiber/src/v2/app/{handle,load,import,seed}.rs`, `src/v2/scene/{keys,source,shading,color}.rs` — the v2 open / progress / settle shell
-> - `crates/phiber/src/v2/part/statusbar/list.rs`, `src/v2/part/custom/outliner/{tree,layer,keys}.rs`, `src/v2/view/render/gpui/atom/canvas/view3d/` — consumers
+> - `crates/phiber/src/app/{handle,load,import,seed}.rs`, `src/scene/{keys,source,shading,color}.rs` — the v2 open / progress / settle shell
+> - `crates/phiber/src/part/statusbar/list.rs`, `src/part/custom/outliner/{tree,layer,keys}.rs`, `src/view/render/gpui/atom/canvas/view3d/` — consumers
 >
 > *(Rows marked ✅ are fixed; §0 lists what changed per pass. §3 below describes the code as it was at audit time.)*
 
@@ -357,7 +357,7 @@ workspace (`_unused/`). What is left of the vendored tree, and why:
 | Folder | Crates | Why it stays |
 |---|---|---|
 | `crates/phigpu` | `gpui*` (10) | the window, input and GPU drawing; phiber depends on `gpui` and `gpui_platform` directly |
-| `crates/phiui` | `theme`, `syntax_theme` | gpui's theme globals; reached only through `v2::theme::vendor::install` |
+| `crates/phiui` | `theme`, `syntax_theme` | gpui's theme globals; reached only through `theme::vendor::install` |
 | `crates/phicore` | `collections`, `sum_tree`, `util`, `path`, `util_macros`, `http_client`, `scheduler`, `media`, `refineable`, `zlog`, `ztracing*` | listed inside gpui's and theme's own Cargo.toml — not ours to remove without forking gpui |
 
 `cargo tree -p phiber` is the test of whether a vendored crate is really needed.
@@ -421,7 +421,7 @@ What the user then *sees*: the saved workspace tabs and active workspace; each a
 
 ## 3. How Phiber v2 opens a file today
 
-`BPhiberApp::handle_action` (`src/v2/app/handle.rs`):
+`BPhiberApp::handle_action` (`src/app/handle.rs`):
 
 1. `should_import(prev_loaded_path, file.selected)` — pure predicate, tested. Good.
 2. Sets `scene.loading = true`, seeds `LoadStage::Reading` (0.15) into `scene.load_stage` / `scene.load_progress`. **These are the only progress writes until settle — the "progress bar" jumps 0.15 → 1.0 with nothing in between.** The comment admits it: "the opaque background parse can't call back mid-flight".

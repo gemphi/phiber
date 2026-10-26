@@ -21,13 +21,13 @@
 
 use phiber::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
 use phiber::phiphx::blend::shade::socket::BlendSocket;
-use phiber::v2::host::BHostType;
-use phiber::v2::state::action::apply_action;
-use phiber::v2::state::{BKey as _, BState, NodeKey};
-use phiber::v2::view::draw::canvas::node::link::{
+use phiber::host::BHostType;
+use phiber::state::action::apply_action;
+use phiber::state::{BKey as _, BState, NodeKey};
+use phiber::view::draw::canvas::node::link::{
     self, BLinkEdits, BLinkEnd, BLinking, commit, edits_of, linking_of,
 };
-use phiber::v2::view::prim::BAction;
+use phiber::view::prim::BAction;
 
 fn input(identifier: &str) -> BlendSocket {
     BlendSocket { identifier: identifier.into(), name: identifier.into(), limit: 1, ..Default::default() }

@@ -6,7 +6,7 @@
 //! For any two pan deltas (dx1, dy1) and (dx2, dy2), applying them
 //! sequentially yields the same pan position as applying their sum.
 
-use phiber::v2::state::BState;
+use phiber::state::BState;
 use proptest::prelude::*;
 
 /// Encoded state keys for viewport pan (mirrors design.md's state table).
@@ -85,7 +85,7 @@ proptest! {
 // Feature: phiber-resolved-ui-style-settings
 // Validates: Requirements 13.9, 26.3, 54.6, 54.8
 
-use phiber::v2::theme::{BPaletteName, resolve_ui_style, ui_style_defaults};
+use phiber::theme::{BPaletteName, resolve_ui_style, ui_style_defaults};
 
 /// After renderer decomposition, the resolved style's hit_width is always
 /// larger than the visible seam — the interactive band is wider than the

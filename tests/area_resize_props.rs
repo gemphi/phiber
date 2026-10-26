@@ -10,10 +10,10 @@
 //! - Property 24: monotonicity of `f_i` under repeated shrink drags,
 //!   with a min-clamp floor of `min_area_extent / zone_extent`.
 
-use phiber::v2::space::BSpaceType;
-use phiber::v2::area::{apply_delta, area_size_key, clamp_to_min, normalize};
-use phiber::v2::state::BState;
-use phiber::v2::zone::BZoneType;
+use phiber::space::BSpaceType;
+use phiber::area::{apply_delta, area_size_key, clamp_to_min, normalize};
+use phiber::state::BState;
+use phiber::zone::BZoneType;
 use proptest::prelude::*;
 
 const ZONE_EXTENT: f32 = 1000.0;
@@ -199,8 +199,8 @@ fn clamp_splits_evenly_when_sum_below_2min() {
 // hit-band width is controlled exclusively by `style.resize.hit_width` and
 // the min-extent floor is `style.resize.min_extent` (= 60 px by default).
 
-use phiber::v2::area::size::apply_drag_with_min_extent;
-use phiber::v2::theme::{BPaletteName, resolve_ui_style, ui_style_defaults};
+use phiber::area::size::apply_drag_with_min_extent;
+use phiber::theme::{BPaletteName, resolve_ui_style, ui_style_defaults};
 
 /// The seam overlay source must use `div().absolute()` — confirming the
 /// overlay takes zero layout space in the flex tree.
@@ -212,9 +212,9 @@ fn seam_overlay_uses_absolute_positioning_not_layout_space() {
         )
         .unwrap_or_else(|error| panic!("{relative}: {error}"))
     };
-    let seam_src = read("src/v2/view/draw/zone/seam.rs");
+    let seam_src = read("src/view/draw/zone/seam.rs");
     // One geometry serves both seams: an area boundary and a panel edge.
-    let overlay_src = read("src/v2/view/draw/resize.rs");
+    let overlay_src = read("src/view/draw/resize.rs");
 
     // The overlay `div` must be `.absolute()` so it does not occupy flex space.
     assert!(

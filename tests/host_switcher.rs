@@ -1,12 +1,12 @@
 //! Switching an area's editor type from its header, driven through the app.
 
-use phiber::v2::state::{CtxKey};
+use phiber::state::{CtxKey};
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::space::{BSpaceType, BSpaceList};
-use phiber::v2::state::{BState};
-use phiber::v2::view::{BView, BViewList};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::space::{BSpaceType, BSpaceList};
+use phiber::state::{BState};
+use phiber::view::{BView, BViewList};
 
 /// Every popover that is open in the current tree, as (open, body-size).
 fn open_popovers(v: &BView, out: &mut Vec<usize>) {
@@ -29,7 +29,7 @@ fn children(v: &BView) -> Vec<&BView> {
         | BView::Pane { list, .. }
         | BView::Row { list }
         | BView::Column { list } => list.iter().collect(),
-        BView::Card(card) if matches!(card.kind, phiber::v2::view::prim::BCardKind::Column(_)) => card.body.iter().collect(),
+        BView::Card(card) if matches!(card.kind, phiber::view::prim::BCardKind::Column(_)) => card.body.iter().collect(),
         BView::Area { child, .. } | BView::Part { body: child, .. } => vec![child.as_ref()],
         BView::Popover { anchor, body, .. } => {
             let mut out = vec![anchor.as_ref()];
@@ -85,14 +85,14 @@ async fn choosing_an_editor_type_switches_the_area_and_closes_the_popover(
     // popover's own menu item does.
     app.update(cx, |app, cx| {
         let space = BSpaceType::Layout;
-        let area = phiber::v2::space::BSpaceType::Layout
+        let area = phiber::space::BSpaceType::Layout
             .spec()
-            .areas_in(phiber::v2::zone::BZoneType::Center)[0];
-        let open = phiber::v2::area::current::switcher_key(space, &area);
-        app.state.set(&open, phiber::v2::state::val::V_TRUE);
-        let slot = phiber::v2::area::current::area_key(space, &area);
+            .areas_in(phiber::zone::BZoneType::Center)[0];
+        let open = phiber::area::current::switcher_key(space, &area);
+        app.state.set(&open, phiber::state::val::V_TRUE);
+        let slot = phiber::area::current::area_key(space, &area);
         app.handle_action(
-            &phiber::v2::view::prim::BAction::Set(
+            &phiber::view::prim::BAction::Set(
                 slot,
                 BHostType::Image.slug().to_string(),
             ),

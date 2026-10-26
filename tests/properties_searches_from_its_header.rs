@@ -6,15 +6,15 @@
 //! sat empty in an editor that searches — and a field that filtered nothing
 //! would have been worse than none, so these pin both halves.
 
-use phiber::v2::host::BHostType;
-use phiber::v2::part::search::search_key;
-use phiber::v2::state::{BKey as _, BState, ButsKey, CtxKey};
-use phiber::v2::view::{BView, BViewList};
+use phiber::host::BHostType;
+use phiber::part::search::search_key;
+use phiber::state::{BKey as _, BState, ButsKey, CtxKey};
+use phiber::view::{BView, BViewList};
 
 /// The panel titles the Properties body lists for the active tab. The list
 /// hands back one card per panel, so the titles are the cards' own.
 fn panels(state: &BState) -> Vec<String> {
-    phiber::v2::part::props::BPanelList::new(BHostType::Buts)
+    phiber::part::props::BPanelList::new(BHostType::Buts)
         .items(state)
         .iter()
         .filter_map(|view| match view {

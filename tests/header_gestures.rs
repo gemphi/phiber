@@ -6,10 +6,10 @@
 //! whose three sections (Dimensions, Spacing, Typography) all start open.
 
 use gpui::{Modifiers, MouseButton, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::modal::BModalType;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState, CtxKey, ModalKey};
+use phiber::app::BPhiberApp;
+use phiber::modal::BModalType;
+use phiber::space::BSpaceType;
+use phiber::state::{BState, CtxKey, ModalKey};
 
 async fn settings(cx: &mut TestAppContext) -> &mut gpui::VisualTestContext {
     cx.update(|cx| cx.set_reduce_motion(true));

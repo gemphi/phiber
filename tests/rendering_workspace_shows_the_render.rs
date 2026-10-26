@@ -7,11 +7,11 @@
 
 use gpui::{TestAppContext, px, size};
 use phiber::phiphx::scene::SceneCamera;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::{BObject3D, BRenderPlan, BShading, camera_of, render_job};
-use phiber::v2::view::draw::canvas::view3d::rendered::BStillLook;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::CtxKey;
+use phiber::app::BPhiberApp;
+use phiber::scene::{BObject3D, BRenderPlan, BShading, camera_of, render_job};
+use phiber::view::draw::canvas::view3d::rendered::BStillLook;
+use phiber::space::BSpaceType;
+use phiber::state::CtxKey;
 
 fn plan(samples: u32) -> BRenderPlan {
     let cam = SceneCamera {
@@ -43,7 +43,7 @@ async fn the_rendering_workspace_is_the_image_editor_with_blenders_header(cx: &m
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1400.0), px(800.0)));
     app.update(cx, |app, cx| {
-        app.state.remove(phiber::v2::state::ModalKey::Open);
+        app.state.remove(phiber::state::ModalKey::Open);
         app.state.set(CtxKey::Space, BSpaceType::Rendering.slug());
         cx.notify();
     });
@@ -66,7 +66,7 @@ async fn the_rendering_workspace_is_the_image_editor_with_blenders_header(cx: &m
     // … and the window reaches the Timeline: no asset-shelf drawer reserving
     // an empty band between them.
     let gap = f32::from(tabs.origin.y) - f32::from(window.origin.y + window.size.height);
-    let seam = phiber::v2::theme::ui_style_defaults(phiber::v2::theme::BPaletteName::DEFAULT).resize.gap;
+    let seam = phiber::theme::ui_style_defaults(phiber::theme::BPaletteName::DEFAULT).resize.gap;
     assert!(gap >= 0.0 && gap <= seam + 2.0, "the Image window ends a seam above the Timeline, not {gap} px (seam {seam})");
     let names = selectors(cx);
     let has = |needle: &str| names.iter().any(|s| s.contains(needle));
@@ -79,7 +79,7 @@ async fn the_rendering_workspace_is_the_image_editor_with_blenders_header(cx: &m
         return;
     }
     render_job::start(
-        vec![BObject3D::Primitive { name: "Cube".into(), shape: phiber::v2::scene::BShape::Cube, x: 0.0, y: 0.0 }],
+        vec![BObject3D::Primitive { name: "Cube".into(), shape: phiber::scene::BShape::Cube, x: 0.0, y: 0.0 }],
         plan(4),
     );
     let mut ready = false;
@@ -113,7 +113,7 @@ async fn the_rendering_workspace_is_the_image_editor_with_blenders_header(cx: &m
     // picture; `paint_info` lays the theme's own dim there instead, so the
     // scrim follows the palette — and a test that pinned `l: 0.0, a: 0.25`
     // pinned the one thing about the bar that is meant to change.
-    let height = phiber::v2::view::draw::canvas::image::INFO_BAR_HEIGHT;
+    let height = phiber::view::draw::canvas::image::INFO_BAR_HEIGHT;
     // `quad <x>,<y> <w>x<h> clip …`
     let top = |line: &str| line.split(' ').nth(1).unwrap().split(',').nth(1).unwrap().parse::<f32>().unwrap() / scale;
     let size_of = |line: &str, n: usize| line.split(' ').nth(2).unwrap().split('x').nth(n).unwrap().parse::<f32>().unwrap() / scale;

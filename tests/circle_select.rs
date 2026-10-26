@@ -3,12 +3,12 @@
 //! wheel resizes the brush, and the right button or Escape ends it.
 
 use gpui::{Modifiers, MouseButton, Point, ScrollDelta, ScrollWheelEvent, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::circlesel::{BCircle, DEFAULT_RADIUS};
-use phiber::v2::scene::scene_objects;
-use phiber::v2::scene::select::BSelection;
-use phiber::v2::state::{BKey as _, ModalKey, OpKey, View3dKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::scene::circlesel::{BCircle, DEFAULT_RADIUS};
+use phiber::scene::scene_objects;
+use phiber::scene::select::BSelection;
+use phiber::state::{BKey as _, ModalKey, OpKey, View3dKey};
+use phiber::view::BAction;
 
 #[gpui::test]
 async fn the_brush_paints_selection_on_and_off_until_it_is_put_away(cx: &mut TestAppContext) {

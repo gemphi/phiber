@@ -463,11 +463,11 @@
 //! border. Nothing else was re-shaded: every other `l:` and `hsla(...)` in the
 //! lines that left appears in the lines that arrived, and the reverse.
 
-use phiber::v2::state::{CtxKey, ModalKey};
+use phiber::state::{CtxKey, ModalKey};
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState};
+use phiber::app::BPhiberApp;
+use phiber::space::BSpaceType;
+use phiber::state::{BState};
 
 const GOLDEN: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden/layout_fingerprint.txt");
 const SIZES: &[(f32, f32)] = &[(1600.0, 900.0), (1100.0, 700.0)];

@@ -8,10 +8,10 @@
 use gpui::{TestAppContext, px, size};
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::{BObject3D, scene_objects};
-use phiber::v2::state::{BKey as _, ButsKey, CtxKey, ModalKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::scene::{BObject3D, scene_objects};
+use phiber::state::{BKey as _, ButsKey, CtxKey, ModalKey};
+use phiber::view::BAction;
 use std::path::PathBuf;
 
 fn world(objects: &[BObject3D], name: &str) -> [f32; 3] {
@@ -34,7 +34,7 @@ async fn typing_a_location_moves_the_object_and_its_children_and_saves(cx: &mut 
     cx.simulate_resize(size(px(1280.0), px(800.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::v2::scene::loaded_path_key(), path.clone());
+        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
         app.scene_cache = Some((path.clone(), std::sync::Arc::new(model)));
         cx.notify();
     });

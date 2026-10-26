@@ -4,10 +4,10 @@
 //! The outliner used to build its own search inside the mode bar while the
 //! shared header added one too, so its header carried two search fields.
 
-use phiber::v2::state::{CtxKey};
-use phiber::v2::space::{BSpaceList, BSpaceType};
-use phiber::v2::state::{BState};
-use phiber::v2::view::{BView, BViewList};
+use phiber::state::{CtxKey};
+use phiber::space::{BSpaceList, BSpaceType};
+use phiber::state::{BState};
+use phiber::view::{BView, BViewList};
 use std::collections::BTreeMap;
 
 fn kids(v: &BView) -> Vec<&BView> {
@@ -19,7 +19,7 @@ fn kids(v: &BView) -> Vec<&BView> {
         | BView::Pane { list, .. }
         | BView::Row { list }
         | BView::Column { list } => list.iter().collect(),
-        BView::Card(card) if matches!(card.kind, phiber::v2::view::prim::BCardKind::Column(_)) => card.body.iter().collect(),
+        BView::Card(card) if matches!(card.kind, phiber::view::prim::BCardKind::Column(_)) => card.body.iter().collect(),
         BView::Area { child, .. } | BView::Part { body: child, .. } => vec![child.as_ref()],
         BView::Popover { anchor, body, .. } => {
             let mut out = vec![anchor.as_ref()];
@@ -85,7 +85,7 @@ fn a_hosts_filters_sit_at_the_right_end_of_its_header() {
     // the shared header rule, not built inline by the mode bar.
     let modebar = std::fs::read_to_string(
         std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("src/v2/part/modebar/mod.rs"),
+            .join("src/part/modebar/mod.rs"),
     )
     .expect("modebar source");
     assert!(
@@ -93,7 +93,7 @@ fn a_hosts_filters_sit_at_the_right_end_of_its_header() {
         "the mode bar must not build a search field of its own"
     );
     let region = std::fs::read_to_string(
-        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2/region/mod.rs"),
+        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/region/mod.rs"),
     )
     .expect("region item source");
     assert!(

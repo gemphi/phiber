@@ -4,9 +4,9 @@
 //! landed on the field.
 
 use gpui::{Bounds, Pixels, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{CtxKey, ModalKey};
+use phiber::app::BPhiberApp;
+use phiber::space::BSpaceType;
+use phiber::state::{CtxKey, ModalKey};
 
 fn overlap(a: &Bounds<Pixels>, b: &Bounds<Pixels>) -> f32 {
     let w = f32::from(a.right().min(b.right())) - f32::from(a.left().max(b.left()));

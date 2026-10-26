@@ -3,11 +3,11 @@
 //!
 //!   cargo run --release -p phiber --example camera_render -- FILE OUT.png [samples]
 use phiber::phiphx::Phx;
-use phiber::v2::app::seed::{seed_render_props, seed_view_layer};
-use phiber::v2::part::outliner::key::BHidden;
-use phiber::v2::scene::{current_scene, render_plan, render_set, source::set_loaded_scene};
-use phiber::v2::state::BState;
-use phiber::v2::view::draw::canvas::view3d::rendered::{BRayLook, environment, still, view_words};
+use phiber::app::seed::{seed_render_props, seed_view_layer};
+use phiber::part::outliner::key::BHidden;
+use phiber::scene::{current_scene, render_plan, render_set, source::set_loaded_scene};
+use phiber::state::BState;
+use phiber::view::draw::canvas::view3d::rendered::{BRayLook, environment, still, view_words};
 
 fn main() {
     let mut args = std::env::args().skip(1);
@@ -18,12 +18,12 @@ fn main() {
     seed_view_layer(&mut s, &model);
     seed_render_props(&mut s, &model);
     // Film ▸ Transparent lives in the output seed (`rendering.md` §52).
-    phiber::v2::app::seed::seed_output_props(&mut s, &model);
+    phiber::app::seed::seed_output_props(&mut s, &model);
     set_loaded_scene(Some(model.clone()));
     let hidden = BHidden::now(&s);
     let objects: Vec<_> = current_scene(&s, Some(&model))
         .into_iter()
-        .filter(|o| !matches!(o, phiber::v2::scene::BObject3D::Loaded { name, .. } if hidden.hides(&s, name)))
+        .filter(|o| !matches!(o, phiber::scene::BObject3D::Loaded { name, .. } if hidden.hides(&s, name)))
         .collect();
     let mut set = render_set(&s);
     if let Some(n) = samples {
@@ -35,7 +35,7 @@ fn main() {
         sky: gpui::hsla(0.0, 0.0, 0.14, 1.0),
         grid: gpui::hsla(0.0, 0.0, 0.3, 1.0),
         world: Some(model.world.background.radiance()),
-        lights: phiber::v2::scene::scene_lights(),
+        lights: phiber::scene::scene_lights(),
         wire: None,
         view: view_words(&s),
         grid_hide: 0,
@@ -60,12 +60,12 @@ fn main() {
         if let Some((w, h)) = res.split_once('x') {
             p.w = w.parse().unwrap_or(p.w);
             p.h = h.parse().unwrap_or(p.h);
-            p.camera = phiber::v2::scene::camera_of(
-                phiber::v2::scene::active_camera(&model).expect("camera"),
+            p.camera = phiber::scene::camera_of(
+                phiber::scene::active_camera(&model).expect("camera"),
                 p.w,
                 p.h,
             );
-            phiber::v2::view::draw::canvas::view3d::rendered::lit(&mut p.camera, &look);
+            phiber::view::draw::canvas::view3d::rendered::lit(&mut p.camera, &look);
         }
     }
     println!(

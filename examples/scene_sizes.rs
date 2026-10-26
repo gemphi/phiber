@@ -2,11 +2,11 @@
 //! device's binding limit (`rendered::scene_fit`).
 //!   cargo run --release -p phiber --example scene_sizes -- FILE
 use phiber::phiphx::Phx;
-use phiber::v2::app::seed::{seed_output_props, seed_render_props, seed_view_layer};
-use phiber::v2::part::outliner::key::BHidden;
-use phiber::v2::scene::{BShading, current_scene, source::set_loaded_scene};
-use phiber::v2::state::BState;
-use phiber::v2::view::draw::canvas::view3d::rendered::scene_fit;
+use phiber::app::seed::{seed_output_props, seed_render_props, seed_view_layer};
+use phiber::part::outliner::key::BHidden;
+use phiber::scene::{BShading, current_scene, source::set_loaded_scene};
+use phiber::state::BState;
+use phiber::view::draw::canvas::view3d::rendered::scene_fit;
 
 fn main() {
     let path = std::env::args().nth(1).expect("file");
@@ -19,7 +19,7 @@ fn main() {
     let hidden = BHidden::now(&s);
     let objects: Vec<_> = current_scene(&s, Some(&model))
         .into_iter()
-        .filter(|o| !matches!(o, phiber::v2::scene::BObject3D::Loaded { name, .. } if hidden.hides(&s, name)))
+        .filter(|o| !matches!(o, phiber::scene::BObject3D::Loaded { name, .. } if hidden.hides(&s, name)))
         .collect();
     for (name, limit) in [
         ("GTX 1660 Ti / wgpu default", 128u64 * 1048576),

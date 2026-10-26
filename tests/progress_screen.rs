@@ -6,15 +6,15 @@
 //! never covered, so the scene is watched as it appears.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::modal::{BModalList, BModalType};
-use phiber::v2::part::statusbar::BStatusbar;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState, CtxKey, ModalKey};
-use phiber::v2::state::log;
-use phiber::v2::scene::{load_progress_key, load_stage_key, selected_key};
-use phiber::v2::view::{BView, BViewItem, BViewList};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::modal::{BModalList, BModalType};
+use phiber::part::statusbar::BStatusbar;
+use phiber::space::BSpaceType;
+use phiber::state::{BState, CtxKey, ModalKey};
+use phiber::state::log;
+use phiber::scene::{load_progress_key, load_stage_key, selected_key};
+use phiber::view::{BView, BViewItem, BViewList};
 
 /// The labels a built view carries, flattened — including a button's label and
 /// a progress bar's stage.
@@ -32,7 +32,7 @@ fn labels(v: &BView, out: &mut Vec<String>) {
             list.iter().for_each(|c| labels(c, out))
         }
         BView::Card(card)
-            if matches!(card.kind, phiber::v2::view::prim::BCardKind::Column(_)) =>
+            if matches!(card.kind, phiber::view::prim::BCardKind::Column(_)) =>
         {
             card.body.iter().for_each(|c| labels(c, out))
         }

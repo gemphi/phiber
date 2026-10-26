@@ -4,9 +4,9 @@
 //! the digit, and no renderer shades a colour by hand — the semantic layer
 //! moves along the ladder for it.
 
-use phiber::v2::theme::palette::shade::{SPHERE, set::SPHERE_TABLE};
-use phiber::v2::theme::{BPaletteName, BResolvedUiStyle, BShadeLadder, palette_for, resolve_ui_style, ui_style_defaults};
-use phiber::v2::state::BState;
+use phiber::theme::palette::shade::{SPHERE, set::SPHERE_TABLE};
+use phiber::theme::{BPaletteName, BResolvedUiStyle, BShadeLadder, palette_for, resolve_ui_style, ui_style_defaults};
+use phiber::state::BState;
 use std::path::{Path, PathBuf};
 
 fn expect_shade(ladder: &BShadeLadder, name: &str, color: (f32, f32, f32, f32)) -> u8 {
@@ -123,7 +123,7 @@ fn sources(dir: &Path, out: &mut Vec<PathBuf>) {
 
 #[test]
 fn no_renderer_shades_a_colour_by_hand() {
-    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2");
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src");
     let mut files = Vec::new();
     for dir in ["view", "part", "host", "app"] {
         sources(&root.join(dir), &mut files);

@@ -11,12 +11,12 @@
 //! what opens is the panel Blender draws, with Blender's items and Blender's
 //! default.
 
-use phiber::v2::host::BHostType;
-use phiber::v2::part::filter::has_filter;
-use phiber::v2::part::props::options::{self, set};
-use phiber::v2::state::val::V_TRUE;
-use phiber::v2::state::{BKey as _, BState, ButsKey};
-use phiber::v2::view::BView;
+use phiber::host::BHostType;
+use phiber::part::filter::has_filter;
+use phiber::part::props::options::{self, set};
+use phiber::state::val::V_TRUE;
+use phiber::state::{BKey as _, BState, ButsKey};
+use phiber::view::BView;
 
 /// The popover the header's right-hand control opens, when it is open.
 fn opened(state: &BState) -> Option<Vec<BView>> {

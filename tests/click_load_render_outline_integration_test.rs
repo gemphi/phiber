@@ -16,13 +16,13 @@ use phiber::{
     phiphx::scene::{
         SceneLoadError, SceneMesh, SceneModel, SceneNormals, SceneObject,
     },
-    v2::app::import::{ImportOutcome, settle_import, should_import},
-    v2::scene::{
+    app::import::{ImportOutcome, settle_import, should_import},
+    scene::{
         BObject3D, clear_loaded_scene, error_key, loaded_path_key, loading_key, scene_source,
         selected_key, set_loaded_scene,
     },
-    v2::state::{BState, action::apply_action},
-    v2::view::prim::BAction,
+    state::{BState, action::apply_action},
+    view::prim::BAction,
 };
 
 // --------------------------------------------------------------------------

@@ -7,14 +7,14 @@
 //! hides the bottom zone.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::part::menubar::item::{BMenuItem, BMenuKind, BMenuSpec};
-use phiber::v2::part::menubar::tree::leaf_action;
-use phiber::v2::scene::{OBJECTS, scene_objects};
-use phiber::v2::state::{BKey as _, BState, CtxKey, FileKey, MenuKey, ModalKey, OpKey, ZoneKey, val::V_FALSE};
-use phiber::v2::view::BAction;
-use phiber::v2::zone::BZoneType;
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::part::menubar::item::{BMenuItem, BMenuKind, BMenuSpec};
+use phiber::part::menubar::tree::leaf_action;
+use phiber::scene::{OBJECTS, scene_objects};
+use phiber::state::{BKey as _, BState, CtxKey, FileKey, MenuKey, ModalKey, OpKey, ZoneKey, val::V_FALSE};
+use phiber::view::BAction;
+use phiber::zone::BZoneType;
 
 fn walk(host: BHostType, trail: &mut Vec<&'static str>, items: &'static [BMenuItem], out: &mut Vec<(String, BAction)>) {
     for item in items {
@@ -110,7 +110,7 @@ async fn the_top_bars_operators_run_through_the_app(cx: &mut TestAppContext) {
 
     // View ▸ Frame All, Window ▸ Show Status Bar, Window ▸ Next Workspace.
     run(&app, cx, BAction::Set(OpKey::View3d.path(), "frame_all".into()));
-    assert!(app.read_with(cx, |a, _| a.state.get(phiber::v2::state::View3dKey::Pivot).is_some()));
+    assert!(app.read_with(cx, |a, _| a.state.get(phiber::state::View3dKey::Pivot).is_some()));
     run(&app, cx, BAction::Set(OpKey::Flip.path(), format!("!{}", ZoneKey::Shown(BZoneType::Bottom).path().encode())));
     assert_eq!(app.read_with(cx, |a, _| a.state.get(ZoneKey::Shown(BZoneType::Bottom)).map(str::to_string)), Some(V_FALSE.into()), "the status bar zone hides");
     let before = app.read_with(cx, |a, _| a.state.get(CtxKey::Space).map(str::to_string));
@@ -120,7 +120,7 @@ async fn the_top_bars_operators_run_through_the_app(cx: &mut TestAppContext) {
     // File ▸ New ▸ General: with the added cube unsaved it asks first; Don't
     // Save gives the default scene again, nothing added, nothing to undo.
     run(&app, cx, BAction::Set(OpKey::NewFile.path(), "Layout".into()));
-    assert_eq!(app.read_with(cx, |a, _| a.state.get(phiber::v2::state::ModalKey::Open).map(str::to_string)), Some("file_close".into()), "the cube is unsaved: the dialog first");
+    assert_eq!(app.read_with(cx, |a, _| a.state.get(phiber::state::ModalKey::Open).map(str::to_string)), Some("file_close".into()), "the cube is unsaved: the dialog first");
     run(&app, cx, BAction::Set(OpKey::FileClose.path(), "discard".into()));
     assert_eq!(app.read_with(cx, |a, _| names(&a.state).len()), default_count);
     assert_eq!(app.read_with(cx, |a, _| a.state.get(CtxKey::Space).map(str::to_string)), Some("Layout".into()));
@@ -129,5 +129,5 @@ async fn the_top_bars_operators_run_through_the_app(cx: &mut TestAppContext) {
 
     // An item without an operator says so.
     run(&app, cx, BAction::Set(OpKey::Report.path(), "File ▸ Save".into()));
-    assert!(phiber::v2::state::log::entries().iter().any(|e| e.text == "File ▸ Save: not available yet"));
+    assert!(phiber::state::log::entries().iter().any(|e| e.text == "File ▸ Save: not available yet"));
 }

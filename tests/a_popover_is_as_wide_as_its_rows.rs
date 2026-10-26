@@ -15,10 +15,10 @@
 //! inside it, and a label that is cut is one whose text ran past the panel.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BKey as _, BState, CtxKey, MenuKey, val::V_TRUE};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::space::BSpaceType;
+use phiber::state::{BKey as _, BState, CtxKey, MenuKey, val::V_TRUE};
 
 /// Open the Timeline's Playback popover — the longest set of split rows in
 /// the app, and the one in the report.
@@ -42,10 +42,10 @@ async fn the_panel_grows_to_its_widest_row(cx: &mut TestAppContext) {
     let (_app, cx) = playback_open!(cx);
     let bounds = cx.all_debug_bounds();
     let panel = bounds.iter().find(|(s, _)| s == "popover-panel").map(|(_, b)| *b).expect("the Playback popover is open");
-    let style = phiber::v2::theme::resolve_ui_style(
-        phiber::v2::theme::ui_style_defaults_in(
-            phiber::v2::theme::BPaletteName::DEFAULT,
-            phiber::v2::theme::BThemeMode::DEFAULT,
+    let style = phiber::theme::resolve_ui_style(
+        phiber::theme::ui_style_defaults_in(
+            phiber::theme::BPaletteName::DEFAULT,
+            phiber::theme::BThemeMode::DEFAULT,
         ),
         &BState::new(),
     );
@@ -109,7 +109,7 @@ async fn a_panel_in_a_region_still_gives_its_width_up(cx: &mut TestAppContext) {
 /// And the rule that makes it so, named where it is decided.
 #[test]
 fn the_shrink_rule_is_scoped_to_where_a_width_exists() {
-    let split = include_str!("../src/v2/view/draw/split.rs");
+    let split = include_str!("../src/view/draw/split.rs");
     assert!(split.contains("const VALUE_SHARE: f32 = 0.6;"), "Blender's split, named");
     assert!(split.contains("BLen::Share(if value { VALUE_SHARE } else { 1.0 - VALUE_SHARE })"), "and applied to both columns");
     assert!(!split.contains("BFlex::row().fills().min_width(BLen::Zero)"), "the equal halves are gone");

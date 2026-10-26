@@ -14,13 +14,13 @@
 //! survives the round trip, and that two node editors do not share either.
 
 use phiber::phiphx::blend::shade::graph::{BlendNode, NODE_ACTIVE, NODE_SELECT};
-use phiber::v2::host::BHostType;
-use phiber::v2::state::action::apply_action;
-use phiber::v2::state::{BKey as _, BState, NodeKey};
-use phiber::v2::view::draw::canvas::node::select::{
+use phiber::host::BHostType;
+use phiber::state::action::apply_action;
+use phiber::state::{BKey as _, BState, NodeKey};
+use phiber::view::draw::canvas::node::select::{
     self, BBoxMode, BClick, BNodeSelection, clicked, rank, selection_of,
 };
-use phiber::v2::view::prim::BAction;
+use phiber::view::prim::BAction;
 
 fn node(name: &str, flag: i32) -> BlendNode {
     BlendNode { name: name.into(), flag, ..Default::default() }

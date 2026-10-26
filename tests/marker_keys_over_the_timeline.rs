@@ -6,10 +6,10 @@
 //! Rename Active Item.
 
 use gpui::{Modifiers, MouseButton, Point, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::marker::BMarkerList;
-use phiber::v2::state::{AppKey, CtxKey, ModalKey};
-use phiber::v2::view::draw::canvas::time::marker::BAND_HEIGHT;
+use phiber::app::BPhiberApp;
+use phiber::scene::marker::BMarkerList;
+use phiber::state::{AppKey, CtxKey, ModalKey};
+use phiber::view::draw::canvas::time::marker::BAND_HEIGHT;
 
 fn pt(x: f32, y: f32) -> Point<gpui::Pixels> {
     Point::new(px(x), px(y))
@@ -76,7 +76,7 @@ async fn g_grabs_the_selected_markers_and_f2_renames_one_over_the_timeline(cx: &
     cx.run_until_parked();
     assert_eq!(app.read_with(cx, |a, _| a.state.get(ModalKey::Open).map(str::to_string)), Some("rename".into()));
     assert_eq!(app.read_with(cx, |a, _| a.state.get(AppKey::RenameText).map(str::to_string)), Some("Cut".into()));
-    app.update(cx, |app, cx| app.handle_action(&phiber::v2::view::BAction::Set(phiber::v2::state::BKey::path(&AppKey::RenameText), "Scene 2".into()), cx));
+    app.update(cx, |app, cx| app.handle_action(&phiber::view::BAction::Set(phiber::state::BKey::path(&AppKey::RenameText), "Scene 2".into()), cx));
     cx.run_until_parked();
     assert!(markers(cx).iter().any(|(f, n)| *f == kept && n == "Scene 2"), "{:?}", markers(cx));
 }

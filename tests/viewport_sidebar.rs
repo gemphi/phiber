@@ -9,13 +9,13 @@ use std::path::PathBuf;
 use gpui::{Modifiers, MouseButton, TestAppContext, px, size};
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::part::sidebar::show::BSidebarShown;
-use phiber::v2::scene::camera::setup_from_state;
-use phiber::v2::scene::view_slot::BViewSlot;
-use phiber::v2::state::{BKey as _, BState, ButsKey, CtxKey, ModalKey, View3dKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::part::sidebar::show::BSidebarShown;
+use phiber::scene::camera::setup_from_state;
+use phiber::scene::view_slot::BViewSlot;
+use phiber::state::{BKey as _, BState, ButsKey, CtxKey, ModalKey, View3dKey};
+use phiber::view::BAction;
 
 fn shown(state: &BState) -> bool {
     BSidebarShown(BHostType::View3D).on(state)
@@ -80,7 +80,7 @@ async fn a_tab_opens_the_sidebar_on_it_and_the_showing_tab_puts_it_away(cx: &mut
 
     // Focal Length is this area's own lens.
     // The viewport of the workspace showing: its own view slot.
-    let scope = app.read_with(cx, |a, _| phiber::v2::space::BSpaceList::active(&a.state).slug());
+    let scope = app.read_with(cx, |a, _| phiber::space::BSpaceList::active(&a.state).slug());
     let slot = BViewSlot::new(scope, "Center");
     let lens = slot.path(View3dKey::Lens);
     let id: &'static str = Box::leak(format!("btn-icon-set-ctx.edit-{}-number", lens.encode()).into_boxed_str());
@@ -109,11 +109,11 @@ fn a_files_saved_screen_decides_whether_the_sidebar_opens() {
     let open = read("sidebar_open.blend");
     assert!(open.ui.view.as_ref().expect("a saved view").sidebar);
     let mut s = BState::new();
-    phiber::v2::app::load_ui::restore_ui(&mut s, &open);
+    phiber::app::load_ui::restore_ui(&mut s, &open);
     assert!(shown(&s), "the sidebar opens as the file left it");
     // The factory startup itself keeps it shut.
     let shut = read("parented.blend");
     assert!(!shut.ui.view.as_ref().expect("a saved view").sidebar);
-    phiber::v2::app::load_ui::restore_ui(&mut s, &shut);
+    phiber::app::load_ui::restore_ui(&mut s, &shut);
     assert!(!shown(&s));
 }

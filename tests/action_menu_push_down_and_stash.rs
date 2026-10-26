@@ -12,14 +12,14 @@
 use gpui::{Modifiers, TestAppContext, px, size};
 use phiber::phiphx::blend::{BlendFile, STASH_TRACK, STRIP_ACTIVE, STRIP_SELECT, TRACK_MUTED, TRACK_PROTECTED};
 use phiber::phiphx::scene::{SceneModel, SceneNla};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::part::modebar::set::mode_key;
-use phiber::v2::scene::action::BSceneActions;
-use phiber::v2::scene::{BObject3D, scene_objects};
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BKey as _, CtxKey, ModalKey, OpKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::part::modebar::set::mode_key;
+use phiber::scene::action::BSceneActions;
+use phiber::scene::{BObject3D, scene_objects};
+use phiber::space::BSpaceType;
+use phiber::state::{BKey as _, CtxKey, ModalKey, OpKey};
+use phiber::view::BAction;
 use std::path::PathBuf;
 
 type Cx<'a> = &'a mut gpui::VisualTestContext;
@@ -37,13 +37,13 @@ fn pick(cx: Cx, item: &'static str) {
 }
 
 fn said() -> String {
-    phiber::v2::state::log::latest().map(|e| e.text).unwrap_or_default()
+    phiber::state::log::latest().map(|e| e.text).unwrap_or_default()
 }
 
 /// The Cube's NLA as the editors read it.
 fn cube_nla(cx: Cx) -> SceneNla {
     cx.run_until_parked();
-    phiber::v2::scene::source::with_loaded(|m| m.and_then(|m| m.nla.iter().find(|n| n.object == "Cube").cloned())).expect("the Cube's NLA")
+    phiber::scene::source::with_loaded(|m| m.and_then(|m| m.nla.iter().find(|n| n.object == "Cube").cloned())).expect("the Cube's NLA")
 }
 
 /// The Cube's world X and Z turn at `frame`.
@@ -77,7 +77,7 @@ async fn push_down_and_stash_lay_the_action_into_the_nla(cx: &mut TestAppContext
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
         app.state.set(CtxKey::Space, BSpaceType::Animation.slug());
-        app.state.set(&phiber::v2::scene::loaded_path_key(), path.clone());
+        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
         app.scene_cache = Some((path.clone(), std::sync::Arc::new(model)));
         cx.notify();
     });

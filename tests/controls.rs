@@ -2,26 +2,26 @@
 //! (`BCtrl`) over one value category (`BValue`), so a property panel, a
 //! filter menu and a script set the render engine the same way.
 
-use phiber::v2::state::{BKey as _, CtxKey};
-use phiber::v2::state::ButsKey;
+use phiber::state::{BKey as _, CtxKey};
+use phiber::state::ButsKey;
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::part::props::prop::BPropKind;
-use phiber::v2::part::props::set::{TABS, sections_for};
-use phiber::v2::state::log;
-use phiber::v2::state::val::{BValue, BValueKind};
-use phiber::v2::state::{BState};
-use phiber::v2::view::BView;
-use phiber::v2::view::prim::{BAction, BCtrlKind};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::part::props::prop::BPropKind;
+use phiber::part::props::set::{TABS, sections_for};
+use phiber::state::log;
+use phiber::state::val::{BValue, BValueKind};
+use phiber::state::{BState};
+use phiber::view::BView;
+use phiber::view::prim::{BAction, BCtrlKind};
 
-fn ctrls(view: &BView, out: &mut Vec<phiber::v2::view::prim::BCtrl>) {
+fn ctrls(view: &BView, out: &mut Vec<phiber::view::prim::BCtrl>) {
     match view {
         BView::Ctrl(c) => out.push((**c).clone()),
         BView::Row { list } | BView::Column { list } | BView::Split { list } => {
             list.iter().for_each(|v| ctrls(v, out))
         }
-        BView::Card(card) if matches!(card.kind, phiber::v2::view::prim::BCardKind::Column(_)) => card.body.iter().for_each(|v| ctrls(v, out)),
+        BView::Card(card) if matches!(card.kind, phiber::view::prim::BCardKind::Column(_)) => card.body.iter().for_each(|v| ctrls(v, out)),
         _ => {}
     }
 }
@@ -33,7 +33,7 @@ fn every_property_kind_is_a_control_over_its_value_category() {
     for tab in TABS {
         for section in sections_for(BHostType::Buts, tab) {
             for prop in section.all_props() {
-                let row = phiber::v2::part::props::prop_view::prop_row(prop, &s);
+                let row = phiber::part::props::prop_view::prop_row(prop, &s);
                 let mut found = Vec::new();
                 ctrls(&row, &mut found);
                 assert!(!found.is_empty(), "{tab} ▸ {} has no control", prop.label);
@@ -67,7 +67,7 @@ fn choosing_phiray_is_one_set_of_one_typed_key() {
         .flat_map(|s| s.all_props())
         .find(|p| p.key == "engine")
         .expect("the Render tab declares the engine");
-    let row = phiber::v2::part::props::prop_view::prop_row(engine, &s);
+    let row = phiber::part::props::prop_view::prop_row(engine, &s);
     let mut found = Vec::new();
     ctrls(&row, &mut found);
     let select = &found[0];
@@ -80,12 +80,12 @@ fn choosing_phiray_is_one_set_of_one_typed_key() {
 
     // Applied, the state holds it as an enum, and the log names it by label.
     let mut after = s.clone();
-    phiber::v2::state::action::apply_action(&mut after, &action);
+    phiber::state::action::apply_action(&mut after, &action);
     assert_eq!(after.value(&ButsKey::Value("engine").path(), BValueKind::Enum), Some(BValue::Enum("PHIRAY".into())));
     assert_eq!(log::describe(&action, &s, &after).as_deref(), Some("Render Engine: Phiray"));
 
     // Read back, the control shows the choice.
-    let row = phiber::v2::part::props::prop_view::prop_row(engine, &after);
+    let row = phiber::part::props::prop_view::prop_row(engine, &after);
     let mut found = Vec::new();
     ctrls(&row, &mut found);
     assert_eq!(found[0].chosen().map(|o| o.label.as_str()), Some("Phiray"));
@@ -93,14 +93,14 @@ fn choosing_phiray_is_one_set_of_one_typed_key() {
 
 #[test]
 fn numbers_step_within_their_range_and_bools_flip() {
-    use phiber::v2::view::prim::BCtrl;
+    use phiber::view::prim::BCtrl;
     let s = BState::new();
     let key = ButsKey::Value("cycles.samples").path();
     let samples = BCtrl::read(BCtrlKind::Int { min: 0, max: 10 }, key.clone(), BValue::Int(9), &s);
     let up = samples.nudge(1.0).unwrap();
     assert!(matches!(&up, BAction::Set(_, v) if v == "10"));
     let mut s2 = s.clone();
-    phiber::v2::state::action::apply_action(&mut s2, &up);
+    phiber::state::action::apply_action(&mut s2, &up);
     let again = BCtrl::read(BCtrlKind::Int { min: 0, max: 10 }, key, BValue::Int(0), &s2);
     assert!(matches!(&again.nudge(1.0).unwrap(), BAction::Set(_, v) if v == "10"), "clamped at the top");
 

@@ -33,11 +33,11 @@ screenful a file has stopped being one thing, and the split is nearly always
 obvious.
 
 **Enforced since 2026-09-23** by `tests/level_structure.rs::no_source_file_outgrows_a_read`
-over `src/v2`. The test fails if any file *not on the list below* crosses the
+over `src`. The test fails if any file *not on the list below* crosses the
 cap, **and** fails if a listed file drops under it and is not removed from the
 list — so the backlog can only shrink.
 
-### `phiber/src/v2` — 21 of 445 files over (was 25 before the sets were split)
+### `phiber/src` — 21 of 445 files over (was 25 before the sets were split)
 
 | file | lines | what the split is |
 | --- | --- | --- |
@@ -82,7 +82,7 @@ Done this session: `host/set.rs` 1030 → 102, `space/set.rs` 661 → 41,
 | `phiphx/src/blend/scene/output.rs` | 258 |
 | `phiphx/src/scene/tests_traversal.rs` | 246 |
 
-The guard only watches `phiber/src/v2`. Extending it to the other two crates
+The guard only watches `phiber/src`. Extending it to the other two crates
 is a one-line change plus these ten names on the list; it is the first thing
 to do so the rule means the same thing everywhere.
 

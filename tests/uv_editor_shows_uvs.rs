@@ -9,13 +9,13 @@
 use gpui::{Modifiers, TestAppContext, px, size};
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::part::image::uv::BUvShown;
-use phiber::v2::part::modebar::active_mode;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BKey as _, CtxKey, ModalKey, UvKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::part::image::uv::BUvShown;
+use phiber::part::modebar::active_mode;
+use phiber::space::BSpaceType;
+use phiber::state::{BKey as _, CtxKey, ModalKey, UvKey};
+use phiber::view::BAction;
 use std::path::PathBuf;
 
 /// `[uv for uv in cube.data.uv_layers.active.data]` in Blender 5.0.
@@ -51,7 +51,7 @@ async fn the_uv_editor_shows_and_edits_the_cubes_uvs(cx: &mut TestAppContext) {
     cx.simulate_resize(size(px(1600.0), px(900.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::v2::scene::loaded_path_key(), key.clone());
+        app.state.set(&phiber::scene::loaded_path_key(), key.clone());
         app.scene_cache = Some((key, std::sync::Arc::new(model)));
         cx.notify();
     });
@@ -98,7 +98,7 @@ async fn the_uv_editor_shows_and_edits_the_cubes_uvs(cx: &mut TestAppContext) {
     act(&app, cx, BAction::Set(CtxKey::Space.path(), BSpaceType::Layout.slug().into()));
     assert_ne!(app.read_with(cx, |a, _| active_mode(&a.state, BHostType::View3D)), "Edit Mode");
     act(&app, cx, BAction::Set(CtxKey::Space.path(), BSpaceType::UvEditing.slug().into()));
-    act(&app, cx, BAction::Set(phiber::v2::part::modebar::set::mode_key(BHostType::View3D), "Object Mode".into()));
+    act(&app, cx, BAction::Set(phiber::part::modebar::set::mode_key(BHostType::View3D), "Object Mode".into()));
     let uv = app.read_with(cx, |a, _| BUvShown::now(&a.state));
     assert!(!uv.edits() && uv.maps.len() == 1, "Object Mode shows the map and edits nothing");
     assert!(!shown(cx, "btn-icon-toggle-ctx.menu.uv.Pivot Point-target"), "no settings while not editing");

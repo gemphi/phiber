@@ -6,11 +6,11 @@
 use gpui::{TestAppContext, px, size};
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::render_set::BResolution;
-use phiber::v2::state::val::BValue;
-use phiber::v2::state::{BKey as _, ButsKey, CtxKey, ModalKey, OpKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::scene::render_set::BResolution;
+use phiber::state::val::BValue;
+use phiber::state::{BKey as _, ButsKey, CtxKey, ModalKey, OpKey};
+use phiber::view::BAction;
 use std::path::PathBuf;
 
 fn model_of(path: &std::path::Path) -> SceneModel {
@@ -32,8 +32,8 @@ async fn the_panel_s_resolution_is_rendered_framed_and_saved(cx: &mut TestAppCon
     cx.simulate_resize(size(px(1280.0), px(800.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::v2::scene::loaded_path_key(), blend.to_string_lossy().to_string());
-        phiber::v2::app::seed::seed_output_props(&mut app.state, &model);
+        app.state.set(&phiber::scene::loaded_path_key(), blend.to_string_lossy().to_string());
+        phiber::app::seed::seed_output_props(&mut app.state, &model);
         app.scene_cache = Some((blend.to_string_lossy().to_string(), std::sync::Arc::new(model)));
         app.state.set(CtxKey::Object, "Cube");
         cx.notify();
@@ -55,9 +55,9 @@ async fn the_panel_s_resolution_is_rendered_framed_and_saved(cx: &mut TestAppCon
     // Render ▸ Render Image (F12).
     app.update(cx, |app, cx| app.handle_action(&BAction::Set(OpKey::Render.path(), "image".into()), cx));
     cx.run_until_parked();
-    let shot = phiber::v2::scene::render_job::shot().0.expect("F12 started a render");
+    let shot = phiber::scene::render_job::shot().0.expect("F12 started a render");
     assert_eq!((shot.w, shot.h), (150, 200), "F12 renders the panel's size, not the file's {file:?}");
-    phiber::v2::scene::render_job::cancel();
+    phiber::scene::render_job::cancel();
     app.update(cx, |app, _| app.state.set(ModalKey::Open, ""));
     cx.run_until_parked();
 

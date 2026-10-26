@@ -7,11 +7,11 @@
 use gpui::{TestAppContext, px, size};
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::video::BMovieJob;
-use phiber::v2::state::val::BValue;
-use phiber::v2::state::{BKey as _, ButsKey, CtxKey, ModalKey, OpKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::scene::video::BMovieJob;
+use phiber::state::val::BValue;
+use phiber::state::{BKey as _, ButsKey, CtxKey, ModalKey, OpKey};
+use phiber::view::BAction;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 
@@ -28,8 +28,8 @@ async fn ctrl_f12_with_ffmpeg_video_writes_one_movie(cx: &mut TestAppContext) {
     cx.simulate_resize(size(px(1280.0), px(800.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::v2::scene::loaded_path_key(), blend.to_string_lossy().to_string());
-        phiber::v2::app::seed::seed_output_props(&mut app.state, &model);
+        app.state.set(&phiber::scene::loaded_path_key(), blend.to_string_lossy().to_string());
+        phiber::app::seed::seed_output_props(&mut app.state, &model);
         app.scene_cache = Some((blend.to_string_lossy().to_string(), std::sync::Arc::new(model)));
         cx.notify();
     });

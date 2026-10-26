@@ -12,15 +12,15 @@
 //! the cursor (the `on_drag_move` lived on the handle child and computed a
 //! bad delta), so `handle_resize` was never invoked with a nonzero delta.
 
-use phiber::v2::state::{CtxKey};
+use phiber::state::{CtxKey};
 use gpui::{Modifiers, MouseButton, Point, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::space::{BSpaceItem, BSpaceType};
-use phiber::v2::area::area_size_key;
-use phiber::v2::state::BState;
-use phiber::v2::view::BViewItem;
-use phiber::v2::zone::BZoneType;
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::space::{BSpaceItem, BSpaceType};
+use phiber::area::area_size_key;
+use phiber::state::BState;
+use phiber::view::BViewItem;
+use phiber::zone::BZoneType;
 
 /// Point offset helper.
 fn pt(x: f32, y: f32) -> Point<gpui::Pixels> {
@@ -32,7 +32,7 @@ fn pt(x: f32, y: f32) -> Point<gpui::Pixels> {
 fn select_space(state: &mut BState, space: BSpaceType) {
     state.set(CtxKey::Space, space.slug());
     // Dismiss the seeded welcome window so the workspace is what is measured.
-    state.set(phiber::v2::state::ModalKey::Open, "");
+    state.set(phiber::state::ModalKey::Open, "");
     for area in space
         .spec()
         .areas
@@ -40,7 +40,7 @@ fn select_space(state: &mut BState, space: BSpaceType) {
         .filter(|a| a.hosts.contains(&BHostType::View3D))
     {
         state.set(
-            &phiber::v2::area::area_key(space, area),
+            &phiber::area::area_key(space, area),
             BHostType::View3D.slug(),
         );
     }
@@ -121,7 +121,7 @@ async fn dragging_a_shading_boundary_changes_adjacent_fractions_and_layout(
     // The rebuilt tree must still contain the zone and handle (layout intact).
     let tree = BSpaceItem::new(BSpaceType::Shading).build(&state);
     assert!(
-        matches!(tree, phiber::v2::view::BView::Space { .. }),
+        matches!(tree, phiber::view::BView::Space { .. }),
         "root must remain a Space"
     );
 
@@ -272,7 +272,7 @@ async fn seam_tracks_cursor_one_to_one_in_pixels(cx: &mut TestAppContext) {
 /// Validates: zone::size + gpui::space seam handles + root ZoneDrag dispatch.
 #[gpui::test]
 async fn zone_seam_drag_resizes_right_column(cx: &mut TestAppContext) {
-    use phiber::v2::zone::zone_size_key;
+    use phiber::zone::zone_size_key;
 
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1280.0), px(800.0)));
@@ -331,7 +331,7 @@ async fn zone_seam_drag_resizes_right_column(cx: &mut TestAppContext) {
 /// pixel height (`ctx.zone_size.<space>.bottom`).
 #[gpui::test]
 async fn zone_seam_drag_resizes_bottom_strip(cx: &mut TestAppContext) {
-    use phiber::v2::zone::zone_size_key;
+    use phiber::zone::zone_size_key;
 
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1280.0), px(800.0)));
@@ -410,7 +410,7 @@ fn drag_down_smooth(cx: &mut gpui::VisualTestContext, start: Point<gpui::Pixels>
 /// Validates: Requirements 54.1, 54.3
 #[gpui::test]
 async fn resize_handle_presents_a_grabbable_band_and_wins_the_press(cx: &mut TestAppContext) {
-    use phiber::v2::theme::{BPaletteName, ui_style_defaults};
+    use phiber::theme::{BPaletteName, ui_style_defaults};
 
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1280.0), px(800.0)));
@@ -462,7 +462,7 @@ async fn resize_handle_presents_a_grabbable_band_and_wins_the_press(cx: &mut Tes
 /// Validates: Requirements 7.6, 7.7, 11.3, 13.8
 #[gpui::test]
 async fn focused_seam_overlays_are_grabbable_zero_footprint_and_bounded(cx: &mut TestAppContext) {
-    use phiber::v2::theme::{BPaletteName, ui_style_defaults};
+    use phiber::theme::{BPaletteName, ui_style_defaults};
 
     fn close(actual: f32, expected: f32, message: &str) {
         assert!(

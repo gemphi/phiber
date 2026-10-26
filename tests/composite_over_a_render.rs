@@ -13,7 +13,7 @@
 use phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
 use phiphx::blend::shade::socket::{BSocketDefault, BlendSocket};
 use phiphx::comp::BCompTree;
-use phiber::v2::scene::composite::BComposite;
+use phiber::scene::composite::BComposite;
 
 fn socket(identifier: &str, name: &str, default: Option<BSocketDefault>) -> BlendSocket {
     BlendSocket { identifier: identifier.into(), name: name.into(), default, ..Default::default() }

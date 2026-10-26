@@ -2,11 +2,11 @@
 //! `SpaceView3D.show_region_toolbar`. Shown by default — the same show/hide
 //! family as the sidebar (N) — and each editor flips its own.
 
-use phiber::v2::host::BHostType;
-use phiber::v2::part::toolbar::BToolbarShown;
-use phiber::v2::state::action::apply_action;
-use phiber::v2::state::{BKey as _, BState, OpKey};
-use phiber::v2::view::prim::BAction;
+use phiber::host::BHostType;
+use phiber::part::toolbar::BToolbarShown;
+use phiber::state::action::apply_action;
+use phiber::state::{BKey as _, BState, OpKey};
+use phiber::view::prim::BAction;
 
 #[test]
 fn t_toggles_the_tool_rail_on_by_default() {
@@ -30,9 +30,9 @@ fn t_toggles_the_tool_rail_on_by_default() {
 
 #[test]
 fn the_hidden_toolbar_part_is_empty() {
-    use phiber::v2::view::{BView, BViewItem};
+    use phiber::view::{BView, BViewItem};
     let mut s = BState::new();
-    let toolbar = phiber::v2::part::toolbar::BToolbar::new(BHostType::View3D);
+    let toolbar = phiber::part::toolbar::BToolbar::new(BHostType::View3D);
     assert!(!matches!(toolbar.build(&s), BView::Empty), "shown: a rail");
     // Turn it off.
     s.set(&BToolbarShown::view3d_key(), "false");
@@ -43,8 +43,8 @@ fn the_hidden_toolbar_part_is_empty() {
 fn the_menus_bind_t_to_the_toolbar() {
     // The keymap derives its bindings from the menu shortcuts, so a tog_host_on
     // entry with shortcut "T" binds T to the toolbar toggle.
-    let src = include_str!("../src/v2/part/menubar/editor/view3d/mod.rs");
-    assert!(src.contains(r#"tog_host_on("Toolbar", "T", crate::v2::part::toolbar::BToolbarShown::key_for)"#));
-    let img = include_str!("../src/v2/part/menubar/editor/image/set.rs");
-    assert!(img.contains(r#"tog_host_on("Toolbar", "T", crate::v2::part::toolbar::BToolbarShown::key_for)"#));
+    let src = include_str!("../src/part/menubar/editor/view3d/mod.rs");
+    assert!(src.contains(r#"tog_host_on("Toolbar", "T", crate::part::toolbar::BToolbarShown::key_for)"#));
+    let img = include_str!("../src/part/menubar/editor/image/set.rs");
+    assert!(img.contains(r#"tog_host_on("Toolbar", "T", crate::part::toolbar::BToolbarShown::key_for)"#));
 }

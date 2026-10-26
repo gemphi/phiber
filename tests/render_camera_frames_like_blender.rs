@@ -11,7 +11,7 @@
 //! `Camera.001`: silhouettes agree at **IoU 0.998**.
 
 use phiber::phiphx::scene::SceneCamera;
-use phiber::v2::scene::{camera_of, render_size};
+use phiber::scene::{camera_of, render_size};
 
 fn cam(kind: &str, lens: f32, sensor: f32, ortho: f32) -> SceneCamera {
     SceneCamera {

@@ -12,12 +12,12 @@
 use gpui::{Modifiers, MouseButton, TestAppContext, px, size};
 use phiber::phiphx::blend::{BlendCollection, BlendFile};
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::part::outliner::key::{BHidden, k_restrict};
-use phiber::v2::part::outliner::tree::{BOutlineRow, BRowKind, flatten};
-use phiber::v2::scene::links::BSceneLinks;
-use phiber::v2::state::{BKey as _, ModalKey, OpKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::part::outliner::key::{BHidden, k_restrict};
+use phiber::part::outliner::tree::{BOutlineRow, BRowKind, flatten};
+use phiber::scene::links::BSceneLinks;
+use phiber::state::{BKey as _, ModalKey, OpKey};
+use phiber::view::BAction;
 use std::path::PathBuf;
 
 const PROPS: &str = "Scene Collection/Props";
@@ -70,7 +70,7 @@ async fn collections_nest_objects_link_and_the_save_keeps_it(cx: &mut TestAppCon
     cx.simulate_resize(size(px(1400.0), px(900.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::v2::scene::loaded_path_key(), path.clone());
+        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
         app.scene_cache = Some((path.clone(), std::sync::Arc::new(model)));
         cx.notify();
     });

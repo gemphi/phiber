@@ -19,7 +19,7 @@ fn rust_files(dir: &Path, out: &mut Vec<PathBuf>) {
 }
 
 fn src(rel: &str) -> String {
-    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2");
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src");
     std::fs::read_to_string(root.join(rel)).unwrap()
 }
 
@@ -36,7 +36,7 @@ fn the_dispatcher_compares_no_paths() {
 
 #[test]
 fn every_rule_is_in_the_table() {
-    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2");
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src");
     let mut files = Vec::new();
     rust_files(&root, &mut files);
     let table = src("state/rule.rs");
@@ -59,9 +59,9 @@ fn every_rule_is_in_the_table() {
 
 #[test]
 fn a_viewpoint_becomes_two_angles_and_is_not_kept() {
-    use phiber::v2::state::{BState, View3dKey, action::apply_action};
-    use phiber::v2::view::prim::BAction;
-    use phiber::v2::state::BKey as _;
+    use phiber::state::{BState, View3dKey, action::apply_action};
+    use phiber::view::prim::BAction;
+    use phiber::state::BKey as _;
     let mut s = BState::new();
     apply_action(&mut s, &BAction::Set(View3dKey::View.path(), "top".into()));
     assert_eq!(s.get(View3dKey::Pitch), Some("90"));
@@ -71,8 +71,8 @@ fn a_viewpoint_becomes_two_angles_and_is_not_kept() {
 
 #[test]
 fn the_reader_gives_back_the_modal_it_covered() {
-    use phiber::v2::state::{BKey as _, BState, ModalKey, action::apply_action};
-    use phiber::v2::view::prim::BAction;
+    use phiber::state::{BKey as _, BState, ModalKey, action::apply_action};
+    use phiber::view::prim::BAction;
     let mut s = BState::new();
     s.set(ModalKey::Open, "help");
     apply_action(&mut s, &BAction::Set(ModalKey::ReaderDoc.path(), "manual".into()));
@@ -90,7 +90,7 @@ fn state_holds_only_the_store_the_keys_and_the_rules() {
         "action.rs", "edit.rs", "key", "log", "menu.rs", "mod.rs", "path.rs",
         "rule.rs", "seed.rs", "val.rs",
     ];
-    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2/state");
+    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/state");
     let mut extra = Vec::new();
     for entry in std::fs::read_dir(&dir).unwrap().flatten() {
         let name = entry.file_name().to_string_lossy().to_string();

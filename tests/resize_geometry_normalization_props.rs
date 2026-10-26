@@ -5,7 +5,7 @@
 //! seam_hover_over` under the pointer; the hit band is widened to the
 //! hovered seam so the line never outgrows what can be grabbed.
 
-use phiber::v2::{
+use phiber::{
     state::{BState, key::ui_style as key},
     theme::{BPaletteName, BResizeStyle, resolve_ui_style, ui_style_defaults},
 };

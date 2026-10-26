@@ -5,13 +5,13 @@
 //! drawer upward over the workspace that holds them all in a scroller, and
 //! the status bar itself keeps its height.
 
-use phiber::v2::state::{BKey as _, AppKey, CtxKey};
+use phiber::state::{BKey as _, AppKey, CtxKey};
 use gpui::{Pixels as px_t, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::log;
-use phiber::v2::state::{BPath, BState};
-use phiber::v2::view::prim::BAction;
+use phiber::app::BPhiberApp;
+use phiber::space::BSpaceType;
+use phiber::state::log;
+use phiber::state::{BPath, BState};
+use phiber::view::prim::BAction;
 
 fn zoom(value: &str) -> BAction {
     BAction::Set(BPath::owned(vec!["view3d", "zoom"]), value.to_string())

@@ -9,7 +9,7 @@
 //! this one is not on it.
 
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::scene::{camera_of, render_job::focus_on};
+use phiber::scene::{camera_of, render_job::focus_on};
 use std::path::PathBuf;
 
 fn model() -> Option<SceneModel> {

@@ -3,10 +3,10 @@
 //! outside any menu. Typing into a field still goes to the field.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::{scene_objects, view_pitch, view_yaw};
-use phiber::v2::state::{CtxKey, ModalKey, OpKey, View3dKey, val::V_TRUE};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::scene::{scene_objects, view_pitch, view_yaw};
+use phiber::state::{CtxKey, ModalKey, OpKey, View3dKey, val::V_TRUE};
+use phiber::view::BAction;
 
 #[gpui::test]
 async fn shortcuts_run_the_items_and_the_screen_keys_play_and_step(cx: &mut TestAppContext) {
@@ -74,7 +74,7 @@ async fn f2_renames_the_active_object(cx: &mut TestAppContext) {
     }
     cx.simulate_input("Crate");
     cx.run_until_parked();
-    assert_eq!(app.read_with(cx, |a, _| a.state.get(phiber::v2::state::AppKey::RenameText).map(str::to_string)), Some("Crate".into()));
+    assert_eq!(app.read_with(cx, |a, _| a.state.get(phiber::state::AppKey::RenameText).map(str::to_string)), Some("Crate".into()));
     assert_eq!(app.read_with(cx, |a, _| a.state.get(CtxKey::Object).map(str::to_string)), Some("Cube".into()), "typing alone renames nothing");
     cx.simulate_keystrokes("enter");
     cx.run_until_parked();

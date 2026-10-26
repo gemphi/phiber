@@ -3,7 +3,7 @@
 //! each crumb a folder's own path — and This PC is a folder too, listing
 //! the drives, that a drive's root goes up to.
 
-use phiber::v2::part::file::listing::{THIS_PC, parent_of, trail};
+use phiber::part::file::listing::{THIS_PC, parent_of, trail};
 
 #[test]
 fn a_windows_path_starts_at_this_pc_and_names_each_folder() {
@@ -33,8 +33,8 @@ fn a_drives_root_goes_up_to_this_pc_and_this_pc_is_the_top() {
 #[gpui::test]
 async fn a_crumb_goes_to_its_folder_and_the_box_between_types_the_path(cx: &mut gpui::TestAppContext) {
     use gpui::{Modifiers, MouseButton, point, px, size};
-    use phiber::v2::app::BPhiberApp;
-    use phiber::v2::state::{AppKey, BKey as _, BState, CtxKey, FileKey, ModalKey};
+    use phiber::app::BPhiberApp;
+    use phiber::state::{AppKey, BKey as _, BState, CtxKey, FileKey, ModalKey};
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1600.0), px(900.0)));
     let dir = env!("CARGO_MANIFEST_DIR").to_string();

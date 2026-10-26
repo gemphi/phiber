@@ -4,11 +4,11 @@
 //!
 //!   cargo run --release -p phiber --example color_render -- FILE OUT.png [material|solid|rendered] [samples]
 use phiber::phiphx::Phx;
-use phiber::v2::app::seed::seed_view_layer;
-use phiber::v2::part::outliner::key::BHidden;
-use phiber::v2::scene::{BObject3D, BShading, current_scene, source::set_loaded_scene};
-use phiber::v2::state::BState;
-use phiber::v2::view::draw::canvas::view3d::rendered::{BLamp, BStillLook, ENV_CDF_SLOT, ENV_SLOT, environment, still};
+use phiber::app::seed::seed_view_layer;
+use phiber::part::outliner::key::BHidden;
+use phiber::scene::{BObject3D, BShading, current_scene, source::set_loaded_scene};
+use phiber::state::BState;
+use phiber::view::draw::canvas::view3d::rendered::{BLamp, BStillLook, ENV_CDF_SLOT, ENV_SLOT, environment, still};
 use phiray::{Camera, LIGHTS, Light};
 use std::time::Instant;
 
@@ -36,9 +36,9 @@ fn main() {
     let t = Instant::now();
     let mut s = BState::new();
     seed_view_layer(&mut s, &model);
-    phiber::v2::app::seed::seed_render_props(&mut s, &model);
+    phiber::app::seed::seed_render_props(&mut s, &model);
     // Film ▸ Transparent lives in the output seed (`rendering.md` §52).
-    phiber::v2::app::seed::seed_output_props(&mut s, &model);
+    phiber::app::seed::seed_output_props(&mut s, &model);
     set_loaded_scene(Some(model.clone()));
     let hidden = BHidden::now(&s);
     let objects: Vec<BObject3D> = current_scene(&s, Some(&model))
@@ -82,7 +82,7 @@ fn main() {
     let sun = (right * 0.35 + up * 0.45 + back * 0.82).normalize();
     // The file's own lights and world, the way Blender renders it. Without
     // them the studio rig takes over and the image is flat.
-    let studio = shading == phiber::v2::scene::BShading::Material;
+    let studio = shading == phiber::scene::BShading::Material;
     let mut lights = [Light::default(); LIGHTS];
     // Material Preview is lit by the studio HDRI alone: Blender switches the
     // scene's lamps off there (`blender_color.py` hides them for the render),
@@ -92,7 +92,7 @@ fn main() {
     let usable: Vec<Light> = if studio {
         Vec::new()
     } else {
-        phiber::v2::scene::scene_lights().iter().map(BLamp::record).filter(|l| l.color.iter().any(|c| *c > 0.0)).take(LIGHTS).collect()
+        phiber::scene::scene_lights().iter().map(BLamp::record).filter(|l| l.color.iter().any(|c| *c > 0.0)).take(LIGHTS).collect()
     };
     lights[..usable.len()].copy_from_slice(&usable);
     let env_image = if studio { None } else { environment() };

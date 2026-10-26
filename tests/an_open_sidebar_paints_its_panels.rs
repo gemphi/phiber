@@ -16,13 +16,13 @@
 //! one host wired and the rest not is how this got missed.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::part::sidebar::set::tabs_for;
-use phiber::v2::part::sidebar::show::BSidebarShown;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::val::V_TRUE;
-use phiber::v2::state::{BState, CtxKey, ModalKey};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::part::sidebar::set::tabs_for;
+use phiber::part::sidebar::show::BSidebarShown;
+use phiber::space::BSpaceType;
+use phiber::state::val::V_TRUE;
+use phiber::state::{BState, CtxKey, ModalKey};
 
 /// Every host that offers a sidebar at all.
 fn hosts_with_a_sidebar() -> Vec<BHostType> {
@@ -33,7 +33,7 @@ fn hosts_with_a_sidebar() -> Vec<BHostType> {
 fn the_renderer_reads_the_field_the_part_fills_in() {
     // The part sets `panels`; the renderer has to use it. A source check,
     // because a field that is written and never read compiles perfectly.
-    let rail = include_str!("../src/v2/view/draw/rail.rs");
+    let rail = include_str!("../src/view/draw/rail.rs");
     assert!(
         rail.contains("rail.panels"),
         "the rail renderer must read `BRailView::panels` — the part built them for it"
@@ -67,7 +67,7 @@ fn a_sidebar_tab_with_nothing_behind_it_is_named_in_the_backlog() {
     // allowed only while the pair is named above, and the list may only
     // shrink — so this fails BOTH ways: on a new empty tab, and on a tab
     // that has its panels now and is still listed.
-    use phiber::v2::part::sidebar::set::BSidebarBody;
+    use phiber::part::sidebar::set::BSidebarBody;
     let mut unlisted = Vec::new();
     let mut done = Vec::new();
     for host in hosts_with_a_sidebar() {

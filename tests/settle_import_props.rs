@@ -13,9 +13,9 @@ use phiber::{
     phiphx::scene::{
         SceneLoadError, SceneMesh, SceneModel, SceneNormals, SceneObject,
     },
-    v2::app::import::{ImportOutcome, settle_import},
-    v2::scene::{error_key, loaded_path_key, loading_key},
-    v2::state::BState,
+    app::import::{ImportOutcome, settle_import},
+    scene::{error_key, loaded_path_key, loading_key},
+    state::BState,
 };
 use proptest::prelude::*;
 

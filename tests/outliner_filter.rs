@@ -8,11 +8,11 @@ use std::path::PathBuf;
 
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::part::outliner::filter::{BOutlineFilter, popover, set};
-use phiber::v2::part::outliner::tree::{BRowKind, flatten};
-use phiber::v2::scene::source::set_loaded_scene;
-use phiber::v2::state::{BKey as _, BState, CtxKey, OutlinerKey, val::BValue};
-use phiber::v2::view::BView;
+use phiber::part::outliner::filter::{BOutlineFilter, popover, set};
+use phiber::part::outliner::tree::{BRowKind, flatten};
+use phiber::scene::source::set_loaded_scene;
+use phiber::state::{BKey as _, BState, CtxKey, OutlinerKey, val::BValue};
+use phiber::view::BView;
 
 fn load_startup() {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("assets/blend/startup-5.blend");
@@ -121,9 +121,9 @@ fn the_popover_lays_out_blenders_sub_panels() {
 #[gpui::test]
 async fn the_popover_opens_and_stays_open_while_boxes_are_ticked(cx: &mut gpui::TestAppContext) {
     use gpui::{px, size};
-    use phiber::v2::app::BPhiberApp;
-    use phiber::v2::state::ModalKey;
-    use phiber::v2::view::BAction;
+    use phiber::app::BPhiberApp;
+    use phiber::state::ModalKey;
+    use phiber::view::BAction;
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1400.0), px(800.0)));
     app.update(cx, |app, cx| {

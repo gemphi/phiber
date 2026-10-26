@@ -7,9 +7,9 @@
 use gpui::{TestAppContext, px, size};
 use phiber::phiphx::blend::{BNlaStrip, BNlaTrack, BlendNla, EXTEND_HOLD, STRIP_MUTED, STRIP_SELECT};
 use phiber::phiphx::scene::{SceneAction, SceneModel};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::space::BSpaceType;
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::space::BSpaceType;
 
 /// `NLATRACK_NAMEWIDTH`, `NLATRACK_HEIGHT`, `NLATRACK_SKIP`, `UI_TIME_SCRUB_MARGIN_Y`.
 const CHANNEL_WIDTH: f32 = 200.0;
@@ -70,9 +70,9 @@ async fn the_nla_editor_stacks_the_action_line_and_the_tracks_with_their_strips(
     assert!(area.hosts.contains(&BHostType::Nla));
     app.update(cx, |app, cx| {
         app.scene_cache = Some(("nla-test".into(), std::sync::Arc::new(model)));
-        app.state.remove(phiber::v2::state::ModalKey::Open);
-        app.state.set(phiber::v2::state::CtxKey::Space, space.slug());
-        app.state.set(&phiber::v2::area::area_key(space, &area), BHostType::Nla.slug());
+        app.state.remove(phiber::state::ModalKey::Open);
+        app.state.set(phiber::state::CtxKey::Space, space.slug());
+        app.state.set(&phiber::area::area_key(space, &area), BHostType::Nla.slug());
         cx.notify();
     });
     cx.run_until_parked();

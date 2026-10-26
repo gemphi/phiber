@@ -5,7 +5,7 @@
 > store/state/view pattern as spaces but render in a modal layer on top.
 
 ```
-Modal (BModalType)                     src/v2/modal/<name>/
+Modal (BModalType)                     src/modal/<name>/
   ├─ Settings    - preferences editor (categories sidebar + content)
   ├─ Help        - help links + version info
   ├─ Profile     - account info + session actions

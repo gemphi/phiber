@@ -7,7 +7,7 @@
 //!
 //!   cargo run --release -p phiber --example animation_render -- FILE OUTDIR [start] [end] [step] [samples]
 //!
-//! The loop itself is `v2::cli::render::BHeadlessRender`, which the
+//! The loop itself is `cli::render::BHeadlessRender`, which the
 //! `phiber -b … -a` command line runs too — one renderer, two front doors.
 //! The env switches below are the measurement aids it reads from
 //! `BLookOverride::from_env`:
@@ -23,7 +23,7 @@
 //! Samples default to the quality floor (`BRenderQuality::SAMPLE_FLOOR`),
 //! so a run that names none is the good render; pass a count to override.
 use phiber::phiphx::Phx;
-use phiber::v2::cli::render::{BHeadlessRender, BLookOverride};
+use phiber::cli::render::{BHeadlessRender, BLookOverride};
 
 fn main() {
     let mut args = std::env::args().skip(1);

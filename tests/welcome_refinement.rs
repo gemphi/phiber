@@ -2,8 +2,8 @@
 //!
 //! Validates: Requirements 3.4, 4.4, 4.5, 10.1, 11.1, 11.5-11.7, 12.7, 14.7-14.12
 
-use phiber::v2::state::{AppKey, BKey as _, ModalKey, OpKey};
-use phiber::v2::{
+use phiber::state::{AppKey, BKey as _, ModalKey, OpKey};
+use phiber::{
     modal::{BModalType, splash::{BSplashModal, BWelcomeTab}},
     state::{
         BState,
@@ -118,7 +118,7 @@ fn welcome_leads_with_the_logo_and_paints_no_header_bar() {
         for row in rows {
             let BView::Row { list: line } = row else { continue };
             let tiles = line.iter().filter(|v| matches!(v, BView::Thumbnail(_))).count();
-            assert!(tiles <= phiber::v2::modal::splash::ACROSS, "{tab:?}: {tiles} cards in a row");
+            assert!(tiles <= phiber::modal::splash::ACROSS, "{tab:?}: {tiles} cards in a row");
         }
     }
     // No filled header bar anywhere.
@@ -186,9 +186,9 @@ fn welcome_preserves_template_open_and_link_actions() {
     // Empty recents ⇒ "Getting Started" (5 links) + What's New / Support (2).
     // Every one but the Phiber website reads in the app: it opens a document
     // in the reader (`ctx.reader.doc`); only Phiber's own site leaves it.
-    let entries: Vec<_> = phiber::v2::modal::splash::GETTING_STARTED
+    let entries: Vec<_> = phiber::modal::splash::GETTING_STARTED
         .iter()
-        .chain(phiber::v2::modal::splash::FOOT_LINKS)
+        .chain(phiber::modal::splash::FOOT_LINKS)
         .collect();
     let leaving = entries.iter().filter(|e| e.target.starts_with("https://phiace.dev")).count();
     assert_eq!(
@@ -213,16 +213,16 @@ fn welcome_preserves_template_open_and_link_actions() {
 
 /// The home groups' rows that open a manual page.
 fn home_docs() -> usize {
-    use phiber::v2::modal::splash::home::{BHomeTarget, GROUPS};
+    use phiber::modal::splash::home::{BHomeTarget, GROUPS};
     GROUPS.iter().flat_map(|g| g.rows).filter(|r| matches!(r.goes, Some(BHomeTarget::Doc(_)))).count()
 }
 
 #[test]
 fn welcome_renderer_is_centered_bounded_resolved_and_fullscreen() {
-    let welcome = source("src/v2/view/draw/modal/welcome.rs");
-    let modal = source("src/v2/view/draw/modal/mod.rs");
-    let fullscreen = source("src/v2/view/draw/modal/fullscreen.rs");
-    let title = source("src/v2/view/draw/modal/title.rs");
+    let welcome = source("src/view/draw/modal/welcome.rs");
+    let modal = source("src/view/draw/modal/mod.rs");
+    let fullscreen = source("src/view/draw/modal/fullscreen.rs");
+    let title = source("src/view/draw/modal/title.rs");
 
     // The Welcome form's containers are `BModalPart` decisions: centred on
     // both axes and padded, a column bounded by the Splash spec's width, cards
@@ -250,7 +250,7 @@ fn welcome_renderer_is_centered_bounded_resolved_and_fullscreen() {
     assert!(fullscreen.contains("BWelcome(self.body).render(ctx)"));
     // Fullscreen covers the window: an overlay at full size. This one is
     // still shared modal vocabulary, so it stays in part.rs.
-    let part = source("src/v2/view/draw/modal/part.rs");
+    let part = source("src/view/draw/modal/part.rs");
     let full = part
         .split("Self::Fullscreen =>")
         .nth(1)
@@ -267,11 +267,11 @@ fn welcome_renderer_is_centered_bounded_resolved_and_fullscreen() {
 
 #[test]
 fn modal_popover_and_canvas_decomposition_is_thin_and_resolved() {
-    let modal = source("src/v2/view/draw/modal/mod.rs");
-    let card = source("src/v2/view/draw/modal/card.rs");
-    let popover = source("src/v2/view/draw/popover/mod.rs");
-    let canvas = source("src/v2/view/draw/canvas/mod.rs");
-    let fallback = source("src/v2/view/draw/canvas/fallback.rs");
+    let modal = source("src/view/draw/modal/mod.rs");
+    let card = source("src/view/draw/modal/card.rs");
+    let popover = source("src/view/draw/popover/mod.rs");
+    let canvas = source("src/view/draw/canvas/mod.rs");
+    let fallback = source("src/view/draw/canvas/fallback.rs");
 
     for dispatcher in [&modal, &canvas] {
         assert!(!dispatcher.contains("div("));
@@ -281,9 +281,9 @@ fn modal_popover_and_canvas_decomposition_is_thin_and_resolved() {
     // The card's surface is a `BModalPart` decision: the Modal radius role,
     // at the Modal elevation — the theme's full shadow, the ceiling every
     // level below it is a rung under — on the Modal surface tone.
-    let part = source("src/v2/view/draw/modal/part.rs");
-    let apply = source("src/v2/view/draw/flex/apply.rs");
-    let tokens = source("src/v2/view/draw/flex/fill.rs");
+    let part = source("src/view/draw/modal/part.rs");
+    let apply = source("src/view/draw/flex/apply.rs");
+    let tokens = source("src/view/draw/flex/fill.rs");
     assert!(card.contains("pub struct BCard"));
     assert!(card.contains("BModalPart::Card {"));
     assert!(part.contains(".radius(BRadius::Role(BStyleRole::Modal))"));

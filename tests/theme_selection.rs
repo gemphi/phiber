@@ -5,7 +5,7 @@
 //! rung of a radius scale reaches the roles that take it, and the values
 //! Preferences shows are that theme's.
 
-use phiber::v2::{
+use phiber::{
     part::pref::BPrefsItem,
     part::props::pref::{BPreferenceControls, BPreferenceEditor, BPreferenceRow, SECTIONS},
     host::BHostType,
@@ -51,8 +51,8 @@ fn drawn_with(state: &BState) -> BResolvedUiStyle {
 /// and a test that compares what the window DREW against a dark-pinned table
 /// is comparing two different themes. These sites want the mode in force, the
 /// same one `drawn_with` resolves through.
-fn defaults_in_force(name: BPaletteName, state: &BState) -> &'static phiber::v2::theme::BUiStyleDefaults {
-    let (_, mode) = phiber::v2::theme::theme_in_force(state);
+fn defaults_in_force(name: BPaletteName, state: &BState) -> &'static phiber::theme::BUiStyleDefaults {
+    let (_, mode) = phiber::theme::theme_in_force(state);
     ui_style_defaults_in(name, mode)
 }
 
@@ -75,8 +75,8 @@ fn picker(state: &BState) -> BPicker {
     // Sixteen themes are two groups of eight; open both so every row is in
     // reach. Folding the section itself is still the test's to do.
     let mut state = state.clone();
-    for (group, _) in phiber::v2::part::pref::THEME_GROUPS {
-        let key = phiber::v2::part::props::BPanelItem::expand_key(BHostType::Prefs, "Appearance", &format!("Theme {group}"));
+    for (group, _) in phiber::part::pref::THEME_GROUPS {
+        let key = phiber::part::props::BPanelItem::expand_key(BHostType::Prefs, "Appearance", &format!("Theme {group}"));
         if state.get(&key).is_none() {
             state.set(&key, "true");
         }
@@ -152,10 +152,10 @@ fn preferences_offer_sixteen_themes_in_an_accordion_and_choosing_one_is_what_the
         assert_eq!(style.resize.gap, gap, "{name:?}: every seam in the window is the theme's gap");
     }
     // It folds like every other section, and unfolds again.
-    let fold = phiber::v2::part::props::BPanelItem::expand_key(BHostType::Prefs, "Appearance", "Theme");
-    state.set(&fold, phiber::v2::state::V_FALSE);
+    let fold = phiber::part::props::BPanelItem::expand_key(BHostType::Prefs, "Appearance", "Theme");
+    state.set(&fold, phiber::state::V_FALSE);
     assert!(!picker(&state).open, "folded: the heading alone");
-    state.set(&fold, phiber::v2::state::V_TRUE);
+    state.set(&fold, phiber::state::V_TRUE);
     assert!(picker(&state).open);
 }
 

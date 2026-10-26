@@ -1,4 +1,4 @@
-# `} else if` per file under src/v2, as of the day this was recorded.
+# `} else if` per file under src, as of the day this was recorded.
 # A file may never exceed its number; a file not listed has a budget of
 # zero. Lowering one is always allowed — raising one is the thing this
 # guard exists to refuse. Written by `tests/branch_budget.rs` on its

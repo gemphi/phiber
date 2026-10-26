@@ -15,10 +15,10 @@
 //! (27%) too bright: this fixture measured 2.430 against Cycles' 1.862
 //! (31% out — the constant plus the lobe difference the tolerance carries).
 //!
-//! [`BLamp::record`]: phiber::v2::view::draw::canvas::view3d::rendered::BLamp::record
+//! [`BLamp::record`]: phiber::view::draw::canvas::view3d::rendered::BLamp::record
 
 use phiber::phiphx::Phx;
-use phiber::v2::view::draw::canvas::view3d::rendered::BLamp;
+use phiber::view::draw::canvas::view3d::rendered::BLamp;
 use phiray::{Atlas, Camera, Light, LIGHTS, Mode, Ray, Scene, Tracer, Tri};
 
 const W: u32 = 32;

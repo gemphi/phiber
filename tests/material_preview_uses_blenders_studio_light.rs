@@ -12,8 +12,8 @@
 //! through Blender's view transform and came back clamped to 1.0, which made
 //! every metal flat. A studio light with no range is a grey card.
 
-use phiber::v2::scene::BRenderSet;
-use phiber::v2::view::draw::canvas::view3d::rendered::{BRayLook, ENV_CDF_SLOT, ENV_SLOT, lit, studio};
+use phiber::scene::BRenderSet;
+use phiber::view::draw::canvas::view3d::rendered::{BRayLook, ENV_CDF_SLOT, ENV_SLOT, lit, studio};
 
 fn look(studio: bool) -> BRayLook {
     BRayLook {

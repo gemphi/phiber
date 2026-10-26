@@ -1,6 +1,6 @@
 # UI unity audit
 
-Mechanical scan of every styling call site under `src/v2/{view,part,modal,region,zone,area,host,space,pane,app}`.
+Mechanical scan of every styling call site under `src/{view,part,modal,region,zone,area,host,space,pane,app}`.
 Tree compiles clean (`cargo check -p phiber --lib`, 55s, 12 pre-existing warnings).
 
 ## What is already unified — don't touch it

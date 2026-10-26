@@ -16,10 +16,10 @@
 //! was how that tone got painted. Only the frame can show that.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{ActivityKey, BState, CtxKey};
-use phiber::v2::theme::{BPaletteName, BSurfaceTone, BThemeMode, resolve_ui_style, ui_style_defaults_in};
+use phiber::app::BPhiberApp;
+use phiber::space::BSpaceType;
+use phiber::state::{ActivityKey, BState, CtxKey};
+use phiber::theme::{BPaletteName, BSurfaceTone, BThemeMode, resolve_ui_style, ui_style_defaults_in};
 
 /// The fills painted at `bounds`, opaque ones only, as `(is_gradient, first
 /// lightness, last lightness)`.
@@ -159,7 +159,7 @@ async fn a_card_on_a_surface_keeps_its_sweep(cx: &mut TestAppContext) {
 /// And the rule says which place, in one named question rather than inline.
 #[test]
 fn the_rule_names_the_one_place_it_applies_to() {
-    let src = include_str!("../src/v2/view/draw/card.rs");
+    let src = include_str!("../src/view/draw/card.rs");
     assert!(src.contains("fn panel_fill("), "one function answers it");
     assert!(src.contains("BFill::Floating"), "the floating bar's material — the sidebar's shade");
     assert!(src.contains("BFill::Tone(BSurfaceTone::Card)"), "and the swept card for everywhere else");

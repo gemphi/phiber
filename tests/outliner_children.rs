@@ -8,9 +8,9 @@ use std::path::PathBuf;
 
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::part::outliner::tree::{BRowKind, flatten};
-use phiber::v2::scene::source::set_loaded_scene;
-use phiber::v2::state::{BKey as _, BState, OutlinerKey, val::BValue};
+use phiber::part::outliner::tree::{BRowKind, flatten};
+use phiber::scene::source::set_loaded_scene;
+use phiber::state::{BKey as _, BState, OutlinerKey, val::BValue};
 
 fn load() -> SceneModel {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/parented.blend");
@@ -85,8 +85,8 @@ fn a_search_lists_the_matches_flat() {
 /// (`outliner_show_active`), and counts the pick for the list to follow.
 #[test]
 fn a_pick_opens_the_rows_above_it() {
-    use phiber::v2::state::{CtxKey, action::apply_action};
-    use phiber::v2::view::prim::BAction;
+    use phiber::state::{CtxKey, action::apply_action};
+    use phiber::view::prim::BAction;
     load();
     let mut s = BState::new();
     let home = flatten(&s).into_iter().find(|r| r.kind == BRowKind::Collection).unwrap();

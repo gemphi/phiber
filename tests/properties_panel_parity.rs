@@ -6,8 +6,8 @@
 //! `bl_options = {'DEFAULT_CLOSED'}`. A section that drifts from its
 //! Blender panel fails here.
 
-use phiber::v2::host::BHostType;
-use phiber::v2::part::props::{BSectionSpec, sections_for};
+use phiber::host::BHostType;
+use phiber::part::props::{BSectionSpec, sections_for};
 
 /// (tab, `bl_label`, Blender class, `DEFAULT_CLOSED`)
 const BLENDER: &[(&str, &str, &str, bool)] = &[
@@ -116,9 +116,9 @@ fn sub_panels_hang_where_blender_parents_them() {
 
 mod painted {
     use gpui::{TestAppContext, px, size};
-    use phiber::v2::app::BPhiberApp;
-    use phiber::v2::space::BSpaceType;
-    use phiber::v2::state::{BState, ButsKey, CtxKey};
+    use phiber::app::BPhiberApp;
+    use phiber::space::BSpaceType;
+    use phiber::state::{BState, ButsKey, CtxKey};
 
     fn id(what: &str, key: &str) -> &'static str {
         Box::leak(format!("card-{what}-ctx-buts-render-{key}-expanded").into_boxed_str())

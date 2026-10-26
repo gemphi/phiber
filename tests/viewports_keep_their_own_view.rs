@@ -4,11 +4,11 @@
 //! two — the camera view on the left and the user view in the centre.
 
 use gpui::{Modifiers, Point, ScrollDelta, ScrollWheelEvent, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::view_slot::BViewSlot;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BKey as _, CtxKey, ModalKey, OpKey, View3dKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::scene::view_slot::BViewSlot;
+use phiber::space::BSpaceType;
+use phiber::state::{BKey as _, CtxKey, ModalKey, OpKey, View3dKey};
+use phiber::view::BAction;
 
 #[gpui::test]
 async fn the_view_keys_act_on_the_viewport_under_the_pointer(cx: &mut TestAppContext) {

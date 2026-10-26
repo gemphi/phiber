@@ -7,15 +7,15 @@
 use gpui::{Modifiers, MouseButton, Point, TestAppContext, point, px, size};
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::camera::setup_from_state;
-use phiber::v2::scene::pick::BPickView;
-use phiber::v2::scene::transform::BTransforms;
-use phiber::v2::scene::view_slot::BViewSlot;
-use phiber::v2::scene::xform::BTransformModal;
-use phiber::v2::scene::{BObject3D, scene_objects, view_pan, view_pitch, view_yaw, view_zoom};
-use phiber::v2::state::{BKey as _, BState, CtxKey, ModalKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::scene::camera::setup_from_state;
+use phiber::scene::pick::BPickView;
+use phiber::scene::transform::BTransforms;
+use phiber::scene::view_slot::BViewSlot;
+use phiber::scene::xform::BTransformModal;
+use phiber::scene::{BObject3D, scene_objects, view_pan, view_pitch, view_yaw, view_zoom};
+use phiber::state::{BKey as _, BState, CtxKey, ModalKey};
+use phiber::view::BAction;
 use glam::{Mat4, Vec3};
 use std::path::PathBuf;
 
@@ -39,7 +39,7 @@ async fn scene(cx: &mut TestAppContext) -> (gpui::Entity<BPhiberApp>, &mut gpui:
     cx.simulate_resize(size(px(1280.0), px(800.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::v2::scene::loaded_path_key(), key.clone());
+        app.state.set(&phiber::scene::loaded_path_key(), key.clone());
         app.scene_cache = Some((key, std::sync::Arc::new(model)));
         cx.notify();
     });
@@ -54,7 +54,7 @@ fn landing(app: &gpui::Entity<BPhiberApp>, cx: &mut gpui::VisualTestContext, p: 
     let canvas = cx.debug_bounds("view3d-canvas").expect("the viewport");
     let (w, h) = (f32::from(canvas.size.width), f32::from(canvas.size.height));
     let view = app.read_with(cx, |a, _| {
-        let scope = phiber::v2::space::BSpaceList::active(&a.state).slug();
+        let scope = phiber::space::BSpaceList::active(&a.state).slug();
         BViewSlot::new(scope, "Center").with(|| BPickView {
             yaw: view_yaw(&a.state),
             pitch: view_pitch(&a.state),

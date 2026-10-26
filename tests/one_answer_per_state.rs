@@ -27,8 +27,8 @@
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
-fn v2() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2")
+fn src_dir() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src")
 }
 
 fn sources(dir: &Path, out: &mut Vec<PathBuf>) {
@@ -51,10 +51,10 @@ const ACTIVE_FILLS: &[(&str, &str)] = &[
     ("ControlActive", "a sorted heading: flat, because the heading IS its row, edge to edge"),
 ];
 
-/// Read every `src/v2` file once.
+/// Read every `src` file once.
 fn all_source() -> String {
     let mut files = Vec::new();
-    sources(&v2(), &mut files);
+    sources(&src_dir(), &mut files);
     assert!(files.len() > 100, "the view tree was found: {}", files.len());
     files.iter().filter_map(|f| std::fs::read_to_string(f).ok()).collect::<Vec<_>>().join("\n")
 }
@@ -109,7 +109,7 @@ fn there_are_no_more_answers_than_these() {
 /// And the reasons are written where the answer is, not only here.
 #[test]
 fn each_answer_says_why_it_is_not_the_others() {
-    let semantic = include_str!("../src/v2/theme/semantic/set.rs");
+    let semantic = include_str!("../src/theme/semantic/set.rs");
     assert!(
         semantic.contains("never the accent") || semantic.contains("the accent"),
         "the free-control answer says it is the accent"

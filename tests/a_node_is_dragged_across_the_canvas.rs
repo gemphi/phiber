@@ -18,12 +18,12 @@
 //! written as an action comes back out as a displacement, and that two node
 //! editors do not share one.
 
-use phiber::v2::host::BHostType;
-use phiber::v2::state::action::apply_action;
-use phiber::v2::state::{BKey as _, BState, NodeKey, intern};
-use phiber::v2::view::draw::canvas::node::drag;
-use phiber::v2::view::draw::canvas::node::view::{BNodeView, view_all};
-use phiber::v2::view::prim::BAction;
+use phiber::host::BHostType;
+use phiber::state::action::apply_action;
+use phiber::state::{BKey as _, BState, NodeKey, intern};
+use phiber::view::draw::canvas::node::drag;
+use phiber::view::draw::canvas::node::view::{BNodeView, view_all};
+use phiber::view::prim::BAction;
 
 /// One drag, as the canvas dispatches it: `Adjust`, not `Set`.
 fn drag_to(state: &mut BState, host: BHostType, name: &str, offset: (f32, f32)) {

@@ -7,7 +7,7 @@
 //! finite results, every fitted vertex sits within [-MESH_SCALE, MESH_SCALE]
 //! on each axis, and degenerate inputs (single-point mesh) never panic.
 
-use phiber::v2::scene::{FIT_EPSILON, MESH_SCALE, fit_vertex, fit_vertices, mesh_bounds};
+use phiber::scene::{FIT_EPSILON, MESH_SCALE, fit_vertex, fit_vertices, mesh_bounds};
 use proptest::prelude::*;
 
 /// Strategy: a non-empty Vec of finite [f32; 3] vertices in a bounded range.

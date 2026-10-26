@@ -7,12 +7,12 @@
 use gpui::{Modifiers, TestAppContext, point, px, size};
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::transform::BTransforms;
-use phiber::v2::scene::xform::{BTransformModal, BTransformMode};
-use phiber::v2::scene::{BObject3D, scene_objects};
-use phiber::v2::state::{BKey as _, BState, CtxKey, ModalKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::scene::transform::BTransforms;
+use phiber::scene::xform::{BTransformModal, BTransformMode};
+use phiber::scene::{BObject3D, scene_objects};
+use phiber::state::{BKey as _, BState, CtxKey, ModalKey};
+use phiber::view::BAction;
 use glam::Vec3;
 use std::path::PathBuf;
 
@@ -32,7 +32,7 @@ async fn scene(cx: &mut TestAppContext) -> (gpui::Entity<BPhiberApp>, &mut gpui:
     cx.simulate_resize(size(px(1280.0), px(800.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::v2::scene::loaded_path_key(), key.clone());
+        app.state.set(&phiber::scene::loaded_path_key(), key.clone());
         app.scene_cache = Some((key, std::sync::Arc::new(model)));
         cx.notify();
     });
@@ -46,7 +46,7 @@ async fn scene(cx: &mut TestAppContext) -> (gpui::Entity<BPhiberApp>, &mut gpui:
     (app, cx)
 }
 
-fn cube(app: &gpui::Entity<BPhiberApp>, cx: &mut gpui::VisualTestContext) -> phiber::v2::scene::transform::BTransform {
+fn cube(app: &gpui::Entity<BPhiberApp>, cx: &mut gpui::VisualTestContext) -> phiber::scene::transform::BTransform {
     app.read_with(cx, |a, _| BTransforms::now(&a.state).get("Cube")).expect("the Cube's edit")
 }
 
@@ -97,7 +97,7 @@ async fn shift_and_an_axis_holds_it_to_the_plane_of_the_other_two(cx: &mut TestA
     cx.simulate_keystrokes("g shift-z");
     cx.run_until_parked();
     let modal = app.read_with(cx, |a, _| BTransformModal::now(&a.state)).expect("under way");
-    assert_eq!(modal.constraint, phiber::v2::scene::xform::BConstraint::Plane(2));
+    assert_eq!(modal.constraint, phiber::scene::xform::BConstraint::Plane(2));
     for (dx, dy) in [(0.0, 0.0), (70.0, -50.0)] {
         cx.simulate_mouse_move(point(centre.x + px(dx), centre.y + px(dy)), None, Modifiers::none());
         cx.run_until_parked();

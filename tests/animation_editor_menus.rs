@@ -6,13 +6,13 @@
 //! says so rather than doing nothing.
 
 use gpui::{Modifiers, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::part::menubar::item::BMenuSpec;
-use phiber::v2::part::sidebar::show::BSidebarShown;
-use phiber::v2::scene::marker::BMarkerList;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{CtxKey, ModalKey};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::part::menubar::item::BMenuSpec;
+use phiber::part::sidebar::show::BSidebarShown;
+use phiber::scene::marker::BMarkerList;
+use phiber::space::BSpaceType;
+use phiber::state::{CtxKey, ModalKey};
 
 fn titles(host: BHostType) -> Vec<&'static str> {
     BMenuSpec::list_for(host).iter().map(|m| m.label).collect()
@@ -87,6 +87,6 @@ async fn keys_over_the_dope_sheet_run_its_menus(cx: &mut TestAppContext) {
     // Ctrl C: Key ▸ Copy Keyframes, which says it is not here yet.
     cx.simulate_keystrokes("ctrl-c");
     cx.run_until_parked();
-    let said = phiber::v2::state::log::latest().map(|e| e.text).unwrap_or_default();
+    let said = phiber::state::log::latest().map(|e| e.text).unwrap_or_default();
     assert!(said.contains("Copy Keyframes") && said.contains("not available yet"), "{said}");
 }

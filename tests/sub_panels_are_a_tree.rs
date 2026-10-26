@@ -10,11 +10,11 @@
 //! quiet, and the user asked for the indent back (2026-10-21).
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState, ButsKey, CtxKey};
-use phiber::v2::theme::{BPaletteName, BResolvedUiStyle, BSurfaceTone, ui_style_defaults};
-use phiber::v2::view::prim::{BCard, BCardKind};
+use phiber::app::BPhiberApp;
+use phiber::space::BSpaceType;
+use phiber::state::{BState, ButsKey, CtxKey};
+use phiber::theme::{BPaletteName, BResolvedUiStyle, BSurfaceTone, ui_style_defaults};
+use phiber::view::prim::{BCard, BCardKind};
 
 /// A card's selector: `card-<key>` for its frame, `card-<what>-<key>` for a
 /// part of it.
@@ -68,7 +68,7 @@ fn a_card_pushed_into_a_sub_panel_moves_a_level_deeper_with_its_own() {
     let leaf = BCard::panel("Denoise").sub();
     let branch = BCard::panel("Render").body(vec![leaf.into()]).sub();
     assert_eq!(branch.kind, BCardKind::Sub { depth: 1 });
-    let phiber::v2::view::BView::Card(leaf) = &branch.body[0] else { panic!("the leaf") };
+    let phiber::view::BView::Card(leaf) = &branch.body[0] else { panic!("the leaf") };
     assert_eq!(leaf.kind, BCardKind::Sub { depth: 2 }, "the leaf went a level deeper with its branch");
     assert_eq!((branch.depth(), leaf.depth(), BCard::panel("Sampling").depth()), (1, 2, 0));
 }

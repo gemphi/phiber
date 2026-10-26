@@ -1,8 +1,8 @@
 ﻿# Phiber — Modal UI Reference
 
 > **Location**: `crates/phiber/docs/modals.md`
-> **v2 (current):** specs live in `src/v2/modal/set.rs`, one content module per
-> modal under `src/v2/modal/<name>/`. Sections 1–3 below describe the legacy
+> **v2 (current):** specs live in `src/modal/set.rs`, one content module per
+> modal under `src/modal/<name>/`. Sections 1–3 below describe the legacy
 > `store/modals/*` data those v2 modules were ported from; sections 7–10 cover
 > the modals added in v2. Last updated 2026-09-16.
 

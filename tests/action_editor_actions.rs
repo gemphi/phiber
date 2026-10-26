@@ -13,15 +13,15 @@
 use gpui::{Modifiers, TestAppContext, px, size};
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::part::modebar::active_mode;
-use phiber::v2::part::modebar::set::mode_key;
-use phiber::v2::scene::action::BSceneActions;
-use phiber::v2::scene::{BObject3D, scene_objects};
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BKey as _, ButsKey, CtxKey, ModalKey, OpKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::part::modebar::active_mode;
+use phiber::part::modebar::set::mode_key;
+use phiber::scene::action::BSceneActions;
+use phiber::scene::{BObject3D, scene_objects};
+use phiber::space::BSpaceType;
+use phiber::state::{BKey as _, ButsKey, CtxKey, ModalKey, OpKey};
+use phiber::view::BAction;
 use std::path::PathBuf;
 
 fn click(cx: &mut gpui::VisualTestContext, id: &str) {
@@ -70,7 +70,7 @@ async fn the_action_editor_lists_assigns_makes_and_unlinks_actions(cx: &mut Test
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
         app.state.set(CtxKey::Space, BSpaceType::Animation.slug());
-        app.state.set(&phiber::v2::scene::loaded_path_key(), path.clone());
+        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
         app.scene_cache = Some((path.clone(), std::sync::Arc::new(model)));
         cx.notify();
     });
@@ -126,7 +126,7 @@ async fn the_action_editor_lists_assigns_makes_and_unlinks_actions(cx: &mut Test
 
     // The sidebar's Action panel: Manual Frame Range from 3, and Cyclic.
     app.update(cx, |app, cx| {
-        app.state.set(&phiber::v2::part::sidebar::show::BSidebarShown(BHostType::Action).key(), "true");
+        app.state.set(&phiber::part::sidebar::show::BSidebarShown(BHostType::Action).key(), "true");
         cx.notify();
     });
     cx.run_until_parked();
@@ -145,7 +145,7 @@ async fn the_action_editor_lists_assigns_makes_and_unlinks_actions(cx: &mut Test
     cx.run_until_parked();
     assert!(shown(cx, "card-ctx-buts-object-animation-expanded"), "the Animation panel");
     app.update(cx, |app, cx| {
-        app.state.set(&phiber::v2::part::props::BPanelItem::expand_key(BHostType::Buts, "Object", "Animation"), "true");
+        app.state.set(&phiber::part::props::BPanelItem::expand_key(BHostType::Buts, "Object", "Animation"), "true");
         cx.notify();
     });
     cx.run_until_parked();

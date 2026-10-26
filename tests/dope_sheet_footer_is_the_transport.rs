@@ -6,12 +6,12 @@
 //! same centre line (`ED_area_footersize` is `ED_area_headersize`).
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::part::sidebar::set::tabs_for;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{CtxKey, ModalKey};
-use phiber::v2::theme::METRICS;
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::part::sidebar::set::tabs_for;
+use phiber::space::BSpaceType;
+use phiber::state::{CtxKey, ModalKey};
+use phiber::theme::METRICS;
 
 fn mid(b: gpui::Bounds<gpui::Pixels>) -> f32 {
     f32::from(b.origin.y) + f32::from(b.size.height) / 2.0
@@ -33,7 +33,7 @@ async fn the_animation_workspaces_dope_sheet_carries_the_transport_in_its_footer
     // A footer is the header's band: same strip, same controls on the same
     // line. The header is that band plus the rule it closes against the
     // content with — a footer heads nothing, so it carries none.
-    let rule = phiber::v2::theme::style::metric::DEFAULT_STROKES.border;
+    let rule = phiber::theme::style::metric::DEFAULT_STROKES.border;
     assert_eq!(
         f32::from(header.size.height) - rule,
         f32::from(footer.size.height),

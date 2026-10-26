@@ -64,7 +64,7 @@ fn loose_receivers(root: &str, ty: &str) -> Vec<String> {
 
 #[test]
 fn the_time_canvas_paints_through_its_view() {
-    let loose = loose_receivers("src/v2/view/draw/canvas/time", "BTimeView");
+    let loose = loose_receivers("src/view/draw/canvas/time", "BTimeView");
     assert!(
         loose.is_empty(),
         "these take a `&BTimeView` first and are not methods of it:\n  {}\n\
@@ -75,7 +75,7 @@ fn the_time_canvas_paints_through_its_view() {
 
 #[test]
 fn the_image_canvas_paints_through_its_view() {
-    let loose = loose_receivers("src/v2/view/draw/canvas/image", "BImageView");
+    let loose = loose_receivers("src/view/draw/canvas/image", "BImageView");
     assert!(loose.is_empty(), "not methods of `BImageView`:\n  {}", loose.join("\n  "));
 }
 
@@ -83,7 +83,7 @@ fn the_image_canvas_paints_through_its_view() {
 fn the_control_renderer_reaches_every_kind_through_itself() {
     // `BCtrlView::render` is a match whose every arm is `self.<kind>(ctx)`.
     // One arm used to call a free `number(self.0, ctx)`.
-    let ctrl = include_str!("../src/v2/view/draw/ctrl/mod.rs");
+    let ctrl = include_str!("../src/view/draw/ctrl/mod.rs");
     let from = ctrl.find("fn render(").expect("the control renderer");
     let body = &ctrl[from..];
     let body = &body[..body.find("\n    }\n").map_or(body.len(), |i| i)];
@@ -103,7 +103,7 @@ fn the_control_renderer_reaches_every_kind_through_itself() {
 fn the_two_canvases_still_have_the_methods_they_gained() {
     // The sweep is only worth guarding if the methods are actually there —
     // a guard that passes because the functions were deleted is no guard.
-    let time: BTreeSet<String> = sources("src/v2/view/draw/canvas/time")
+    let time: BTreeSet<String> = sources("src/view/draw/canvas/time")
         .into_iter()
         .flat_map(|(_, text)| {
             text.lines()

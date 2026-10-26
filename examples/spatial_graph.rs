@@ -11,9 +11,9 @@
 //! it as "Undefined" in red rather than as the type inside the brackets.
 
 use phiber::phiphx::Phx;
-use phiber::v2::view::draw::canvas::node::plan::BCardSize;
-use phiber::v2::view::draw::canvas::node::select::BNodeSelection;
-use phiber::v2::view::draw::canvas::node::spatial::layout::BSpatialLayout;
+use phiber::view::draw::canvas::node::plan::BCardSize;
+use phiber::view::draw::canvas::node::select::BNodeSelection;
+use phiber::view::draw::canvas::node::spatial::layout::BSpatialLayout;
 use std::collections::BTreeMap;
 
 fn main() {

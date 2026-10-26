@@ -5,13 +5,13 @@
 //! real view tree for every space and every modal, collects every icon name
 //! the tree actually asks for, and checks each one against `assets/icons`.
 
-use phiber::v2::state::CtxKey;
-use phiber::v2::modal::{BModalItem, BModalType};
-use phiber::v2::view::BViewItem as _;
-use phiber::v2::space::{BSpaceList, BSpaceType};
-use phiber::v2::state::{BState};
-use phiber::v2::view::draw::brand;
-use phiber::v2::view::{BView, BViewList};
+use phiber::state::CtxKey;
+use phiber::modal::{BModalItem, BModalType};
+use phiber::view::BViewItem as _;
+use phiber::space::{BSpaceList, BSpaceType};
+use phiber::state::{BState};
+use phiber::view::draw::brand;
+use phiber::view::{BView, BViewList};
 use std::collections::BTreeSet;
 
 /// Every icon name reachable from one view tree.
@@ -50,7 +50,7 @@ fn children(v: &BView) -> Vec<&BView> {
         | BView::ListRow { list, .. }
         | BView::Column { list }
         | BView::Grid { list } => list.iter().collect(),
-        BView::Card(card) if matches!(card.kind, phiber::v2::view::prim::BCardKind::Column(_)) => card.body.iter().collect(),
+        BView::Card(card) if matches!(card.kind, phiber::view::prim::BCardKind::Column(_)) => card.body.iter().collect(),
         BView::Area { child, .. }
         | BView::Part { body: child, .. }
         | BView::Modal { body: child, .. } => {

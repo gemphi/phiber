@@ -4,10 +4,10 @@
 //! file on Ctrl S.
 
 use gpui::{Modifiers, MouseButton, Point, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::part::playback::{settings, snap};
-use phiber::v2::state::{CtxKey, ModalKey, val::BValue};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::part::playback::{settings, snap};
+use phiber::state::{CtxKey, ModalKey, val::BValue};
+use phiber::view::BAction;
 
 fn pt(x: f32, y: f32) -> Point<gpui::Pixels> {
     Point::new(px(x), px(y))

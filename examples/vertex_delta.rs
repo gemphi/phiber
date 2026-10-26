@@ -6,9 +6,9 @@
 //!
 //!   cargo run --release -p phiber --example vertex_delta -- FILE TRUTH.bin NAME...
 use phiber::phiphx::Phx;
-use phiber::v2::app::seed::seed_view_layer;
-use phiber::v2::scene::{BObject3D, current_scene, source::set_loaded_scene};
-use phiber::v2::state::BState;
+use phiber::app::seed::seed_view_layer;
+use phiber::scene::{BObject3D, current_scene, source::set_loaded_scene};
+use phiber::state::BState;
 
 fn main() {
     let mut args = std::env::args().skip(1);

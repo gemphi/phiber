@@ -9,8 +9,8 @@
 
 use phiber::{
     phiphx::scene::{SceneMesh, SceneModel, SceneNormals, SceneObject},
-    v2::scene::{BObject3D, OBJECTS, clear_loaded_scene, scene_source, set_loaded_scene},
-    v2::state::BState,
+    scene::{BObject3D, OBJECTS, clear_loaded_scene, scene_source, set_loaded_scene},
+    state::BState,
 };
 use proptest::prelude::*;
 

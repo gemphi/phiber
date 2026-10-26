@@ -7,7 +7,7 @@
 //! documented token access. This guards against accidental palette-map
 //! omissions when new tokens land.
 
-use phiber::v2::theme::{BPaletteName, palette_for};
+use phiber::theme::{BPaletteName, palette_for};
 
 #[test]
 fn dark_palette_resolves_every_field() {

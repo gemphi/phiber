@@ -36,10 +36,10 @@
 //! height now.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState, CtxKey};
-use phiber::v2::theme::{BPaletteName, BThemeMode, ui_style_defaults_in};
+use phiber::app::BPhiberApp;
+use phiber::space::BSpaceType;
+use phiber::state::{BState, CtxKey};
+use phiber::theme::{BPaletteName, BThemeMode, ui_style_defaults_in};
 
 /// A row gives the control it holds room over and under it, and that is the
 /// whole of what a row's height is.
@@ -78,7 +78,7 @@ fn a_heading_is_one_height() {
     // is what lets it line up with the panel headings beside it. A horizontal
     // strip's caps are NOT: they hang from their bar with the menu gap above,
     // which is the topbar's tab shape and is deliberate (`chrome_geometry`).
-    let shape = include_str!("../src/v2/view/draw/tab/shape.rs");
+    let shape = include_str!("../src/view/draw/tab/shape.rs");
     let height = shape.split("pub fn height(").nth(1).expect("the cap height");
     let height = &height[..height.find("\n    }").unwrap_or(height.len())];
     let code: String = height
@@ -99,7 +99,7 @@ fn a_heading_is_one_height() {
 /// is what "the buttons look thin" was.
 #[test]
 fn a_field_is_a_control_not_a_row() {
-    let field = include_str!("../src/v2/view/draw/field.rs");
+    let field = include_str!("../src/view/draw/field.rs");
     assert!(
         field.contains("dimensions.button_height"),
         "a field takes a control's height",
@@ -117,7 +117,7 @@ fn a_field_is_a_control_not_a_row() {
 
 #[test]
 fn a_row_is_a_control_plus_the_room_around_it() {
-    use phiber::v2::theme::style::metric::{BUTTON_HEIGHT, CONTROL_CLEAR};
+    use phiber::theme::style::metric::{BUTTON_HEIGHT, CONTROL_CLEAR};
     for name in BPaletteName::ALL.iter().copied() {
         for mode in BThemeMode::ALL {
             let d = ui_style_defaults_in(name, mode).dimensions;
@@ -139,7 +139,7 @@ fn a_cards_row_and_every_other_row_are_the_same_question() {
             assert_eq!(d.card_head_height(), d.row_height, "{name:?}/{mode:?}: one answer");
         }
     }
-    let src = include_str!("../src/v2/theme/style/metric.rs");
+    let src = include_str!("../src/theme/style/metric.rs");
     assert!(
         src.contains("pub const fn card_head_height(&self) -> f32 {\n        self.row_height\n    }"),
         "card_head_height defers to row_height rather than computing a second answer"
@@ -225,14 +225,14 @@ async fn every_painted_row_family_lands_on_that_height(cx: &mut TestAppContext) 
 /// change was for: open a menu and its rows are rows.
 #[gpui::test]
 async fn a_menus_rows_are_rows(cx: &mut TestAppContext) {
-    use phiber::v2::host::BHostType;
-    use phiber::v2::state::{BKey as _, MenuKey, val::V_TRUE};
+    use phiber::host::BHostType;
+    use phiber::state::{BKey as _, MenuKey, val::V_TRUE};
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1600.0), px(900.0)));
     // A menu row is its own module: `MENU_ROW`, the button less its head
     // room, rather than the content row a property line is. Blender's menus
     // are tighter than its property rows, and a long one is a list of labels.
-    let row_height = phiber::v2::theme::style::metric::MENU_ROW;
+    let row_height = phiber::theme::style::metric::MENU_ROW;
     app.update(cx, |app, cx| {
         app.state = BState::new();
         app.state.set(CtxKey::Space, BSpaceType::Layout.slug());

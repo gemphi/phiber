@@ -11,9 +11,9 @@
 //! - one `BView::Host` per `BView::Area`
 //! - the declared regions on each host appear as `BView::Region`
 
-use phiber::v2::space::{BSpaceItem, BSpaceType};
-use phiber::v2::state::{BState, default_state};
-use phiber::v2::view::{BView, BViewItem};
+use phiber::space::{BSpaceItem, BSpaceType};
+use phiber::state::{BState, default_state};
+use phiber::view::{BView, BViewItem};
 use proptest::prelude::*;
 
 fn count(view: &BView) -> (usize, usize, usize, usize, usize, usize) {

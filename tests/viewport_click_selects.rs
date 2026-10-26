@@ -8,22 +8,22 @@
 //! Blender ref: `view3d_select.cc`, left-click select.
 
 use gpui::{Modifiers, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::part::outliner::BOutlinerItem;
-use phiber::v2::scene::camera::{setup_from_state, with_view};
-use phiber::v2::scene::pick::{BPickView, pick};
-use phiber::v2::scene::{OBJECTS, current_scene, project3_full, view_pan, view_pitch, view_yaw, view_zoom};
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState, CtxKey, ModalKey};
-use phiber::v2::view::{BRowShade, BView, BViewItem};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::part::outliner::BOutlinerItem;
+use phiber::scene::camera::{setup_from_state, with_view};
+use phiber::scene::pick::{BPickView, pick};
+use phiber::scene::{OBJECTS, current_scene, project3_full, view_pan, view_pitch, view_yaw, view_zoom};
+use phiber::space::BSpaceType;
+use phiber::state::{BState, CtxKey, ModalKey};
+use phiber::view::{BRowShade, BView, BViewItem};
 
 fn select_view3d(state: &mut BState) {
     let space = BSpaceType::Layout;
     state.set(CtxKey::Space, space.slug());
     state.set(ModalKey::Open, "");
     for area in space.spec().areas.iter().filter(|a| a.hosts.contains(&BHostType::View3D)) {
-        state.set(&phiber::v2::area::area_key(space, area), BHostType::View3D.slug());
+        state.set(&phiber::area::area_key(space, area), BHostType::View3D.slug());
     }
 }
 
@@ -113,7 +113,7 @@ async fn clicking_a_mesh_makes_it_the_active_object_and_lights_its_outliner_row(
 /// The orbit layer still orbits: a click is not a drag and a drag is not a click.
 #[test]
 fn the_click_pick_lives_on_the_orbit_surface_and_the_hit_squares_are_gone() {
-    let root = concat!(env!("CARGO_MANIFEST_DIR"), "/src/v2/view/draw/canvas/view3d/");
+    let root = concat!(env!("CARGO_MANIFEST_DIR"), "/src/view/draw/canvas/view3d/");
     let orbit = std::fs::read_to_string(format!("{root}orbit.rs")).unwrap();
     assert!(orbit.contains(".on_click(hit.on_click(ctx))") && orbit.contains(".on_drag("), "one surface, two gestures");
     let hit = std::fs::read_to_string(format!("{root}hit.rs")).unwrap();
@@ -138,7 +138,7 @@ async fn b_then_a_drag_box_selects_what_the_box_covers(cx: &mut TestAppContext) 
     let canvas = cx.debug_bounds("view3d-canvas").expect("the canvas painted");
     cx.simulate_keystrokes("b");
     cx.run_until_parked();
-    assert!(app.read_with(cx, |a, _| phiber::v2::scene::boxsel::armed(&a.state)), "B arms the box");
+    assert!(app.read_with(cx, |a, _| phiber::scene::boxsel::armed(&a.state)), "B arms the box");
     assert!(cx.debug_bounds("view3d-box-select").is_some(), "the box surface replaced the orbit surface");
 
     // A box from the Cube's centre to the Sphere's: what it covers is what
@@ -157,7 +157,7 @@ async fn b_then_a_drag_box_selects_what_the_box_covers(cx: &mut TestAppContext) 
             setup: setup_from_state(state),
             aspect: f32::from(canvas.size.width) / f32::from(canvas.size.height),
         };
-        phiber::v2::scene::boxsel::boxed_names(&current_scene(state, None), &view, phiber::v2::scene::boxsel::BBox2 { a, b }, |_| true)
+        phiber::scene::boxsel::boxed_names(&current_scene(state, None), &view, phiber::scene::boxsel::BBox2 { a, b }, |_| true)
     });
     assert!(expected.contains(&"Cube".to_string()) && expected.contains(&"Sphere".to_string()), "{expected:?}");
     let (from, to) = (at(a.0, a.1), at(b.0, b.1));
@@ -165,7 +165,7 @@ async fn b_then_a_drag_box_selects_what_the_box_covers(cx: &mut TestAppContext) 
     cx.simulate_mouse_move(from + gpui::point(px(12.0), px(12.0)), MouseButton::Left, Modifiers::none());
     cx.simulate_mouse_move(to, MouseButton::Left, Modifiers::none());
     cx.run_until_parked();
-    assert!(app.read_with(cx, |a, _| phiber::v2::scene::boxsel::dragged(&a.state)).is_some(), "the rectangle is drawn while dragging");
+    assert!(app.read_with(cx, |a, _| phiber::scene::boxsel::dragged(&a.state)).is_some(), "the rectangle is drawn while dragging");
     cx.simulate_event(MouseUpEvent { position: to, modifiers: Modifiers::none(), button: MouseButton::Left, click_count: 1 });
     cx.run_until_parked();
     let rows = app.read_with(cx, |a, _| selected_rows(&a.state));
@@ -175,7 +175,7 @@ async fn b_then_a_drag_box_selects_what_the_box_covers(cx: &mut TestAppContext) 
     expected.sort();
     assert_eq!(lit, expected, "{rows:?}");
     assert_eq!(app.read_with(cx, |a, _| a.state.get(CtxKey::Object).map(str::to_string)), Some("Gem".into()), "the active object stays");
-    assert!(!app.read_with(cx, |a, _| phiber::v2::scene::boxsel::armed(&a.state)), "the gesture is over");
+    assert!(!app.read_with(cx, |a, _| phiber::scene::boxsel::armed(&a.state)), "the gesture is over");
 
     // B again, a thin box along the top of the canvas, clear of the overlay
     // text: what it covers (usually nothing) is the selection, and an empty
@@ -193,7 +193,7 @@ async fn b_then_a_drag_box_selects_what_the_box_covers(cx: &mut TestAppContext) 
             setup: setup_from_state(state),
             aspect: f32::from(canvas.size.width) / f32::from(canvas.size.height),
         };
-        phiber::v2::scene::boxsel::boxed_names(&current_scene(state, None), &view, phiber::v2::scene::boxsel::BBox2 { a, b }, |_| true)
+        phiber::scene::boxsel::boxed_names(&current_scene(state, None), &view, phiber::scene::boxsel::BBox2 { a, b }, |_| true)
     });
     let (from, to) = (at(a.0, a.1), at(b.0, b.1));
     cx.simulate_event(MouseDownEvent { position: from, modifiers: Modifiers::none(), button: MouseButton::Left, click_count: 1, first_mouse: false });
@@ -207,5 +207,5 @@ async fn b_then_a_drag_box_selects_what_the_box_covers(cx: &mut TestAppContext) 
     let mut expected = expected;
     expected.sort();
     assert_eq!(lit, expected, "the second box, too, selects what it covers");
-    assert!(!app.read_with(cx, |a, _| phiber::v2::scene::boxsel::armed(&a.state)), "the gesture is over");
+    assert!(!app.read_with(cx, |a, _| phiber::scene::boxsel::armed(&a.state)), "the gesture is over");
 }

@@ -4,9 +4,9 @@
 //! the rule that follows `ctx.object` is what is under test.
 
 use phiber::phiphx::scene::{SceneMaterial, SceneMesh, SceneModel, SceneNormals, SceneObject};
-use phiber::v2::scene::{clear_loaded_scene, set_loaded_scene};
-use phiber::v2::state::{BKey as _, BState, ButsKey, CtxKey, action::apply_action};
-use phiber::v2::view::BAction;
+use phiber::scene::{clear_loaded_scene, set_loaded_scene};
+use phiber::state::{BKey as _, BState, ButsKey, CtxKey, action::apply_action};
+use phiber::view::BAction;
 
 fn object(name: &str, location: [f32; 3], scale: [f32; 3], color: [f32; 4], roughness: f32) -> SceneObject {
     SceneObject {
@@ -86,7 +86,7 @@ fn switching_the_active_object_refills_the_object_and_material_tabs() {
 #[test]
 fn the_shadow_checkboxes_switch_the_active_object() {
     use phiber::phiphx::blend::BlendShadowCast;
-    use phiber::v2::scene::{BObject3D, scene_source};
+    use phiber::scene::{BObject3D, scene_source};
     let mut shy = object("Shy", [0.0; 3], [1.0; 3], [0.8; 4], 0.5);
     shy.shadow = BlendShadowCast { display: false, ray: true };
     let model = phiber::phiphx::scene::SceneModel { objects: vec![object("Cube", [0.0; 3], [1.0; 3], [0.8; 4], 0.5), shy], ..Default::default() };
@@ -107,7 +107,7 @@ fn the_shadow_checkboxes_switch_the_active_object() {
     apply_action(&mut s, &BAction::Set(CtxKey::Object.path(), "Shy".into()));
     apply_action(&mut s, &BAction::Set(CtxKey::Object.path(), "Cube".into()));
     assert_eq!(s.get(ButsKey::Value("visible_shadow")), Some("false"));
-    let edits = phiber::v2::scene::save::gather(&s, &model);
+    let edits = phiber::scene::save::gather(&s, &model);
     let cube = edits.objects.iter().find(|o| o.name == "Cube").expect("Cube's edit");
     assert_eq!(cube.shadow, Some(BlendShadowCast { display: true, ray: false }), "the save writes both bits");
     assert_eq!(edits.objects.iter().find(|o| o.name == "Shy").and_then(|o| o.shadow), None, "an unswitched object writes nothing");

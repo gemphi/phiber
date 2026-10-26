@@ -7,14 +7,14 @@
 //! Feature: phiber-resolved-ui-style-settings
 //! Validates: Requirements 6.1-6.6, 14.1-14.7
 
-use phiber::v2::state::{CtxKey};
+use phiber::state::{CtxKey};
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BPath, BState};
-use phiber::v2::view::prim::{BCardKind, BColumn};
-use phiber::v2::view::{BAction, BView, BViewItem};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::space::BSpaceType;
+use phiber::state::{BPath, BState};
+use phiber::view::prim::{BCardKind, BColumn};
+use phiber::view::{BAction, BView, BViewItem};
 use proptest::prelude::*;
 
 // ── Gate 1: characterization smoke-tests ──────────────────────────────────
@@ -24,7 +24,7 @@ use proptest::prelude::*;
 #[test]
 fn file_host_custom_item_is_not_canvas() {
     let state = BState::default();
-    let item = phiber::v2::part::custom::BCustomItem::new(BHostType::File).build(&state);
+    let item = phiber::part::custom::BCustomItem::new(BHostType::File).build(&state);
     // The file host builds a Part wrapping a Column/Panel tree — never a bare Canvas.
     assert!(
         !matches!(&item, BView::Canvas { .. }),
@@ -35,7 +35,7 @@ fn file_host_custom_item_is_not_canvas() {
 #[test]
 fn asset_host_custom_item_is_not_canvas() {
     let item =
-        phiber::v2::part::custom::BCustomItem::new(BHostType::Asset).build(&BState::default());
+        phiber::part::custom::BCustomItem::new(BHostType::Asset).build(&BState::default());
 
     assert!(
         !matches!(item, BView::Canvas { .. }),
@@ -45,10 +45,10 @@ fn asset_host_custom_item_is_not_canvas() {
 
 #[test]
 fn file_host_declares_blenders_regions_in_order() {
-    use phiber::v2::region::BRegionType;
+    use phiber::region::BRegionType;
     // Blender `space_file`: header, ui (path strip), tools (source list),
     // window, execute — declared once, for the editor and the dialog alike.
-    let kinds: Vec<BRegionType> = phiber::v2::host::file::REGIONS.iter().map(|r| r.kind).collect();
+    let kinds: Vec<BRegionType> = phiber::host::file::REGIONS.iter().map(|r| r.kind).collect();
     assert_eq!(
         kinds,
         [
@@ -61,14 +61,14 @@ fn file_host_declares_blenders_regions_in_order() {
             BRegionType::Execute
         ]
     );
-    let parts_of = |kind: BRegionType| -> Vec<phiber::v2::part::BPartType> {
-        phiber::v2::host::file::REGIONS
+    let parts_of = |kind: BRegionType| -> Vec<phiber::part::BPartType> {
+        phiber::host::file::REGIONS
             .iter()
             .find(|r| r.kind == kind)
             .map(|r| r.panes.iter().flat_map(|p| p.parts.iter().copied()).collect())
             .unwrap_or_default()
     };
-    use phiber::v2::part::BPartType;
+    use phiber::part::BPartType;
     // Both strips are the columns under them: the menus over the source
     // list, the path over the files (the search over the details is added
     // by `complete_header`); the folder moves over the source list and the
@@ -83,14 +83,14 @@ fn file_host_declares_blenders_regions_in_order() {
 #[test]
 fn file_host_window_is_the_table_and_its_source_list_holds_the_bookmark_panels() {
     let s = BState::default();
-    let table = phiber::v2::part::custom::BCustomItem::new(BHostType::File).build(&s);
+    let table = phiber::part::custom::BCustomItem::new(BHostType::File).build(&s);
     assert!(
         matches!(&table, BView::Card(c) if c.kind == BCardKind::Column(BColumn::Body)),
         "the window region is the file table"
     );
     // Reached through `BViewItem`, like every other part — the file browser's
     // five used to be free functions and are types now.
-    let list = phiber::v2::part::file::sidebar::BSourceList::new(BHostType::File).build(&s);
+    let list = phiber::part::file::sidebar::BSourceList::new(BHostType::File).build(&s);
     let BView::Card(column) = list else {
         panic!("the source list is a Sidebar column");
     };
@@ -105,11 +105,11 @@ fn file_host_window_is_the_table_and_its_source_list_holds_the_bookmark_panels()
 #[test]
 fn modal_file_browser_raises_the_file_host() {
     let s = BState::default();
-    let modal = phiber::v2::modal::BModalItem::new(phiber::v2::modal::BModalType::FileBrowser).build(&s);
-    let kind = phiber::v2::modal::BModalType::FileBrowser;
+    let modal = phiber::modal::BModalItem::new(phiber::modal::BModalType::FileBrowser).build(&s);
+    let kind = phiber::modal::BModalType::FileBrowser;
     let area = kind.spec().areas[0];
-    let host = phiber::v2::area::with_scope(kind, || {
-        phiber::v2::area::with_area(area, || phiber::v2::host::BHostItem::new(BHostType::File).build(&s))
+    let host = phiber::area::with_scope(kind, || {
+        phiber::area::with_area(area, || phiber::host::BHostItem::new(BHostType::File).build(&s))
     });
     let BView::Modal { body, .. } = modal else { panic!("modal") };
     let BView::Zone { list, .. } = *body else { panic!("the dialog's body is a zone") };
@@ -123,9 +123,9 @@ fn modal_file_browser_raises_the_file_host() {
 /// `playback_controls` puts it.
 #[test]
 fn time_item_is_the_timeline_canvas() {
-    let item = phiber::v2::part::time::BTimeItem::new().build(&BState::default());
+    let item = phiber::part::time::BTimeItem::new().build(&BState::default());
     assert!(matches!(item, BView::Canvas { host: BHostType::Time, .. }), "the window is the Time canvas, got {item:?}");
-    let custom = phiber::v2::part::custom::BCustomItem::new(BHostType::Time).build(&BState::default());
+    let custom = phiber::part::custom::BCustomItem::new(BHostType::Time).build(&BState::default());
     assert_eq!(format!("{custom:?}"), format!("{item:?}"), "the custom part hands the host the same canvas");
 }
 
@@ -133,8 +133,8 @@ fn time_item_is_the_timeline_canvas() {
 /// in — the three settings popovers (Auto Keyframing after record, Time
 /// Jump after the jump pair, Playhead after the magnet) are their chevrons,
 /// not transport buttons.
-fn transport_buttons(state: &BState) -> Vec<phiber::v2::view::prim::BControl> {
-    use phiber::v2::part::playback::BPlayback;
+fn transport_buttons(state: &BState) -> Vec<phiber::view::prim::BControl> {
+    use phiber::part::playback::BPlayback;
     let BView::Row { list } = BPlayback::new(BHostType::Time).build(state) else { panic!("the transport is a row") };
     let popovers = list.iter().filter(|child| matches!(child, BView::Popover { .. })).count();
     assert_eq!(popovers, 3, "the Auto Keyframing, Time Jump and Playhead popovers");
@@ -164,7 +164,7 @@ fn play_sets_the_global_playing_flag_and_one_wide_pause_stands_in_for_both_play_
     let play = transport_buttons(&state).into_iter().find(|c| c.icon.as_deref() == Some("play")).expect("a play button");
     let Some(BAction::Set(path, value)) = play.action else { panic!("play writes the playing flag, got {:?}", play.action) };
     assert_eq!((path.encode().as_str(), value.as_str()), ("ctx.playing", "true"));
-    phiber::v2::state::action::apply_action(&mut state, &BAction::Set(path, value));
+    phiber::state::action::apply_action(&mut state, &BAction::Set(path, value));
     let icon_list: Vec<String> = transport_buttons(&state).into_iter().filter_map(|c| c.icon).collect();
     assert_eq!(
         icon_list,
@@ -174,18 +174,18 @@ fn play_sets_the_global_playing_flag_and_one_wide_pause_stands_in_for_both_play_
     let pause = transport_buttons(&state).into_iter().find(|c| c.icon.as_deref() == Some("pause")).unwrap();
     assert!(pause.active && pause.span == 2, "lit, and two slots wide (`scale_x = 2`)");
     // Reverse runs the same ticker the other way.
-    phiber::v2::state::action::apply_action(&mut state, &pause.action.unwrap());
+    phiber::state::action::apply_action(&mut state, &pause.action.unwrap());
     let reverse = transport_buttons(&state).into_iter().find(|c| c.icon.as_deref() == Some("play_back")).unwrap();
-    phiber::v2::state::action::apply_action(&mut state, &reverse.action.unwrap());
+    phiber::state::action::apply_action(&mut state, &reverse.action.unwrap());
     assert_eq!(state.get(CtxKey::Playing), Some("reverse"));
-    assert_eq!(phiber::v2::part::playback::set::BTransportButton::tick_step(&state), Some("-1"));
+    assert_eq!(phiber::part::playback::set::BTransportButton::tick_step(&state), Some("-1"));
 }
 
 /// The header's right group: the current frame, the preview-range toggle,
 /// Start and End — `frame_current`, `use_preview_range`, `frame_start`,
 /// `frame_end` in `playback_controls`.
 fn frame_fields(state: &BState) -> Vec<BView> {
-    use phiber::v2::part::framerange::BFrameRange;
+    use phiber::part::framerange::BFrameRange;
     let BView::Row { list } = BFrameRange::new(BHostType::Time).build(state) else { panic!("the range group is a row") };
     list
 }
@@ -226,7 +226,7 @@ proptest! {
 /// and action-scoped by checking two distinct actions produce different ids.
 #[test]
 fn table_row_has_id() {
-    use phiber::v2::view::prim::{BRowShade, BTableCell};
+    use phiber::view::prim::{BRowShade, BTableCell};
 
     let path_a = BPath::owned(vec!["file", "browser", "open"]);
     let action_a = BAction::Open(path_a);

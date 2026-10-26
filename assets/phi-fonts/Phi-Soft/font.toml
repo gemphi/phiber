@@ -1,0 +1,6 @@
+# Phiber's starting values for Phi-Soft and Phi-Soft Condensed
+# (Preferences ▸ Typography). See ../README.md.
+weight = 300   # Light: the Regular reads heavy at interface sizes
+body = 13
+header = 14
+caption = 12

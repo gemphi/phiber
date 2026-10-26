@@ -12,12 +12,12 @@
 //! rather than the number — it checks that nothing paints the band from a
 //! constant any more, which is the thing that was actually wrong.
 
-const TIME: &str = include_str!("../src/v2/view/draw/canvas/time/set.rs");
-const GRID: &str = include_str!("../src/v2/view/draw/canvas/time/grid/set.rs");
-const MARKER: &str = include_str!("../src/v2/view/draw/canvas/time/marker/set.rs");
-const DRIVER: &str = include_str!("../src/v2/view/draw/canvas/time/driver/set.rs");
-const VIEW: &str = include_str!("../src/v2/view/draw/canvas/time/view/mod.rs");
-const CANVAS: &str = include_str!("../src/v2/view/draw/canvas/time/mod.rs");
+const TIME: &str = include_str!("../src/view/draw/canvas/time/set.rs");
+const GRID: &str = include_str!("../src/view/draw/canvas/time/grid/set.rs");
+const MARKER: &str = include_str!("../src/view/draw/canvas/time/marker/set.rs");
+const DRIVER: &str = include_str!("../src/view/draw/canvas/time/driver/set.rs");
+const VIEW: &str = include_str!("../src/view/draw/canvas/time/view/mod.rs");
+const CANVAS: &str = include_str!("../src/view/draw/canvas/time/mod.rs");
 
 /// Lines of code, with comments and doc comments stripped.
 fn code(text: &str) -> String {

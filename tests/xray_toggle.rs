@@ -7,13 +7,13 @@
 //! at `1 − xray_alpha` (phiray `tests/xray.rs` holds the frames to Blender's).
 
 use gpui::{Modifiers, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::part::filter::BFilter;
-use phiber::v2::scene::{BShading, BXray, shading_key};
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState, CtxKey, ModalKey};
-use phiber::v2::view::{BView, BViewItem};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::part::filter::BFilter;
+use phiber::scene::{BShading, BXray, shading_key};
+use phiber::space::BSpaceType;
+use phiber::state::{BState, CtxKey, ModalKey};
+use phiber::view::{BView, BViewItem};
 
 const BUTTON: &str = "btn-icon-set-ctx.op.view3d-toggle_xray-xray";
 
@@ -30,7 +30,7 @@ fn button(state: &BState) -> (bool, bool) {
 }
 
 fn said() -> String {
-    phiber::v2::state::log::latest().map(|e| e.text).unwrap_or_default()
+    phiber::state::log::latest().map(|e| e.text).unwrap_or_default()
 }
 
 #[gpui::test]

@@ -5,10 +5,10 @@
 //! Files missing on this machine are skipped.
 
 use phiber::phiphx::Phx;
-use phiber::v2::app::load_ui::restore_ui;
-use phiber::v2::scene::camera::{note_aspect, setup_from_state, with_view};
-use phiber::v2::scene::{MESH_SCALE, project3_full, view_pan, view_pitch, view_yaw, view_zoom};
-use phiber::v2::state::BState;
+use phiber::app::load_ui::restore_ui;
+use phiber::scene::camera::{note_aspect, setup_from_state, with_view};
+use phiber::scene::{MESH_SCALE, project3_full, view_pan, view_pitch, view_yaw, view_zoom};
+use phiber::state::BState;
 use std::path::PathBuf;
 
 const W: u32 = 480;

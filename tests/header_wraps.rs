@@ -6,10 +6,10 @@
 //! area's chrome keeps its height whatever its width.
 
 use gpui::{Bounds, Pixels, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState, CtxKey, ModalKey};
-use phiber::v2::theme::METRICS;
+use phiber::app::BPhiberApp;
+use phiber::space::BSpaceType;
+use phiber::state::{BState, CtxKey, ModalKey};
+use phiber::theme::METRICS;
 
 fn bounds(cx: &mut gpui::VisualTestContext, ids: &[&'static str]) -> Option<Bounds<Pixels>> {
     ids.iter().find_map(|id| cx.debug_bounds(id))

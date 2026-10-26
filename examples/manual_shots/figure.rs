@@ -6,9 +6,9 @@
 //! own light theme draws the screen in.
 
 use super::drive::Res;
-use phiber::v2::manual::BDeck;
-use phiber::v2::theme::style::color::BResolvedColors;
-use phiber::v2::theme::{BColor, BThemeMode, palette_in};
+use phiber::manual::BDeck;
+use phiber::theme::style::color::BResolvedColors;
+use phiber::theme::{BColor, BThemeMode, palette_in};
 use std::path::Path;
 use std::process::Command;
 

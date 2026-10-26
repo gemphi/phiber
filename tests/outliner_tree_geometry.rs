@@ -7,13 +7,13 @@
 //! indicator drawn as a `border_l` displaced the selected row's content by
 //! 2px and knocked exactly that row off the grid.
 
-use phiber::v2::state::{BKey as _, CtxKey};
+use phiber::state::{BKey as _, CtxKey};
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState, V_TRUE, MenuKey};
-use phiber::v2::theme::METRICS;
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::space::BSpaceType;
+use phiber::state::{BState, V_TRUE, MenuKey};
+use phiber::theme::METRICS;
 
 fn arrow_x(cx: &mut gpui::VisualTestContext, id: &'static str) -> f32 {
     let b = cx
@@ -98,10 +98,10 @@ async fn menubar_anchor_fills_the_header_down_to_its_border(cx: &mut TestAppCont
     cx.run_until_parked();
 
     let id: &'static str = Box::leak(
-        phiber::v2::view::draw::button::element_id(
+        phiber::view::draw::button::element_id(
             "",
             Some("File"),
-            &phiber::v2::view::prim::BAction::Toggle(MenuKey::Top(BHostType::Topbar.slug(), "File").path()),
+            &phiber::view::prim::BAction::Toggle(MenuKey::Top(BHostType::Topbar.slug(), "File").path()),
         )
         .into_boxed_str(),
     );

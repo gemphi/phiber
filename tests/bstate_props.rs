@@ -7,7 +7,7 @@
 //! - Set then get returns the written value.
 //! - Writing V_FALSE twice leaves the map identical to writing it once.
 
-use phiber::v2::state::{BPath, BState, V_EMPTY, V_FALSE, V_TRUE};
+use phiber::state::{BPath, BState, V_EMPTY, V_FALSE, V_TRUE};
 use proptest::prelude::*;
 
 fn arb_segment() -> impl Strategy<Value = &'static str> {

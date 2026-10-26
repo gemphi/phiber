@@ -1,11 +1,11 @@
 //! A header with no room folds its right-hand controls behind one icon, and a
 //! modal that elevates a host does not draw a second header under its title.
 
-use phiber::v2::state::{AppKey};
-use phiber::v2::host::BHostType;
-use phiber::v2::part::filter::{BFilter, is_narrow};
-use phiber::v2::state::{BState};
-use phiber::v2::view::{BView, BViewItem};
+use phiber::state::{AppKey};
+use phiber::host::BHostType;
+use phiber::part::filter::{BFilter, is_narrow};
+use phiber::state::{BState};
+use phiber::view::{BView, BViewItem};
 
 fn at_width(width: f32) -> BState {
     let mut s = BState::new();
@@ -60,7 +60,7 @@ fn an_unmeasured_window_is_not_treated_as_narrow() {
 fn a_modal_hosting_an_editor_drops_that_editors_own_header() {
     let card = std::fs::read_to_string(
         std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("src/v2/view/draw/modal/card.rs"),
+            .join("src/view/draw/modal/card.rs"),
     )
     .expect("modal card source");
     assert!(

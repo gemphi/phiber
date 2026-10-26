@@ -12,14 +12,14 @@
 //! `Playback` body variant: one set of rows, two ways to reach them, so a
 //! setting cannot read one way in the popover and another in the sidebar.
 
-use phiber::v2::host::BHostType;
-use phiber::v2::part::sidebar::panel::BSidebarPanels;
-use phiber::v2::part::sidebar::set::{BSidebarBody, tabs_for};
-use phiber::v2::pane::BPaneType;
-use phiber::v2::part::BPartType;
-use phiber::v2::region::BRegionType;
-use phiber::v2::state::BState;
-use phiber::v2::view::BView;
+use phiber::host::BHostType;
+use phiber::part::sidebar::panel::BSidebarPanels;
+use phiber::part::sidebar::set::{BSidebarBody, tabs_for};
+use phiber::pane::BPaneType;
+use phiber::part::BPartType;
+use phiber::region::BRegionType;
+use phiber::state::BState;
+use phiber::view::BView;
 
 /// The titles the sidebar's cards carry, for the tab showing.
 fn titles(state: &BState) -> Vec<String> {
@@ -77,7 +77,7 @@ fn the_sidebar_lists_both_of_the_transports_panels() {
 
 #[test]
 fn a_panel_here_lays_out_the_rows_the_popover_lays_out() {
-    use phiber::v2::part::playback::panel;
+    use phiber::part::playback::panel;
     let state = BState::new();
     let cards = BSidebarPanels::new(BHostType::Time).views(&state);
     assert_eq!(cards.len(), 2);

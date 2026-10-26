@@ -26,15 +26,15 @@
 //! tab). They read the same table, so a box cannot be ticked in one place and
 //! clear in the other.
 
-use phiber::v2::host::BHostType;
-use phiber::v2::part::filter::overlay::{self, CLIP, IMAGE, NODE, SEQ, SHEET};
-use phiber::v2::part::filter::has_filter;
-use phiber::v2::part::sidebar::panel::BSidebarPanels;
-use phiber::v2::part::sidebar::set::{BSidebarBody, tabs_for};
-use phiber::v2::part::sidebar::show::BSidebarShown;
-use phiber::v2::state::val::{V_FALSE, V_TRUE};
-use phiber::v2::state::{BKey as _, BState, MenuKey};
-use phiber::v2::view::BView;
+use phiber::host::BHostType;
+use phiber::part::filter::overlay::{self, CLIP, IMAGE, NODE, SEQ, SHEET};
+use phiber::part::filter::has_filter;
+use phiber::part::sidebar::panel::BSidebarPanels;
+use phiber::part::sidebar::set::{BSidebarBody, tabs_for};
+use phiber::part::sidebar::show::BSidebarShown;
+use phiber::state::val::{V_FALSE, V_TRUE};
+use phiber::state::{BKey as _, BState, MenuKey};
+use phiber::view::BView;
 
 const NODE_EDITORS: [BHostType; 4] =
     [BHostType::Shader, BHostType::Node, BHostType::GeoNode, BHostType::Compositor];
@@ -91,7 +91,7 @@ fn seven_of_them_reach_it_through_the_header_part_and_two_build_their_own() {
     for host in [BHostType::Image, BHostType::Uv] {
         assert!(!has_filter(host), "{host:?} would draw the popover twice");
     }
-    let header = include_str!("../src/v2/part/image/header/mod.rs");
+    let header = include_str!("../src/part/image/header/mod.rs");
     assert!(
         header.contains("part::filter::overlay::view(s, self.host)"),
         "the Image header must open the shared popover, not a toggle of its own"
@@ -180,7 +180,7 @@ fn each_popover_draws_one_row_per_box() {
         // (`filter::fold`); opened one by one, every box is a row.
         let mut state = open_for(host);
         for (title, _) in overlay::groups(&state, host) {
-            state.set(&phiber::v2::part::filter::fold::expand_key(&overlay::scope(host), title), V_TRUE);
+            state.set(&phiber::part::filter::fold::expand_key(&overlay::scope(host), title), V_TRUE);
         }
         let rows = opened(&state, host).expect("the open popover");
         assert_eq!(rows_in(&rows), overlay::table_for(host).unwrap().len(), "{host:?}");

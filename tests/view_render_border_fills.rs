@@ -5,9 +5,9 @@
 //! process badly with the other viewport test.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::state::{BKey as _, ModalKey, OpKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::state::{BKey as _, ModalKey, OpKey};
+use phiber::view::BAction;
 
 fn region(v: &str) -> BAction {
     BAction::Set(OpKey::RenderBorder.path(), v.into())
@@ -19,13 +19,13 @@ async fn rendered_shading_fills_the_region_alone(cx: &mut TestAppContext) {
     if phiray::Gpu::shared().is_none() {
         return;
     }
-    use phiber::v2::view::draw::canvas::view3d::rendered::shown_image;
+    use phiber::view::draw::canvas::view3d::rendered::shown_image;
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1200.0), px(700.0)));
     app.update(cx, |app, cx| {
         app.state.remove(ModalKey::Open);
-        app.state.set(&phiber::v2::scene::shading_key(), "rendered");
-        app.state.set(phiber::v2::state::ButsKey::Value("engine"), "CYCLES");
+        app.state.set(&phiber::scene::shading_key(), "rendered");
+        app.state.set(phiber::state::ButsKey::Value("engine"), "CYCLES");
         app.handle_action(&region("view:0.5,1,0,0.5"), cx);
         cx.notify();
     });
@@ -59,7 +59,7 @@ async fn rendered_shading_fills_the_region_alone(cx: &mut TestAppContext) {
     // Workbench: the whole viewport, whatever the region says — which is
     // also what says how large the viewport is.
     app.update(cx, |app, cx| {
-        app.state.set(phiber::v2::state::ButsKey::Value("engine"), "BLENDER_WORKBENCH");
+        app.state.set(phiber::state::ButsKey::Value("engine"), "BLENDER_WORKBENCH");
         cx.notify();
     });
     cx.run_until_parked();

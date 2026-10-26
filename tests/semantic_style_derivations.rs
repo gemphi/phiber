@@ -3,7 +3,7 @@
 //! gradient runs one step up to the slot's own shade, a lift moves whole
 //! steps, and a colour off the ladder (the accent) keeps a lightness nudge.
 
-use phiber::v2::{
+use phiber::{
     host::BHostType,
     theme::{BGradientAxis, BPaletteName, BResolvedUiStyle, BShadowStyle, BSurfaceTone, SWEEP_STOP, ui_style_defaults},
 };

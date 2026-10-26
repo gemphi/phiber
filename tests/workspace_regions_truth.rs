@@ -17,8 +17,8 @@
 //! because a region phiber does not declare is a panel the user cannot
 //! open and an edge they cannot drag.
 
-use phiber::v2::host::BHostType;
-use phiber::v2::region::BRegionType;
+use phiber::host::BHostType;
+use phiber::region::BRegionType;
 use std::collections::BTreeSet;
 use std::path::PathBuf;
 

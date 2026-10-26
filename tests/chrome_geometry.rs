@@ -5,12 +5,12 @@
 //! as the same surface. The icon rails are exactly as wide as a strip is tall,
 //! which is what makes the window read as one grid.
 
-use phiber::v2::state::{BKey as _, CtxKey, ModalKey};
+use phiber::state::{BKey as _, CtxKey, ModalKey};
 use gpui::{Pixels as px_t, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState};
-use phiber::v2::theme::METRICS;
+use phiber::app::BPhiberApp;
+use phiber::space::BSpaceType;
+use phiber::state::{BState};
+use phiber::theme::METRICS;
 
 /// The workspace with `space` open, laid out at a fixed window size.
 async fn workspace(cx: &mut TestAppContext, space: BSpaceType) -> &mut gpui::VisualTestContext {
@@ -48,9 +48,9 @@ async fn the_rails_are_as_wide_as_a_strip_is_tall(cx: &mut TestAppContext) {
     let _ = strip;
     // Every rail is one width: a card-head tile and `pad_xs` either side —
     // the viewport's floating strip, the Properties navbar, every sidebar.
-    let style = phiber::v2::theme::resolve_ui_style(
-        phiber::v2::theme::ui_style_defaults(phiber::v2::theme::BPaletteName::DEFAULT),
-        &phiber::v2::state::BState::new(),
+    let style = phiber::theme::resolve_ui_style(
+        phiber::theme::ui_style_defaults(phiber::theme::BPaletteName::DEFAULT),
+        &phiber::state::BState::new(),
     );
     assert_eq!(f32::from(rail.size.width), style.rail_width(), "an icon rail is one rail wide");
     let floating = bounds(cx, &["pane-floating-Left-View3D"], "the viewport's toolbar");
@@ -65,7 +65,7 @@ async fn a_tab_hangs_from_its_strip_with_one_gap_above(cx: &mut TestAppContext) 
     let tab = bounds(cx, &["tab-entity-Layout"], "the Layout tab");
     // A tab is a control like every other in its strip: the control height,
     // centred on the strip's line, clear of its top and bottom alike.
-    let clear = phiber::v2::theme::style::metric::CONTROL_CLEAR;
+    let clear = phiber::theme::style::metric::CONTROL_CLEAR;
     assert_eq!(f32::from(tab.size.height), METRICS.h_header - 2.0 * clear, "a tab is a control's height");
     let band_mid = f32::from(strip.origin.y) + METRICS.h_header / 2.0;
     let tab_mid = f32::from(tab.origin.y) + f32::from(tab.size.height) / 2.0;
@@ -132,8 +132,8 @@ async fn the_first_rail_cap_sits_on_the_first_heading_beside_it(cx: &mut TestApp
 
 #[gpui::test]
 async fn a_menu_popover_frames_its_rows_with_one_gutter(cx: &mut TestAppContext) {
-    use phiber::v2::host::BHostType;
-    use phiber::v2::state::{MenuKey, V_TRUE};
+    use phiber::host::BHostType;
+    use phiber::state::{MenuKey, V_TRUE};
 
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1280.0), px(800.0)));
@@ -165,8 +165,8 @@ async fn a_menu_popover_frames_its_rows_with_one_gutter(cx: &mut TestAppContext)
 
 #[gpui::test]
 async fn a_menu_too_tall_for_the_window_scrolls_instead_of_squashing_its_rows(cx: &mut TestAppContext) {
-    use phiber::v2::host::BHostType;
-    use phiber::v2::state::{MenuKey, V_TRUE};
+    use phiber::host::BHostType;
+    use phiber::state::{MenuKey, V_TRUE};
 
     // The File menu is the long one: around twenty rows, so at a row's height
     // it wants roughly 780px and does not fit an 800px window. It used to
@@ -192,7 +192,7 @@ async fn a_menu_too_tall_for_the_window_scrolls_instead_of_squashing_its_rows(cx
     // A menu row is the compact `MENU_ROW` (the button less its head room),
     // not the module a content row is: a long menu is a list of labels, and
     // Blender's menus are tighter than its property rows. `BDim::MenuRow`.
-    let row_height = phiber::v2::theme::style::metric::MENU_ROW;
+    let row_height = phiber::theme::style::metric::MENU_ROW;
     let panel = bounds(cx, &["popover-panel"], "the open File menu");
     let first = bounds(cx, &["menu-New"], "the menu's first row");
 
@@ -222,7 +222,7 @@ async fn a_menu_too_tall_for_the_window_scrolls_instead_of_squashing_its_rows(cx
 
 #[gpui::test]
 async fn the_sidebar_takes_the_width_it_was_dragged_to(cx: &mut TestAppContext) {
-    use phiber::v2::view::draw::resize::k_sidebar_width;
+    use phiber::view::draw::resize::k_sidebar_width;
 
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1280.0), px(800.0)));
@@ -231,8 +231,8 @@ async fn the_sidebar_takes_the_width_it_was_dragged_to(cx: &mut TestAppContext) 
         app.state.set(CtxKey::Space, BSpaceType::Layout.slug());
         // The bookmarks sidebar lives in the file browser.
         app.state.set(
-            phiber::v2::state::ModalKey::Open,
-            phiber::v2::modal::BModalType::FileBrowser.slug(),
+            phiber::state::ModalKey::Open,
+            phiber::modal::BModalType::FileBrowser.slug(),
         );
         cx.notify();
     });
@@ -262,9 +262,9 @@ async fn every_top_bar_control_sits_on_one_centre_line(cx: &mut TestAppContext) 
     let toggle = bounds(cx, &["topbar-zone-toggle-right"], "a zone toggle");
     let mid = |b: gpui::Bounds<px_t>| f32::from(b.origin.y) + f32::from(b.size.height) / 2.0;
     // A shade over the icon size — the mark, not a banner (batch 41: 16, down from 22.4).
-    let brand = phiber::v2::theme::style::metric::DEFAULT_DIMENSIONS.brand_size;
+    let brand = phiber::theme::style::metric::DEFAULT_DIMENSIONS.brand_size;
     assert!((f32::from(mark.size.height) - brand).abs() < 0.6, "mark is {:?} tall", mark.size.height);
-    let icon = phiber::v2::theme::style::metric::DEFAULT_DIMENSIONS.icon_size;
+    let icon = phiber::theme::style::metric::DEFAULT_DIMENSIONS.icon_size;
     assert!(brand <= icon + 2.0 && brand >= icon, "the mark is an icon's size, give or take: {brand}");
     // One line for everything in a strip: the centre of the cap band — the
     // strip less the menu gap above it. The mark, a menu cap and a button
@@ -301,7 +301,7 @@ async fn the_welcome_mark_fits_inside_its_column(cx: &mut TestAppContext) {
         bottom(window)
     );
     // The logo is the hero's: four brand units tall.
-    let brand = phiber::v2::theme::style::metric::DEFAULT_DIMENSIONS.brand_size;
+    let brand = phiber::theme::style::metric::DEFAULT_DIMENSIONS.brand_size;
     assert!(
         (f32::from(mark.size.height) - 4.0 * brand).abs() <= 0.5,
         "the Welcome logo ({}) is four brand units ({brand})",

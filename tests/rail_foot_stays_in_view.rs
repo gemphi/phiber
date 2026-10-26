@@ -12,8 +12,8 @@
 //! last, so the strip reads as evenly inset at both ends.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::state::{CtxKey, ModalKey};
+use phiber::app::BPhiberApp;
+use phiber::state::{CtxKey, ModalKey};
 
 fn bottom(b: gpui::Bounds<gpui::Pixels>) -> f32 {
     f32::from(b.origin.y) + f32::from(b.size.height)
@@ -30,7 +30,7 @@ async fn the_cluster_sits_a_cap_gap_off_the_foot_of_a_short_strip(cx: &mut TestA
         cx.notify();
     });
     cx.run_until_parked();
-    let style = phiber::v2::theme::ui_style_defaults(phiber::v2::theme::BPaletteName::DEFAULT);
+    let style = phiber::theme::ui_style_defaults(phiber::theme::BPaletteName::DEFAULT);
     // The lead the region pads above its first entry, and below its last —
     // `BResolvedUiStyle::rail_lead` for a card column: the host's content
     // pad (`pad_sm` in Properties), the body column's two borders, and its
@@ -63,7 +63,7 @@ async fn the_viewport_strips_end_a_cap_gap_off_the_canvas_bottom(cx: &mut TestAp
         cx.notify();
     });
     cx.run_until_parked();
-    let gap = phiber::v2::theme::ui_style_defaults(phiber::v2::theme::BPaletteName::DEFAULT).dimensions.menu_top_gap;
+    let gap = phiber::theme::ui_style_defaults(phiber::theme::BPaletteName::DEFAULT).dimensions.menu_top_gap;
     let canvas = cx.debug_bounds("view3d-canvas").expect("the viewport");
     for side in ["pane-floating-Left-View3D", "pane-floating-Right-View3D"] {
         let strip = cx.debug_bounds(side).expect("a floating strip");

@@ -7,7 +7,7 @@ use std::fs;
 use std::path::PathBuf;
 
 fn renderer(name: &str) -> String {
-    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2/view/draw");
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/view/draw");
     let path = module_file(root.join(format!("{name}.rs")));
     let mut source =
         fs::read_to_string(&path).unwrap_or_else(|error| panic!("{}: {error}", path.display()));

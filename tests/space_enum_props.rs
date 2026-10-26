@@ -7,7 +7,7 @@
 //! returns `Some(s)`. For any string not in the slug set, `from_slug`
 //! returns `None`.
 
-use phiber::v2::space::BSpaceType;
+use phiber::space::BSpaceType;
 use proptest::prelude::*;
 
 fn arb_space() -> impl Strategy<Value = BSpaceType> {

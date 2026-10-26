@@ -3,12 +3,12 @@
 //! with Shift, taken away — and a right-drag without Ctrl draws nothing.
 
 use gpui::{Modifiers, MouseButton, Point, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::lasso::BLasso;
-use phiber::v2::scene::scene_objects;
-use phiber::v2::scene::select::BSelection;
-use phiber::v2::state::{BKey as _, ModalKey, OpKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::scene::lasso::BLasso;
+use phiber::scene::scene_objects;
+use phiber::scene::select::BSelection;
+use phiber::state::{BKey as _, ModalKey, OpKey};
+use phiber::view::BAction;
 
 fn ctrl(shift: bool) -> Modifiers {
     Modifiers { control: true, shift, ..Default::default() }

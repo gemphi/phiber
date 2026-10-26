@@ -9,10 +9,10 @@
 //! test rather than as separate ones racing for it.
 
 use phiber::phiphx::scene::SceneCamera;
-use phiber::v2::scene::{BObject3D, BRenderPlan, BShading, camera_of, output_set, render_job};
-use phiber::v2::view::draw::canvas::view3d::rendered::BStillLook;
-use phiber::v2::state::{BKey as _, BState, ButsKey, FileKey, action::apply_action};
-use phiber::v2::view::prim::BAction;
+use phiber::scene::{BObject3D, BRenderPlan, BShading, camera_of, output_set, render_job};
+use phiber::view::draw::canvas::view3d::rendered::BStillLook;
+use phiber::state::{BKey as _, BState, ButsKey, FileKey, action::apply_action};
+use phiber::view::prim::BAction;
 
 /// Drive a key the way a click does: the reducer, not a bare store write, is
 /// what runs the rules this test is about.
@@ -31,7 +31,7 @@ fn a_state_pointing_at(folder: &std::path::Path, format: &str) -> BState {
 }
 
 fn a_cube() -> Vec<BObject3D> {
-    vec![BObject3D::Primitive { name: "Cube".into(), shape: phiber::v2::scene::BShape::Cube, x: 0.0, y: 0.0 }]
+    vec![BObject3D::Primitive { name: "Cube".into(), shape: phiber::scene::BShape::Cube, x: 0.0, y: 0.0 }]
 }
 
 fn a_plan(samples: u32) -> BRenderPlan {

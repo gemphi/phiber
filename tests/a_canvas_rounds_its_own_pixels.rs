@@ -11,11 +11,11 @@
 //!
 //! So the corners are computed once, as numbers, and handed to the paint.
 
-use phiber::v2::host::BHostType;
-use phiber::v2::theme::{BPaletteName, BResolvedUiStyle, BStyleRole, ui_style_defaults};
+use phiber::host::BHostType;
+use phiber::theme::{BPaletteName, BResolvedUiStyle, BStyleRole, ui_style_defaults};
 
 fn source(path: &str) -> String {
-    let full = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2/view/draw").join(path);
+    let full = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/view/draw").join(path);
     std::fs::read_to_string(&full).unwrap_or_else(|_| panic!("{}", full.display()))
 }
 

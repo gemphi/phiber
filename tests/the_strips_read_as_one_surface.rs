@@ -20,14 +20,14 @@
 //! editor. Measured off a screenshot: the strip was `#1B1823` against a panel of
 //! `#2C2739`.
 
-use phiber::v2::host::BHostType;
-use phiber::v2::state::BState;
-use phiber::v2::theme::{resolve_ui_style, ui_style_defaults_for, BPaletteName, BThemeMode};
+use phiber::host::BHostType;
+use phiber::state::BState;
+use phiber::theme::{resolve_ui_style, ui_style_defaults_for, BPaletteName, BThemeMode};
 
-fn style_for(palette: BPaletteName, mode: BThemeMode) -> phiber::v2::theme::BResolvedUiStyle {
+fn style_for(palette: BPaletteName, mode: BThemeMode) -> phiber::theme::BResolvedUiStyle {
     let mut state = BState::new();
-    state.set(phiber::v2::state::AppKey::Theme, palette.slug());
-    state.set(phiber::v2::state::AppKey::ThemeMode, mode.slug());
+    state.set(phiber::state::AppKey::Theme, palette.slug());
+    state.set(phiber::state::AppKey::ThemeMode, mode.slug());
     resolve_ui_style(ui_style_defaults_for(&state), &state)
 }
 
@@ -69,7 +69,7 @@ fn a_resting_tab_is_the_strip_and_the_selected_one_is_the_accordion() {
             assert_eq!(panel, strip, "{palette:?}/{mode:?}: the strip is the panel's own surface, no colour behind it");
             assert_eq!(
                 active,
-                style.heading_surface(phiber::v2::theme::BSurfaceTone::Card),
+                style.heading_surface(phiber::theme::BSurfaceTone::Card),
                 "{palette:?}/{mode:?}: the selected tab is the accordion heading's surface"
             );
             assert_ne!(
@@ -88,12 +88,12 @@ fn a_resting_tab_is_the_strip_and_the_selected_one_is_the_accordion() {
 /// differ; the container does not.
 #[test]
 fn every_secondary_activity_column_has_the_same_container() {
-    use phiber::v2::part::activity::BActivityList;
-    use phiber::v2::state::ActivityKey;
-    use phiber::v2::view::BView;
+    use phiber::part::activity::BActivityList;
+    use phiber::state::ActivityKey;
+    use phiber::view::BView;
 
     let mut checked = 0;
-    for entry in phiber::v2::part::activity::set::ENTRIES.iter().filter(|e| e.is_grouping()) {
+    for entry in phiber::part::activity::set::ENTRIES.iter().filter(|e| e.is_grouping()) {
         let mut state = BState::new();
         state.set(ActivityKey::Group, entry.label);
         let strip = BActivityList::new().group_strip(&state);

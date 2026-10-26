@@ -6,8 +6,8 @@
 //! curve the two look similar enough that a mix-up survives eyeballing. So
 //! these tests read the files back and compare the numbers.
 
-use phiber::v2::scene::render_job::BRenderShot;
-use phiber::v2::scene::render_save::{BSaveKind, kind_of, save_to};
+use phiber::scene::render_job::BRenderShot;
+use phiber::scene::render_save::{BSaveKind, kind_of, save_to};
 use phiphx::blend::{BlendImageFormat, BlendOutput, BlendPassSet};
 
 /// A 2 × 2 render: a dark pixel, a mid one, a bright one, and one well over

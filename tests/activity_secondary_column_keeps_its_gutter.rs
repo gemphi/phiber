@@ -11,9 +11,9 @@
 //! group open, so the column is never painted in it. Hence this.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{ActivityKey, BKey as _, BState, CtxKey};
+use phiber::app::BPhiberApp;
+use phiber::space::BSpaceType;
+use phiber::state::{ActivityKey, BKey as _, BState, CtxKey};
 
 /// Open the secondary column on a grouping entry.
 macro_rules! group_open {

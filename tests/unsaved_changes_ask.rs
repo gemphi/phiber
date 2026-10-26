@@ -6,9 +6,9 @@
 use gpui::{TestAppContext, px, size};
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::state::{BKey as _, CtxKey, FileKey, ModalKey, OpKey};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::state::{BKey as _, CtxKey, FileKey, ModalKey, OpKey};
+use phiber::view::BAction;
 use std::path::PathBuf;
 
 fn fixture_copy(dir: &std::path::Path) -> PathBuf {
@@ -36,7 +36,7 @@ async fn an_edit_marks_the_title_and_quit_new_and_open_ask_before_losing_it(cx: 
     assert_eq!(cx.window_title().as_deref(), Some("(Unsaved) - Phiber"), "nothing open yet");
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::v2::scene::loaded_path_key(), path.clone());
+        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
         app.scene_cache = Some((path.clone(), std::sync::Arc::new(model)));
         cx.notify();
     });

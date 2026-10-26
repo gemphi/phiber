@@ -5,10 +5,10 @@
 //!
 //!   cargo run --release -p phiber --example workbench_render -- FILE OUT.png
 use phiber::phiphx::Phx;
-use phiber::v2::app::seed::seed_view_layer;
-use phiber::v2::part::outliner::key::BHidden;
-use phiber::v2::scene::{BShading, current_scene, source::set_loaded_scene};
-use phiber::v2::state::BState;
+use phiber::app::seed::seed_view_layer;
+use phiber::part::outliner::key::BHidden;
+use phiber::scene::{BShading, current_scene, source::set_loaded_scene};
+use phiber::state::BState;
 use phiray::{Atlas, Camera, Mode, Ray, Tracer, Tri};
 
 const W: u32 = 720;
@@ -27,7 +27,7 @@ fn main() {
     let mut tris = Vec::new();
     let (mut lo, mut hi) = ([f32::MAX; 3], [f32::MIN; 3]);
     for o in &objects {
-        let phiber::v2::scene::BObject3D::Loaded { name, mesh, matrix_world, .. } = o else { continue };
+        let phiber::scene::BObject3D::Loaded { name, mesh, matrix_world, .. } = o else { continue };
         if hidden.hides(&s, name) { continue; }
         let m = glam::Mat4::from_cols_array_2d(matrix_world);
         let nm = glam::Mat3::from_mat4(m).inverse().transpose();

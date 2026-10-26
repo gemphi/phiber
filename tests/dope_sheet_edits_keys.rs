@@ -10,12 +10,12 @@
 use gpui::{Modifiers, MouseButton, MouseDownEvent, MouseUpEvent, TestAppContext, px, size};
 use phiber::phiphx::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::scene::action::BSceneActions;
-use phiber::v2::scene::action::dope::BKeySelection;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{CtxKey, ModalKey};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::scene::action::BSceneActions;
+use phiber::scene::action::dope::BKeySelection;
+use phiber::space::BSpaceType;
+use phiber::state::{CtxKey, ModalKey};
 use std::path::{Path, PathBuf};
 
 type Cx<'a> = &'a mut gpui::VisualTestContext;
@@ -102,8 +102,8 @@ async fn the_dope_sheet_picks_moves_and_deletes_keys_and_saves_them(cx: &mut Tes
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
         app.state.set(CtxKey::Space, space.slug());
-        app.state.set(&phiber::v2::area::area_key(space, &area), BHostType::Action.slug());
-        app.state.set(&phiber::v2::scene::loaded_path_key(), path.clone());
+        app.state.set(&phiber::area::area_key(space, &area), BHostType::Action.slug());
+        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
         app.state.set(CtxKey::Object, "Cube");
         app.state.set(CtxKey::FrameStart, "1");
         app.state.set(CtxKey::FrameEnd, "250");

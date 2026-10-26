@@ -7,13 +7,13 @@
 //!   • an expanded rail entry fills the rail,
 //!   • a side area scrolls only when its host stacks content.
 
-use phiber::v2::state::{BKey as _, CtxKey, ModalKey};
-use phiber::v2::state::FileKey;
+use phiber::state::{BKey as _, CtxKey, ModalKey};
+use phiber::state::FileKey;
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BState, V_TRUE, MenuKey, menu};
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::space::BSpaceType;
+use phiber::state::{BState, V_TRUE, MenuKey, menu};
 
 // ── Menus ─────────────────────────────────────────────────────────────────
 
@@ -55,7 +55,7 @@ fn closing_a_menu_by_clicking_it_again_closes_its_submenu_too() {
 
 #[test]
 fn the_window_controls_are_one_table() {
-    use phiber::v2::view::draw::caption::WINDOW_CONTROLS;
+    use phiber::view::draw::caption::WINDOW_CONTROLS;
     let slugs: Vec<&str> = WINDOW_CONTROLS.iter().map(|c| c.slug).collect();
     assert_eq!(slugs, vec!["min", "max", "close"]);
     // Only the maximise control changes icon with the surface's state, and
@@ -87,7 +87,7 @@ async fn workspace(cx: &mut TestAppContext, space: BSpaceType) -> &mut gpui::Vis
         app.state = BState::new();
         app.state.set(CtxKey::Space, space.slug());
         app.state.set(
-            &phiber::v2::part::strip::expanded_key(BHostType::View3D, "tool"),
+            &phiber::part::strip::expanded_key(BHostType::View3D, "tool"),
             V_TRUE,
         );
         cx.notify();
@@ -199,7 +199,7 @@ async fn the_topbar_right_cell_survives_a_narrow_window(cx: &mut TestAppContext)
         // beside them. Below the wrap width the bar is two lines and they
         // ride the second (`filter::topbar_wraps`).
         let icon_mid = f32::from(close.origin.y) + f32::from(close.size.height) / 2.0;
-        let metrics = phiber::v2::theme::METRICS;
+        let metrics = phiber::theme::METRICS;
         let line = metrics.h_header;
         let wrapped = f32::from(strip.size.height) > line + 0.5;
         let line_top = f32::from(strip.origin.y) + if wrapped { line + metrics.gap_xs } else { 0.0 };
@@ -214,7 +214,7 @@ async fn the_topbar_right_cell_survives_a_narrow_window(cx: &mut TestAppContext)
 
 #[gpui::test]
 async fn resizing_and_switching_space_do_not_rebuild_the_viewport(cx: &mut TestAppContext) {
-    use phiber::v2::view::draw::canvas::view3d::cache;
+    use phiber::view::draw::canvas::view3d::cache;
 
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1280.0), px(800.0)));
@@ -250,7 +250,7 @@ async fn resizing_and_switching_space_do_not_rebuild_the_viewport(cx: &mut TestA
 
 #[gpui::test]
 async fn a_window_drag_restarts_the_trace_once_not_every_frame(cx: &mut TestAppContext) {
-    use phiber::v2::view::draw::canvas::view3d::views_posted;
+    use phiber::view::draw::canvas::view3d::views_posted;
 
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1280.0), px(800.0)));
@@ -302,7 +302,7 @@ async fn a_window_drag_restarts_the_trace_once_not_every_frame(cx: &mut TestAppC
 
 #[gpui::test]
 async fn the_cpu_painter_stays_idle_while_the_gpu_draws(cx: &mut TestAppContext) {
-    use phiber::v2::view::draw::canvas::view3d::{on_gpu, rasterised};
+    use phiber::view::draw::canvas::view3d::{on_gpu, rasterised};
 
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1280.0), px(800.0)));
@@ -364,7 +364,7 @@ async fn the_cpu_painter_stays_idle_while_the_gpu_draws(cx: &mut TestAppContext)
 
 #[gpui::test]
 async fn one_frame_reads_the_scene_once(cx: &mut TestAppContext) {
-    use phiber::v2::scene::object_builds;
+    use phiber::scene::object_builds;
 
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1280.0), px(800.0)));
@@ -395,7 +395,7 @@ async fn one_frame_reads_the_scene_once(cx: &mut TestAppContext) {
 
 #[gpui::test]
 async fn the_progress_bar_holds_its_place_as_the_stage_changes(cx: &mut TestAppContext) {
-    use phiber::v2::scene::{load_progress_key, load_stage_key};
+    use phiber::scene::{load_progress_key, load_stage_key};
 
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1280.0), px(800.0)));
@@ -431,10 +431,10 @@ async fn the_progress_bar_holds_its_place_as_the_stage_changes(cx: &mut TestAppC
 
 #[test]
 fn the_selected_properties_tab_is_the_panel_head_beside_it() {
-    use phiber::v2::theme::{
+    use phiber::theme::{
         BGradientAxis, BPaletteName, resolve_ui_style, ui_style_defaults,
     };
-    use phiber::v2::view::draw::tab::cap::BCapSide;
+    use phiber::view::draw::tab::cap::BCapSide;
 
     let style = resolve_ui_style(ui_style_defaults(BPaletteName::DEFAULT), &BState::new());
     let fill = style.tab_active_gradient(BHostType::Buts);
@@ -442,7 +442,7 @@ fn the_selected_properties_tab_is_the_panel_head_beside_it() {
     // beside it are painted in — and the strip is the body, so the tab is
     // marked by wearing the colour of what it opens
     // (`tests/the_properties_strip_is_a_strip.rs`).
-    assert_eq!(fill, style.heading_surface(phiber::v2::theme::BSurfaceTone::Card));
+    assert_eq!(fill, style.heading_surface(phiber::theme::BSurfaceTone::Card));
     assert_eq!(style.rail_surface(BHostType::Buts), style.host_body_surface(BHostType::Buts));
 
     // A rail entry is one tile whichever side its rail is on (`BCapSide::Free`),
@@ -455,9 +455,9 @@ fn the_selected_properties_tab_is_the_panel_head_beside_it() {
 
 #[test]
 fn a_shelf_exists_only_in_a_mode_that_paints() {
-    use phiber::v2::part::assetshelf::{BAssetShelf, BAssetShelfHeader, has_shelf};
-    use phiber::v2::part::modebar::set::mode_key;
-    use phiber::v2::view::BViewItem;
+    use phiber::part::assetshelf::{BAssetShelf, BAssetShelfHeader, has_shelf};
+    use phiber::part::modebar::set::mode_key;
+    use phiber::view::BViewItem;
 
     // Blender polls the shelf per mode; a space that is not painting has no
     // shelf at all. Declaring one unconditionally is what left the Image
@@ -477,9 +477,9 @@ fn a_shelf_exists_only_in_a_mode_that_paints() {
 
 #[test]
 fn the_shelf_is_folded_until_asked_for_and_its_tiles_are_operations() {
-    use phiber::v2::part::assetshelf::{BAssetShelf, k_brush, k_expanded};
-    use phiber::v2::part::modebar::set::mode_key;
-    use phiber::v2::view::{BView, BViewItem};
+    use phiber::part::assetshelf::{BAssetShelf, k_brush, k_expanded};
+    use phiber::part::modebar::set::mode_key;
+    use phiber::view::{BView, BViewItem};
 
     let mut s = BState::new();
     s.set(&mode_key(BHostType::Image), "Paint");
@@ -550,7 +550,7 @@ fn no_row_changes_its_measurements_with_its_state() {
     for file in ["list.rs", "table.rs"] {
         let src = std::fs::read_to_string(
             std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .join("src/v2/view/draw")
+                .join("src/view/draw")
                 .join(file),
         )
         .unwrap_or_else(|e| panic!("{file}: {e}"));
@@ -582,8 +582,8 @@ fn only_stacking_hosts_scroll_their_side_area() {
 
 #[test]
 fn preferences_declares_its_categories_as_a_navbar_region() {
-    use phiber::v2::region::BRegionType;
-    let kinds: Vec<BRegionType> = phiber::v2::host::pref::REGIONS
+    use phiber::region::BRegionType;
+    let kinds: Vec<BRegionType> = phiber::host::pref::REGIONS
         .iter()
         .map(|r| r.kind)
         .collect();

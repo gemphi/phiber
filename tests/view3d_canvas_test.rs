@@ -12,10 +12,10 @@
 #[test]
 fn view3d_module_is_wired() {
     // Compile-time assertion — the view3d custom subtree is reachable
-    // through `phiber::v2::part::custom`. If the module is missing or
+    // through `phiber::part::custom`. If the module is missing or
     // renamed, this test file fails to build.
     #[allow(unused_imports)]
-    use phiber::v2::part::custom;
+    use phiber::part::custom;
     let _ = std::any::type_name::<custom::BCustomList>();
 }
 
@@ -23,8 +23,8 @@ fn view3d_module_is_wired() {
 fn view3d_center_dispatch_covers_view3d_host() {
     // `hosts_with_center()` must include View3D — else the center
     // dispatcher would produce Empty for View3D areas (Requirement 13.6).
-    use phiber::v2::host::BHostType;
-    use phiber::v2::part::custom::set::hosts_with_center;
+    use phiber::host::BHostType;
+    use phiber::part::custom::set::hosts_with_center;
     assert!(
         hosts_with_center().contains(&BHostType::View3D),
         "View3D host missing from hosts_with_center()"

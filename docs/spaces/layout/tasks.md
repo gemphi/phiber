@@ -2,7 +2,7 @@
 
 > **Status (2026-09-16): historical plan.** This checklist targeted the
 > pre-v2 `buikit` + `store/` / `state/` layout. `crates/buikit` has been
-> deleted and the work was re-done in `crates/phiber/src/v2`, where the
+> deleted and the work was re-done in `crates/phiber/src`, where the
 > outcomes these phases aimed for exist: `BSpaceType`, `BZoneType`,
 > `BHostType` (28 hosts), `BRegionType` (Header / Center / Footer plus
 > Blender's Tools, UI, ToolProps, AssetShelf, Channels, HUD, NavBar,

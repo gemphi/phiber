@@ -29,7 +29,7 @@
 use std::collections::BTreeMap;
 
 fn root() -> std::path::PathBuf {
-    std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2")
+    std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src")
 }
 
 fn record() -> std::path::PathBuf {
@@ -86,7 +86,7 @@ fn budget() -> BTreeMap<String, usize> {
         Err(_) => {
             let now = counted();
             let mut out = String::from(
-                "# `} else if` per file under src/v2, as of the day this was recorded.\n\
+                "# `} else if` per file under src, as of the day this was recorded.\n\
                  # A file may never exceed its number; a file not listed has a budget of\n\
                  # zero. Lowering one is always allowed — raising one is the thing this\n\
                  # guard exists to refuse. Written by `tests/branch_budget.rs` on its\n\

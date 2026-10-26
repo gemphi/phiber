@@ -3,9 +3,9 @@
 //! decision comes from measurements rather than from reading the code.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::state::{CtxKey, ModalKey};
-use phiber::v2::state::{BState, val::V_MODAL_FILE_BROWSER};
+use phiber::app::BPhiberApp;
+use phiber::state::{CtxKey, ModalKey};
+use phiber::state::{BState, val::V_MODAL_FILE_BROWSER};
 
 #[gpui::test]
 async fn probe_file_browser_gutters(cx: &mut TestAppContext) {

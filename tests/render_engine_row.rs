@@ -7,9 +7,9 @@
 //! file's only until the panel holds one, which is how every other row in
 //! that struct reads (`scene::render_engine`).
 
-use phiber::v2::scene::render_engine::BRenderEngine;
-use phiber::v2::scene::render_set;
-use phiber::v2::state::{BState, ButsKey};
+use phiber::scene::render_engine::BRenderEngine;
+use phiber::scene::render_set;
+use phiber::state::{BState, ButsKey};
 
 #[test]
 fn the_engine_row_decides_what_a_render_draws_with() {
@@ -65,12 +65,12 @@ fn an_untouched_row_is_the_files_engine_and_a_chosen_one_overrides_it() {
     use phiber::phiphx::scene::SceneModel;
     let mut model = SceneModel::default();
     model.render.engine = "BLENDER_WORKBENCH".into();
-    phiber::v2::scene::source::set_loaded_scene(Some(model));
+    phiber::scene::source::set_loaded_scene(Some(model));
     let mut s = BState::new();
     assert_eq!(render_set(&s).engine, BRenderEngine::Workbench, "the file's, with the row untouched");
     s.set(ButsKey::Value("engine"), "PHIRAY");
     assert_eq!(render_set(&s).engine, BRenderEngine::Phiray, "the row wins once it holds a value");
-    phiber::v2::scene::source::set_loaded_scene(None);
+    phiber::scene::source::set_loaded_scene(None);
 }
 
 /// The two rules the command line already had and the app did not: a file
@@ -81,14 +81,14 @@ fn an_untouched_row_is_the_files_engine_and_a_chosen_one_overrides_it() {
 #[test]
 fn a_files_engine_and_sample_count_meet_the_quality_policy() {
     use phiber::phiphx::scene::SceneModel;
-    use phiber::v2::scene::render_quality::BRenderQuality;
+    use phiber::scene::render_quality::BRenderQuality;
 
     let mut model = SceneModel::default();
     model.render.engine = "CYCLES".into();
-    phiber::v2::scene::source::set_loaded_scene(Some(model));
+    phiber::scene::source::set_loaded_scene(Some(model));
     let s = BState::new();
     assert_eq!(render_set(&s).engine, BRenderEngine::Phiray, "a Cycles file is traced by phiray, and says so");
-    phiber::v2::scene::source::set_loaded_scene(None);
+    phiber::scene::source::set_loaded_scene(None);
 
     // The default, where both the CLI and F12 read it.
     assert_eq!(BRenderQuality::ENGINE, "PHIRAY");

@@ -7,12 +7,12 @@
 //! own binary, since the render job is one per process.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::part::file::purpose::BFilePurpose;
-use phiber::v2::scene::render_job;
-use phiber::v2::part::image::shown::BShownImage;
-use phiber::v2::state::{BKey as _, ButsKey, CtxKey, ImageKey, ModalKey, OpKey, ScreenKey, val::{V_MODAL_RENDER, V_TRUE}};
-use phiber::v2::view::BAction;
+use phiber::app::BPhiberApp;
+use phiber::part::file::purpose::BFilePurpose;
+use phiber::scene::render_job;
+use phiber::part::image::shown::BShownImage;
+use phiber::state::{BKey as _, ButsKey, CtxKey, ImageKey, ModalKey, OpKey, ScreenKey, val::{V_MODAL_RENDER, V_TRUE}};
+use phiber::view::BAction;
 
 fn render(value: &str) -> BAction {
     BAction::Set(OpKey::Render.path(), value.into())
@@ -45,7 +45,7 @@ async fn the_render_menu_works_on_a_fresh_session(cx: &mut TestAppContext) {
         app.state.remove(ModalKey::Open);
         // Where Output points: a folder of this test's own, two frames.
         app.state.set(ButsKey::Value("filepath"), dir.join("frame_####").to_string_lossy().to_string());
-        app.state.set(ButsKey::Value("cycles.samples"), phiber::v2::state::val::BValue::Int(1).encode());
+        app.state.set(ButsKey::Value("cycles.samples"), phiber::state::val::BValue::Int(1).encode());
         app.state.set(CtxKey::FrameStart, "1");
         app.state.set(CtxKey::FrameEnd, "2");
         cx.notify();
@@ -101,12 +101,12 @@ async fn the_render_menu_works_on_a_fresh_session(cx: &mut TestAppContext) {
     // stays the data-block; F12 renders into it — at half the size, so the
     // two can be told apart — and Slot 1 keeps the first render. J and
     // Alt J step between the two slots that hold one.
-    use phiber::v2::scene::render_slot::BRenderSlot;
+    use phiber::scene::render_slot::BRenderSlot;
     app.update(cx, |app, cx| app.handle_action(&BAction::Set(ImageKey::Slot.path(), "Slot 2".into()), cx));
     assert_eq!(BRenderSlot::active(), 1);
     assert!(render_job::shot().0.is_none() && BRenderSlot::any_filled(), "an empty slot of an existing Render Result");
     app.update(cx, |app, cx| {
-        app.state.set(ButsKey::Value("resolution_percentage"), phiber::v2::state::val::BValue::Int(50).encode());
+        app.state.set(ButsKey::Value("resolution_percentage"), phiber::state::val::BValue::Int(50).encode());
         app.handle_action(&render("image"), cx);
     });
     cx.run_until_parked();
@@ -122,7 +122,7 @@ async fn the_render_menu_works_on_a_fresh_session(cx: &mut TestAppContext) {
     app.update(cx, |app, cx| app.handle_action(&BAction::Set(ImageKey::SlotCycle.path(), "previous".into()), cx));
     assert_eq!(BRenderSlot::active(), 1, "Alt J: back to the second");
     app.update(cx, |app, cx| {
-        app.state.set(ButsKey::Value("resolution_percentage"), phiber::v2::state::val::BValue::Int(100).encode());
+        app.state.set(ButsKey::Value("resolution_percentage"), phiber::state::val::BValue::Int(100).encode());
         app.handle_action(&BAction::Set(ImageKey::Slot.path(), "Slot 1".into()), cx);
     });
     let (result, _) = render_job::shot();
@@ -134,7 +134,7 @@ async fn the_render_menu_works_on_a_fresh_session(cx: &mut TestAppContext) {
     let region = |v: &str| BAction::Set(OpKey::RenderBorder.path(), v.into());
     app.update(cx, |app, cx| {
         app.handle_action(&region("set:0.5,1,0.5,1"), cx);
-        app.handle_action(&BAction::Set(ButsKey::Value("use_crop_to_border").path(), phiber::v2::state::val::BValue::Bool(true).encode()), cx);
+        app.handle_action(&BAction::Set(ButsKey::Value("use_crop_to_border").path(), phiber::state::val::BValue::Bool(true).encode()), cx);
         app.handle_action(&render("image"), cx);
     });
     cx.run_until_parked();
@@ -143,7 +143,7 @@ async fn the_render_menu_works_on_a_fresh_session(cx: &mut TestAppContext) {
     let quarter = quarter.expect("the cropped render");
     assert_eq!((quarter.w, quarter.h), (result.w / 2, result.h / 2), "cropped to the region");
     app.update(cx, |app, cx| {
-        app.handle_action(&BAction::Set(ButsKey::Value("use_crop_to_border").path(), phiber::v2::state::val::BValue::Bool(false).encode()), cx);
+        app.handle_action(&BAction::Set(ButsKey::Value("use_crop_to_border").path(), phiber::state::val::BValue::Bool(false).encode()), cx);
         app.handle_action(&render("image"), cx);
     });
     cx.run_until_parked();
@@ -167,7 +167,7 @@ async fn the_render_menu_works_on_a_fresh_session(cx: &mut TestAppContext) {
     // View Animation (Ctrl F11) with no frames written: Blender's warning.
     app.update(cx, |app, cx| app.handle_action(&render("play"), cx));
     cx.run_until_parked();
-    let reports = app.read_with(cx, |a, _| phiber::v2::part::text::info::reports(&a.state));
+    let reports = app.read_with(cx, |a, _| phiber::part::text::info::reports(&a.state));
     assert!(reports.iter().any(|(_, m)| m.starts_with("File '") && m.contains("frame_0001.png' not found")), "{reports:?}");
     assert_eq!(render_job::shot().1, before_play, "nothing shown");
 

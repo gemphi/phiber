@@ -10,12 +10,12 @@
 //! share one tab set and one table. A test for that, because giving them a
 //! table each is how they would drift.
 
-use phiber::v2::host::BHostType;
-use phiber::v2::part::sidebar::image;
-use phiber::v2::part::sidebar::panel::BSidebarPanels;
-use phiber::v2::part::sidebar::set::{BSidebarBody, tabs_for};
-use phiber::v2::state::{BPath, BState};
-use phiber::v2::view::BView;
+use phiber::host::BHostType;
+use phiber::part::sidebar::image;
+use phiber::part::sidebar::panel::BSidebarPanels;
+use phiber::part::sidebar::set::{BSidebarBody, tabs_for};
+use phiber::state::{BPath, BState};
+use phiber::view::BView;
 
 /// The card titles the sidebar shows for `host`'s tab `tab`.
 fn titles(host: BHostType, tab: &str) -> Vec<String> {
@@ -48,7 +48,7 @@ fn both_editors_share_one_tab_set() {
 fn the_render_tab_is_the_properties_rows_not_a_copy_of_them() {
     // The sidebar's Render tab draws the same tables Properties ▸ Render and
     // ▸ Output draw, so the two can never hold different keys for one setting.
-    use phiber::v2::part::props;
+    use phiber::part::props;
     let render = tabs_for(BHostType::Image).iter().find(|t| t.label == "Render").unwrap();
     let BSidebarBody::Props(sections) = render.body else { panic!("a props body") };
     let keys = |rows: &[props::prop::BPropSpec]| rows.iter().map(|p| p.key).collect::<Vec<_>>();

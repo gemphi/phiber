@@ -3,7 +3,7 @@
 //! Feature: phiber-resolved-ui-style-settings, Property 3
 //! **Validates: Requirements 2.4**
 
-use phiber::v2::{
+use phiber::{
     BPaletteName, BResolvedUiStyle, BState, BStyleParseError, BStyleParser, BStyleValue,
     UI_STYLE_DESCRIPTORS, resolve_ui_style, ui_style_defaults,
 };

@@ -5,7 +5,7 @@
 //! kinds carry a length.
 
 use phiber::phiphx::Phx;
-use phiber::v2::view::draw::canvas::view3d::rendered::BLamp;
+use phiber::view::draw::canvas::view3d::rendered::BLamp;
 
 #[test]
 fn a_suns_angle_and_the_other_shapes_come_from_the_file() {

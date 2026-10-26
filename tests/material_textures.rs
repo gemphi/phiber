@@ -2,15 +2,15 @@
 //! Solid is the theme's one shade.
 
 use phiber::phiphx::Phx;
-use phiber::v2::scene::{BShading, current_scene};
-use phiber::v2::state::BState;
+use phiber::scene::{BShading, current_scene};
+use phiber::state::BState;
 
 #[test]
 fn material_preview_samples_textures() {
     let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiphx/tests/fixtures/TEXTURED-PACKED.blend");
     let model = Phx::open(std::path::Path::new(path)).expect("fixture loads");
     let scene = current_scene(&BState::default(), Some(&model));
-    let find = |n: &str| scene.iter().find(|o| matches!(o, phiber::v2::scene::BObject3D::Loaded { name, .. } if name == n)).expect(n);
+    let find = |n: &str| scene.iter().find(|o| matches!(o, phiber::scene::BObject3D::Loaded { name, .. } if name == n)).expect(n);
 
     let plane = find("PackedPlane");
     let mut seen: Vec<[f32; 4]> = (0..2).filter_map(|t| plane.triangle_color(t, BShading::Material)).collect();

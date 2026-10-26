@@ -4,16 +4,16 @@
 //! the reader — a sheet half the window wide over the workspace —
 //! and closing the reader puts back the window it covered.
 
-use phiber::v2::state::{BKey as _, CtxKey, ModalKey};
+use phiber::state::{BKey as _, CtxKey, ModalKey};
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::modal::reader::{DOCS, doc_target, find};
-use phiber::v2::modal::{about::ABOUT_LINKS, help::WEB_LINKS, splash};
-use phiber::v2::state::{
+use phiber::app::BPhiberApp;
+use phiber::modal::reader::{DOCS, doc_target, find};
+use phiber::modal::{about::ABOUT_LINKS, help::WEB_LINKS, splash};
+use phiber::state::{
     BState,
     val::{V_MODAL_HELP, V_MODAL_READER, V_MODAL_SPLASH},
 };
-use phiber::v2::view::prim::BAction;
+use phiber::view::prim::BAction;
 
 #[test]
 fn every_document_a_link_names_is_in_the_store() {
@@ -45,16 +45,16 @@ fn opening_a_document_raises_the_reader_and_closing_it_returns() {
     s.set(ModalKey::Open, V_MODAL_SPLASH);
     let open = splash::set::link_action("doc:whats_new");
     assert!(matches!(&open, BAction::Set(p, v) if p == &ModalKey::ReaderDoc.path() && v == "whats_new"));
-    phiber::v2::state::action::apply_action(&mut s, &open);
+    phiber::state::action::apply_action(&mut s, &open);
     assert_eq!(s.get(ModalKey::Open), Some(V_MODAL_READER));
     assert_eq!(s.get(ModalKey::ReaderReturn), Some(V_MODAL_SPLASH));
-    assert_eq!(phiber::v2::modal::reader::current(&s).slug, "whats_new");
+    assert_eq!(phiber::modal::reader::current(&s).slug, "whats_new");
 
     // Another document while reading swaps the page, not the return.
-    phiber::v2::state::action::apply_action(&mut s, &splash::set::link_action("doc:manual"));
+    phiber::state::action::apply_action(&mut s, &splash::set::link_action("doc:manual"));
     assert_eq!(s.get(ModalKey::ReaderReturn), Some(V_MODAL_SPLASH));
 
-    phiber::v2::state::action::apply_action(&mut s, &BAction::Set(ModalKey::Open.path(), String::new()));
+    phiber::state::action::apply_action(&mut s, &BAction::Set(ModalKey::Open.path(), String::new()));
     assert_eq!(s.get(ModalKey::Open), Some(V_MODAL_SPLASH), "closing the reader restores the welcome window");
     assert_eq!(s.get(ModalKey::ReaderReturn), None);
 }
@@ -81,7 +81,7 @@ async fn the_reader_is_a_sheet_half_the_window_wide(cx: &mut TestAppContext) {
     let width = f32::from(card.size.width);
     // A modal keeps one seam from the window's edge, as an area keeps from
     // the next; every gap in the system is that seam.
-    let pad = phiber::v2::theme::ui_style_defaults(phiber::v2::theme::BPaletteName::DEFAULT).resize.gap;
+    let pad = phiber::theme::ui_style_defaults(phiber::theme::BPaletteName::DEFAULT).resize.gap;
     let sheet = (1500.0 - 2.0 * pad) / 2.0;
     assert!((width - sheet).abs() < 1.0, "sheet width {width}, expected {sheet}");
     assert!(f32::from(card.size.height) >= 900.0 - 2.0 * pad - 1.0, "the sheet takes the window's height");

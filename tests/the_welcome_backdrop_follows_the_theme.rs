@@ -19,14 +19,14 @@
 //! those rungs by number now, and `shades_at_sphere_dark_are_the_old_hexes`
 //! below is what proves the picture is unchanged where it used to be drawn.
 
-use phiber::v2::theme::{BPaletteName, BThemeMode, palette::shade::STEPS, ui_style_defaults_in};
+use phiber::theme::{BPaletteName, BThemeMode, palette::shade::STEPS, ui_style_defaults_in};
 
 /// The rungs `brand.rs` names, kept here so the test states the contract
 /// rather than reading it back out of the file it is checking.
 const GROUND: u8 = 3;
 const LAYERS: [u8; 4] = [6, 8, 6, 5];
 
-fn rgb_of(color: phiber::v2::theme::BColor) -> u32 {
+fn rgb_of(color: phiber::theme::BColor) -> u32 {
     let (h, s, l) = (color.0 / 360.0, color.1 / 100.0, color.2 / 100.0);
     // HSL → RGB, the same conversion the ladder inverts.
     let c = (1.0 - (2.0 * l - 1.0).abs()) * s;
@@ -125,7 +125,7 @@ fn the_mark_keeps_its_own_colours() {
 /// without noticing.
 #[test]
 fn the_backdrop_is_written_as_rungs_not_as_hexes() {
-    let src = include_str!("../src/v2/view/draw/brand.rs");
+    let src = include_str!("../src/view/draw/brand.rs");
     assert!(src.contains("const BACKDROP_GROUND: u8"), "the ground is a step");
     assert!(src.contains("const BACKDROP_RIDGE_STEPS: (u8, u8)"), "and so are the ridges");
     assert!(!src.contains("BACKDROP_BG"), "the frozen ground is gone");

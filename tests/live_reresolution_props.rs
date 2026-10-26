@@ -3,7 +3,7 @@
 //!
 //! **Validates: Requirements 2.5, 4.7, 7.4, 13.3**
 
-use phiber::v2::{
+use phiber::{
     state::BState,
     theme::{
         BFontFamily, BPaletteName, BRadiusToken, BShadowStyle, BStyleParser, BStyleRole, BStyleValue,
@@ -84,6 +84,12 @@ fn arb_live_override_pair() -> impl Strategy<Value = LiveOverridePair> {
                         BStyleValue::Shadow(first),
                         BStyleValue::Shadow(second),
                     )
+                })
+                .boxed(),
+            BStyleParser::Weight => any::<bool>()
+                .prop_map(move |first_is_light| {
+                    let (first, second) = if first_is_light { (300.0, 700.0) } else { (700.0, 300.0) };
+                    pair(index, BStyleValue::Number(first), BStyleValue::Number(second))
                 })
                 .boxed(),
             BStyleParser::Font => any::<bool>()

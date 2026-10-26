@@ -83,7 +83,7 @@ fn test_module_at(source: &str) -> usize {
 
 #[test]
 fn a_moved_domains_keys_are_spelt_only_in_its_keys_file() {
-    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/v2");
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src");
     let mut files = Vec::new();
     rust_files(&root, &mut files);
     let mut violations = Vec::new();
@@ -114,7 +114,7 @@ fn a_moved_domains_keys_are_spelt_only_in_its_keys_file() {
 
 #[test]
 fn every_file_key_round_trips_through_its_path() {
-    use phiber::v2::state::{BKey, FileKey};
+    use phiber::state::{BKey, FileKey};
     for key in [FileKey::Path, FileKey::Selected, FileKey::Filter("filter_blender"), FileKey::SidebarExpanded("Bookmarks"), FileKey::Bookmark("3")] {
         let path = key.path();
         assert!(path.encode().starts_with("ctx.file."), "{key:?} → {}", path.encode());

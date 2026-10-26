@@ -9,11 +9,11 @@
 //! returns false for it.
 
 use phiber::{
-    v2::app::import::should_import,
-    v2::scene::selected_key,
-    v2::state::{BState},
-    v2::state::action::apply_action,
-    v2::view::prim::BAction,
+    app::import::should_import,
+    scene::selected_key,
+    state::{BState},
+    state::action::apply_action,
+    view::prim::BAction,
 };
 
 // --------------------------------------------------------------------------

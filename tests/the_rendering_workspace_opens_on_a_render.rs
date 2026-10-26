@@ -2,10 +2,10 @@
 //! binary, since the render job is one per process.
 
 use gpui::{TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::scene::render_job;
-use phiber::v2::space::BSpaceType;
-use phiber::v2::state::{BKey as _, CtxKey};
+use phiber::app::BPhiberApp;
+use phiber::scene::render_job;
+use phiber::space::BSpaceType;
+use phiber::state::{BKey as _, CtxKey};
 
 /// Opening the Rendering workspace with a scene loaded renders it into the
 /// Render Result at once, so the Image editor shows the scene rather than
@@ -20,21 +20,21 @@ async fn opening_the_rendering_workspace_renders_the_scene(cx: &mut TestAppConte
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1400.0), px(800.0)));
     app.update(cx, |app, cx| {
-        app.state.remove(phiber::v2::state::ModalKey::Open);
-        app.state.set(&phiber::v2::scene::loaded_path_key(), path.to_string_lossy().to_string());
-        app.state.set(phiber::v2::state::ButsKey::Value("cycles.samples"), phiber::v2::state::val::BValue::Int(1).encode());
+        app.state.remove(phiber::state::ModalKey::Open);
+        app.state.set(&phiber::scene::loaded_path_key(), path.to_string_lossy().to_string());
+        app.state.set(phiber::state::ButsKey::Value("cycles.samples"), phiber::state::val::BValue::Int(1).encode());
         app.scene_cache = Some((path.to_string_lossy().to_string(), std::sync::Arc::new(model)));
         cx.notify();
     });
     cx.run_until_parked();
     assert!(render_job::shot().0.is_none(), "Layout renders nothing by itself");
     let before = render_job::shot().1;
-    app.update(cx, |app, cx| app.handle_action(&phiber::v2::view::BAction::Set(CtxKey::Space.path(), BSpaceType::Rendering.slug().into()), cx));
+    app.update(cx, |app, cx| app.handle_action(&phiber::view::BAction::Set(CtxKey::Space.path(), BSpaceType::Rendering.slug().into()), cx));
     cx.run_until_parked();
     let (shot, seq) = render_job::shot();
     let shot = shot.expect("the Rendering workspace started a render");
     assert!(seq > before && shot.w > 0 && shot.h > 0, "{} × {}", shot.w, shot.h);
-    assert_eq!(app.read_with(cx, |a, _| a.state.get(phiber::v2::state::ModalKey::Open).map(str::to_string)), None, "no render window: the result is the workspace's");
+    assert_eq!(app.read_with(cx, |a, _| a.state.get(phiber::state::ModalKey::Open).map(str::to_string)), None, "no render window: the result is the workspace's");
 
     // While it renders, the window is drawn when a sample lands — by the
     // same task that serves the viewport (`ensure_ray_ticker`) — rather

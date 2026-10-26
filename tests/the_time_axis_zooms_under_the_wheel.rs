@@ -3,9 +3,9 @@
 //! and the Dope Sheet's own view is left alone (one `View2D.cur` a region).
 
 use gpui::{Modifiers, Point, ScrollDelta, ScrollWheelEvent, TestAppContext, px, size};
-use phiber::v2::app::BPhiberApp;
-use phiber::v2::host::BHostType;
-use phiber::v2::state::TimeViewKey;
+use phiber::app::BPhiberApp;
+use phiber::host::BHostType;
+use phiber::state::TimeViewKey;
 
 fn stored(app: &gpui::Entity<BPhiberApp>, cx: &mut gpui::VisualTestContext, host: BHostType) -> Option<(f32, f32)> {
     app.read_with(cx, |a, _| {
@@ -20,7 +20,7 @@ async fn the_wheel_zooms_the_timeline_and_home_frames_it(cx: &mut TestAppContext
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1400.0), px(800.0)));
     app.update(cx, |app, cx| {
-        app.state.remove(phiber::v2::state::ModalKey::Open);
+        app.state.remove(phiber::state::ModalKey::Open);
         cx.notify();
     });
     cx.run_until_parked();

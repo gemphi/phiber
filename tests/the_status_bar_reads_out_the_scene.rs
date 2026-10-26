@@ -14,12 +14,12 @@
 //! viewport's read-out draws, so the corner of the canvas and the foot of
 //! the window cannot disagree about how big the scene is.
 
-use phiber::v2::part::statusbar::{BStatusSegment, BStatusbarItem};
-use phiber::v2::part::statusbar::set::SEGMENTS;
-use phiber::v2::state::{BPath, BState};
-use phiber::v2::view::{BView, BViewItem};
+use phiber::part::statusbar::{BStatusSegment, BStatusbarItem};
+use phiber::part::statusbar::set::SEGMENTS;
+use phiber::state::{BPath, BState};
+use phiber::view::{BView, BViewItem};
 
-fn spec(kind: BStatusSegment) -> &'static phiber::v2::part::statusbar::BStatusSegmentSpec {
+fn spec(kind: BStatusSegment) -> &'static phiber::part::statusbar::BStatusSegmentSpec {
     SEGMENTS.iter().find(|s| s.kind == kind).expect("the segment")
 }
 
@@ -54,7 +54,7 @@ fn the_stats_are_the_viewports_own_count() {
     // the canvas and the foot of the window come to disagree.
     let state = BState::new();
     let shown = text(BStatusSegment::Stats, &state).expect("the stats segment");
-    assert_eq!(shown, phiber::v2::scene::stats_line(&state));
+    assert_eq!(shown, phiber::scene::stats_line(&state));
     assert!(shown.starts_with("Objects: "), "Blender's wording: {shown}");
     assert!(shown.contains("Verts: ") && shown.contains("Faces: "));
 }
@@ -81,5 +81,5 @@ fn an_empty_written_value_does_not_blank_a_segment_that_can_answer() {
     // count beats printing an empty segment.
     let mut state = BState::new();
     state.set(&BPath::owned(vec!["stats"]), "");
-    assert_eq!(text(BStatusSegment::Stats, &state), Some(phiber::v2::scene::stats_line(&state)));
+    assert_eq!(text(BStatusSegment::Stats, &state), Some(phiber::scene::stats_line(&state)));
 }

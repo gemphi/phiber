@@ -4,9 +4,9 @@
 //! file (1920 × 1080). The window-level top bar, status bar and phiber's own
 //! activity rail are outside the comparison.
 
-use phiber::v2::area::BAreaType;
-use phiber::v2::host::BHostType;
-use phiber::v2::space::BSpaceType;
+use phiber::area::BAreaType;
+use phiber::host::BHostType;
+use phiber::space::BSpaceType;
 use std::collections::BTreeMap;
 
 const TRUTH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/truth/workspaces.txt");
@@ -27,7 +27,7 @@ struct BlenderArea {
 /// Blender's workspace name → phiber's space: by label, or by the slug
 /// (`UV Editing` is phiber's *UV Lights*, `Texture Paint` its *Texturing*).
 fn space_of(workspace: &str) -> Option<BSpaceType> {
-    phiber::v2::app::load_ui::space_for(workspace)
+    phiber::app::load_ui::space_for(workspace)
 }
 
 /// The phiber host a Blender area type (and mode, and workspace) means.
