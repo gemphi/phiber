@@ -172,7 +172,7 @@ impl BView3d<'_> {
                 move |bounds, _, window, _| {
                     seen.set(Some(bounds));
                     let (w, h) = (f32::from(bounds.size.width), f32::from(bounds.size.height));
-                    if crate::scene::camera::note_size(w, h) {
+                    if crate::scene::camera::note_size(slot, w, h) {
                         window.refresh();
                     }
                     // The tracer paints the surface and its own grid; with

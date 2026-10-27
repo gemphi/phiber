@@ -69,6 +69,19 @@ thread_local! {
     static SETUP: Cell<BViewSetup> = Cell::new(BViewSetup::default());
     static LAST_ASPECT: Cell<f32> = const { Cell::new(FIRST_SIZE.0 / FIRST_SIZE.1) };
     static LAST_SIZE: Cell<(f32, f32)> = const { Cell::new(FIRST_SIZE) };
+    /// Each 3D Viewport's own painted size. A space can show two of
+    /// different shapes — Animation's camera view, tall, beside its wide
+    /// 3D view — and with one size for both, the camera view fitted its
+    /// frame to the other's: a frame as tall as the wide view and as wide
+    /// as its own, the scene small at its foot.
+    static SIZES: std::cell::RefCell<Vec<(super::view_slot::BViewSlot, (f32, f32))>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// The painted size of the viewport asked about now (`BViewSlot::current`),
+/// when it has painted.
+fn slot_size() -> Option<(f32, f32)> {
+    let slot = super::view_slot::BViewSlot::current()?;
+    SIZES.with(|sizes| sizes.borrow().iter().find(|(at, _)| *at == slot).map(|(_, size)| *size))
 }
 
 /// Phiber zoom showing `width` Blender units across the viewport.
@@ -84,9 +97,10 @@ pub fn with_view<R>(setup: BViewSetup, f: impl FnOnce() -> R) -> R {
     out
 }
 
-/// Aspect of the last painted canvas (projection runs before layout).
+/// Aspect of the last painted canvas (projection runs before layout) —
+/// this viewport's own, when it has painted.
 pub fn last_aspect() -> f32 {
-    LAST_ASPECT.with(Cell::get)
+    slot_size().map_or_else(|| LAST_ASPECT.with(Cell::get), |(width, height)| width / height)
 }
 
 /// Record the painted aspect; true when it changed (caller refreshes).
@@ -95,19 +109,36 @@ pub fn note_aspect(aspect: f32) -> bool {
     LAST_ASPECT.with(|c| (c.replace(a) - a).abs() > 1e-3)
 }
 
-/// Record the painted size — the camera frame is fitted to it — and its
-/// aspect; true when either changed (caller refreshes).
-pub fn note_size(width: f32, height: f32) -> bool {
+/// Record the painted size of `slot`'s viewport — the camera frame is
+/// fitted to it — and its aspect; true when that viewport's changed
+/// (caller refreshes). The last painted is kept too, for a caller with no
+/// viewport in hand.
+pub fn note_size(slot: Option<super::view_slot::BViewSlot>, width: f32, height: f32) -> bool {
     if !(width.is_finite() && height.is_finite() && width > 0.0 && height > 0.0) {
         return false;
     }
-    let moved = LAST_SIZE.with(|c| c.replace((width, height)) != (width, height));
-    note_aspect(width / height) || moved
+    let size = (width, height);
+    let moved = LAST_SIZE.with(|c| c.replace(size) != size);
+    let turned = note_aspect(width / height);
+    match slot {
+        Some(slot) => SIZES.with(|sizes| {
+            let mut sizes = sizes.borrow_mut();
+            match sizes.iter_mut().find(|(at, _)| *at == slot) {
+                Some((_, own)) => std::mem::replace(own, size) != size,
+                None => {
+                    sizes.push((slot, size));
+                    true
+                }
+            }
+        }),
+        None => turned || moved,
+    }
 }
 
-/// Size of the last painted canvas, in pixels.
+/// Size of the last painted canvas, in pixels — this viewport's own, when
+/// it has painted.
 pub fn last_size() -> (f32, f32) {
-    LAST_SIZE.with(Cell::get)
+    slot_size().unwrap_or_else(|| LAST_SIZE.with(Cell::get))
 }
 
 /// The pivot stored under `View3dKey::Pivot.path()` (Blender units), origin if unset.
@@ -202,5 +233,20 @@ mod tests {
             let (_, y, _) = view_project(0.0, 1.0, 0.0, 0.0, 0.0, (0.0, 0.0), 1.0);
             assert!((y + 2.0 * SCREEN).abs() < 1e-6);
         });
+    }
+
+    /// Animation's camera view, tall, beside its 3D view, wide: each reads
+    /// its own size and aspect, whichever painted last.
+    #[test]
+    fn each_viewport_keeps_its_own_size() {
+        use crate::scene::view_slot::BViewSlot;
+        let (left, center) = (BViewSlot::new("animation", "Left"), BViewSlot::new("animation", "Center"));
+        assert!(note_size(Some(left), 330.0, 690.0), "a first paint is news");
+        assert!(note_size(Some(center), 853.0, 407.0));
+        assert!(!note_size(Some(left), 330.0, 690.0), "the same size again is not, whatever painted between");
+        assert_eq!(left.with(last_size), (330.0, 690.0));
+        assert_eq!(center.with(last_size), (853.0, 407.0));
+        assert!((left.with(last_aspect) - 330.0 / 690.0).abs() < 1e-6);
+        assert_eq!(last_size(), (330.0, 690.0), "no viewport in hand: the last painted");
     }
 }

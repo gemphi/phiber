@@ -75,7 +75,12 @@ impl BGizmo {
             // The gizmos are floating chrome, so they take the same fill as
             // the toolbar and sidebar beside them. The modal dim they used
             // was far darker than anything else over the canvas.
-            .bg(crate::view::draw::pane::floating_bg(ctx));
+            .bg(crate::view::draw::pane::floating_bg(ctx))
+            // The canvas under a gizmo takes a click as a pick, and a pick
+            // of nothing deselects: an arrow or a zoom press also emptied
+            // the selection ("Deselected all") until the gizmo kept its
+            // presses to itself.
+            .occlude();
         // A gizmo sits on the scene, so it casts on it — a rung under a
         // dropdown, as `BElevation::Floating` says.
         crate::view::draw::flex::shadowed(

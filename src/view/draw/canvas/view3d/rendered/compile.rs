@@ -4,9 +4,9 @@
 //! driver with no shader cache that can take seconds — so switching from
 //! Rendered to Solid used to stall on Workbench's compile with the old
 //! image still on screen. The first frame up, the thread hands the rest to
-//! a thread of its own (`Tracer::warm`), which holds the device's pipeline
-//! lock one kernel at a time and is done long before anyone changes
-//! shading.
+//! a thread of its own (`Tracer::warm`). Each compile holds only its own
+//! kernel's slot (`phiray::Gpu::pipeline`): Material Preview takes minutes
+//! on some drivers, and the viewport's Solid draws through it meanwhile.
 
 use phiray::{Gpu, Tracer};
 use web_time::Instant;
