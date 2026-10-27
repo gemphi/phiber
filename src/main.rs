@@ -117,7 +117,8 @@ fn render(cli: &BCli) -> i32 {
             render.out
         );
     }
-    match render.run() {
+    // The scene read above, not a second read of the same file.
+    match render.run_with(model) {
         Ok(cost) => {
             if !cli.quiet {
                 for line in cost.iter().map(|c| c.line()) {

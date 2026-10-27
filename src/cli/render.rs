@@ -85,9 +85,17 @@ impl BHeadlessRender {
     /// Run it. One PNG per frame, named Blender's way ([`Self::frame_path`]),
     /// and a `times.txt` beside them for the comparisons.
     pub fn run(&self) -> Result<Vec<BFrameCost>, String> {
+        self.run_with(super::open::open(&self.file).map_err(|e| format!("open: {e}"))?)
+    }
+
+    /// [`Self::run`] on a scene already open. The command line has to open
+    /// the file before it can resolve `-f` against the file's own range, and
+    /// reading it a second time here doubled the wait before the first
+    /// sample — on the crystal caves city, two ten-minute opens of the same
+    /// 620 MB.
+    pub fn run_with(&self, mut model: crate::phiphx::scene::SceneModel) -> Result<Vec<BFrameCost>, String> {
         let (outdir, _) = Self::frame_path(&self.out, 1);
         std::fs::create_dir_all(&outdir).map_err(|e| format!("outdir: {e}"))?;
-        let mut model = super::open::open(&self.file).map_err(|e| format!("open: {e}"))?;
         if let Some(camera) = &self.camera {
             if !model.cameras.iter().any(|c| &c.name == camera) {
                 return Err(format!("--camera: no camera object named {camera:?} in the scene"));
