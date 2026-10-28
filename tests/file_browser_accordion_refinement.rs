@@ -187,18 +187,20 @@ fn all_headers_sort_and_repeated_clicks_toggle_a_stable_direction_slot() {
 
     // The heading is described with `BFlex`, not hand-written GPUI: the
     // arrow slot is a `BFlexed` sized from the theme, reserved whether or
-    // not this is the sorted column, and the hover is the shared token
-    // rather than a `.hover(|s| s.bg(…))` of its own. As Blender's File
-    // View, the sorted column is told by its arrow alone: no lit fill.
+    // not this is the sorted column. As Blender's File View, the sorted
+    // column is told by its arrow alone: no lit fill.
     let focused = source("src/view/draw/sort.rs");
-    assert!(focused.contains("Self::Indicator {"), "the arrow slot is a part of the heading enum");
+    let table = source("src/view/draw/table.rs");
+    assert!(focused.contains("Self::Indicator =>"), "the arrow slot is a part of the heading enum");
     assert!(focused.contains(".size(px(size))"));
-    // Every heading has its arrow: the sorted one always, the others while
-    // hovered (the order a click would give), revealed by the cell's group.
-    assert!(focused.contains("None => (BSortDirection::Ascending, true)"));
-    assert!(focused.contains("slot.revealed_by(HEADING)"));
-    // The hover is the cell's, the column and the gap before it alike.
-    assert!(source("src/view/draw/table.rs").contains(".hovered(BFill::ItemHover)"));
+    // Only the sorted heading has an arrow; an unsorted one keeps its slot
+    // empty, hovered or not.
+    assert!(focused.contains("None => return slot"));
+    assert!(!focused.contains("revealed_by"), "no arrow appears under the pointer");
+    // A heading paints nothing, at rest or hovered: the hand is its hover.
+    assert!(focused.contains(".cursor_pointer()"));
+    assert!(!table.contains("BFill::ItemHover"), "a heading cell takes no hover fill");
+    assert!(!table.contains("BFill::Heading("), "the heading row has no band of its own");
     assert!(!focused.contains("BFill::ControlActive"), "the sorted heading is not lit");
     assert!(!focused.contains("div()"), "the heading no longer builds a bare div");
 }

@@ -86,8 +86,8 @@ impl BFlexed for BModalPart {
                 .ink()
                 .occludes(),
             Self::FullscreenWindow => BFlex::column()
-                .width(BLen::Share(0.86))
-                .height(BLen::Share(0.86))
+                .width(BLen::Share(crate::modal::set::RESTORED_SHARE))
+                .height(BLen::Share(crate::modal::set::RESTORED_SHARE))
                 .fill(BFill::Tone(BSurfaceTone::Modal))
                 .ink()
                 .border(BEdge::All)

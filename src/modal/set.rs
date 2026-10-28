@@ -14,6 +14,10 @@ static FILE_AREAS: &[BAreaSpec] = &[editor(BHostType::File, &[BHostType::File, B
 static PREFS_AREAS: &[BAreaSpec] = &[editor(BHostType::Prefs, &[BHostType::Prefs])];
 static RENDER_AREAS: &[BAreaSpec] = &[editor(BHostType::Image, &[BHostType::Image])];
 
+/// How much of the window a fullscreen modal (Welcome, About) takes once
+/// Restore makes it a window of its own: most of it, centred over the
+/// dimmed workspace. Maximised, it is the whole window.
+pub const RESTORED_SHARE: f32 = 0.86;
 
 // Order MUST match `BModalType` variant order.
 pub static SET: &[BModalSpec] = &[
@@ -53,6 +57,9 @@ pub static SET: &[BModalSpec] = &[
         shape: BModalShape::Palette,
         areas: &[],
     },
+    // The Welcome form's design frame, not a cap: its cards are drawn at
+    // `splash::CARD` in this frame and grow with the room a larger window
+    // gives them (`splash::card_size`).
     BModalSpec {
         kind: BModalType::Splash,
         label: "Welcome to Phiber",

@@ -1,12 +1,11 @@
 //! A sortable column heading — Blender's file-list header: the label, free
 //! space, and the sort arrow at the far end.
 //!
-//! The whole heading is the control: its fill runs the column's width as a
-//! tile inset from the header's edges, and its text keeps the inset the
-//! rows below it use. Every decision here is a
-//! `BFlex` token (`tests/style_budget.rs`): the fills are `BFill`, and the
-//! hover is the one every selectable thing outside a header strip answers
-//! with, rather than a `.hover(|s| s.bg(…))` written out here.
+//! The whole heading is the control, and it paints nothing: no fill at
+//! rest, none hovered, no arrow that appears under the pointer. The hand is
+//! what says it sorts; the arrow marks the column the list is ordered by.
+//! Its text keeps the inset the rows below it use. Every decision here is a
+//! `BFlex` token (`tests/style_budget.rs`).
 
 use super::atom::icon_path;
 use super::color::to_hsla;
@@ -16,10 +15,6 @@ use crate::view::{BAction, BColAlign, BSortDirection};
 use gpui::prelude::*;
 use gpui::{AnyElement, ClickEvent, SharedString, px, svg};
 use std::rc::Rc;
-
-/// The hover group a column heading's cell is (`table::HeadCell`): under
-/// the pointer, an unsorted column shows the arrow a click would sort by.
-pub const HEADING: &str = "sort-heading";
 
 pub struct BSort<'a> {
     pub label: &'a str,
@@ -36,9 +31,9 @@ enum BSortPart {
     /// Blender's header, which marks the sort with the arrow alone.
     Heading,
     /// The arrow slot, always reserved so every heading lines up with its
-    /// column whether or not it is the sorted one. `hint`: the arrow of an
-    /// unsorted column, shown only while its heading is hovered.
-    Indicator { hint: bool },
+    /// column whether or not it is the sorted one. Only the sorted column's
+    /// holds an arrow.
+    Indicator,
     /// The label and the arrow, pushed to opposite ends.
     Content,
 }
@@ -46,18 +41,15 @@ enum BSortPart {
 impl BFlexed for BSortPart {
     fn flex(&self, ctx: &BRenderCtx) -> BFlex {
         match *self {
-            // The cell it stands in takes the hover (`table::HeadCell`), so
-            // the whole column lights, the gap before it included.
             Self::Heading => BFlex::row()
                 .fills()
                 .height(BLen::Full)
                 .self_align(BSelf::Center)
                 .align(BAlign::Center)
                 .overflow(BOverflow::Clip),
-            Self::Indicator { hint } => {
+            Self::Indicator => {
                 let size = BLen::Measured(ctx.style.dimensions.icon_size_sm);
-                let slot = BFlex::row().width(size).height(size).align(BAlign::Center).justify(BJustify::Center).keeps_size();
-                if hint { slot.revealed_by(HEADING) } else { slot }
+                BFlex::row().width(size).height(size).align(BAlign::Center).justify(BJustify::Center).keeps_size()
             }
             Self::Content => BFlex::row()
                 .width(BLen::Full)
@@ -79,19 +71,14 @@ impl BSort<'_> {
 
     fn indicator(&self, ctx: &BRenderCtx) -> gpui::Div {
         let size = ctx.style.dimensions.icon_size_sm;
-        // The sorted column shows its order; any other, hovered, the order a
-        // click gives it — a column newly picked sorts ascending
-        // (`file::op::BSortRule`), dimmer, as a hint is.
-        let (direction, hint) = match self.direction {
-            Some(direction) => (direction, false),
-            None => (BSortDirection::Ascending, true),
+        let slot = BSortPart::Indicator.flex(ctx).div(ctx);
+        // The sorted column shows its order; any other keeps the slot empty.
+        let icon = match self.direction {
+            Some(BSortDirection::Ascending) => "chevron_up",
+            Some(BSortDirection::Descending) => "chevron_down",
+            None => return slot,
         };
-        let icon = match direction {
-            BSortDirection::Ascending => "chevron_up",
-            BSortDirection::Descending => "chevron_down",
-        };
-        let ink = if hint { ctx.style.colors.text_dim } else { ctx.style.colors.text };
-        BSortPart::Indicator { hint }.flex(ctx).div(ctx).child(svg().path(icon_path(icon)).size(px(size)).text_color(to_hsla(ink)))
+        slot.child(svg().path(icon_path(icon)).size(px(size)).text_color(to_hsla(ctx.style.colors.text)))
     }
 
     pub fn render(&self, ctx: &BRenderCtx) -> AnyElement {

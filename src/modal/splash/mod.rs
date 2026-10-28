@@ -5,7 +5,7 @@
 //!
 //! ```text
 //!                 P H I B E R            ← on the window's own backdrop
-//!      Model, shade, animate and render — the Phi way.
+//!      Model, shade, animate and render - the Phi way.
 //!          ( New File | Recent Files | Learn )   ← one ground, the tabs
 //!        ┌──┐ ┌──┐ ┌──┐ ┌──┐                  ← the tab's cards
 //!        └──┘ └──┘ └──┘ └──┘
@@ -18,7 +18,8 @@
 //! 3. **The tab changes what is under it** (`tab::BWelcomeTab`): New File's
 //!    workspaces; Open…, Recover and the recent files; or Learn.
 //! 4. **Every choice is a card**, four to a row, centred
-//!    (`BView::Thumbnail`).
+//!    (`BView::Thumbnail`), as large as the window makes room for
+//!    ([`card_size`]).
 //!
 //! Opened by `Phiber ▸ Welcome…`, and shown once at startup (the seed
 //! writes `ctx.modal = "splash"`). Dismissed like any modal.
@@ -31,11 +32,13 @@ pub mod set;
 pub mod tab;
 
 use crate::state::BKey as _;
+use crate::state::AppKey;
 use crate::state::OpKey;
 use crate::state::ModalKey;
 use crate::state::FileKey;
 use crate::state::BState;
 use crate::state::val::V_EMPTY;
+use crate::state::val::V_FALSE;
 pub use tab::BWelcomeTab;
 use crate::state::val::V_MODAL_FILE_BROWSER;
 use crate::view::prim::BAction;
@@ -57,28 +60,56 @@ pub use set::TEMPLATES;
 #[derive(Clone, Copy, Debug, Default)]
 pub struct BSplashModal;
 
-/// A card's edge on the Welcome window, in px: four to a row fit the
-/// window's column with room either side.
+/// A card's edge on the Welcome window at its design size (the Splash
+/// spec's frame), in px: four to a row fit that frame with room either side.
 pub const CARD: f32 = 112.0;
+/// The largest a card grows: Blender's largest thumbnail
+/// (`FileSelectParams.thumbnail_size` runs to 256).
+pub const CARD_MAX: f32 = 256.0;
 /// How many cards stand in one row.
 pub const ACROSS: usize = 4;
 
-/// One choice as a card: its icon (or the file's own preview), its name,
-/// and a line under it.
-fn tile(icon: &str, label: &str, subtitle: &str, preview: &str, action: Option<BAction>) -> BView {
+/// A card's edge for the room the window gives the Welcome form.
+///
+/// The Splash spec is the form's design frame: the logo, the tabs and two
+/// rows of `CARD` cards fill it. A larger window scales the cards by as much
+/// as it is larger than that frame on its tighter axis, so a bigger window
+/// shows a bigger grid rather than the same small one on more backdrop, and
+/// two rows of the scaled cards still fit under the logo and the tabs.
+/// Restored, the form is `RESTORED_SHARE` of the window. Before the window
+/// has reported its size (or in a test), the cards are `CARD`.
+pub fn card_size(s: &BState) -> f32 {
+    let size = |key| s.get(key).and_then(|v| v.parse::<f32>().ok());
+    let (Some(width), Some(height)) = (size(AppKey::WindowWidth), size(AppKey::WindowHeight)) else {
+        return CARD;
+    };
+    let share = match s.get(ModalKey::Maximized) {
+        Some(V_FALSE) => crate::modal::set::RESTORED_SHARE,
+        _ => 1.0,
+    };
+    // The form stands under the modal's title bar.
+    let title = crate::theme::style::metric::DEFAULT_DIMENSIONS.header_height;
+    let frame = crate::modal::BModalType::Splash.spec();
+    let scale = (width * share / frame.width).min((height * share - title) / frame.height);
+    (CARD * scale).clamp(CARD, CARD_MAX)
+}
+
+/// One choice as a card `size` px across: its icon (or the file's own
+/// preview), its name, and a line under it.
+fn tile(icon: &str, label: &str, subtitle: &str, preview: &str, action: Option<BAction>, size: f32) -> BView {
     BView::thumbnail(BThumb {
         preview_path: preview.to_string(),
         icon: icon.to_string(),
         label: label.to_string(),
         subtitle: subtitle.to_string(),
-        size: CARD,
+        size,
         selected: false,
         action,
     })
 }
 
-fn link_tile(l: &BSplashEntry) -> BView {
-    tile(l.icon, l.label, "", "", Some(l.link_action()))
+fn link_tile(l: &BSplashEntry, size: f32) -> BView {
+    tile(l.icon, l.label, "", "", Some(l.link_action()), size)
 }
 
 /// `views` centred on their own line, as tall as they are: a row of three
@@ -95,45 +126,48 @@ fn grid(tiles: Vec<BView>) -> Vec<BView> {
 
 /// New File: one card per workspace a file can start in. A card starts the
 /// file (`wm.read_homefile`), which closes this window, as File ▸ New does.
-fn new_file() -> Vec<BView> {
-    TEMPLATES.iter().map(|t| tile(t.icon, t.label, "", "", Some(BAction::Set(OpKey::NewFile.path(), t.target.to_string())))).collect()
+fn new_file(size: f32) -> Vec<BView> {
+    TEMPLATES.iter().map(|t| tile(t.icon, t.label, "", "", Some(BAction::Set(OpKey::NewFile.path(), t.target.to_string())), size)).collect()
 }
 
 /// Recent Files: Open… and Recover Last Session (the file opened last, open
-/// again), then the files opened
-/// last, each on its own preview with the folder it is in under its name —
-/// or Getting Started when nothing has been opened yet.
-fn recent(s: &BState) -> Vec<BView> {
-    let mut tiles = vec![tile("folder_open", "Open\u{2026}", "", "", Some(BAction::Set(ModalKey::Open.path(), V_MODAL_FILE_BROWSER.to_string())))];
+/// again), then the files opened before it, each on its own preview with the
+/// folder it is in under its name, or Getting Started when nothing has been
+/// opened yet.
+fn recent(s: &BState, size: f32) -> Vec<BView> {
+    let mut tiles = vec![tile("folder_open", "Open\u{2026}", "", "", Some(BAction::Set(ModalKey::Open.path(), V_MODAL_FILE_BROWSER.to_string())), size)];
     let paths = recent::recent_paths(s);
-    let Some(last) = paths.first() else {
-        tiles.extend(GETTING_STARTED.iter().map(link_tile));
+    let Some((last, earlier)) = paths.split_first() else {
+        tiles.extend(GETTING_STARTED.iter().map(|l| link_tile(l, size)));
         return tiles;
     };
-    // The file the last session had open, opened again.
+    // The file the last session had open, opened again, on its own preview
+    // and named once: this card is that file, so the list after it starts
+    // with the one before. Listing it again repeated its name and folder in
+    // the card beside this one.
     let name = recent::display_name(last);
-    tiles.push(tile("history", "Recover Last Session", name, "", Some(BAction::Set(FileKey::Selected.path(), last.clone()))));
-    tiles.extend(paths.iter().take(RECENT_ROWS).map(|path| {
+    tiles.push(tile("history", "Recover Last Session", name, last, Some(BAction::Set(FileKey::Selected.path(), last.clone())), size));
+    tiles.extend(earlier.iter().take(RECENT_ROWS).map(|path| {
         let name = recent::display_name(path);
         let folder = recent::display_name(recent::parent_dir(path));
-        tile("file_blend", name, folder, path, Some(BAction::Set(FileKey::Selected.path(), path.clone())))
+        tile("file_blend", name, folder, path, Some(BAction::Set(FileKey::Selected.path(), path.clone())), size)
     }));
-    if paths.len() > RECENT_ROWS {
-        tiles.push(tile("viewzoom", "More\u{2026}", "", "", Some(BAction::Set(ModalKey::Open.path(), V_MODAL_FILE_BROWSER.to_string()))));
+    if earlier.len() > RECENT_ROWS {
+        tiles.push(tile("viewzoom", "More\u{2026}", "", "", Some(BAction::Set(ModalKey::Open.path(), V_MODAL_FILE_BROWSER.to_string())), size));
     }
     tiles
 }
 
 /// Learn: the quests, the library, the manual and the links.
-fn learn() -> Vec<BView> {
+fn learn(size: f32) -> Vec<BView> {
     let rows = home::GROUPS.iter().flat_map(|group| group.rows.iter());
-    let mut tiles: Vec<BView> = rows.map(|r| tile(r.icon, r.label, "", "", r.goes.map(home::BHomeTarget::action))).collect();
-    tiles.extend(FOOT_LINKS.iter().map(link_tile));
+    let mut tiles: Vec<BView> = rows.map(|r| tile(r.icon, r.label, "", "", r.goes.map(home::BHomeTarget::action), size)).collect();
+    tiles.extend(FOOT_LINKS.iter().map(|l| link_tile(l, size)));
     tiles
 }
 
 /// What Phiber is, in one line under the logo.
-pub const TAGLINE: &str = "Model, shade, animate and render \u{2014} the Phi way.";
+pub const TAGLINE: &str = "Model, shade, animate and render - the Phi way.";
 
 impl BViewItem for BSplashModal {
     /// The logo and its line on the backdrop, the tabs on their one ground,
@@ -141,10 +175,12 @@ impl BViewItem for BSplashModal {
     fn build(&self, s: &BState) -> BView {
         let open = BWelcomeTab::of(s);
         let tabs = BWelcomeTab::ALL.into_iter().map(|t| t.view(open)).collect();
+        // One size for every tab, so switching tabs never resizes the cards.
+        let size = card_size(s);
         let mut cards: Vec<BView> = match open {
-            BWelcomeTab::New => grid(new_file()),
-            BWelcomeTab::Recent => grid(recent(s)),
-            BWelcomeTab::Learn => grid(learn()),
+            BWelcomeTab::New => grid(new_file(size)),
+            BWelcomeTab::Recent => grid(recent(s, size)),
+            BWelcomeTab::Learn => grid(learn(size)),
         };
         // Learn ends on the version, one more line under the cards.
         if open == BWelcomeTab::Learn {

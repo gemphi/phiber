@@ -225,7 +225,7 @@ fn welcome_renderer_is_centered_bounded_resolved_and_fullscreen() {
     let title = source("src/view/draw/modal/title.rs");
 
     // The Welcome form's containers are `BModalPart` decisions: centred on
-    // both axes and padded, a column bounded by the Splash spec's width, cards
+    // both axes and padded, a column that runs the window's width, cards
     // spaced by the large gap.
     // The Welcome form's own layout lives with the form, not in the modal
     // vocabulary every modal shares.
@@ -242,8 +242,17 @@ fn welcome_renderer_is_centered_bounded_resolved_and_fullscreen() {
     assert!(layout.contains(".align(BAlign::Center)"));
     assert!(layout.contains(".justify(BJustify::Center)"));
     assert!(layout.contains(".pad(BSpace::PadLg)"));
-    assert!(welcome.contains("max_width: BModalType::Splash.spec().width"));
-    assert!(welcome.contains(".max_width(BLen::Measured(max_width))"));
+    // The column is not capped at the Splash spec's width: a larger window
+    // is room for larger cards (`splash::card_size`), not more backdrop.
+    let column = welcome
+        .split("Self::WelcomeColumn =>")
+        .nth(1)
+        .expect("welcome column")
+        .split("Self::WelcomeLine")
+        .next()
+        .expect("welcome column end");
+    assert!(column.contains(".width(BLen::Full)"));
+    assert!(!welcome.contains("max_width"), "the Welcome column stops at no fixed width");
     assert!(welcome.contains(".gap(BSpace::GapLg)"));
     assert!(modal.contains("BModalType::Splash | BModalType::About"));
     assert!(modal.contains("fullscreen::BFullscreen { kind, body }.render(ctx)"));
@@ -263,6 +272,77 @@ fn welcome_renderer_is_centered_bounded_resolved_and_fullscreen() {
     // The title bar reads its icon and label through the modal's heading,
     // so the reader can show its document's title.
     assert!(title.contains("self.kind.heading(ctx.state)"));
+}
+
+/// Every card's edge in a Welcome body, depth first.
+fn card_edges(view: &BView, out: &mut Vec<f32>) {
+    match view {
+        BView::Thumbnail(t) => out.push(t.size),
+        BView::Row { list } | BView::Column { list } => list.iter().for_each(|c| card_edges(c, out)),
+        _ => {}
+    }
+}
+
+#[test]
+fn welcome_cards_grow_with_the_window_and_match_on_every_tab() {
+    use phiber::modal::splash::{CARD, CARD_MAX, card_size};
+    let frame = BModalType::Splash.spec();
+    let sized = |width: f32, height: f32, restored: bool| {
+        let mut s = BState::new();
+        s.set(AppKey::WindowWidth, width.to_string());
+        s.set(AppKey::WindowHeight, height.to_string());
+        if restored {
+            s.set(ModalKey::Maximized, "false");
+        }
+        s
+    };
+    // Before the window reports its size, and in the design frame itself,
+    // a card is the design size.
+    assert_eq!(card_size(&BState::new()), CARD);
+    assert_eq!(card_size(&sized(frame.width, frame.height, false)), CARD);
+    // A larger window, larger cards; restored is a smaller window; and they
+    // stop at Blender's largest thumbnail.
+    let large = card_size(&sized(1920.0, 1032.0, false));
+    assert!(large > 1.5 * CARD, "a full-HD window grows the cards: {large}");
+    let restored = card_size(&sized(1920.0, 1032.0, true));
+    assert!(restored > CARD && restored < large, "restored, the form is smaller: {restored} vs {large}");
+    assert_eq!(card_size(&sized(7680.0, 4320.0, false)), CARD_MAX);
+    // The tighter axis decides: a wide, short window cannot grow the cards
+    // past what two rows of them fit under the logo.
+    assert_eq!(card_size(&sized(3840.0, frame.height, false)), CARD);
+    // One size on every tab, so switching tabs never resizes the cards.
+    let mut edges = Vec::new();
+    for tab in BWelcomeTab::ALL {
+        let mut s = sized(1920.0, 1032.0, false);
+        s.set(AppKey::WelcomeTab, tab.slug());
+        card_edges(&BSplashModal.build(&s), &mut edges);
+    }
+    assert!(!edges.is_empty() && edges.iter().all(|e| *e == large), "{edges:?}");
+}
+
+#[test]
+fn recent_files_name_the_newest_file_once() {
+    use phiber::modal::splash::recent::push_recent;
+    let mut s = BState::new();
+    s.set(AppKey::WelcomeTab, BWelcomeTab::Recent.slug());
+    push_recent(&mut s, "C:/work/older.blend");
+    push_recent(&mut s, "C:/work/newest.blend");
+    // Every line every card carries: its name and the line under it.
+    fn lines<'a>(view: &'a BView, out: &mut Vec<&'a str>) {
+        match view {
+            BView::Thumbnail(t) => out.extend([t.label.as_str(), t.subtitle.as_str()]),
+            BView::Row { list } | BView::Column { list } => list.iter().for_each(|c| lines(c, out)),
+            _ => {}
+        }
+    }
+    let view = BSplashModal.build(&s);
+    let mut seen = Vec::new();
+    lines(&view, &mut seen);
+    // Recover Last Session is the newest file: the list after it does not
+    // show that file again.
+    assert_eq!(seen.iter().filter(|l| **l == "newest.blend").count(), 1, "{seen:?}");
+    assert_eq!(seen.iter().filter(|l| **l == "older.blend").count(), 1, "{seen:?}");
+    assert!(seen.contains(&"Recover Last Session"));
 }
 
 #[test]

@@ -6,7 +6,7 @@
 use super::ctx::BRenderCtx;
 use super::flex::{BAlign, BDim, BFill, BFlex, BFlexed, BJustify, BLen, BOverflow, BRadius, BSpace, BType};
 use super::walk;
-use crate::theme::{BStyleRole, BSurfaceTone};
+use crate::theme::BStyleRole;
 use crate::view::prim::{BAction, BColAlign, BColWidth, BRowShade, BTableCell};
 use gpui::prelude::*;
 use gpui::AnyElement;
@@ -78,8 +78,8 @@ impl BTableHeader<'_> {
             .div(ctx)
             .debug_selector(|| "table-header".to_string());
         // Each heading cell is its column and the gap before it, with no
-        // divider: hovered, the whole cell takes the hover, and its label
-        // starts (or, for a right-aligned column, ends) where the values do.
+        // divider and nothing painted: its label starts (or, for a
+        // right-aligned column, ends) where the values do.
         let last = self.0.len().saturating_sub(1);
         for (n, cell) in self.0.iter().enumerate() {
             let head = BTablePart::HeadCell(cell.width, n == 0, n == last).flex(ctx).div(ctx).child(walk(&cell.view, ctx));
@@ -131,16 +131,23 @@ enum BTablePart {
     /// nudged it and everything below it — the "dancing" on hover. State may
     /// change what a row paints; it may never change what it measures, which
     /// is why the inset is a `Stroke` margin the row always carries.
+    ///
+    /// Its text stands a row's own pad (`ROW_PAD`) in from either end of
+    /// the band, so a hovered or selected row's fill has room round its
+    /// words instead of meeting the first letter.
     Row(BRowShade),
     /// The clickable is the row: its height is the row's, so the hover and
     /// selection fills cover the whole band rather than a strip of it.
     Clickable,
-    /// A column heading is a band over the rows, laid as they are: the same
-    /// inset from the list's edge, the same rounding, a heading's fill.
+    /// A column heading is a line of words over the rows, laid as they are:
+    /// the same inset from the list's edge, nothing painted under it. A
+    /// heading fill sat inside the list's gutter and stopped short of its
+    /// edges, so it read as a band cut off at both ends.
     Header,
     /// A column's heading cell: the body cell's column, the gap before it
-    /// (after the first), and the row's inset at either end (first, last) —
-    /// so its hover covers all of it and its label sits over its values.
+    /// (after the first), and the row's pad at either end (first, last), so
+    /// its label sits over its values. It paints nothing hovered; the hand
+    /// is what says it sorts.
     HeadCell(BColWidth, bool, bool),
     /// A cell fills the row's height and centres its content in it. Sizing to
     /// content left the columns short of the row, so a value sat at whatever
@@ -155,7 +162,7 @@ impl BFlexed for BTablePart {
                 .width(BLen::Full)
                 .height(BLen::Measured(row_band(ctx)))
                 .align(BAlign::Center)
-                .pad_x(BSpace::CardInset)
+                .pad_x(ROW_PAD)
                 .gap(BSpace::GapMd)
                 // The fill, the hover and the shade mapping are the tree's
                 // and the list's too (`tone::row_fill` / `tone::row_hover`).
@@ -173,8 +180,6 @@ impl BFlexed for BTablePart {
                 .align(BAlign::Center)
                 .margin_x(BSpace::Stroke)
                 .gap(BSpace::None)
-                .radius(BRadius::Role(BStyleRole::MenuItem))
-                .fill(BFill::Heading(BSurfaceTone::Card))
                 .ink()
                 .type_size(BType::Body),
             Self::HeadCell(width, lead, last) => {
@@ -182,24 +187,21 @@ impl BFlexed for BTablePart {
                     .align(BAlign::Center)
                     .height(BLen::Full)
                     .min_height(BLen::Zero)
-                    .overflow(BOverflow::Clip)
-                    .radius(BRadius::Role(BStyleRole::MenuItem))
-                    .hovered(BFill::ItemHover)
-                    .hover_group(super::sort::HEADING);
+                    .overflow(BOverflow::Clip);
                 let w = match width {
                     BColWidth::Fixed(w) => Some(w),
                     BColWidth::FileDate => Some(ctx.style.dimensions.file_date_column_width),
                     BColWidth::FileSize => Some(ctx.style.dimensions.file_size_column_width),
                     BColWidth::Flex => None,
                 };
-                let inset = BSpace::CardInset.px(ctx);
+                let inset = ROW_PAD.px(ctx);
                 let gap = ctx.style.spacing.gap_md;
                 let cell = match lead {
-                    true => cell.pad_left(BSpace::CardInset),
+                    true => cell.pad_left(ROW_PAD),
                     false => cell.pad_left(BSpace::GapMd),
                 };
-                let cell = if last { cell.pad_right(BSpace::CardInset) } else { cell };
-                // The cell's span beyond its column: gap before, row's inset.
+                let cell = if last { cell.pad_right(ROW_PAD) } else { cell };
+                // The cell's span beyond its column: gap before, row's pad.
                 let extra = [(!lead, gap), (lead, inset), (last, inset)].iter().filter(|(on, _)| *on).map(|(_, px)| px).sum::<f32>();
                 match w {
                     None => cell.fills().min_width(BLen::Zero),
@@ -230,6 +232,10 @@ impl BFlexed for BTablePart {
         }
     }
 }
+
+/// A row's text from either end of its band, and a heading's over it: a
+/// row's own pad, as a menu row's and a list entry's are.
+const ROW_PAD: BSpace = BSpace::PadSm;
 
 /// A row's own height: the row rung less the border it insets itself by at
 /// top and bottom, so the band it occupies is exactly one row.

@@ -3,7 +3,6 @@
 use super::super::flex::{BAlign, BFlex, BFlexed, BJustify, BLen, BSpace};
 use super::super::ctx::BRenderCtx;
 use super::super::walk;
-use crate::modal::BModalType;
 use crate::view::BView;
 use gpui::prelude::*;
 use gpui::AnyElement;
@@ -16,13 +15,11 @@ impl BWelcome<'_> {
             BView::Column { list } => list.as_slice(),
             _ => std::slice::from_ref(self.0),
         };
-        let mut column = BWelcomePart::WelcomeColumn {
-            max_width: BModalType::Splash.spec().width,
-        }
-        .flex(ctx)
-        .div(ctx)
-        .id("welcome-content-column")
-        .debug_selector(|| "welcome-content-column".to_string());
+        let mut column = BWelcomePart::WelcomeColumn
+            .flex(ctx)
+            .div(ctx)
+            .id("welcome-content-column")
+            .debug_selector(|| "welcome-content-column".to_string());
         for child in list {
             column = column.child(BWelcomePart::WelcomeLine.flex(ctx).div(ctx).child(walk(child, ctx)));
         }
@@ -45,7 +42,11 @@ impl BWelcome<'_> {
 enum BWelcomePart {
     /// The Welcome form: its content column, centred in the modal.
     WelcomeLayout,
-    WelcomeColumn { max_width: f32 },
+    /// The column runs the window's width: every line in it centres itself,
+    /// and the cards grow with the room (`splash::card_size`). It used to
+    /// stop at the Splash spec's width, so a larger window only added
+    /// backdrop round the same small grid.
+    WelcomeColumn,
     /// One line of the column — the logo, its tagline, the tabs, the cards
     /// — as tall as what it holds, so the lines stack rather than share the
     /// window's height out between them.
@@ -63,10 +64,7 @@ impl BFlexed for BWelcomePart {
                 .justify(BJustify::Center)
                 .pad(BSpace::PadLg),
 
-            Self::WelcomeColumn { max_width } => BFlex::column()
-                .width(BLen::Full)
-                .max_width(BLen::Measured(max_width))
-                .gap(BSpace::GapLg),
+            Self::WelcomeColumn => BFlex::column().width(BLen::Full).gap(BSpace::GapLg),
 
             Self::WelcomeLine => BFlex::column().width(BLen::Full).keeps_size(),
         }

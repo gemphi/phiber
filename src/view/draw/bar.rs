@@ -16,7 +16,12 @@ use gpui::{AnyElement, SharedString};
 enum BBarPart {
     /// The strip itself, by kind.
     Strip(BStrip),
-    /// A tab bar's ground: one pill around its tabs, as wide as they are.
+    /// A tab bar's ground: one tile around its tabs, as wide as they are,
+    /// rounded as a card is. The Welcome window's tabs stand over its cards,
+    /// and a pill over them was a second shape where one rule does: the
+    /// card's radius outside, the tabs' strip-cap radius inside (in the
+    /// default theme exactly the card's less the ground's pad, so the
+    /// corners are concentric).
     TabGround,
 }
 
@@ -31,7 +36,7 @@ impl BFlexed for BBarPart {
                     .align(BAlign::Center)
                     .pad(BSpace::PadXs)
                     .gap(BSpace::GapXs)
-                    .radius(BRadius::Pill)
+                    .radius(BRadius::Role(BStyleRole::Card))
                     .fill(BFill::Tone(BSurfaceTone::Nested(1)))
                     .border(BEdge::All);
             }
