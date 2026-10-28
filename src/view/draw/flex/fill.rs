@@ -35,6 +35,10 @@ pub enum BFill {
     HostHeader,
     /// The current host's strip gradient.
     HostStrip,
+    /// The strip right under an area's editor tabs (`BRenderCtx::joined`):
+    /// the active tab's fill, flattened to the colour the tab ends on, so the
+    /// tab and the strip it opens onto read as one surface.
+    TabGround,
     /// The current host's vertical strip: a step under its body, so the
     /// active tab — painted in the body's shade — is a hole cut in it.
     HostRail,
@@ -95,6 +99,7 @@ impl BFill {
             Self::Heading(tone) => resolved_gradient(ctx.style.heading_surface(tone)),
             Self::HostHeader => resolved_gradient(ctx.style.host_header_surface(ctx.host)),
             Self::HostStrip => resolved_gradient(ctx.style.strip_gradient(ctx.host)),
+            Self::TabGround => to_hsla(ctx.style.tab_active_gradient(ctx.host).bottom).into(),
             Self::HostRail => resolved_gradient(ctx.style.rail_surface(ctx.host)),
             Self::RailTabResting => to_hsla(ctx.style.rail_tab_resting(ctx.host)).into(),
             Self::ModalDim => to_hsla(ctx.style.colors.bg_modal_dim).into(),

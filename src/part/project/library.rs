@@ -126,7 +126,7 @@ pub fn nav(s: &BState) -> Vec<BView> {
     let at = folder(s);
     let row = |icon: &str, label: String, shelf: BShelf| {
         let n = lib.designs(shelf).len();
-        BView::Button(BControl::new().with_icon(icon).with_label(format!("{label}  {n}")).with_active(at == Some(shelf)).with_action(BAction::Set(ProjectKey::Folder.path(), slug(shelf))))
+        BView::MenuItem(BControl::new().with_icon(icon).with_label(format!("{label}  {n}")).with_active(at == Some(shelf)).with_action(BAction::Set(ProjectKey::Folder.path(), slug(shelf))))
     };
     let mut list = vec![row("shoe", "Footwear".into(), BShelf::All)];
     for c in BCollection::ALL {

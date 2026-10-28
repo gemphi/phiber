@@ -83,6 +83,10 @@ pub struct BRenderCtx<'a> {
     /// ellipsis where the column does, its whole text on a tooltip — a long
     /// file name does not run on, as Explorer's do not.
     pub clips: bool,
+    /// True for the strip right under an area's editor tabs, set by the host
+    /// walker (`host::view`): that region paints the active tab's ground
+    /// (`BFill::TabGround`). Cleared again for the region's own children.
+    pub joined: bool,
 }
 
 impl<'a> BRenderCtx<'a> {
@@ -108,6 +112,7 @@ impl<'a> BRenderCtx<'a> {
             input: None,
             glyphs: true,
             clips: false,
+            joined: false,
         }
     }
 
@@ -120,6 +125,11 @@ impl<'a> BRenderCtx<'a> {
     /// Derive a context inside area `area`.
     pub fn in_area(&self, area: crate::area::BAreaType) -> Self {
         Self { area: Some(area), ..self.clone() }
+    }
+
+    /// The strip under an area's editor tabs (`joined`).
+    pub fn joined(&self) -> Self {
+        Self { joined: true, ..self.clone() }
     }
 
     /// A table cell's context: its labels clip (`clips`).
@@ -149,6 +159,7 @@ impl<'a> BRenderCtx<'a> {
             input: self.input.clone(),
             glyphs: self.glyphs,
             clips: self.clips,
+            joined: false,
         }
     }
 
@@ -171,6 +182,7 @@ impl<'a> BRenderCtx<'a> {
             input: self.input.clone(),
             glyphs: self.glyphs,
             clips: self.clips,
+            joined: false,
         }
     }
 
@@ -219,6 +231,7 @@ impl<'a> BRenderCtx<'a> {
             input: self.input.clone(),
             glyphs: self.glyphs,
             clips: self.clips,
+            joined: false,
         }
     }
 }

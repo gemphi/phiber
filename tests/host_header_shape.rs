@@ -71,10 +71,13 @@ fn a_host_with_a_search_puts_it_in_the_middle_and_others_leave_it_empty() {
         // The file browsers' header is the columns under it: the search
         // stands over the details column, at the header's end.
         let at_end = parts(host, &s, BPaneType::Right).contains(&BPartType::Search);
-        assert_eq!(at_end, search_key(host).is_some() && host.heads_its_columns(), "{host:?}: the search ends the header only in a browser");
+        // A host with no header of its own (the Project Browser, which its
+        // area's tabs name) carries its search in its toolbar instead.
+        let headed = host.spec().regions.iter().any(|r| r.kind == BRegionType::Header);
+        assert_eq!(at_end, headed && search_key(host).is_some() && host.heads_its_columns(), "{host:?}: the search ends the header only in a browser");
         assert_eq!(
             has_search,
-            search_key(host).is_some() && !host.heads_its_columns(),
+            headed && search_key(host).is_some() && !host.heads_its_columns(),
             "{host:?}: the middle holds a search only when the host searches from its header"
         );
     }

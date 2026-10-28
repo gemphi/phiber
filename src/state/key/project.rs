@@ -21,15 +21,16 @@ pub enum ProjectKey {
     Search,
     /// A footwear design, by slug, confirmed against its sketch.
     Confirmed(&'static str),
+    /// `false` folds a navigator section shut (`collections`, `project`,
+    /// `library`); open unless said otherwise, as the file browser's are.
+    Open(&'static str),
 }
 
 impl BKey for ProjectKey {
     fn path(&self) -> BPath {
-        if let Self::Confirmed(slug) = self {
-            return BPath::owned(vec!["project", "confirmed", slug]);
-        }
         let tail: &'static str = match self {
-            Self::Confirmed(_) => unreachable!("answered above"),
+            Self::Confirmed(slug) => return BPath::owned(vec!["project", "confirmed", slug]),
+            Self::Open(section) => return BPath::owned(vec!["project", "open", section]),
             Self::Folder => "folder",
             Self::Selected => "selected",
             Self::List => "list",

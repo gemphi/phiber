@@ -63,11 +63,27 @@ async fn the_project_browser_is_a_tab_with_its_three_columns(cx: &mut TestAppCon
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1400.0), px(900.0)));
     show(&app, cx, BHostType::Project);
-    for region in ["region-Tabs-Project", "region-Header-Project", "region-ToolHeader-Project", "region-Tools-Project", "region-Center-Project", "region-UI-Project"] {
+    for region in ["region-Tabs-Project", "region-ToolHeader-Project", "region-Tools-Project", "region-Center-Project", "region-UI-Project"] {
         assert!(cx.debug_bounds(region).is_some(), "{region}: {:?}", selectors(cx));
     }
+    // Two rows, not three: the tab names and switches the editor, so there is
+    // no header repeating it; the toolbar sits straight under the tabs.
+    assert!(cx.debug_bounds("region-Header-Project").is_none(), "no header under the tabs");
+    let tabs = cx.debug_bounds("region-Tabs-Project").unwrap();
+    let bar = cx.debug_bounds("region-ToolHeader-Project").unwrap();
+    assert!(bar.origin.y >= tabs.origin.y + tabs.size.height - px(1.0), "the toolbar is the row under the tabs: {tabs:?} {bar:?}");
     let nav = cx.debug_bounds("region-Tools-Project").unwrap();
     let cards = cx.debug_bounds("region-Center-Project").unwrap();
     let info = cx.debug_bounds("region-UI-Project").unwrap();
     assert!(nav.origin.x < cards.origin.x && cards.origin.x < info.origin.x, "navigator, cards, inspector, left to right: {nav:?} {cards:?} {info:?}");
+    // Its three groups stand over those columns: the search centred over the
+    // cards and never wider than a panel.
+    let search = cx
+        .all_debug_bounds()
+        .into_iter()
+        .find_map(|(name, bounds)| name.contains("set-project.search-").then_some(bounds))
+        .expect("the Project Browser has its search");
+    let mid = |b: gpui::Bounds<gpui::Pixels>| b.origin.x + b.size.width / 2.0;
+    assert!((mid(search) - mid(cards)).abs() < px(24.0), "the search is centred over the cards: {search:?} {cards:?}");
+    assert!(search.size.width <= px(241.0), "and no wider than a panel: {search:?}");
 }

@@ -115,9 +115,18 @@ pub fn view(kind: BHostType, list: &[BView], ctx: &BRenderCtx) -> AnyElement {
     let mut element = BHostPart::Frame { radius: host_radius }.flex(ctx).div(ctx);
 
     let mut row = 0usize;
+    // The strip right under an area's editor tabs is the active tab's
+    // ground: the tab opens onto it (`BRenderCtx::joined`).
+    let mut after_tabs = false;
     for ch in top {
         let ownership = BCorners::ALL.assign_row(BRowPosition::at(row, rows), child_opacity(ch));
-        element = element.child(walk(ch, &inner.with_corners(ownership.child)));
+        let child = inner.with_corners(ownership.child);
+        let child = match after_tabs {
+            true => child.joined(),
+            false => child,
+        };
+        after_tabs = matches!(ch, BView::Region { kind: crate::region::BRegionType::Tabs, .. });
+        element = element.child(walk(ch, &child));
         row += 1;
     }
 

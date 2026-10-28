@@ -109,6 +109,10 @@ enum BPanePart {
     },
     /// The slot a content-region Center gives each child: the whole of it.
     Stretch,
+    /// The slot a header's centre gives its search: as wide as a panel at
+    /// most, centred in the cell. A filter is a box you type a few letters
+    /// into, not the strip's whole width.
+    Filter,
 }
 
 impl BFlexed for BPanePart {
@@ -199,8 +203,9 @@ impl BFlexed for BPanePart {
                     // Too long a header runs off its end instead.
                     match (in_header && !columns, fielded) {
                         (true, false) => cell.grows().justify(BJustify::Center),
-                        (true, true) => cell.grows(),
-                        (false, _) => cell.min_width(BLen::Zero),
+                        (true, true) => cell.grows().justify(BJustify::Center),
+                        (false, true) => cell.min_width(BLen::Zero).justify(BJustify::Center),
+                        (false, false) => cell.min_width(BLen::Zero),
                     }
                 }
                 // Over a details column the right pane is that column: its
@@ -234,6 +239,7 @@ impl BFlexed for BPanePart {
             }
             }
             Self::Stretch => BFlex::row().fills().unclamped().height(BLen::Full),
+            Self::Filter => BFlex::row().grows().max_width(BLen::Dim(BDim::PanelWidth)),
         }
     }
 }
@@ -315,12 +321,19 @@ pub fn view(kind: BPaneType, list: &[BView], ctx: &BRenderCtx) -> AnyElement {
     // property stack or a canvas). A header Center hugs its content so menus
     // and the mode dropdown keep their natural width.
     let stretch_child = center && !in_header;
+    // A search in a header's centre is a panel's width at most, centred; the
+    // top bar's (`pinned`) spans its third, and a path field still fills.
+    let caps_filter = center && in_header && !pinned;
     for ch in list {
-        if stretch_child {
-            element = element.child(BPanePart::Stretch.flex(ctx).div(ctx).child(walk(ch, ctx)));
-        } else {
-            element = element.child(walk(ch, ctx));
-        }
+        let slot = match (stretch_child, caps_filter && holds_filter(ch)) {
+            (true, _) => Some(BPanePart::Stretch),
+            (false, true) => Some(BPanePart::Filter),
+            (false, false) => None,
+        };
+        element = match slot {
+            Some(part) => element.child(part.flex(ctx).div(ctx).child(walk(ch, ctx))),
+            None => element.child(walk(ch, ctx)),
+        };
     }
     element.into_any_element()
 }
@@ -331,6 +344,17 @@ fn view_is_empty(view: &BView) -> bool {
     match view {
         BView::Empty => true,
         BView::Part { body, .. } => view_is_empty(body),
+        _ => false,
+    }
+}
+
+/// Whether a view holds a search filter (a field that leads with the
+/// magnifier), as opposed to a field that names something, like a path.
+fn holds_filter(view: &BView) -> bool {
+    match view {
+        BView::SearchField { searches, .. } => *searches,
+        BView::Part { body, .. } => holds_filter(body),
+        BView::Row { list } | BView::Column { list } => list.iter().any(holds_filter),
         _ => false,
     }
 }

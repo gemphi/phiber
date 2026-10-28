@@ -30,7 +30,13 @@ use std::rc::Rc;
 /// activity bar where the inline label is hidden.
 /// A horizontal tab, whose pane continues below it.
 pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
-    cap_view(ctl, BCapSide::Below, ctx)
+    // The bottom area's editor tabs open onto the strip under them; every
+    // other strip's tabs stand clear of its edges.
+    let side = match ctx.region {
+        Some(crate::region::BRegionType::Tabs) => BCapSide::Joined,
+        _ => BCapSide::Below,
+    };
+    cap_view(ctl, side, ctx)
 }
 
 /// A rail entry: the square tile every rail draws, docked or floating. It

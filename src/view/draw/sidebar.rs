@@ -98,7 +98,14 @@ impl BSidebar<'_> {
             .gap(px(ctx.style.spacing.gap_xs))
             .overflow_y_scroll();
         for child in self.0 {
-            inner = inner.child(walk(child, ctx));
+            // Text standing straight in the column - a details column's
+            // prompt, "Select a file to view its properties." - is inset as
+            // a card's rows are, so no letter sits against the column's edge.
+            let element = walk(child, ctx);
+            inner = match child {
+                BView::Label { .. } => inner.child(BFlex::row().pad_x(BSpace::PadMd).pad_y(BSpace::PadSm).div(ctx).child(element)),
+                _ => inner.child(element),
+            };
         }
         // The grab strip floats on the column's inner edge rather than
         // sitting beside it, so the sidebar costs exactly its own width and

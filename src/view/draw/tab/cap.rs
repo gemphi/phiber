@@ -21,6 +21,10 @@ pub enum BCapSide {
     Free,
     /// The topbar and editor tab strips: the pane is below.
     Below,
+    /// The bottom area's editor tabs: the strip under them is the active
+    /// tab's ground (`BFill::TabGround`), so a tab is cut flush into it -
+    /// top corners rounded, its bottom edge on that strip.
+    Joined,
 }
 
 impl BCapSide {
@@ -30,7 +34,8 @@ impl BCapSide {
     pub fn of(ctx: &super::super::ctx::BRenderCtx) -> Self {
         use crate::region::BRegionType;
         match ctx.region {
-            Some(BRegionType::Tabs | BRegionType::Header | BRegionType::ToolHeader | BRegionType::Footer | BRegionType::Execute) => Self::Below,
+            Some(BRegionType::Tabs) => Self::Joined,
+            Some(BRegionType::Header | BRegionType::ToolHeader | BRegionType::Footer | BRegionType::Execute) => Self::Below,
             _ => Self::Free,
         }
     }
@@ -48,7 +53,7 @@ impl BCapSide {
     /// navbar) rather than a horizontal strip. A rail entry spans the rail's
     /// width and reads from its leading edge; a header cap hugs its label.
     pub fn in_rail(self) -> bool {
-        !matches!(self, BCapSide::Below)
+        !matches!(self, BCapSide::Below | BCapSide::Joined)
     }
 
     /// Round the edge opposite the pane, so the cap and the pane read as one
@@ -58,6 +63,8 @@ impl BCapSide {
             // A strip's tab is a control too: rounded all round, clear of
             // the strip's edges like every button in it.
             BCapSide::Free | BCapSide::Below => element.rounded(r),
+            // Flush with the strip it opens onto, so the two are one surface.
+            BCapSide::Joined => element.rounded_t(r),
         }
     }
 
@@ -69,6 +76,7 @@ impl BCapSide {
         match self {
             BCapSide::Free => element,
             BCapSide::Below => element.self_center(),
+            BCapSide::Joined => element.self_end(),
         }
     }
 }

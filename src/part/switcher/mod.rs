@@ -154,13 +154,17 @@ impl BViewItem for BSwitcher {
 
         // The trigger names the editor it switches: icon + name, at the head of
         // the header, so every host reads the same way whichever area it is in.
-        let anchor = BView::MenuAnchor(
-            BControl::new()
-                .with_icon(self.host.icon())
-                .with_label(self.host.label())
-                .with_active(open)
-                .with_action(BAction::Toggle(open_key.clone())),
-        );
+        // Under an area's editor tabs the tab above already names it, so the
+        // trigger is its icon alone rather than the same name twice.
+        let trigger = BControl::new()
+            .with_icon(self.host.icon())
+            .with_active(open)
+            .with_action(BAction::Toggle(open_key.clone()));
+        let trigger = match crate::part::areatabs::BAreaTabs::shown() {
+            true => trigger.with_tooltip(self.host.label()),
+            false => trigger.with_label(self.host.label()),
+        };
+        let anchor = BView::MenuAnchor(trigger);
         let body = BSwitcherList::new(slot, open_key.clone(), area.hosts, self.host).items(s);
         BView::popover(
             anchor,

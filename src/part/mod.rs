@@ -144,6 +144,7 @@ pub enum BPartType {
     /// inspector (`project`).
     ProjectNav,
     ProjectBar,
+    ProjectView,
     ProjectInfo,
     /// The file browser's details column: the picked file's name, place,
     /// size, date and preview (`file::info`).
@@ -199,6 +200,7 @@ impl BPartType {
         Self::AreaTabs,
         Self::ProjectNav,
         Self::ProjectBar,
+        Self::ProjectView,
         Self::ProjectInfo,
         Self::FileInfo,
         Self::Custom,
@@ -247,6 +249,7 @@ impl BPartType {
             BPartType::AreaTabs => "Editor Tabs",
             BPartType::ProjectNav => "Project Navigator",
             BPartType::ProjectBar => "Project Toolbar",
+            BPartType::ProjectView => "Project View Controls",
             BPartType::ProjectInfo => "Project Inspector",
             BPartType::FileInfo => "File Details",
             BPartType::Custom => "Custom",
@@ -365,6 +368,7 @@ impl BPartItem {
             BPartType::AreaTabs => crate::part::areatabs::BAreaTabs::new(h).build(s),
             BPartType::ProjectNav => crate::part::project::BProjectNav.build(s),
             BPartType::ProjectBar => crate::part::project::BProjectBar.build(s),
+            BPartType::ProjectView => crate::part::project::BProjectView.build(s),
             BPartType::ProjectInfo => crate::part::project::BProjectInfo.build(s),
             BPartType::FileInfo => crate::part::file::info::BFileInfo.build(s),
             BPartType::Playback => crate::part::playback::BPlayback::new(h).build(s),

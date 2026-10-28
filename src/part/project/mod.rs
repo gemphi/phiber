@@ -23,7 +23,7 @@ pub mod library;
 pub mod thumb;
 
 use crate::state::{BKey as _, BState, FileKey, OpKey, ProjectKey};
-use crate::state::val::V_TRUE;
+use crate::state::val::{V_FALSE, V_TRUE};
 use crate::view::prim::{BAction, BCard, BColumn, BControl, BThumb};
 use crate::view::{BView, BViewItem};
 use db::{BAssetKind, BProjectDb};
@@ -121,11 +121,17 @@ pub struct BProjectNav;
 impl BViewItem for BProjectNav {
     fn build(&self, s: &BState) -> BView {
         let at = folder(s);
+        // A row of a source list, as the file browser's are: no ground of its
+        // own, lit only on hover and when the browser is in it.
         let row = |icon: &str, label: String, here: bool, slug: &str| {
-            BView::Button(BControl::new().with_icon(icon).with_label(label).with_active(here).with_action(BAction::Set(ProjectKey::Folder.path(), slug.to_string())))
+            BView::MenuItem(BControl::new().with_icon(icon).with_label(label).with_active(here).with_action(BAction::Set(ProjectKey::Folder.path(), slug.to_string())))
         };
-        // Each group a card on its own ground, as the file browser's source
-        // list and the Inspector's panels are.
+        // Each group a section that folds, standing on one ground when open,
+        // as the file browser's source list does (`file::sidebar::panel`).
+        let section = |label: &'static str, slug: &'static str, rows: Vec<BView>| -> BView {
+            let open = s.get(ProjectKey::Open(slug)) != Some(V_FALSE);
+            BCard::panel(label).bare().fold(ProjectKey::Open(slug).path(), open).body(rows).into()
+        };
         let mut project = Vec::new();
         if let Some(db) = db::current() {
             for kind in BAssetKind::ALL {
@@ -139,22 +145,42 @@ impl BViewItem for BProjectNav {
             project.push(BView::label("Open a scene to list its files."));
         }
         let cards = vec![
-            BCard::panel("Collections").body(vec![row("grid", "All Files".into(), at.is_none() && library::folder(s).is_none(), "all")]).into(),
-            BCard::panel("Project").body(project).into(),
-            BCard::panel("Library").body(library::nav(s)).into(),
+            section("Collections", "collections", vec![row("grid", "All Files".into(), at.is_none() && library::folder(s).is_none(), "all")]),
+            section("Project", "project", project),
+            section("Library", "library", library::nav(s)),
         ];
         BView::from(BCard::column(BColumn::Sidebar, cards))
     }
 }
 
-/// The toolbar over the cards: import and a new scene at the left; the
-/// card size, cards or list, and the order at the right.
+/// The toolbar's left end, over the navigator: import, and a new scene.
+/// The search sits centred over the cards and the view controls over the
+/// inspector (`host::project::set`): one strip, its three groups each over
+/// the column they act on.
 #[derive(Clone, Copy, Debug)]
 pub struct BProjectBar;
 
 impl BViewItem for BProjectBar {
+    fn build(&self, _: &BState) -> BView {
+        BView::row(vec![
+            icon("import", "Import", BAction::Set(FileKey::Purpose.path(), "import".into())),
+            icon("file_new", "New Scene", BAction::Set(OpKey::NewFile.path(), "general".into())),
+        ])
+    }
+}
+
+/// An icon button with its tooltip.
+fn icon(name: &str, tip: &str, action: BAction) -> BView {
+    BView::Button(BControl::new().with_icon(name).with_tooltip(tip).with_action(action))
+}
+
+/// The toolbar's right end, over the inspector: the card size, cards or
+/// list, and the order.
+#[derive(Clone, Copy, Debug)]
+pub struct BProjectView;
+
+impl BViewItem for BProjectView {
     fn build(&self, s: &BState) -> BView {
-        let icon = |name: &str, tip: &str, action: BAction| BView::Button(BControl::new().with_icon(name).with_tooltip(tip).with_action(action));
         let edge = size(s);
         let step = |up: bool| {
             let at = SIZES.iter().position(|&x| x >= edge).unwrap_or(2);
@@ -164,9 +190,6 @@ impl BViewItem for BProjectBar {
         let list = s.get(ProjectKey::List) == Some(V_TRUE);
         let descending = s.get(ProjectKey::Descending) == Some(V_TRUE);
         BView::row(vec![
-            icon("import", "Import", BAction::Set(FileKey::Purpose.path(), "import".into())),
-            icon("file_new", "New Scene", BAction::Set(OpKey::NewFile.path(), "general".into())),
-            BView::spacer(),
             icon("zoom_out", "Smaller", step(false)),
             icon("zoom_in", "Larger", step(true)),
             BView::Button(BControl::new().with_icon(if list { "grid" } else { "list" }).with_tooltip(if list { "Show as Icons" } else { "Show as List" }).with_action(BAction::Set(ProjectKey::List.path(), (!list).to_string()))),

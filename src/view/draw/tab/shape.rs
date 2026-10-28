@@ -41,9 +41,9 @@ impl BCapShape {
     /// Which shape a cap is: in a horizontal strip or not, labelled or not.
     pub fn of(side: BCapSide, labelled: bool) -> Self {
         match (labelled, side) {
-            (false, BCapSide::Below) => Self::StripIcon,
+            (false, BCapSide::Below | BCapSide::Joined) => Self::StripIcon,
             (false, _) => Self::RailButton,
-            (true, BCapSide::Below) => Self::StripTab,
+            (true, BCapSide::Below | BCapSide::Joined) => Self::StripTab,
             (true, _) => Self::RailEntry,
         }
     }
@@ -129,6 +129,8 @@ mod tests {
             ((Free, false), BCapShape::RailButton),
             ((Below, true), BCapShape::StripTab),
             ((Free, true), BCapShape::RailEntry),
+            ((Joined, false), BCapShape::StripIcon),
+            ((Joined, true), BCapShape::StripTab),
         ];
         for ((side, labelled), want) in cases {
             assert_eq!(BCapShape::of(side, labelled), want, "{side:?} labelled={labelled}");

@@ -10,7 +10,7 @@ use crate::region::BRegionType;
 
 /// `flex` with the padding its region kind calls for.
 pub(super) fn padded(flex: BFlex, kind: BRegionType, ctx: &BRenderCtx) -> BFlex {
-    use BRegionType::{Center, Execute, Footer, Header, ToolHeader, Tools, UI};
+    use BRegionType::{Center, Execute, Footer, Header, Tabs, ToolHeader, Tools, UI};
     let panelled = ctx.host.tools_hold_panels();
     match (kind, rail_region(kind, ctx.host), panelled) {
         // Every vertical strip is the topbar turned on its side, so every
@@ -35,6 +35,11 @@ pub(super) fn padded(flex: BFlex, kind: BRegionType, ctx: &BRenderCtx) -> BFlex 
         // a rail and runs to its area's edges; a *Center* region that leads
         // with a rail carries that content beside it, and content wants the
         // gutter every other content region keeps.
+        // The editor tabs stand on the strip under them: no vertical pad, so
+        // the region's full height holds them and each tab's bottom edge is
+        // the strip's (`tab::cap::BCapSide::Joined`) — the rule every header
+        // closes on, between the tabs and the editor's row.
+        (Tabs, ..) => flex.pad_x(BSpace::PadMd).border(BEdge::Bottom),
         (Center, true, _) => flex.pad_top(BSpace::RailLead).pad_bottom(BSpace::RailLead).pad_right(BSpace::PadSm),
         (_, true, _) => flex.pad_top(BSpace::RailLead).pad_bottom(BSpace::RailLead),
         // The file browser's path strip is the columns under it, read across:

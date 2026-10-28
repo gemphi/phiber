@@ -62,9 +62,11 @@ fn region_fill(kind: BRegionType) -> BFill {
 /// True when a region is a content header, and so closes with a rule along
 /// its bottom edge. The global bars are not: the top bar draws its one line
 /// on the area itself (`area`), which is the window's own edge rather than a
-/// boundary inside an editor, and the status bar heads nothing.
+/// boundary inside an editor, and the status bar heads nothing. The bottom
+/// area's editor tabs are a strip over a header, and close on the same line,
+/// so the tabs and the editor's own row read as two rows.
 fn ruled_header(kind: BRegionType, host: BHostType) -> bool {
-    matches!(kind, BRegionType::Header | BRegionType::ToolHeader) && !host.pins_header_cells()
+    matches!(kind, BRegionType::Tabs | BRegionType::Header | BRegionType::ToolHeader) && !host.pins_header_cells()
 }
 
 /// True when this is the status bar's header while a file opens: it then
@@ -123,7 +125,11 @@ impl BFlexed for BRegionFrame {
             (BAxis::Row, _) => BFlex::row(),
             (BAxis::Column, _) => BFlex::column().align(BAlign::Stretch),
         }
-        .fill(region_fill(kind))
+        // The strip under an area's editor tabs is the active tab's ground.
+        .fill(match ctx.joined {
+            true => BFill::TabGround,
+            false => region_fill(kind),
+        })
         .gap(BSpace::GapXs);
 
         let flex = pad::padded(flex, kind, ctx);
