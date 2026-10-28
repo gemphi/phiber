@@ -93,16 +93,16 @@ impl BRenderEdits {
     /// `name`'s panel value, when it differs from the file's (or, with none
     /// there, the property's default).
     fn cycles_edit(s: &BState, model: &SceneModel, name: &str, spec: &BPropSpec) -> Option<(String, BIdValue)> {
-        // The sample default is phiber's policy, not a value the user chose.
-        // `seed_render_props` writes it into the panel for a file that never
-        // set Max Samples, so the panel SHOWS what will render; reading that
-        // back as an edit would write phiber's default into the user's
-        // `.blend` on the next save (`render_quality::BRenderQuality`). A
-        // count they type themselves is still an edit.
-        if name == "samples" && model.render.cycles.get("samples").is_none() {
-            let default = i64::from(super::render_quality::BRenderQuality::SAMPLE_FLOOR);
+        // The opening counts are phiber's policy, not values the user chose.
+        // `seed_render_props` fills a count the file never saved with the
+        // quality one, so the panel SHOWS what will render; reading that back
+        // as an edit would write phiber's counts into the user's `.blend` on
+        // the next save (`render_quality::BRenderQuality::OPENING`). A count
+        // they type themselves is still an edit.
+        let saved = model.render.cycles.get(name).and_then(BIdValue::as_int).map(|n| n.max(0) as u32);
+        if let Some(opened) = super::render_quality::BRenderQuality::opening(name, saved) {
             let shown = BValue::parse(BValueKind::Int, s.get(ButsKey::Value(spec.key))?)?;
-            if shown == BValue::Int(default) {
+            if shown == BValue::Int(i64::from(opened)) {
                 return None;
             }
         }

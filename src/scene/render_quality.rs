@@ -9,21 +9,21 @@
 //!   exception, because Workbench is an engine phiber really does have
 //!   (`render_engine.rs`, `workbench_render.cc`) — a file saved under it
 //!   still rasterizes.
-//! - **2048 samples is the DEFAULT** for a final render — what it takes
-//!   when nothing says otherwise. It was a *floor* until 2026-10-19, and
-//!   a floor was the wrong shape: `asked.max(2048)` meant Max Samples
-//!   could only ever be raised, so typing 64 into the panel rendered
-//!   2048 and the row silently did nothing. Blender has no such rule —
-//!   Max Samples means Max Samples — and a person who asks for 64 wants
-//!   64, whether for a quick look or because they are denoising.
+//! - **4096 samples is the DEFAULT** for a final render — Blender's own
+//!   (`addon/properties.py`), and the top of the 2048–4096 the team's
+//!   quality research settled on, adaptive sampling stopping the pixels
+//!   that settle sooner.
+//! - **A file opens at its own counts** ([`Self::OPENING`]). Max Samples,
+//!   Viewport and Min Samples take the quality counts only where the file
+//!   saved none, as Blender fills in an unsaved property with its default.
+//!   For a while a file saved at 25 opened at 4096 (the team's turntable
+//!   files saved 25 and every F12 was noise); that overrode what the
+//!   file's author chose, and the user asked for the file's count back on
+//!   2026-10-27. A file meant for final renders saves its counts.
 //!
-//!   The original reasoning still holds for the *default*: pose 26 asks
-//!   for twenty, and twenty is a turntable preview rather than a frame
-//!   anyone would keep. So a file that never says gets 2048; a file or a
-//!   panel that does say is believed.
-//!
-//! The floor is a *final render's*. The viewport keeps `preview_samples`
-//! and stays as quick as it was (`BRenderSet::preview_samples`).
+//!   Until 2026-10-19 the render itself took `asked.max(2048)`, so typing
+//!   64 rendered 2048 and the row silently did nothing; a count typed after
+//!   the file is open is believed, as Blender believes Max Samples.
 
 use super::render_engine::BRenderEngine;
 
@@ -38,7 +38,25 @@ impl BRenderQuality {
     ///
     /// Still named `SAMPLE_FLOOR` because that is what it was and what
     /// the command line calls it; it is a default now, not a minimum.
-    pub const SAMPLE_FLOOR: u32 = 2048;
+    pub const SAMPLE_FLOOR: u32 = 4096;
+
+    /// The counts a file opens at where it saved none: `(Cycles property, quality)`.
+    /// Max Samples at the render default; the viewport at Blender's 1024;
+    /// and every pixel at least 256 samples before adaptive sampling may
+    /// stop it, which the research asks for over Cycles' automatic 64.
+    pub const OPENING: &'static [(&'static str, u32)] = &[
+        ("samples", Self::SAMPLE_FLOOR),
+        ("preview_samples", 1024),
+        ("adaptive_min_samples", 256),
+    ];
+
+    /// The count the Render panel opens `name` at, given what the file
+    /// saved: the file's own, else the quality count — `None` for a
+    /// property this rule leaves to the file altogether.
+    pub fn opening(name: &str, saved: Option<u32>) -> Option<u32> {
+        let quality = Self::OPENING.iter().find(|(n, _)| *n == name)?.1;
+        Some(saved.unwrap_or(quality))
+    }
 
     /// The samples a render actually takes: **what was asked for**, and
     /// the default only when nothing asked. A render takes at least one.
@@ -67,7 +85,7 @@ mod tests {
 
     #[test]
     fn a_count_that_was_asked_for_is_the_count_that_renders() {
-        assert_eq!(BRenderQuality::samples(None, false), 2048, "nothing asked: the default");
+        assert_eq!(BRenderQuality::samples(None, false), 4096, "nothing asked: the default");
         // The row is believed. This used to assert the opposite — that
         // twenty was "lifted to the floor" — which is exactly why typing
         // 64 into Max Samples rendered 2048 and looked like a dead
@@ -77,6 +95,21 @@ mod tests {
         assert_eq!(BRenderQuality::samples(Some(4096), false), 4096, "and a big count is kept");
         assert_eq!(BRenderQuality::samples(Some(0), false), 1, "a render takes at least one sample");
         assert_eq!(BRenderQuality::samples(Some(64), true), 64, "draft changes nothing now");
+    }
+
+    #[test]
+    fn a_file_opens_at_its_own_counts_and_the_quality_ones_fill_in() {
+        // What the file saved is what it opens at, fewer or more.
+        assert_eq!(BRenderQuality::opening("samples", Some(25)), Some(25));
+        assert_eq!(BRenderQuality::opening("preview_samples", Some(25)), Some(25));
+        assert_eq!(BRenderQuality::opening("adaptive_min_samples", Some(0)), Some(0));
+        assert_eq!(BRenderQuality::opening("samples", Some(8192)), Some(8192));
+        // Never saved: the quality counts.
+        assert_eq!(BRenderQuality::opening("samples", None), Some(4096));
+        assert_eq!(BRenderQuality::opening("preview_samples", None), Some(1024));
+        assert_eq!(BRenderQuality::opening("adaptive_min_samples", None), Some(256));
+        // Everything else is the file's.
+        assert_eq!(BRenderQuality::opening("diffuse_bounces", Some(1)), None);
     }
 
     #[test]
