@@ -9,9 +9,11 @@
 //! not have falls back down its own stack, then to the system's
 //! (`Font.fallbacks`), so a choice never leaves the window blank.
 //!
-//! The default is Phiber, Light: Phi-Soft Light opened up for the interface,
-//! its letters 10% wider and spaced 50 units further apart
-//! (`assets/phi-fonts/Phiber`, made by `phiberize.py` there). Phi-Soft's
+//! The default is Phiber, Light: Phi-Soft Light opened up for the interface.
+//! Phi-Soft draws its vertical stems twice as thick as its horizontal
+//! strokes; Phiber thins the verticals to 1.2x the horizontals (which keep
+//! their thickness), then makes each letter 20% wider and spaces them 64
+//! units further apart (`assets/phi-fonts/Phiber`, made by `phiberize.py`). Phi-Soft's
 //! Regular read heavy at interface sizes, its Condensed width cramped, and
 //! even its full width felt tight at 12-14 px.
 
