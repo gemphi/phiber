@@ -7,7 +7,7 @@
 //! `header`, `caption`); see `assets/phi-fonts/README.md`.
 //!
 //! The browser build has no disk: it gets the one face compiled into the
-//! binary (`font::PHI_SOFT_FACES`), as does a desktop build whose folder is
+//! binary (`font::UI_FACES`), as does a desktop build whose folder is
 //! missing, so the window always has its own face.
 
 use super::BUiStyleDefaults;
@@ -80,7 +80,7 @@ fn discover() -> Vec<BBundledFamily> {
         }
     }
     let mut families = Vec::new();
-    for bytes in super::font::PHI_SOFT_FACES {
+    for bytes in super::font::UI_FACES {
         add_face(&mut families, bytes, BFace::Embedded(bytes), BFamilyDefaults::default());
     }
     families
@@ -220,7 +220,7 @@ mod tests {
 
     #[test]
     fn the_compiled_in_face_describes_itself() {
-        let (name, weight) = describe(super::super::font::PHI_SOFT_FACES[0]).expect("a readable font");
-        assert_eq!((name.as_str(), weight), ("Phi-Soft", 300));
+        let (name, weight) = describe(super::super::font::UI_FACES[0]).expect("a readable font");
+        assert_eq!((name.as_str(), weight), ("Phiber", 300));
     }
 }

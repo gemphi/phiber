@@ -12,7 +12,7 @@
 //! to about **10.5 MB**, which does fit (`the_embedded_set_stays_small` holds
 //! it under 12 MB). Fonts are not a root: the Phi type families sit in
 //! `assets/phi-fonts/`, which the desktop reads from disk, and a browser build
-//! draws the one face compiled into the binary (`font::PHI_SOFT_FACES`). The
+//! draws the one face compiled into the binary (`font::UI_FACES`). The
 //! old `assets/fonts` root went when the fonts moved; an empty folder is not
 //! in git, so embedding it broke every fresh checkout's build.
 //!

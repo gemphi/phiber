@@ -30,6 +30,7 @@ Any key left out keeps the theme's own value. A line is `key = number`, and `#` 
 
 | Folder | Families | Weights |
 |---|---|---|
+| Phiber | Phiber (the interface default) | Light, Regular, SemiBold, Bold |
 | Phi-Soft | Phi-Soft, Phi-Soft Condensed | Light, Regular, SemiBold, Bold |
 | Phi-Sans | Phi-Sans, Phi-Sans Condensed | same |
 | Phi-Serif | Phi-Serif, Phi-Serif Condensed | same |
@@ -39,9 +40,17 @@ Any key left out keeps the theme's own value. A line is `key = number`, and `#` 
 | Loras-Spark | Lora's Spark, Lora's Spark Condensed (slug `lora_s_spark`) | same |
 | Chatty-Whims | Chatty Whims, Chatty Whims Condensed | same |
 
-The default is **Phi-Soft Light**, the full width. Its Regular reads heavy at interface sizes, and at 12-14 px the Condensed width reads worse than the full one.
+The default is **Phiber Light**: Phi-Soft Light opened up for the interface, every letter 10% wider and spaced 50 units (of 1000) further apart, so text reads at 12-14 px without feeling cramped. Phi-Soft's Regular read heavy, its Condensed width cramped, and even its full width tight.
+
+`Phiber/phiberize.py` makes the family from Phi-Soft's four weights (it needs `fontTools`):
+
+```
+python phiberize.py ../Phi-Soft/PhiSoft-Light.otf Phiber-Light.otf 1.10 50 Light Phiber
+```
+
+Rerun it with other numbers to tune the openness. The first is the width scale and the second the extra spacing in font units. It redraws the outlines, moves the side bearings, scales any kerning, and renames the family so it registers beside Phi-Soft.
 
 ## Notes
 
-- **The browser build** has no disk to read this folder from. It carries one face compiled into the binary, Phi-Soft Light (`font::PHI_SOFT_FACES`). A desktop build whose folder is missing falls back to the same face.
+- **The browser build** has no disk to read this folder from. It carries one face compiled into the binary, Phiber Light (`font::UI_FACES`). A desktop build whose folder is missing falls back to the same face.
 - **Windows:** our vendored DirectWrite backend (`phigpu/gpui_windows`, `typographic_collection`) groups added fonts by typographic family. Without that, the two widths of a folder would merge into one family and the Condensed faces could never be reached.

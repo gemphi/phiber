@@ -1,0 +1,5 @@
+# Phiber's starting values (Preferences > Typography). See ../README.md.
+weight = 300   # Light, the interface default
+body = 13
+header = 14
+caption = 12
