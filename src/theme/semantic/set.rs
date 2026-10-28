@@ -158,9 +158,15 @@ impl BResolvedUiStyle {
 
     /// An icon's ink: the icon shade (14), a step quieter than text; the
     /// highlighted-text shade (18) when its control is active.
+    /// In glass an icon at rest takes the value shade (15), a step brighter:
+    /// with its tile's halo it glows faintly.
     pub fn icon_ink(&self, active: bool) -> BColor {
-        use crate::theme::palette::set::{SHADE_ICON, SHADE_TEXT_HI};
-        self.colors.ladder.color(if active { SHADE_TEXT_HI } else { SHADE_ICON })
+        use crate::theme::palette::set::{SHADE_ICON, SHADE_TEXT_HI, SHADE_VALUE};
+        let rest = match self.effects.glass {
+            Some(_) => SHADE_VALUE,
+            None => SHADE_ICON,
+        };
+        self.colors.ladder.color(if active { SHADE_TEXT_HI } else { rest })
     }
 
     /// Hover, in every host: the hover shade.
@@ -182,11 +188,25 @@ impl BResolvedUiStyle {
     /// theme and a dark one alike. The control shade (`bg_control`) sat
     /// within a level or two of that ground in the light themes, so the
     /// tiles there did not show.
+    ///
+    /// In glass it is frosted glass instead (`BGlass::tile_on`).
     pub fn icon_tile_rest(&self, host: BHostType) -> BColor {
         let ground = self.host_header_surface(host).bottom;
+        if let Some(glass) = self.effects.glass {
+            return glass.tile_on(ground);
+        }
         let lit = self.host_item_active_gradient(host);
         let lit = (lit.bottom.2 + lit.top.2) / 2.0;
         (ground.0, ground.1, (ground.2 + lit) / 2.0, ground.3)
+    }
+
+    /// A lit icon tile — a mark that is on: the accent, as tinted glass in
+    /// the glass mode.
+    pub fn icon_tile_on(&self) -> BColor {
+        match self.effects.glass {
+            Some(glass) => glass.tinted(self.colors.accent),
+            None => self.colors.accent,
+        }
     }
 }
 

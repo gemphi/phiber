@@ -22,6 +22,7 @@ pub mod effect;
 pub mod elevation;
 pub mod flavour;
 pub mod font;
+pub mod glass;
 pub mod metric;
 pub mod node;
 pub mod node_class;
@@ -41,6 +42,7 @@ pub use effect::{
 pub use elevation::BElevation;
 pub use flavour::{BFlavour, BFlavourScope};
 pub use font::BFontFamily;
+pub use glass::{BGlass, LIQUID_GLASS};
 pub use metric::{
     BDimensions, BResizeStyle, BSpacing, BStrokes, BTypography, DEFAULT_DIMENSIONS,
     DEFAULT_RESIZE, DEFAULT_SPACING, DEFAULT_STROKES, DEFAULT_TYPOGRAPHY, HEAD_ROOM};
@@ -143,14 +145,15 @@ const fn defaults(
 use super::palette::BThemeMode;
 use super::palette::theme::set as palette;
 
-/// One row per theme: its dark and light palettes, and the radius scale,
-/// effects and seam gap both modes share — a mode changes colours, nothing
-/// else.
+/// One row per theme: its dark, light and glass defaults, and the radius
+/// scale, effects and seam gap every mode shares. Dark and light change
+/// colours; glass is the dark palette in the glass material (`glass`).
 macro_rules! themes {
-    ($($name:ident : $dark:ident / $light:ident = ($palette:ident, $palette_light:ident, $radii:ident, $effects:ident, $gap:expr);)+) => {
+    ($($name:ident : $dark:ident / $light:ident / $glass:ident = ($palette:ident, $palette_light:ident, $radii:ident, $effects:ident, $gap:expr);)+) => {
         $(
             pub static $dark: BUiStyleDefaults = defaults(&palette::$palette, $radii, $effects, $gap);
             pub static $light: BUiStyleDefaults = defaults(&palette::$palette_light, $radii, $effects, $gap);
+            pub static $glass: BUiStyleDefaults = defaults(&palette::$palette, $radii, LIQUID_GLASS.wear($effects), $gap);
         )+
         /// A theme's defaults in `mode`.
         pub fn ui_style_defaults_in(name: BPaletteName, mode: BThemeMode) -> &'static BUiStyleDefaults {
@@ -158,6 +161,7 @@ macro_rules! themes {
                 $(
                     (BPaletteName::$name, BThemeMode::Dark) => &$dark,
                     (BPaletteName::$name, BThemeMode::Light) => &$light,
+                    (BPaletteName::$name, BThemeMode::Glass) => &$glass,
                 )+
             }
         }
@@ -173,22 +177,24 @@ pub fn ui_style_defaults(name: BPaletteName) -> &'static BUiStyleDefaults {
     ui_style_defaults_in(name, BThemeMode::Dark)
 }
 
-// Every theme: its palettes, radius scale, effects and seam gap.
+// Every theme: its palettes, radius scale, effects and seam gap. Phiber,
+// the default, is clearly rounded (SOFT: a button's corner is 7 px) so its
+// sweeps read as surfaces rather than tiles; it was the 3 px octagon.
 themes! {
-    Sphere: SPHERE_UI_STYLE_DEFAULTS / SPHERE_LIGHT_UI_STYLE_DEFAULTS = (SPHERE, SPHERE_LIGHT, SOFT_RADII, SPHERE_EFFECTS, 4.0);
-    Graphite: GRAPHITE_UI_STYLE_DEFAULTS / GRAPHITE_LIGHT_UI_STYLE_DEFAULTS = (GRAPHITE, GRAPHITE_LIGHT, TIGHT_RADII, GRAPHITE_EFFECTS, 4.0);
-    Tokyo: TOKYO_UI_STYLE_DEFAULTS / TOKYO_LIGHT_UI_STYLE_DEFAULTS = (TOKYO, TOKYO_LIGHT, MEDIUM_RADII, TOKYO_EFFECTS, 6.0);
-    Moss: MOSS_UI_STYLE_DEFAULTS / MOSS_LIGHT_UI_STYLE_DEFAULTS = (MOSS, MOSS_LIGHT, ROUND_RADII, MOSS_EFFECTS, 8.0);
-    Ember: EMBER_UI_STYLE_DEFAULTS / EMBER_LIGHT_UI_STYLE_DEFAULTS = (EMBER, EMBER_LIGHT, SQUARE_RADII, EMBER_EFFECTS, 2.0);
-    Plum: PLUM_UI_STYLE_DEFAULTS / PLUM_LIGHT_UI_STYLE_DEFAULTS = (PLUM, PLUM_LIGHT, PILL_RADII, PLUM_EFFECTS, 10.0);
-    Onyx: ONYX_UI_STYLE_DEFAULTS / ONYX_LIGHT_UI_STYLE_DEFAULTS = (ONYX, ONYX_LIGHT, MEDIUM_RADII, ONYX_EFFECTS, 4.0);
-    Grey: GREY_UI_STYLE_DEFAULTS / GREY_LIGHT_UI_STYLE_DEFAULTS = (GREY, GREY_LIGHT, ROUND_RADII, GREY_EFFECTS, 6.0);
-    Silver: SILVER_UI_STYLE_DEFAULTS / SILVER_LIGHT_UI_STYLE_DEFAULTS = (SILVER, SILVER_LIGHT, MEDIUM_RADII, SILVER_EFFECTS, 6.0);
-    Apple: APPLE_UI_STYLE_DEFAULTS / APPLE_LIGHT_UI_STYLE_DEFAULTS = (APPLE, APPLE_LIGHT, MEDIUM_RADII, APPLE_EFFECTS, 4.0);
-    Phiber: PHIBER_UI_STYLE_DEFAULTS / PHIBER_LIGHT_UI_STYLE_DEFAULTS = (PHIBER, PHIBER_LIGHT, OCTA_RADII, PHIBER_EFFECTS, 4.0);
-    Swift: SWIFT_UI_STYLE_DEFAULTS / SWIFT_LIGHT_UI_STYLE_DEFAULTS = (SWIFT, SWIFT_LIGHT, SOFT_RADII, SWIFT_EFFECTS, 4.0);
-    Barbie: BARBIE_UI_STYLE_DEFAULTS / BARBIE_LIGHT_UI_STYLE_DEFAULTS = (BARBIE, BARBIE_LIGHT, PILL_RADII, BARBIE_EFFECTS, 8.0);
-    Fenty: FENTY_UI_STYLE_DEFAULTS / FENTY_LIGHT_UI_STYLE_DEFAULTS = (FENTY, FENTY_LIGHT, ROUND_RADII, FENTY_EFFECTS, 6.0);
-    Cyberpunk: CYBERPUNK_UI_STYLE_DEFAULTS / CYBERPUNK_LIGHT_UI_STYLE_DEFAULTS = (CYBERPUNK, CYBERPUNK_LIGHT, SQUARE_RADII, CYBERPUNK_EFFECTS, 2.0);
-    Chanel: CHANEL_UI_STYLE_DEFAULTS / CHANEL_LIGHT_UI_STYLE_DEFAULTS = (CHANEL, CHANEL_LIGHT, TIGHT_RADII, CHANEL_EFFECTS, 4.0);
+    Sphere: SPHERE_UI_STYLE_DEFAULTS / SPHERE_LIGHT_UI_STYLE_DEFAULTS / SPHERE_GLASS_UI_STYLE_DEFAULTS = (SPHERE, SPHERE_LIGHT, SOFT_RADII, SPHERE_EFFECTS, 4.0);
+    Graphite: GRAPHITE_UI_STYLE_DEFAULTS / GRAPHITE_LIGHT_UI_STYLE_DEFAULTS / GRAPHITE_GLASS_UI_STYLE_DEFAULTS = (GRAPHITE, GRAPHITE_LIGHT, TIGHT_RADII, GRAPHITE_EFFECTS, 4.0);
+    Tokyo: TOKYO_UI_STYLE_DEFAULTS / TOKYO_LIGHT_UI_STYLE_DEFAULTS / TOKYO_GLASS_UI_STYLE_DEFAULTS = (TOKYO, TOKYO_LIGHT, MEDIUM_RADII, TOKYO_EFFECTS, 6.0);
+    Moss: MOSS_UI_STYLE_DEFAULTS / MOSS_LIGHT_UI_STYLE_DEFAULTS / MOSS_GLASS_UI_STYLE_DEFAULTS = (MOSS, MOSS_LIGHT, ROUND_RADII, MOSS_EFFECTS, 8.0);
+    Ember: EMBER_UI_STYLE_DEFAULTS / EMBER_LIGHT_UI_STYLE_DEFAULTS / EMBER_GLASS_UI_STYLE_DEFAULTS = (EMBER, EMBER_LIGHT, SQUARE_RADII, EMBER_EFFECTS, 2.0);
+    Plum: PLUM_UI_STYLE_DEFAULTS / PLUM_LIGHT_UI_STYLE_DEFAULTS / PLUM_GLASS_UI_STYLE_DEFAULTS = (PLUM, PLUM_LIGHT, PILL_RADII, PLUM_EFFECTS, 10.0);
+    Onyx: ONYX_UI_STYLE_DEFAULTS / ONYX_LIGHT_UI_STYLE_DEFAULTS / ONYX_GLASS_UI_STYLE_DEFAULTS = (ONYX, ONYX_LIGHT, MEDIUM_RADII, ONYX_EFFECTS, 4.0);
+    Grey: GREY_UI_STYLE_DEFAULTS / GREY_LIGHT_UI_STYLE_DEFAULTS / GREY_GLASS_UI_STYLE_DEFAULTS = (GREY, GREY_LIGHT, ROUND_RADII, GREY_EFFECTS, 6.0);
+    Silver: SILVER_UI_STYLE_DEFAULTS / SILVER_LIGHT_UI_STYLE_DEFAULTS / SILVER_GLASS_UI_STYLE_DEFAULTS = (SILVER, SILVER_LIGHT, MEDIUM_RADII, SILVER_EFFECTS, 6.0);
+    Apple: APPLE_UI_STYLE_DEFAULTS / APPLE_LIGHT_UI_STYLE_DEFAULTS / APPLE_GLASS_UI_STYLE_DEFAULTS = (APPLE, APPLE_LIGHT, MEDIUM_RADII, APPLE_EFFECTS, 4.0);
+    Phiber: PHIBER_UI_STYLE_DEFAULTS / PHIBER_LIGHT_UI_STYLE_DEFAULTS / PHIBER_GLASS_UI_STYLE_DEFAULTS = (PHIBER, PHIBER_LIGHT, SOFT_RADII, PHIBER_EFFECTS, 4.0);
+    Swift: SWIFT_UI_STYLE_DEFAULTS / SWIFT_LIGHT_UI_STYLE_DEFAULTS / SWIFT_GLASS_UI_STYLE_DEFAULTS = (SWIFT, SWIFT_LIGHT, SOFT_RADII, SWIFT_EFFECTS, 4.0);
+    Barbie: BARBIE_UI_STYLE_DEFAULTS / BARBIE_LIGHT_UI_STYLE_DEFAULTS / BARBIE_GLASS_UI_STYLE_DEFAULTS = (BARBIE, BARBIE_LIGHT, PILL_RADII, BARBIE_EFFECTS, 8.0);
+    Fenty: FENTY_UI_STYLE_DEFAULTS / FENTY_LIGHT_UI_STYLE_DEFAULTS / FENTY_GLASS_UI_STYLE_DEFAULTS = (FENTY, FENTY_LIGHT, ROUND_RADII, FENTY_EFFECTS, 6.0);
+    Cyberpunk: CYBERPUNK_UI_STYLE_DEFAULTS / CYBERPUNK_LIGHT_UI_STYLE_DEFAULTS / CYBERPUNK_GLASS_UI_STYLE_DEFAULTS = (CYBERPUNK, CYBERPUNK_LIGHT, SQUARE_RADII, CYBERPUNK_EFFECTS, 2.0);
+    Chanel: CHANEL_UI_STYLE_DEFAULTS / CHANEL_LIGHT_UI_STYLE_DEFAULTS / CHANEL_GLASS_UI_STYLE_DEFAULTS = (CHANEL, CHANEL_LIGHT, TIGHT_RADII, CHANEL_EFFECTS, 4.0);
 }

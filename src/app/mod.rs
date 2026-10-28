@@ -21,6 +21,7 @@ pub mod text_edit;
 pub mod keymap;
 mod op;
 pub mod trace;
+mod backdrop;
 pub mod undo;
 pub mod import;
 pub mod load;
@@ -235,6 +236,8 @@ impl Render for BPhiberApp {
             w.set_window_edited(op::close::has_unsaved_changes(&self.state));
             self.title = title;
         }
+        // The glass mode's blurred backdrop, set only when it changes.
+        backdrop::wear(w, &self.state);
 
         // Undo History's menu lists the app's steps: put this pass's copy
         // where the menu, built from the state alone, can read it.

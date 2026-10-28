@@ -8,6 +8,7 @@ that calls back into `handle_action` to mutate state.
 
 | File | What it is |
 |---|---|
+| `backdrop.rs` | The window's backdrop: the desktop blurred behind it while the glass mode is in force, opaque otherwise. |
 | `handle.rs` | GPUI action dispatch. |
 | `import.rs` | Pure, gpui-free core for import orchestration. |
 | `import_tests.rs` | Tests for `should_import` / `settle_import`. |

@@ -38,3 +38,28 @@ pub(in crate::view::draw) fn cast<E: Styled>(element: E, offset: f32, accent: cr
 /// How dark the brand's shade is against the accent: the golden ratio's
 /// inverse, as the logo's offset is to its face.
 const SHADE_DEPTH: f32 = 0.618;
+
+/// `element` as a tile of glass, when the glass mode is in force and
+/// `fill` is a tile (`BFill::is_tile`): a hairline rim of white inside the
+/// edge, a specular line along the top, a soft glow from within and a faint
+/// halo, so its icon glows. These are inset and drop shadows, so the tile
+/// keeps its size and corners. The one place a tile becomes glass
+/// (`theme/style/glass`).
+pub(in crate::view::draw) fn glazed<E: Styled>(element: E, fill: super::fill::BFill, style: &crate::theme::BResolvedUiStyle) -> E {
+    let Some(glass) = style.effects.glass.filter(|_| fill.is_tile()) else { return element };
+    let white = |alpha: f32| gpui::hsla(0.0, 0.0, 1.0, alpha);
+    let px = gpui::px;
+    let light = |alpha: f32, y: f32, blur: f32, spread: f32, inset: bool| gpui::BoxShadow {
+        color: white(alpha),
+        offset: gpui::point(px(0.0), px(y)),
+        blur_radius: px(blur),
+        spread_radius: px(spread),
+        inset,
+    };
+    element.shadow(vec![
+        light(glass.halo, 0.0, glass.halo_blur, 0.0, false),
+        light(glass.rim, 0.0, 0.0, 1.0, true),
+        light(glass.rim, 1.0, 1.0, 0.0, true),
+        light(glass.glow, 0.0, glass.glow_blur, 0.0, true),
+    ])
+}

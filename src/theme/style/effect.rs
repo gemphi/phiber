@@ -124,6 +124,9 @@ pub struct BEffects {
     pub image_light_lift: f32,
     pub image_dark_lift: f32,
     pub surface_shadow: BShadowStyle,
+    /// The glass material, in the glass mode alone (`style/glass`); `None`
+    /// in dark and light.
+    pub glass: Option<super::glass::BGlass>,
 }
 
 const fn effects(gradients: bool, gradient_lift: f32, surface_shadow: BShadowStyle) -> BEffects {
@@ -163,6 +166,7 @@ const fn effects(gradients: bool, gradient_lift: f32, surface_shadow: BShadowSty
         image_light_lift: 0.09,
         image_dark_lift: -0.03,
         surface_shadow,
+        glass: None,
     }
 }
 

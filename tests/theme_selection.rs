@@ -12,7 +12,7 @@ use phiber::{
     state::{AppKey, BPath, BState, action::apply_action, key::ui_style as key},
     theme::{
         BPaletteName, BRadiusScale, BRadiusToken, BResolvedUiStyle, BShadowStyle, BStyleRole, BThemeMode,
-        MEDIUM_RADII, OCTA_RADII, PILL_RADII, ROUND_RADII, SOFT_RADII, SQUARE_RADII, TIGHT_RADII, resolve_ui_style,
+        MEDIUM_RADII, PILL_RADII, ROUND_RADII, SOFT_RADII, SQUARE_RADII, TIGHT_RADII, resolve_ui_style,
         ui_style_defaults, ui_style_defaults_for, ui_style_defaults_in,
     },
     view::{BAction, BView, BViewItem},
@@ -30,7 +30,7 @@ const THEMES: [(BPaletteName, BRadiusScale, BShadowStyle, bool, f32); 16] = [
     (BPaletteName::Grey, ROUND_RADII, BShadowStyle::Medium, true, 6.0),
     (BPaletteName::Silver, MEDIUM_RADII, BShadowStyle::Small, false, 6.0),
     (BPaletteName::Apple, MEDIUM_RADII, BShadowStyle::Medium, false, 4.0),
-    (BPaletteName::Phiber, OCTA_RADII, BShadowStyle::ExtraLarge, true, 4.0),
+    (BPaletteName::Phiber, SOFT_RADII, BShadowStyle::ExtraLarge, true, 4.0),
     (BPaletteName::Swift, SOFT_RADII, BShadowStyle::Large, true, 4.0),
     (BPaletteName::Barbie, PILL_RADII, BShadowStyle::ExtraLarge, true, 8.0),
     (BPaletteName::Fenty, ROUND_RADII, BShadowStyle::Large, true, 6.0),
@@ -164,7 +164,7 @@ fn the_dark_light_switch_in_the_theme_heading_turns_every_theme_the_other_way_up
     let mut state = showing_themes();
     let switch = picker(&state).switch;
     let labels: Vec<&str> = switch.iter().map(|(label, _, _)| label.as_str()).collect();
-    assert_eq!(labels, ["Dark", "Light"]);
+    assert_eq!(labels, ["Dark", "Light", "Glass"]);
     // Light until chosen otherwise (`BThemeMode::DEFAULT`). Sphere's dark
     // ladder reads its canvas shade as the seed itself, `#3B4657`, so
     // defaulting to dark opened every fresh window on a near-black viewport.
@@ -191,6 +191,13 @@ fn the_dark_light_switch_in_the_theme_heading_turns_every_theme_the_other_way_up
         let to_dark = picker(&state).switch[0].2.clone();
         apply_action(&mut state, &to_dark);
         assert_eq!(drawn_with(&state).colors.ladder, dark.colors.ladder, "{name:?}: and back");
+        // Glass is the dark ladder in the glass material (`theme/style/glass`).
+        let to_glass = picker(&state).switch[2].2.clone();
+        apply_action(&mut state, &to_glass);
+        let glass = drawn_with(&state);
+        assert!(picker(&state).switch[2].1, "{name:?}: glass reads as the mode in force");
+        assert_eq!((glass.colors.ladder, glass.radii), (dark.colors.ladder, dark.radii), "{name:?}");
+        assert!(glass.effects.glass.is_some() && dark.effects.glass.is_none(), "{name:?}");
     }
     // Grey's light mode is the silver Tesla's dashboard reads in, with its
     // blue; Apple's is macOS's light window grey with the system blue.

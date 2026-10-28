@@ -41,15 +41,18 @@ pub enum BPaletteName {
 
 /// A theme's mode: the ladder read from black (dark) or from white (light)
 /// — Blender's theme presets have a light and a dark; here every theme has
-/// both, and the switch is one setting over all of them.
+/// both, and the switch is one setting over all of them. Glass is the dark
+/// ladder glazed: translucent surfaces over the blurred desktop, tiles of
+/// frosted glass (`theme/style/glass`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum BThemeMode {
     Dark,
     Light,
+    Glass,
 }
 
 impl BThemeMode {
-    pub const ALL: [BThemeMode; 2] = [BThemeMode::Dark, BThemeMode::Light];
+    pub const ALL: [BThemeMode; 3] = [BThemeMode::Dark, BThemeMode::Light, BThemeMode::Glass];
 
     /// The mode in force until one is chosen.
     ///
@@ -64,12 +67,14 @@ impl BThemeMode {
         match self {
             BThemeMode::Dark => "Dark",
             BThemeMode::Light => "Light",
+            BThemeMode::Glass => "Glass",
         }
     }
     pub fn slug(self) -> &'static str {
         match self {
             BThemeMode::Dark => "dark",
             BThemeMode::Light => "light",
+            BThemeMode::Glass => "glass",
         }
     }
     pub fn from_slug(slug: &str) -> Option<Self> {

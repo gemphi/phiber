@@ -15,8 +15,11 @@ pub enum AppKey {
     WindowHeight,
     /// The theme's slug.
     Theme,
-    /// The theme's mode: `dark` or `light` (`BThemeMode`).
+    /// The theme's mode: `dark`, `light` or `glass` (`BThemeMode`).
     ThemeMode,
+    /// Reduce Transparency (Preferences ▸ Themes ▸ Glass): `true` makes the
+    /// glass mode's surfaces solid (`theme/style/glass`).
+    ReduceTransparency,
     /// The dimensional coat's scope: `auto`, `flat` or `spatial`
     /// (`BFlavourScope`, `theme/style/flavour`). One setting over the whole
     /// window — flat, or the spatial virtual-world look.
@@ -86,6 +89,7 @@ impl BKey for AppKey {
             Self::WindowHeight => BPath::owned(vec!["window", "height"]),
             Self::Theme => BPath::owned(vec!["theme"]),
             Self::ThemeMode => BPath::owned(vec!["theme_mode"]),
+            Self::ReduceTransparency => BPath::owned(vec!["pref", "reduce_transparency"]),
             Self::Flavour => BPath::owned(vec!["flavour"]),
             Self::UseGradients => BPath::owned(vec!["use_gradients"]),
             Self::Link => BPath::owned(vec!["link"]),

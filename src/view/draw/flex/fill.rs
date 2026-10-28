@@ -82,6 +82,9 @@ pub enum BFill {
     /// A browser's icon tile at rest (`icon_tile_rest`): half way from its
     /// ground to the lit fill.
     IconTileRest,
+    /// A lit icon tile — a checkbox or radio that is on (`icon_tile_on`):
+    /// the accent, as tinted glass in the glass mode.
+    IconTileOn,
     /// A control that is on: a pressed toggle, the active tab.
     ControlActive,
     /// A node frame's box: the control shade at half alpha. A frame is a
@@ -119,6 +122,7 @@ impl BFill {
             Self::RowHover(shade) => to_hsla(shade.hover(ctx.style, ctx.host)).into(),
             Self::ItemHover => to_hsla(ctx.style.host_item_hover(ctx.host)).into(),
             Self::IconTileRest => to_hsla(ctx.style.icon_tile_rest(ctx.host)).into(),
+            Self::IconTileOn => to_hsla(ctx.style.icon_tile_on()).into(),
             Self::ControlActive => to_hsla(ctx.style.colors.bg_active).into(),
             Self::NodeFrame => {
                 let c = ctx.style.colors.bg_control;
@@ -129,5 +133,11 @@ impl BFill {
                 gpui::hsla(base.h, base.s, base.l, ctx.style.effects.floating_alpha).into()
             }
         }
+    }
+
+    /// Whether this fill is an icon tile, which the glass mode turns to
+    /// glass (`paint::glazed`).
+    pub(in crate::view::draw) const fn is_tile(self) -> bool {
+        matches!(self, Self::IconTileRest | Self::IconTileOn)
     }
 }

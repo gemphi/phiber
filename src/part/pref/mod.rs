@@ -2,6 +2,7 @@
 //! Blender ref: `space_userpref/space_userpref.cc` WINDOW region.
 
 pub mod device;
+pub mod glass;
 pub mod navigation;
 pub mod quality;
 pub mod rule;
@@ -48,6 +49,7 @@ impl BViewItem for BPrefsItem {
         // colour below it, so it belongs above the values it governs.
         if category.kind == BSettingsCategory::Appearance {
             cards.push(palette_card(state));
+            cards.extend(glass::BGlassPanel::view(state));
             cards.push(dimension_card(state));
         }
         if category.kind == BSettingsCategory::System {
@@ -91,7 +93,7 @@ fn palette_card(state: &BState) -> BView {
     let (active, mode) = crate::theme::theme_in_force(state);
     let key = BPanelItem::expand_key(BHostType::Prefs, "Appearance", "Theme");
     let open = state.get(&key) != Some(V_FALSE);
-    // The mode switch — Dark / Light, one setting over every theme — sits in
+    // The mode switch — Dark / Light / Glass, one setting over every theme — sits in
     // the section's heading, where Blender's panel headers hold their
     // controls (`draw_header_preset`).
     let switch: Vec<BView> = crate::theme::BThemeMode::ALL

@@ -30,7 +30,8 @@ impl BGpuiRenderer {
 /// The coat (`ctx.flavour`) is set once, for the whole window — flat, or the
 /// spatial virtual-world look — and overrides the palette's own depth cues so
 /// any theme can be worn either way. `Auto`, the default, leaves them alone
-/// (`theme/style/flavour`).
+/// (`theme/style/flavour`). Last, the glass mode glazes its surfaces, or
+/// keeps them solid under Reduce Transparency (`theme/style/glass`).
 pub(crate) fn resolved_style(state: &BState) -> crate::theme::BResolvedUiStyle {
     let mut style = resolve_ui_style(crate::theme::ui_style_defaults_for(state), state);
     let scope = state
@@ -40,7 +41,7 @@ pub(crate) fn resolved_style(state: &BState) -> crate::theme::BResolvedUiStyle {
     if let Some(coat) = scope.coat(crate::space::BSpaceList::active(state)) {
         style.effects = coat.wear(style.effects);
     }
-    style
+    style.glazed(crate::theme::style::glass::reduced(state))
 }
 
 impl BRenderer for BGpuiRenderer {
@@ -103,5 +104,20 @@ mod tests {
         let effects = resolved_style(&state).effects;
         assert!(!effects.gradients);
         assert_eq!(effects.surface_shadow, BShadowStyle::None);
+    }
+
+    #[test]
+    fn glass_glazes_the_window_and_reduce_transparency_makes_it_solid() {
+        let mut state = BState::new();
+        state.set(AppKey::ThemeMode, "glass");
+        let glazed = resolved_style(&state);
+        assert!(glazed.colors.bg_panel.3 < 1.0 && glazed.colors.bg_app.3 < 1.0, "panes and ground let the backdrop through");
+        assert_eq!(glazed.colors.bg_viewport.3, 1.0, "the canvas is content: opaque");
+        assert!(crate::theme::style::glass::backdrop(&state), "the window is blurred behind");
+        state.set(AppKey::ReduceTransparency, "true");
+        let solid = resolved_style(&state);
+        assert_eq!((solid.colors.bg_panel.3, solid.colors.bg_app.3, solid.colors.bg_top.3), (1.0, 1.0, 1.0));
+        assert!(solid.effects.glass.is_some(), "the rims stay");
+        assert!(!crate::theme::style::glass::backdrop(&state), "and the blur goes");
     }
 }
