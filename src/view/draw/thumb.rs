@@ -89,7 +89,12 @@ pub fn view(t: &BThumb, ctx: &BRenderCtx) -> AnyElement {
         .flex()
         .flex_col()
         .items_center()
-        .gap(px(ctx.style.spacing.gap_xs))
+        // A decked card's name clears the shade it casts.
+        .gap(px(ctx.style.spacing.gap_xs
+            + match ctx.decked {
+                true => super::deck::shade(t.size),
+                false => 0.0,
+            }))
         .rounded(radius)
         .cursor_pointer()
         .hover(|s| s.bg(to_hsla(ctx.style.host_item_hover(ctx.host))))

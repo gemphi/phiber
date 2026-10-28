@@ -66,8 +66,19 @@ pub const CARD: f32 = 112.0;
 /// The largest a card grows: Blender's largest thumbnail
 /// (`FileSelectParams.thumbnail_size` runs to 256).
 pub const CARD_MAX: f32 = 256.0;
-/// How many cards stand in one row.
-pub const ACROSS: usize = 4;
+/// How many cards stand in one row at most: the design frame holds two rows
+/// of four, and a tab with more cards than that (New File's ten
+/// workspaces) takes a fifth across rather than a third row, which pushed
+/// the logo up under the title bar (`across`).
+pub const ACROSS: usize = 5;
+/// The fewest cards to a row, while there are that many.
+const ACROSS_LEAST: usize = 4;
+
+/// How many of `n` cards stand in a row: two rows when they fit in two of
+/// at most `ACROSS`, never fewer than four to a row.
+pub fn across(n: usize) -> usize {
+    n.div_ceil(2).clamp(ACROSS_LEAST, ACROSS)
+}
 
 /// A card's edge for the room the window gives the Welcome form.
 ///
@@ -119,9 +130,9 @@ fn centred(views: Vec<BView>) -> BView {
     BView::row([vec![BView::indent(0), BView::spacer()], views, vec![BView::spacer(), BView::indent(0)]].concat())
 }
 
-/// `tiles`, `ACROSS` to a row, each row centred.
+/// `tiles`, `across` of them to a row, each row centred.
 fn grid(tiles: Vec<BView>) -> Vec<BView> {
-    tiles.chunks(ACROSS).map(|row| centred(row.to_vec())).collect()
+    tiles.chunks(across(tiles.len())).map(|row| centred(row.to_vec())).collect()
 }
 
 /// New File: one card per workspace a file can start in. A card starts the
