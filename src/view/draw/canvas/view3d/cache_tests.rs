@@ -4,7 +4,7 @@ use super::*;
 
 fn palette() -> BMeshPalette {
     let grey = gpui::Hsla { h: 0.0, s: 0.0, l: 0.5, a: 1.0 };
-    BMeshPalette { shading: crate::scene::BShading::Solid, cube: grey, sphere: grey, gem: grey, loaded: grey, accent: grey, accent_active: grey, matcap: None, texture: false }
+    BMeshPalette { shading: crate::scene::BShading::Solid, cube: grey, sphere: grey, gem: grey, loaded: grey, accent: grey, accent_active: grey, matcap: None, texture: false, studio: false }
 }
 
 /// What the GPU draws, the CPU does not project: with the tracer

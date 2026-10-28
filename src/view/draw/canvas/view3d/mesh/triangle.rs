@@ -24,6 +24,10 @@ pub(in super::super) struct BMeshPalette {
     /// Color ▸ Texture: Solid uploads the materials' base-colour images
     /// (`BSolidShade::texture_for_build`); Solid otherwise uploads none.
     pub texture: bool,
+    /// Lit by the studio HDRI rather than the file's world: Material
+    /// Preview, and Rendered with Scene World off (`scene::scene_light`).
+    /// The atlas holds the studio image and its lighting copies then.
+    pub studio: bool,
 }
 
 /// How a surface responds to light: `Material.roughness` and

@@ -17,12 +17,17 @@
 //! and **Color** (`VIEW3D_PT_shading_color`, Solid: Material / Object /
 //! Attribute / Single / Random / Texture with the single colour's swatch;
 //! Background for Solid and Wireframe: Theme / World / Viewport with its
-//! swatch) key on `scene::solid_shade::BSolidShade`.
+//! swatch) key on `scene::solid_shade::BSolidShade`. Material Preview's and
+//! Rendered's **Lighting** is Scene Lights and Scene World
+//! (`scene::scene_light::BSceneLight`): Scene World off lights the view with
+//! the studio HDRI, which is how a file whose world image is missing is seen
+//! without its magenta dome.
 //!
 //! Not here yet, in Blender's order: the studio-light picker and
-//! world-space lighting, the wireframe colour type and Depth of Field —
-//! each waits on the kernel drawing it, so the popover does not offer a
-//! box that does nothing.
+//! world-space lighting, the HDRI's rotation, strength and world opacity,
+//! the render pass, the wireframe colour type and Depth of Field — each
+//! waits on the kernel drawing it, so the popover does not offer a box that
+//! does nothing.
 
 use crate::scene::solid_fx::{BSolidFx, RNA};
 use crate::scene::solid_shade::{BACKGROUND_LIST, BSolidShade, COLOR_LIST, LIGHT_LIST, RNA as SHADE};
@@ -47,12 +52,13 @@ pub enum BShadingPanel {
 impl BShadingPanel {
     /// The panels the shading in use shows, in Blender's order — its
     /// `poll`s: Lighting and Cavity for Solid, Color and Options for Solid
-    /// and Wireframe, none for Material Preview and Rendered.
+    /// and Wireframe, and Lighting's Scene Lights and Scene World for
+    /// Material Preview and Rendered.
     pub fn shown(shading: BShading) -> Vec<Self> {
         match shading {
             BShading::Solid => vec![Self::Lighting, Self::Color, Self::Options, Self::Cavity],
             BShading::Wireframe => vec![Self::Color, Self::Options],
-            _ => Vec::new(),
+            BShading::Material | BShading::Rendered => vec![Self::Lighting],
         }
     }
 
@@ -66,8 +72,17 @@ impl BShadingPanel {
         BView::prop_row(heading, BCtrl::read(BCtrlKind::Color, View3dKey::Shade(rna).path(), BValue::Color([default[0], default[1], default[2], 1.0]), s).with_tooltip(tip))
     }
 
-    /// `VIEW3D_PT_shading_lighting`'s rows (Solid).
-    fn lighting(s: &BState) -> Vec<BView> {
+    /// `VIEW3D_PT_shading_lighting`'s rows: Solid's light, or Material
+    /// Preview's and Rendered's Scene Lights and Scene World
+    /// (`scene::scene_light`) — with Scene World off the studio HDRI lights
+    /// the view, as Material Preview's does.
+    fn lighting(s: &BState, shading: BShading) -> Vec<BView> {
+        if let Some([(lights, lights_on), (world, world_on)]) = crate::scene::BSceneLight::keys(shading) {
+            return vec![
+                BView::check_row(s, "Lighting", View3dKey::Shade(lights).path(), lights_on, "Scene Lights"),
+                BView::check_row(s, "", View3dKey::Shade(world).path(), world_on, "Scene World"),
+            ];
+        }
         let f = BSolidShade::FACTORY;
         let mut rows = vec![BView::select_row(s, "Lighting", View3dKey::Shade(SHADE[0]).path(), "light", &LIGHT_LIST, f.light)];
         if BSolidShade::now(s).light == "MATCAP" {
@@ -168,7 +183,7 @@ impl BViewList for BShadingPanel {
     fn items(&self, s: &BState) -> Vec<BView> {
         let shading = view_shading(s);
         match self {
-            Self::Lighting => Self::lighting(s),
+            Self::Lighting => Self::lighting(s, shading),
             Self::Color => Self::color(s, shading),
             Self::Options => Self::options(s, shading),
             Self::Cavity => Self::cavity(s),
@@ -177,17 +192,13 @@ impl BViewList for BShadingPanel {
 }
 
 /// The Shading popover after the radio (`VIEW3D_PT_shading`): the panels
-/// the shading in use shows, or a line saying nothing is drawable yet.
+/// the shading in use shows.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct BShadingPopover;
 
 impl BViewList for BShadingPopover {
     fn items(&self, s: &BState) -> Vec<BView> {
-        let rows: Vec<BView> = BShadingPanel::shown(view_shading(s)).iter().flat_map(|panel| panel.items(s)).collect();
-        if rows.is_empty() {
-            return vec![BView::label("Lighting and Color are not in Phiber yet")];
-        }
-        rows
+        BShadingPanel::shown(view_shading(s)).iter().flat_map(|panel| panel.items(s)).collect()
     }
 }
 

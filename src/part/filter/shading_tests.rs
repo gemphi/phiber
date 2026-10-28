@@ -29,7 +29,18 @@ fn the_rows_follow_the_shading_in_use_as_blenders_polls_do() {
     s.set(&shading_key(), "wireframe");
     assert_eq!(BShadingPopover.items(&s).len(), 2 + 4, "Wireframe: Background and Options, no Lighting, Color, Shadow or Cavity");
     s.set(&shading_key(), "material");
-    assert_eq!(BShadingPopover.items(&s).len(), 1, "Material Preview: nothing drawable yet, said so");
+    assert_eq!(BShadingPopover.items(&s).len(), 2, "Material Preview: Scene Lights and Scene World");
+    s.set(&shading_key(), "rendered");
+    assert_eq!(BShadingPopover.items(&s).len(), 2, "Rendered: its own Scene Lights and Scene World");
+}
+
+#[test]
+fn rendered_scene_world_switches_the_view_to_the_studio_light() {
+    let mut s = BState::new();
+    s.set(&shading_key(), "rendered");
+    assert!(crate::scene::BSceneLight::now(&s, BShading::Rendered).world, "Rendered starts on the file's world");
+    s.set(View3dKey::Shade("use_scene_world_render"), crate::state::val::V_FALSE);
+    assert!(!crate::scene::BSceneLight::now(&s, BShading::Rendered).world, "the box writes what the viewport reads");
 }
 
 #[test]

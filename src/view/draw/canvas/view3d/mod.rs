@@ -91,6 +91,7 @@ impl BView3d<'_> {
             accent_active: to_hsla(ctx.style.step(ctx.style.colors.accent, 2)),
             matcap: crate::scene::BSolidShade::now(ctx.state).matcap_for_build(),
             texture: crate::scene::BSolidShade::now(ctx.state).texture_for_build(),
+            studio: self::draw::studio(crate::scene::view_shading(ctx.state), ctx.state),
         };
         // The shown objects and the ones a click may not pick, kept between
         // frames (`shown`); the overlay and the outliner read the same
@@ -111,7 +112,7 @@ impl BView3d<'_> {
         // Every projection below runs through this frame's camera.
         crate::scene::camera::with_view(setup, || {
         let guide = self::guide::BGuide::build(ctx, (yaw, pitch, pan, zoom), setup, pivot, &palette, &scene, &extras);
-        let studio = self::draw::studio(palette.shading);
+        let studio = self::draw::studio(palette.shading, ctx.state);
         let self::draw::BPlan { ray, cpu_draws, mode } = self::draw::plan(palette.shading, &scene, &palette);
         // The viewport's own render region, outside the camera view: what
         // the Rendered shading fills (`ED_view3d_calc_render_border`) and

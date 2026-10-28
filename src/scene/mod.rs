@@ -106,6 +106,8 @@ pub use solid_dof::BCameraLens;
 pub use solid_fx::BSolidFx;
 pub mod solid_shade;
 pub use solid_shade::BSolidShade;
+pub mod scene_light;
+pub use scene_light::BSceneLight;
 pub mod view_border;
 pub mod viewport_aa;
 pub mod viewpoint;

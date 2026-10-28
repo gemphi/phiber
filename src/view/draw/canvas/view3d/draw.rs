@@ -39,8 +39,14 @@ pub(super) fn record(gpu: bool) {
 }
 
 /// Does this shading mode light the scene with the studio rig?
-pub(super) fn studio(shading: BShading) -> bool {
-    matches!(shading, BShading::Material | BShading::Solid)
+pub(super) fn studio(shading: BShading, s: &crate::state::BState) -> bool {
+    match shading {
+        BShading::Solid => true,
+        BShading::Wireframe => false,
+        // Lighting ▸ Scene World (`scene::scene_light`): off by default in
+        // Material Preview, on in Rendered.
+        BShading::Material | BShading::Rendered => !crate::scene::BSceneLight::now(s, shading).world,
+    }
 }
 
 /// Which phiray mode draws this shading. Every mode has a kernel now; the CPU
