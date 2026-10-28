@@ -8,10 +8,13 @@
 //! is three scene files (`production/`, `CW-Fashion/`). Those are *content*:
 //! a browser user opens their own file through `Phx::open_bytes`, so they do
 //! not belong in the bundle. What the app actually loads at startup — icons,
-//! fonts, the brand marks, matcaps, studio lights and the startup
-//! templates — comes to about **10.5 MB**, which does fit
-//! (`the_embedded_set_stays_small` holds it under 12 MB). The Phi type families
-//! sit in `assets/phi-fonts/`, outside these roots, until the app loads them.
+//! the brand marks, matcaps, studio lights and the startup templates — comes
+//! to about **10.5 MB**, which does fit (`the_embedded_set_stays_small` holds
+//! it under 12 MB). Fonts are not a root: the Phi type families sit in
+//! `assets/phi-fonts/`, which the desktop reads from disk, and a browser build
+//! draws the one face compiled into the binary (`font::PHI_SOFT_FACES`). The
+//! old `assets/fonts` root went when the fonts moved; an empty folder is not
+//! in git, so embedding it broke every fresh checkout's build.
 //!
 //! Listing the roots one by one rather than embedding `assets/` wholesale is
 //! the point: a new folder of content cannot silently add 100 MB to the
@@ -27,16 +30,14 @@ use include_dir::{Dir, include_dir};
 use std::borrow::Cow;
 
 static ICONS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/assets/icons");
-static FONTS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/assets/fonts");
 static BRAND: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/assets/brand");
 static MATCAP: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/assets/matcap");
 static BLEND: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/assets/blend");
 static STUDIOLIGHT: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/assets/studiolight");
 
 /// The embedded roots, by the folder name `assets/` gives them.
-pub(crate) const ROOTS: [(&str, &Dir<'static>); 6] = [
+pub(crate) const ROOTS: [(&str, &Dir<'static>); 5] = [
     ("icons", &ICONS),
-    ("fonts", &FONTS),
     ("brand", &BRAND),
     ("matcap", &MATCAP),
     ("blend", &BLEND),
