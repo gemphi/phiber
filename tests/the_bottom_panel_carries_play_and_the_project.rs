@@ -81,8 +81,11 @@ async fn the_project_browser_is_a_tab_with_its_three_columns(cx: &mut TestAppCon
     let search = cx
         .all_debug_bounds()
         .into_iter()
-        .find_map(|(name, bounds)| name.contains("set-project.search-").then_some(bounds))
-        .expect("the Project Browser has its search");
+        .find_map(|(name, bounds)| name.contains("ctx.project.search").then_some(bounds))
+        .unwrap_or_else(|| {
+            let near: Vec<String> = selectors(cx).into_iter().filter(|n| n.contains("search") || n.contains("ToolHeader-Project") || n.contains("pane-") && n.ends_with("-Project")).collect();
+            panic!("the Project Browser has its search; near it: {near:?}")
+        });
     let mid = |b: gpui::Bounds<gpui::Pixels>| b.origin.x + b.size.width / 2.0;
     assert!((mid(search) - mid(cards)).abs() < px(24.0), "the search is centred over the cards: {search:?} {cards:?}");
     assert!(search.size.width <= px(241.0), "and no wider than a panel: {search:?}");
