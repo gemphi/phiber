@@ -80,6 +80,9 @@ impl BFlex {
                     element = element.rounded_br(r);
                 }
             }
+            Some(BRadius::Each { tl, tr, br, bl }) => {
+                element = element.rounded_tl(px(tl)).rounded_tr(px(tr)).rounded_br(px(br)).rounded_bl(px(bl))
+            }
             None => {}
         }
         element

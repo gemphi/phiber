@@ -7,7 +7,7 @@ use crate::area::{BAreaSpec, BAreaType};
 use crate::host::BHostType;
 use crate::zone::BZoneType;
 
-pub const LABEL: &str = "Modeling";
+pub const LABEL: &str = "Modelling";
 pub const ICON: &str = "box";
 
 pub static AREAS: &[BAreaSpec] = &[

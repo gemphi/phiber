@@ -1,6 +1,6 @@
-//! UV Lights workspace — its areas, and which hosts each one offers.
+//! PUV Lights workspace — its areas, and which hosts each one offers.
 //!
-//! UV Lights workspace — Uv editor (left) + View3D (right). Blender's
+//! PUV Lights workspace — Uv editor (left) + View3D (right). Blender's
 //! `UV Editing` workspace under phiber's name for it: a file saved with
 //! Blender's name still lands here (`load_ui::space_for` matches the slug).
 //! Blender ref: startup.blend default `UV Editing` workspace.
@@ -9,7 +9,7 @@ use crate::area::{BAreaSpec, BAreaType};
 use crate::host::BHostType;
 use crate::zone::BZoneType;
 
-pub const LABEL: &str = "UV Lights";
+pub const LABEL: &str = "PUV Lights";
 pub const ICON: &str = "grid-2x2";
 
 pub static AREAS: &[BAreaSpec] = &[

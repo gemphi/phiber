@@ -25,7 +25,7 @@ struct BlenderArea {
 }
 
 /// Blender's workspace name → phiber's space: by label, or by the slug
-/// (`UV Editing` is phiber's *UV Lights*, `Texture Paint` its *Texturing*).
+/// (`UV Editing` is phiber's *PUV Lights*, `Texture Paint` its *Texturing*).
 fn space_of(workspace: &str) -> Option<BSpaceType> {
     phiber::app::load_ui::space_for(workspace)
 }

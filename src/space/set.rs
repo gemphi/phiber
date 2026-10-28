@@ -11,7 +11,7 @@
 
 use super::{BSpaceSpec, BSpaceType};
 use super::{
-    animation, compositing, geometry_nodes, layout, modeling, rendering, scripting, sculpting,
+    animation, compositing, geometry_nodes, layout, modeling, rendering, scripting, sculpting, simulation,
     shading, texture_paint, uv_editing,
 };
 
@@ -30,6 +30,7 @@ impl BSpaceType {
             BSpaceType::Compositing => &compositing::SPEC,
             BSpaceType::GeometryNodes => &geometry_nodes::SPEC,
             BSpaceType::Scripting => &scripting::SPEC,
+            BSpaceType::Simulation => &simulation::SPEC,
         }
     }
 }

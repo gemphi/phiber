@@ -47,6 +47,7 @@ pub mod row;
 pub mod scroller;
 pub mod search;
 pub mod crumb;
+pub mod deck;
 pub mod text_input;
 pub mod sidebar;
 pub mod sort;

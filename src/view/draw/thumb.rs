@@ -72,16 +72,11 @@ pub fn view(t: &BThumb, ctx: &BRenderCtx) -> AnyElement {
             .into_any_element(),
     };
     // The picture's card, edged so it reads on a ground as light as it is.
-    let frame = BFlex::row()
-        .width(BLen::Measured(t.size))
-        .height(BLen::Measured(t.size))
-        .align(BAlign::Center)
-        .justify(BJustify::Center)
-        .radius(BRadius::Role(BStyleRole::Card))
-        .fill(BFill::Tone(BSurfaceTone::Card))
-        .border(BEdge::All)
-        .div(ctx)
-        .child(picture);
+    // On the Welcome window, the brand's decked egg (`deck.rs`).
+    let frame = match ctx.decked {
+        true => super::deck::frame(t.size, picture, ctx),
+        false => square(t.size, picture, ctx),
+    };
     let selector = format!("thumb-{}", t.label);
     let mut tile = div()
         .id(SharedString::from(selector.clone()))
@@ -129,6 +124,21 @@ pub fn view(t: &BThumb, ctx: &BRenderCtx) -> AnyElement {
         });
     }
     tile.into_any_element()
+}
+
+/// The everyday card: a square on the card tone, edged.
+fn square(size: f32, picture: AnyElement, ctx: &BRenderCtx) -> AnyElement {
+    BFlex::row()
+        .width(BLen::Measured(size))
+        .height(BLen::Measured(size))
+        .align(BAlign::Center)
+        .justify(BJustify::Center)
+        .radius(BRadius::Role(BStyleRole::Card))
+        .fill(BFill::Tone(BSurfaceTone::Card))
+        .border(BEdge::All)
+        .div(ctx)
+        .child(picture)
+        .into_any_element()
 }
 
 pub fn grid(list: &[BView], ctx: &BRenderCtx) -> AnyElement {

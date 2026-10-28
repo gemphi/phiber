@@ -178,6 +178,9 @@ pub enum BRadius {
     /// A chosen set of corners — the ones this element owns on its host's
     /// surface.
     Corners { tl: bool, tr: bool, bl: bool, br: bool, radius: f32 },
+    /// Each corner at its own radius: the brand's egg, rounder at its crown
+    /// than at its foot (`thumb::BDeckPart`).
+    Each { tl: f32, tr: f32, br: f32, bl: f32 },
 }
 
 #[path = "token_place.rs"]

@@ -10,7 +10,7 @@ use crate::host::BHostType;
 use crate::zone::BZoneType;
 
 pub const LABEL: &str = "ECS Wand";
-pub const ICON: &str = "layers";
+pub const ICON: &str = "compositor";
 
 pub static AREAS: &[BAreaSpec] = &[
     BAreaSpec {

@@ -20,8 +20,10 @@ impl BWelcome<'_> {
             .div(ctx)
             .id("welcome-content-column")
             .debug_selector(|| "welcome-content-column".to_string());
+        // Its cards are the brand's decked eggs (`deck.rs`).
+        let decked = ctx.decked();
         for child in list {
-            column = column.child(BWelcomePart::WelcomeLine.flex(ctx).div(ctx).child(walk(child, ctx)));
+            column = column.child(BWelcomePart::WelcomeLine.flex(ctx).div(ctx).child(walk(child, &decked)));
         }
         BWelcomePart::WelcomeLayout
             .flex(ctx)

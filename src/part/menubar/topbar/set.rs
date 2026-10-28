@@ -32,17 +32,23 @@ fn k_status_bar() -> BPath {
 }
 
 // ── File > New: a file started in one of phiber's workspaces
-//    (`wm.read_homefile` with `app_template`). ───────────────────────────────
-static NEW: &[BMenuItem] = &[
-    fire("General", "Ctrl N", OpKey::NewFile, "Layout"),
-    fire("Shading", "", OpKey::NewFile, "Shading"),
-    fire("UV Lights", "", OpKey::NewFile, "UvEditing"),
-    fire("Animation", "", OpKey::NewFile, "Animation"),
-    fire("Rendering", "", OpKey::NewFile, "Rendering"),
-    fire("ECS Wand", "", OpKey::NewFile, "Compositing"),
-    fire("Geometry Nodes", "", OpKey::NewFile, "GeometryNodes"),
-    fire("Scripting", "", OpKey::NewFile, "Scripting"),
-];
+//    (`wm.read_homefile` with `app_template`) — the Welcome window's own
+//    list (`modal::splash::TEMPLATES`), so the two cannot drift. The first,
+//    General, is Ctrl N. ─────────────────────────────────────────────────────
+const TEMPLATES: &[crate::modal::splash::BSplashEntry] = crate::modal::splash::set::TEMPLATES;
+static NEW: [BMenuItem; TEMPLATES.len()] = {
+    let mut items = [SEP; TEMPLATES.len()];
+    let mut i = 0;
+    while i < TEMPLATES.len() {
+        let shortcut = match i {
+            0 => "Ctrl N",
+            _ => "",
+        };
+        items[i] = fire(TEMPLATES[i].label, shortcut, OpKey::NewFile, TEMPLATES[i].target);
+        i += 1;
+    }
+    items
+};
 
 // ── File > Versions: the other copies of the open file — the next numbered
 //    one, a copy elsewhere, and the one on disk. ────────────────────────────
@@ -85,7 +91,7 @@ static BLENDER_ITEMS: &[BMenuItem] = &[
 
 // Blender ref: `TOPBAR_MT_file` in `bl_ui/space_topbar.py`.
 static FILE_ITEMS: &[BMenuItem] = &[
-    sub("New", NEW),
+    sub("New", &NEW),
     op_file("Open...", "Ctrl O", "open"),
     RECENT,
     SEP,

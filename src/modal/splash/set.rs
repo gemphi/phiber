@@ -9,6 +9,7 @@
 use crate::state::{BKey as _, AppKey, ModalKey};
 use crate::part::BPartType;
 use crate::spec::{BSpec, BSpecKind};
+use crate::space;
 
 /// One clickable row in the welcome window.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -64,18 +65,25 @@ pub const APP_NAME: &str = "Phiber";
 /// "New File" column — each entry switches to the workspace it names.
 /// Blender lists its app templates here (General, 2D Animation, Sculpting,
 /// VFX, Video Editing); Phiber offers the workspaces it actually ships.
-pub static TEMPLATES: &[BSplashEntry] = &[
+///
+/// The ONE list of them: the Welcome window's New File cards and File ▸ New
+/// (`menubar::topbar::set`) both read it, so their names and order cannot
+/// drift. A label is the space's own (`space::<name>::LABEL`), so renaming a
+/// space renames its entry; only Layout's is "General", as Blender's is.
+pub const TEMPLATES: &[BSplashEntry] = &[
     e("layout", "General", "Layout"),
-    e("shader", "Shading", "Shading"),
-    e("uv", "UV Lights", "UvEditing"),
-    e("keyframe", "Animation", "Animation"),
-    e("render", "Rendering", "Rendering"),
+    e("cube", space::modeling::LABEL, "Modeling"),
+    e("shader", space::shading::LABEL, "Shading"),
+    e("uv", space::uv_editing::LABEL, "UvEditing"),
+    e("keyframe", space::animation::LABEL, "Animation"),
+    e("physics", space::simulation::LABEL, "Simulation"),
+    e("render", space::rendering::LABEL, "Rendering"),
     // Third field is the TARGET — the space's slug, written to `ctx.space`.
     // It is not the display label: renaming the space to "ECS Wand" changed
     // the label only, so the target stays "Compositing".
-    e("compositor", "ECS Wand", "Compositing"),
-    e("geonode", "Geometry Nodes", "GeometryNodes"),
-    e("script", "Scripting", "Scripting"),
+    e("compositor", space::compositing::LABEL, "Compositing"),
+    e("geonode", space::geometry_nodes::LABEL, "GeometryNodes"),
+    e("script", space::scripting::LABEL, "Scripting"),
 ];
 
 /// "Getting Started" — shown in place of the recent list when it is empty

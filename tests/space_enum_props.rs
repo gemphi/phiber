@@ -23,6 +23,7 @@ fn arb_space() -> impl Strategy<Value = BSpaceType> {
         Just(BSpaceType::Compositing),
         Just(BSpaceType::GeometryNodes),
         Just(BSpaceType::Scripting),
+        Just(BSpaceType::Simulation),
     ]
 }
 
@@ -43,21 +44,21 @@ proptest! {
 }
 
 #[test]
-fn every_has_eleven_variants() {
-    assert_eq!(BSpaceType::EVERY.len(), 11);
+fn every_has_twelve_variants() {
+    assert_eq!(BSpaceType::EVERY.len(), 12);
 }
 
-/// The tab strip is a subset of the spaces that exist: Modeling and
-/// Sculpting still resolve by slug but are no longer offered as tabs.
+/// The offered spaces are a subset of the spaces that exist: Sculpting
+/// still resolves by slug but is not offered. Modelling and Simulation are,
+/// in the Welcome window's New File order (Modelling before Shading).
 #[test]
-fn tab_strip_excludes_modeling_and_sculpting() {
-    assert_eq!(BSpaceType::ALL.len(), 9);
-    assert!(!BSpaceType::ALL.contains(&BSpaceType::Modeling));
+fn offered_spaces_exclude_sculpting_only() {
+    assert_eq!(BSpaceType::ALL.len(), 11);
+    assert!(BSpaceType::ALL.contains(&BSpaceType::Modeling));
+    assert!(BSpaceType::ALL.contains(&BSpaceType::Simulation));
     assert!(!BSpaceType::ALL.contains(&BSpaceType::Sculpting));
-    assert_eq!(
-        BSpaceType::from_slug("Modeling"),
-        Some(BSpaceType::Modeling)
-    );
-    assert!(!BSpaceType::Modeling.is_tab());
-    assert!(BSpaceType::Layout.is_tab());
+    assert_eq!(BSpaceType::from_slug("Sculpting"), Some(BSpaceType::Sculpting));
+    assert!(!BSpaceType::Sculpting.is_tab());
+    let at = |t| BSpaceType::ALL.iter().position(|s| *s == t);
+    assert!(at(BSpaceType::Modeling) < at(BSpaceType::Shading), "Modelling before Shading");
 }

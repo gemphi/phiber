@@ -37,6 +37,13 @@ impl BFlex {
         self
     }
 
+    /// Casts the brand's hard shade `offset` px right and down, the way the
+    /// logo's letters stand on theirs (`paint::cast`).
+    pub const fn casts(mut self, offset: f32) -> Self {
+        self.cast = Some(offset);
+        self
+    }
+
     /// Lifted off the surface beneath but still docked — a card, a drawer.
     pub const fn lifted(self) -> Self {
         self.elevated(BElevation::Raised)

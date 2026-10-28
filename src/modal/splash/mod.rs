@@ -5,7 +5,7 @@
 //!
 //! ```text
 //!                 P H I B E R            ← on the window's own backdrop
-//!      Model, shade, animate and render - the Phi way.
+//!      Imagine, Apply, Unleash - The Phi way ∞
 //!          ( New File | Recent Files | Learn )   ← one ground, the tabs
 //!        ┌──┐ ┌──┐ ┌──┐ ┌──┐                  ← the tab's cards
 //!        └──┘ └──┘ └──┘ └──┘
@@ -167,7 +167,7 @@ fn learn(size: f32) -> Vec<BView> {
 }
 
 /// What Phiber is, in one line under the logo.
-pub const TAGLINE: &str = "Model, shade, animate and render - the Phi way.";
+pub const TAGLINE: &str = "Imagine, Apply, Unleash - The Phi way \u{221e}";
 
 impl BViewItem for BSplashModal {
     /// The logo and its line on the backdrop, the tabs on their one ground,

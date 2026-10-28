@@ -14,6 +14,7 @@ pub mod rendering;
 pub mod scripting;
 pub mod sculpting;
 pub mod shading;
+pub mod simulation;
 pub mod texture_paint;
 pub mod uv_editing;
 pub mod step;
@@ -47,6 +48,7 @@ pub enum BSpaceType {
     Compositing = 8,
     GeometryNodes = 9,
     Scripting = 10,
+    Simulation = 11,
 }
 
 impl BSpaceType {
@@ -66,20 +68,23 @@ impl BSpaceType {
         BSpaceType::Compositing,
         BSpaceType::GeometryNodes,
         BSpaceType::Scripting,
+        BSpaceType::Simulation,
     ];
 
     /// Workspaces offered in the top tab strip.
     ///
-    /// `Modeling` and `Sculpting` are intentionally absent: they exist and
-    /// have specs, they are simply not offered as tabs. `from_slug` iterates
-    /// this list, so a stale `ctx.space = "Modeling"` resolves to `None` and
-    /// `BSpaceList::active` falls back to `Layout`.
+    /// In the order the Welcome window's New File lists them (Modelling
+    /// before Shading, Simulation after Animation). `Sculpting` is
+    /// intentionally absent: it exists and has a spec, it is simply not
+    /// offered.
     pub const ALL: &'static [BSpaceType] = &[
         BSpaceType::Layout,
+        BSpaceType::Modeling,
+        BSpaceType::Shading,
         BSpaceType::UvEditing,
         BSpaceType::TexturePaint,
-        BSpaceType::Shading,
         BSpaceType::Animation,
+        BSpaceType::Simulation,
         BSpaceType::Rendering,
         BSpaceType::Compositing,
         BSpaceType::GeometryNodes,
@@ -113,6 +118,16 @@ impl BSpaceType {
             Self::Compositing => "Compositing",
             Self::GeometryNodes => "GeometryNodes",
             Self::Scripting => "Scripting",
+            Self::Simulation => "Simulation",
+        }
+    }
+
+    /// The Properties tab a new file started in this space opens on: the
+    /// Simulation space's is Physics. `None` keeps whatever is showing.
+    pub const fn properties_tab(self) -> Option<&'static str> {
+        match self {
+            Self::Simulation => Some("Physics"),
+            _ => None,
         }
     }
     pub fn from_slug(s: &str) -> Option<Self> {

@@ -147,6 +147,9 @@ impl BPhiberApp {
         self.history.clear();
         if let Some(space) = crate::space::BSpaceType::from_slug(template) {
             crate::space::switch::switch_space(&mut self.state, space);
+            if let Some(tab) = space.properties_tab() {
+                self.state.set(crate::state::ButsKey::NavbarTab, tab);
+            }
         }
         self.state.set(ModalKey::Open, crate::state::val::V_EMPTY);
         let name = crate::space::BSpaceType::from_slug(template).map_or(template.to_string(), |s| s.label().to_string());

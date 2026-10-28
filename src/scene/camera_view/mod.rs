@@ -156,7 +156,8 @@ impl BSpaceType {
             | Self::Rendering
             | Self::Compositing
             | Self::GeometryNodes
-            | Self::Scripting => false,
+            | Self::Scripting
+            | Self::Simulation => false,
         }
     }
 }

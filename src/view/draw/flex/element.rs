@@ -52,6 +52,9 @@ pub struct BFlex {
     /// How far off the workspace this sits, and so what it casts. `Base` is
     /// in the plane and casts nothing (`theme::BElevation`).
     pub elevation: BElevation,
+    /// A hard shade cast this far right and down, the brand's (the logo's
+    /// offset): `paint::cast`. Not an elevation: it is a mark of the brand.
+    pub cast: Option<f32>,
     pub ink: Option<BInk>,
     pub type_size: Option<BType>,
     pub place: BPlace,
@@ -120,6 +123,7 @@ impl BFlex {
         border: None,
         radius: None,
         elevation: BElevation::Base,
+        cast: None,
         ink: None,
         type_size: None,
         place: BPlace::Flow,

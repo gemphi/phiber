@@ -87,6 +87,9 @@ pub struct BRenderCtx<'a> {
     /// walker (`host::view`): that region paints the active tab's ground
     /// (`BFill::TabGround`). Cleared again for the region's own children.
     pub joined: bool,
+    /// True on the Welcome window: its cards are the brand's decked eggs
+    /// (`thumb::BDeckPart`), the one place the shared thumbnail wears them.
+    pub decked: bool,
 }
 
 impl<'a> BRenderCtx<'a> {
@@ -113,6 +116,7 @@ impl<'a> BRenderCtx<'a> {
             glyphs: true,
             clips: false,
             joined: false,
+            decked: false,
         }
     }
 
@@ -125,6 +129,11 @@ impl<'a> BRenderCtx<'a> {
     /// Derive a context inside area `area`.
     pub fn in_area(&self, area: crate::area::BAreaType) -> Self {
         Self { area: Some(area), ..self.clone() }
+    }
+
+    /// The Welcome window's content: its cards are decked (`decked`).
+    pub fn decked(&self) -> Self {
+        Self { decked: true, ..self.clone() }
     }
 
     /// The strip under an area's editor tabs (`joined`).
@@ -143,47 +152,13 @@ impl<'a> BRenderCtx<'a> {
     }
 
     pub fn with_host(&self, host: BHostType) -> Self {
-        Self {
-            style: self.style,
-            state: self.state,
-            handler: self.handler.clone(),
-            resize: self.resize.clone(),
-            host,
-            region: self.region,
-            corners: BCorners::NONE,
-            strip: self.strip,
-            floating: self.floating,
-            fill: self.fill,
-            listed: self.listed,
-            area: self.area,
-            input: self.input.clone(),
-            glyphs: self.glyphs,
-            clips: self.clips,
-            joined: false,
-        }
+        Self { host, corners: BCorners::NONE, joined: false, ..self.clone() }
     }
 
     /// Derive a context tagged with the enclosing region kind. Set by the
     /// region walker before it walks its pane children.
     pub fn with_region(&self, region: BRegionType) -> Self {
-        Self {
-            style: self.style,
-            state: self.state,
-            handler: self.handler.clone(),
-            resize: self.resize.clone(),
-            host: self.host,
-            region: Some(region),
-            corners: self.corners,
-            strip: self.strip || strip_region(region, self.host),
-            floating: self.floating,
-            fill: self.fill,
-            listed: self.listed,
-            area: self.area,
-            input: self.input.clone(),
-            glyphs: self.glyphs,
-            clips: self.clips,
-            joined: false,
-        }
+        Self { region: Some(region), strip: self.strip || strip_region(region, self.host), joined: false, ..self.clone() }
     }
 
     /// A popover's body: it floats over the region its anchor stands in, so
@@ -215,24 +190,7 @@ impl<'a> BRenderCtx<'a> {
     }
 
     pub fn with_corners(&self, corners: BCorners) -> Self {
-        Self {
-            style: self.style,
-            state: self.state,
-            handler: self.handler.clone(),
-            resize: self.resize.clone(),
-            host: self.host,
-            region: self.region,
-            corners,
-            strip: self.strip,
-            floating: self.floating,
-            fill: self.fill,
-            listed: self.listed,
-            area: self.area,
-            input: self.input.clone(),
-            glyphs: self.glyphs,
-            clips: self.clips,
-            joined: false,
-        }
+        Self { corners, joined: false, ..self.clone() }
     }
 }
 

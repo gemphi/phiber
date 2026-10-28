@@ -3,7 +3,7 @@
 //! this is the mechanics.
 
 use super::element::BFlex;
-use super::paint::shadowed;
+use super::paint::{cast, shadowed};
 use super::token::{BAlign, BBasis, BEdge, BJustify, BLen, BSelf};
 use super::super::color::to_hsla;
 use super::super::ctx::BRenderCtx;
@@ -188,6 +188,9 @@ impl BFlex {
         }
         element = self.edged(element, ctx);
         element = shadowed(element, ctx.style.shadow_for(self.elevation));
+        if let Some(offset) = self.cast {
+            element = cast(element, offset, ctx.style.colors.accent);
+        }
         if let Some(ink) = self.ink {
             element = element.text_color(ink.color(ctx));
         }

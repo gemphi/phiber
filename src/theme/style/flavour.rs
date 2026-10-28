@@ -99,7 +99,8 @@ impl BFlavour {
             | BSpaceType::Sculpting
             | BSpaceType::TexturePaint
             | BSpaceType::Rendering
-            | BSpaceType::Animation => Self::Spatial,
+            | BSpaceType::Animation
+            | BSpaceType::Simulation => Self::Spatial,
             BSpaceType::UvEditing
             | BSpaceType::Shading
             | BSpaceType::Compositing
