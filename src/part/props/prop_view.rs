@@ -79,6 +79,8 @@ fn value(spec: &BPropSpec, s: &BState) -> BView {
     let axes: &[&str] = match spec.kind {
         BPropKind::Vec3 { .. } => &["x", "y", "z"],
         BPropKind::Vec4 { .. } => &["r", "g", "b", "a"],
+        // A path with the folder that browses for it: the Base Color's image.
+        _ if spec.key == crate::scene::recolor::IMAGE_FIELD => return super::material::image_row(BView::ctrl(control(spec, spec.value_key(), s))),
         _ => return BView::ctrl(control(spec, spec.value_key(), s)),
     };
     // Blender's `uiItemR` on a vector: one field per axis, stacked, each

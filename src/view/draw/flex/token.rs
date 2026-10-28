@@ -209,6 +209,10 @@ pub enum BEdge {
     Listed { chosen: bool, muted: bool },
     /// An area's edge: clear at rest, the border under the pointer.
     Active,
+    /// A border-weight stroke on every side in the rule colour: a control in
+    /// a strip outlined with the line the strip closes on — a header's menus,
+    /// beside its search field.
+    Outline,
 }
 
 /// Which corners are rounded, and by how much.

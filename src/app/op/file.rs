@@ -77,6 +77,9 @@ impl BPhiberApp {
                 self.state.remove(&FileKey::Purpose.path());
                 self.mixdown_to(path, cx);
             }
+            // Plugged into Base Color as the browser committed it
+            // (`scene::recolor`), so Undo takes it back as one step.
+            BFilePurpose::BaseColorImage => self.state.remove(&FileKey::Purpose.path()),
             BFilePurpose::Link | BFilePurpose::Append => {
                 self.state.remove(&FileKey::Purpose.path());
                 let text = format!("{}: not available yet", purpose.title());

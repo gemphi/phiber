@@ -13,10 +13,13 @@ use gpui::{AnyElement, SharedString, div, px};
 /// put inside it, so an input can never end up with a second, square box
 /// painted behind its rounded one.
 pub fn shell(editing: bool, ctx: &BRenderCtx) -> gpui::Stateful<gpui::Div> {
-    let border = if editing {
-        ctx.style.colors.accent
-    } else {
-        ctx.style.colors.border
+    // In a strip a field is outlined with the strip's own line (`rule`, the
+    // edge every header closes on): the control shade's outline is two steps
+    // off the header behind it and the search read as no box at all.
+    let border = match (editing, ctx.strip) {
+        (true, _) => ctx.style.colors.accent,
+        (false, true) => ctx.style.colors.rule,
+        (false, false) => ctx.style.colors.border,
     };
     div()
         .id(SharedString::from("field-shell"))

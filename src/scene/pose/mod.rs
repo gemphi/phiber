@@ -103,6 +103,7 @@ impl BPosed {
             transform::BTransforms::now(s).apply(s, model, &mut objects);
         }
         super::shadow::BObjectShadowList::now(s).apply(&mut objects);
+        super::recolor::BRecolors::now(s).apply(&mut objects);
         objects
     }
 }

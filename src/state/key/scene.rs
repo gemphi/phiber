@@ -62,6 +62,9 @@ pub enum SceneKey {
     /// Objects whose Shadow switches the Properties editor flipped:
     /// `name=display,ray|…` (`1` casts; `scene::shadow`).
     ShadowCast,
+    /// Objects whose first material the Material tab recoloured:
+    /// `name=r,g,b,a,metallic,roughness|…` (`scene::recolor`).
+    Recolored,
     /// The render region the session set: `xmin,xmax,ymin,ymax`
     /// (`scene::render_border`).
     RenderBorder,
@@ -100,6 +103,7 @@ impl BKey for SceneKey {
             Self::Channels => "channels",
             Self::Transformed => "transformed",
             Self::ShadowCast => "shadow_cast",
+            Self::Recolored => "recolored",
             Self::RenderBorder => "render_border",
             Self::Cursor => "cursor",
         };

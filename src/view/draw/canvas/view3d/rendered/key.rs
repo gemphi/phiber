@@ -67,6 +67,9 @@ impl BRayKey {
                 BObject3D::Primitive { name, shape, .. } => (name, *shape as u8).hash(&mut h),
                 BObject3D::Loaded { name, mesh, materials, .. } => {
                     (name, mesh.vertices.len(), mesh.indices.len(), materials.len()).hash(&mut h);
+                    // The faces' materials go up with a build only; a pose
+                    // keeps the ones the tracer holds.
+                    super::super::identity::BSceneId::materials(materials, &mut h);
                 }
             }
         }

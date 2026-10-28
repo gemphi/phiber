@@ -44,6 +44,9 @@ pub fn seed(state: &mut BState, model: &SceneModel, name: &str) {
     if let Some(shadow) = crate::scene::shadow::BObjectShadowList::now(state).get(name) {
         set::seed_shadow(state, shadow);
     }
+    if let Some(recolor) = crate::scene::recolor::BRecolors::now(state).get(name) {
+        set::seed_material(state, &recolor.material());
+    }
     if let Some(local) = BTransforms::file_local(&edit, model, name) {
         set::seed_edited(state, &BTransform::of_matrix(local));
     }

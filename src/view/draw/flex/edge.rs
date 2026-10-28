@@ -57,6 +57,7 @@ impl BFlex {
                 };
             }
             Some(BEdge::Active) => element = element.border(px(ctx.style.strokes.border)).border_color(gpui::transparent_black()),
+            Some(BEdge::Outline) => element = element.border(px(ctx.style.strokes.border)).border_color(to_hsla(ctx.style.colors.rule)),
             None => {}
         }
         match self.radius {

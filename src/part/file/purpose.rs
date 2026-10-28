@@ -26,6 +26,9 @@ pub enum BFilePurpose {
     /// `IMAGE_OT_open` — an image file into the Image editor
     /// (`scene::image_list`).
     OpenImage,
+    /// `IMAGE_OT_open` under the Material tab's Base Color: the image
+    /// plugged into the active object's first material (`scene::recolor`).
+    BaseColorImage,
 }
 
 impl BFilePurpose {
@@ -41,6 +44,7 @@ impl BFilePurpose {
             Self::SaveImage => "save_image",
             Self::Mixdown => "mixdown",
             Self::OpenImage => "open_image",
+            Self::BaseColorImage => "base_color_image",
         }
     }
     /// Modal title.
@@ -55,7 +59,7 @@ impl BFilePurpose {
             Self::Append => "Append",
             Self::SaveImage => "Save Image",
             Self::Mixdown => "Mixdown",
-            Self::OpenImage => "Open Image",
+            Self::OpenImage | Self::BaseColorImage => "Open Image",
         }
     }
     /// Execute-button label.
@@ -70,7 +74,7 @@ impl BFilePurpose {
             Self::Append => "Append",
             Self::SaveImage => "Save As Image",
             Self::Mixdown => "Mixdown",
-            Self::OpenImage => "Open Image",
+            Self::OpenImage | Self::BaseColorImage => "Open Image",
         }
     }
     pub fn from_slug(s: &str) -> Option<Self> {
@@ -85,6 +89,7 @@ impl BFilePurpose {
             Self::SaveImage,
             Self::Mixdown,
             Self::OpenImage,
+            Self::BaseColorImage,
         ]
         .into_iter()
         .find(|p| p.slug() == s)

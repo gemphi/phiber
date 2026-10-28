@@ -126,14 +126,16 @@ impl BViewItem for BModebar {
             .get(&mode_key(self.host))
             .unwrap_or_else(|| default_mode(self.host));
         // Same header-height anchor as the menubar labels, so the mode
-        // dropdown lines up with the menus beside it.
-        let anchor = BView::MenuAnchor(
-            BControl::new()
-                .with_icon(active_icon(self.host, active))
-                .with_label(active)
-                .with_active(open)
-                .with_action(toggle),
-        );
+        // dropdown lines up with the menus beside it. Under the bottom
+        // area's tabs the tab already names the editor, so a mode that only
+        // repeats it (Dope Sheet's "Dope Sheet") shows its icon alone; one
+        // that says more (the Graph Editor's "F-Curves") keeps its name.
+        let control = BControl::new().with_icon(active_icon(self.host, active)).with_active(open).with_action(toggle);
+        let repeats = crate::part::areatabs::BAreaTabs::shown() && active == self.host.label();
+        let anchor = BView::MenuAnchor(match repeats {
+            true => control,
+            false => control.with_label(active),
+        });
         let body = BModebarList::new(self.host).items(s);
         let mode_popover = BView::popover(anchor, body, open, close, BPopoverSide::Below);
 

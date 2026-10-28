@@ -61,6 +61,7 @@ fn table() -> &'static [&'static dyn BRule] {
         &crate::part::modebar::workspace::BWorkspaceModeRule,
         &crate::scene::transform::BTransformRule,
         &crate::scene::shadow::BObjectShadowRule,
+        &crate::scene::recolor::BRecolorRule,
         &crate::part::sidebar::show::BSidebarOpenRule,
         &crate::scene::xform::BTransformOpRule,
         &crate::scene::transform::BObjectClearRule,

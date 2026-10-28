@@ -165,7 +165,10 @@ impl BRegionItem {
         // The window's own bars (top bar, status bar) are not editors: there
         // is no editor type to switch them to, so they lead with what they
         // are — the brand and menus, the status read-out — not a switcher.
-        if !self.host.is_fixed_bar() {
+        // Nor does a header under the bottom area's tabs: the tabs are its
+        // switcher, and a second one drew the editor's icon twice beside the
+        // mode dropdown (the Graph Editor's icon, then F-Curves with it).
+        if !self.host.is_fixed_bar() && !crate::part::areatabs::BAreaTabs::shown() {
             Self::ensure_first_part(panes, BPaneType::Left, BPartType::Switcher, self.host, state);
         }
     }

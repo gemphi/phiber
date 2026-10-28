@@ -4,6 +4,10 @@
 use super::prop::*;
 use super::set::BSectionSpec;
 use super::set::sec;
+use crate::part::file::purpose::BFilePurpose;
+use crate::state::{BKey as _, FileKey};
+use crate::view::BView;
+use crate::view::prim::{BAction, BControl};
 
 static BLEND_METHOD: &[BEnumItem] = &[
     en("OPAQUE", "Opaque"),
@@ -41,6 +45,8 @@ static SURFACE: &[BPropSpec] = &[
     b("use_nodes", "Use Nodes"),
     p("node_tree", "Node Tree", "ShaderNodeTree"),
     col("diffuse_color", "Base Color", true),
+    // The Image Texture plugged into Base Color (`scene::recolor`).
+    s(crate::scene::recolor::IMAGE_FIELD, "Image"),
     f("metallic", "Metallic", BUnit::None),
     f("roughness", "Roughness", BUnit::None),
     f("specular_intensity", "Specular", BUnit::None),
@@ -64,6 +70,17 @@ static VIEWPORT_DISPLAY: &[BPropSpec] = &[
     f("metallic", "Metallic", BUnit::None),
     f("roughness", "Roughness", BUnit::None),
 ];
+
+/// The Base Color's Image row: the path field, and Image Texture ▸ Open —
+/// the folder that opens the file browser for an image, as `uiTemplateID`'s
+/// Open does under a linked socket (`BFilePurpose::BaseColorImage`).
+pub fn image_row(path: BView) -> BView {
+    let open = BControl::new()
+        .with_icon("folder_open")
+        .with_tooltip("Open Image")
+        .with_action(BAction::Set(FileKey::Purpose.path(), BFilePurpose::BaseColorImage.slug().to_string()));
+    BView::row(vec![path, BView::Button(open)])
+}
 
 pub static SECTIONS: &[BSectionSpec] = &[
     sec("Preview", PREVIEW).closed(),

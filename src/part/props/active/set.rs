@@ -84,6 +84,7 @@ pub fn seed_material(state: &mut BState, material: &SceneMaterial) {
     write(state, "diffuse_color", BValue::Color(material.base_color));
     write(state, "metallic", BValue::Float(material.metallic));
     write(state, "roughness", BValue::Float(material.roughness));
+    write(state, crate::scene::recolor::IMAGE_FIELD, BValue::Text(material.base_color_texture.clone().unwrap_or_default()));
 }
 
 #[cfg(test)]

@@ -1,6 +1,6 @@
 //! Menubar anchor with stable geometry and resolved semantic styling.
 
-use super::flex::BFlex;
+use super::flex::{BEdge, BFlex};
 use super::color::to_hsla;
 use super::ctx::BRenderCtx;
 use super::{brand, chrome};
@@ -51,6 +51,19 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
         row.w_full().min_w_0().justify_between()
     } else {
         row.flex_shrink_0()
+    };
+    // A menu in an editor's strip — its header, tool header or footer — is
+    // outlined at rest with the line the strip closes on, as the search
+    // beside it is: bare words in a row read as a line of text, not as
+    // menus. The window's own bars (the top bar, the status bar) keep bare
+    // words. Inside the control's height, so a strip's controls stay one
+    // height (`a_row_is_one_height`).
+    let outlined = chrome::in_strip(ctx)
+        && !ctx.host.is_fixed_bar()
+        && matches!(ctx.region, Some(crate::region::BRegionType::Header | crate::region::BRegionType::ToolHeader | crate::region::BRegionType::Footer));
+    row = match outlined {
+        true => BFlex::cell().border(BEdge::Outline).styled(row, ctx),
+        false => row,
     };
 
     if !icon.is_empty() {

@@ -38,7 +38,7 @@ impl BRule for BSelectRule {
         if purpose == super::super::purpose::BFilePurpose::SaveImage {
             super::super::save_image::BImageSave::to(s, value);
             s.remove(&FileKey::Purpose.path());
-        } else if !matches!(purpose, super::super::purpose::BFilePurpose::Mixdown | super::super::purpose::BFilePurpose::OpenImage) {
+        } else if !matches!(purpose, super::super::purpose::BFilePurpose::Mixdown | super::super::purpose::BFilePurpose::OpenImage | super::super::purpose::BFilePurpose::BaseColorImage) {
             // A mixdown or an image names no `.blend` for the recent list.
             recent::push_recent(s, value);
         }

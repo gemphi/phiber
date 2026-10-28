@@ -44,6 +44,8 @@ pub use self::world::{BRayLook, ENV_CDF_SLOT, ENV_IRRADIANCE_SLOT, ENV_PREFILTER
 #[cfg(test)]
 mod paint_tests;
 #[cfg(test)]
+mod recolor_tests;
+#[cfg(test)]
 mod still_tests;
 #[cfg(test)]
 mod surface_tests;

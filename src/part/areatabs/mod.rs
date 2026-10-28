@@ -51,7 +51,15 @@ impl BViewItem for BAreaTabs {
             })
             .collect::<Vec<_>>();
         // Centred on the strip, as every tab strip is: a full-width row with
-        // the slack split either side.
-        BView::list_row([vec![BView::spacer()], tabs, vec![BView::spacer()]].concat(), crate::view::prim::BRowShade::Flat)
+        // the slack split either side. A plain row, not a list band: the
+        // strip has no fill or hover of its own, only its tabs do, and the
+        // active one opens onto the strip below (`BCapSide::Joined`).
+        //
+        // Three groups, not one between two spacers: a row drops its empty
+        // groups (`draw::row`), and a strip spreads what is left from its
+        // start, so a lone group sat at the left edge. A zero-width indent
+        // holds each end, as the splash's `centred` rows do, and the tabs
+        // land midway.
+        BView::row([vec![BView::indent(0), BView::spacer()], tabs, vec![BView::spacer(), BView::indent(0)]].concat())
     }
 }

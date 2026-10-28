@@ -52,10 +52,23 @@ impl BSceneId {
                     (std::sync::Arc::as_ptr(material_indices) as usize).hash(&mut h);
                     (std::sync::Arc::as_ptr(uvs) as usize).hash(&mut h);
                     matrix_world.iter().flatten().for_each(|v| v.to_bits().hash(&mut h));
+                    Self::materials(materials, &mut h);
                 }
             }
         }
         h.finish()
+    }
+
+    /// The materials' looks: the colours by value and the base image by
+    /// its pixels' address. A Material tab edit keeps the mesh and the
+    /// place, so the tracer must still take it again — and build it again,
+    /// not pose it (`BRayKey::shape`): one image swapped for another is the
+    /// same mesh too.
+    pub(super) fn materials(materials: &[crate::phiphx::scene::SceneMaterial], h: &mut impl Hasher) {
+        for m in materials {
+            m.base_color.iter().chain(&m.viewport_color).chain([&m.metallic, &m.roughness]).for_each(|v| v.to_bits().hash(h));
+            (m.baked, m.texture.as_ref().map(|t| std::sync::Arc::as_ptr(&t.rgba) as usize)).hash(h);
+        }
     }
 }
 
