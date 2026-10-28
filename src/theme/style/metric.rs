@@ -172,8 +172,8 @@ pub const DEFAULT_DIMENSIONS: BDimensions = BDimensions {
     file_size_column_width: 90.0,
     indent_unit: 20.0,
     restriction_column_width: 20.0,
-    icon_size: 14.0,
-    icon_size_sm: 13.0,
+    icon_size: 16.0,
+    icon_size_sm: 15.0,
     // The mark asset is cropped to its art, so this is the size of the mark
     // itself, not of padding around it. At 28 px it crowded the 34 px menu
     // cap; four fifths of that leaves it room above and below and still reads
