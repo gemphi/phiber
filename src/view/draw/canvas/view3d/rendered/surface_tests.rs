@@ -37,7 +37,7 @@ fn a_mix_shader_is_two_materials_and_a_weight() {
     material.bsdf = red.mixed(&mirror, 0.3);
     material.mix = Some(BlendMix { first: red, second: mirror, fac: 0.3, principled: Some(0) });
     let grey = white();
-    let palette = |shading| super::super::mesh::BMeshPalette { shading, cube: grey, sphere: grey, gem: grey, loaded: grey, accent: grey, accent_active: grey, matcap: None, texture: false };
+    let palette = |shading| super::super::mesh::BMeshPalette { shading, cube: grey, sphere: grey, gem: grey, loaded: grey, accent: grey, accent_active: grey, matcap: None, texture: false, studio: shading == BShading::Material };
     let scene = super::scene::build(&[card(material.clone())], &palette(BShading::Rendered));
     assert_eq!(scene.mats.len(), 2, "both lobes are materials");
     let face = &scene.mats[(scene.faces[0][3] & 0xffff) as usize];
@@ -67,9 +67,9 @@ fn procedural_textures_land_in_the_lobes_slots() {
     // The Principled is the second lobe: its textures go there, the factor's
     // to the first, which the tracer reads the weight from.
     material.mix = Some(BlendMix { first: mirror, second: red, fac: 0.5, principled: Some(1) });
-    material.procedural = BlendProcedural { base: Some(noise), mix: Some(fac), bump: Some(BlendBump { height: voronoi, strength: 0.6, distance: 0.3 }) };
+    material.procedural = BlendProcedural { base: Some(noise), base_mix: None, mix: Some(fac), bump: Some(BlendBump { height: voronoi, strength: 0.6, distance: 0.3 }) };
     let grey = white();
-    let palette = |shading| super::super::mesh::BMeshPalette { shading, cube: grey, sphere: grey, gem: grey, loaded: grey, accent: grey, accent_active: grey, matcap: None, texture: false };
+    let palette = |shading| super::super::mesh::BMeshPalette { shading, cube: grey, sphere: grey, gem: grey, loaded: grey, accent: grey, accent_active: grey, matcap: None, texture: false, studio: shading == BShading::Material };
     let mut unramped = material.clone();
     unramped.procedural.base.as_mut().unwrap().ramp = None;
     let bare = super::scene::build(&[card(unramped)], &palette(BShading::Material)).atlas.len();
@@ -105,7 +105,7 @@ fn a_bricks_settings_reach_its_slot() {
     let mut material = SceneMaterial::neutral();
     material.procedural.base = Some(brick);
     let grey = white();
-    let palette = super::super::mesh::BMeshPalette { shading: BShading::Material, cube: grey, sphere: grey, gem: grey, loaded: grey, accent: grey, accent_active: grey, matcap: None, texture: false };
+    let palette = super::super::mesh::BMeshPalette { shading: BShading::Material, cube: grey, sphere: grey, gem: grey, loaded: grey, accent: grey, accent_active: grey, matcap: None, texture: false, studio: true };
     let scene = super::scene::build(&[card(material)], &palette);
     let p = scene.mats[(scene.faces[0][3] & 0xffff) as usize].color_proc;
     let words: [u32; 44] = bytemuck::cast(p);
@@ -125,7 +125,7 @@ fn a_material_override_stands_in_for_every_slot() {
     material.bsdf = red.mixed(&mirror, 0.3);
     material.mix = Some(BlendMix { first: red, second: mirror, fac: 0.3, principled: Some(0) });
     let grey = white();
-    let palette = super::super::mesh::BMeshPalette { shading: BShading::Rendered, cube: grey, sphere: grey, gem: grey, loaded: grey, accent: grey, accent_active: grey, matcap: None, texture: false };
+    let palette = super::super::mesh::BMeshPalette { shading: BShading::Rendered, cube: grey, sphere: grey, gem: grey, loaded: grey, accent: grey, accent_active: grey, matcap: None, texture: false, studio: false };
     super::BMatStand::set(Some(super::BMatStand::grey(0.5)));
     let scene = super::scene::build(&[card(material)], &palette);
     super::BMatStand::set(None);

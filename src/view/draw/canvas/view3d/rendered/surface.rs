@@ -126,7 +126,15 @@ impl BSurface<'_> {
         // driving it again would apply them twice.
         let base = m.procedural.base.as_ref().filter(|_| !m.baked).map(|p| p.slot(1, out, ids));
         let bump = m.procedural.bump.as_ref().map(|b| b.height.slot(0, out, ids).bump(b.strength, b.distance));
-        tri.with_procs(base.or(Some(tri.color_proc)), bump)
+        // The other colour of a Base Color Mix, blended over the first by
+        // the node's own mode and factor (`phiray`'s `proc_base`).
+        let second = m
+            .procedural
+            .base_mix
+            .as_ref()
+            .filter(|_| !m.baked && base.is_some())
+            .map(|x| x.texture.slot(0, out, ids).mixed_over(u32::from(x.blend), x.fac));
+        tri.with_procs(base.or(Some(tri.color_proc)), bump).with_base_mix(second)
     }
 
     /// The Mix Shader's factor onto the first lobe. One slot holds the

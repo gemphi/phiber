@@ -42,6 +42,9 @@ impl BProcSlot for BlendProc {
             BlendProcKind::GaborValue => PROC_GABOR_VALUE,
             BlendProcKind::GaborPhase => PROC_GABOR_PHASE,
             BlendProcKind::GaborIntensity => PROC_GABOR_INTENSITY,
+            BlendProcKind::Fresnel => PROC_FRESNEL,
+            BlendProcKind::LayerFresnel => PROC_LAYER_FRESNEL,
+            BlendProcKind::LayerFacing => PROC_LAYER_FACING,
         }
     }
 
