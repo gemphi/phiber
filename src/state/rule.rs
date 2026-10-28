@@ -101,6 +101,12 @@ fn table() -> &'static [&'static dyn BRule] {
     ]
 }
 
+/// Whether any rule takes a write to `path` — what the generated status doc
+/// asks of every Properties field (`manual::status`).
+pub fn wanted(path: &BPath) -> bool {
+    table().iter().any(|rule| rule.wants(path))
+}
+
 /// Run every rule that wants `path`.
 pub fn after_set(state: &mut BState, path: &BPath, value: &str) {
     for rule in table() {

@@ -26,6 +26,7 @@
 
 pub mod deck;
 pub mod set;
+pub mod status;
 
 pub use deck::BDeck;
 pub use set::MANUAL;
