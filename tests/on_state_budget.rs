@@ -143,7 +143,7 @@ fn the_shared_builders_say_both() {
     // accent when ticked, which is how it lights.
     assert!(ctrl.contains("super::mark::view(BMark::Check(on), ctx)"), "`flag` — the checkbox — lights");
     let mark = include_str!("../src/view/draw/mark.rs");
-    assert!(mark.contains("true => BFill::SwatchHsl(ctx.style.colors.accent)"), "the mark's tile takes the accent when on");
+    assert!(mark.contains("true => BFill::IconTileOn"), "the mark's tile takes the accent when on");
     let tree = include_str!("../src/part/menubar/tree/mod.rs");
     assert!(tree.contains(".with_mark(crate::view::prim::BMark::Check(on))"), "a checkable menu row lights");
 }

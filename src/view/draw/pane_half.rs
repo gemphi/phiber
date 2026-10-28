@@ -62,3 +62,13 @@ impl BFlexed for BHalfPart {
         }
     }
 }
+
+/// The width of the details column a strip's right pane heads: the host's
+/// sidebar, strip and open panels (the Project Browser's), or a panel's
+/// width where the details are a region of their own (the File Browser's).
+pub(super) fn details_width(ctx: &BRenderCtx) -> BLen {
+    match crate::part::sidebar::show::BSidebarShown(ctx.host).holds_panels() {
+        true => BLen::Measured(super::strip_width(true, ctx) + super::panels_width(true, ctx)),
+        false => BLen::Dim(super::super::flex::BDim::PanelWidth),
+    }
+}

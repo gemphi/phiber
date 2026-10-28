@@ -116,6 +116,13 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
         && !ctx.listed
         && (!chrome::in_strip(ctx) || ctx.region == Some(crate::region::BRegionType::Execute));
     let is_row = label.is_some() && !chrome::in_strip(ctx) && !action_button;
+    // A labelled button in a list — a bookmark, a folder, an option — is a
+    // row of that list: the one row (`item`), framed where it stands, with
+    // the id it has always had. A value column's button stays a control.
+    if is_row && !ctx.fill {
+        let id = action.map(|a| element_id(icon, label, a)).unwrap_or_default();
+        return super::item::view(&crate::view::prim::BItem::of(ctl, id), ctx);
+    }
     // An action outside a strip — a dialog's Save, Don't Save, Cancel — is an
     // answer: it takes its share of the row it stands in, its word centred,
     // so a row of answers reads as one bar of equal buttons (`row.rs`).

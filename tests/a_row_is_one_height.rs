@@ -157,7 +157,15 @@ async fn every_painted_row_family_lands_on_that_height(cx: &mut TestAppContext) 
     let row_height = dims.row_height;
     // A tree's row is its own, shorter height (`tree_row_height`): Blender's
     // outliner row is a unit, not a control row, so the list reads as a list.
-    let height_of = |family: &str| if family == "tree row" { dims.tree_row_height } else { row_height };
+    // Two heights, and every row is one of them: the compact row (a menu's,
+    // a source list's, a tree's, a list's) and the module (a property's, a
+    // value's). A card row holds either kind.
+    let compact = dims.tree_row_height;
+    let height_of = |family: &str| match family {
+        "tree row" | "table row" => compact,
+        _ => row_height,
+    };
+    let either = |h: f32| (h - compact).abs() < 0.5 || (h - row_height).abs() < 0.5;
 
     // Every space, so the tree, the list, the table, the cards and the section
     // headings all get a turn at being on screen.
@@ -201,8 +209,8 @@ async fn every_painted_row_family_lands_on_that_height(cx: &mut TestAppContext) 
         for (sel, h) in rows {
             // A row may be TALLER than the height when it wraps (a two-line
             // label); it may never be shorter, and the common case is exact.
-            if *h + 0.5 < row_height {
-                wrong.push(format!("{family} {sel} is {h}, under {row_height}"));
+            if *h + 0.5 < compact.min(row_height) || (*h + 0.5 < row_height && !either(*h)) {
+                wrong.push(format!("{family} {sel} is {h}, neither {compact} nor {row_height}"));
             }
         }
     }
@@ -211,7 +219,7 @@ async fn every_painted_row_family_lands_on_that_height(cx: &mut TestAppContext) 
     // held as "not shorter than" would let one family sit at 40 unnoticed.
     for (family, rows) in &families {
         let row_height = height_of(family);
-        let exact = rows.iter().filter(|(_, h)| (h - row_height).abs() < 0.5).count();
+        let exact = rows.iter().filter(|(_, h)| (h - row_height).abs() < 0.5 || (family == &"card row" && either(*h))).count();
         assert!(
             exact * 2 >= rows.len(),
             "{family}: only {exact} of {} are exactly {row_height} — heights {:?}",
@@ -229,10 +237,9 @@ async fn a_menus_rows_are_rows(cx: &mut TestAppContext) {
     use phiber::state::{BKey as _, MenuKey, val::V_TRUE};
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1600.0), px(900.0)));
-    // A menu row is its own module: `MENU_ROW`, the button less its head
-    // room, rather than the content row a property line is. Blender's menus
-    // are tighter than its property rows, and a long one is a list of labels.
-    let row_height = phiber::theme::style::metric::MENU_ROW;
+    // A menu row is the compact row, the one a source list's, a tree's and a
+    // list's rows are (`item::BItemFrame`), tighter than a property's.
+    let row_height = phiber::theme::style::metric::DEFAULT_DIMENSIONS.tree_row_height;
     app.update(cx, |app, cx| {
         app.state = BState::new();
         app.state.set(CtxKey::Space, BSpaceType::Layout.slug());

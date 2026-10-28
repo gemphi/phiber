@@ -244,17 +244,12 @@ fn every_menu_row_reserves_its_icon_slot_so_labels_share_one_left_edge() {
     // icon does not pull its label left of its neighbours'. Ours used to add
     // the icon only when it had one, which put one menu's labels on two
     // different left edges.
-    let item = renderer("menu.rs");
-    // The slot is built for every row; whether it carries a glyph is a
-    // flag on it, not a condition around it.
-    let slot = item.find("let icon = BMenuPart::IconSlot { glyph: !ic.is_empty() }.flex(ctx).div(ctx);").expect("the slot is built unconditionally");
-    let branch = item.find("if ic.is_empty() {").expect("the icon is optional, the slot is not");
-    assert!(slot < branch, "the slot must exist before the icon decision, not inside it");
-    assert!(item.contains(".text_left()"), "labels read from the slot's edge");
-    assert!(
-        !item.contains("if !ic.is_empty() {\n        row = row.child(\n            svg()"),
-        "the icon must not be the thing that decides whether the slot exists"
-    );
+    // A menu's row is the one row (`item`): its lead's slot is reserved for
+    // every row of a list that has a lead anywhere, and an empty lead keeps
+    // the slot and paints nothing.
+    let item = renderer("item/mod.rs");
+    assert!(item.contains("if ctx.glyphs || item.lead != BLead::None {"), "the slot is reserved for every row");
+    assert!(item.contains("BLead::None => BItemPart::Slot { tile: false }"), "an empty lead keeps its slot");
 }
 
 #[test]

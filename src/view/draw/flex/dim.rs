@@ -22,6 +22,10 @@ pub enum BDim {
     RowHeight,
     /// A tree's row (`tree_row_height`).
     TreeRow,
+    /// The compact row, one of the two heights every row is: a menu's, a
+    /// source list's, a tree's, a list's, a table's (`tree_row_height`). The
+    /// other is the module (`CardHead`): a property's, a value's.
+    CompactRow,
     /// A menu-popover row: compact, below the module (`menu_row_height`).
     MenuRow,
     ScrubbingHeight,
@@ -52,7 +56,7 @@ impl BDim {
             Self::Tile => d.tile_size(),
             Self::GlyphTile => d.icon_size + 2.0 * ctx.style.spacing.pad_xs,
             Self::RowHeight => d.row_height,
-            Self::TreeRow => d.tree_row_height,
+            Self::TreeRow | Self::CompactRow => d.tree_row_height,
             Self::MenuRow => d.menu_row_height,
             Self::ScrubbingHeight => d.scrubbing_height,
             Self::AssetShelfHeight => d.asset_shelf_height,

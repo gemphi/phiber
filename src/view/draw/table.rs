@@ -265,8 +265,8 @@ fn glyph_size(ctx: &BRenderCtx) -> f32 {
 /// row's own pad, as a menu row's and a list entry's are.
 const ROW_PAD: BSpace = BSpace::PadSm;
 
-/// A row's own height: the row rung less the border it insets itself by at
-/// top and bottom, so the band it occupies is exactly one row.
+/// A row's own height: the compact row, the one a list's, a tree's and a
+/// menu's rows are (`item::BItemFrame`).
 fn row_band(ctx: &BRenderCtx) -> f32 {
-    ctx.style.dimensions.row_height - 2.0 * ctx.style.strokes.border
+    ctx.style.dimensions.tree_row_height
 }

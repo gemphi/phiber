@@ -192,7 +192,7 @@ async fn a_menu_too_tall_for_the_window_scrolls_instead_of_squashing_its_rows(cx
     // A menu row is the compact `MENU_ROW` (the button less its head room),
     // not the module a content row is: a long menu is a list of labels, and
     // Blender's menus are tighter than its property rows. `BDim::MenuRow`.
-    let row_height = phiber::theme::style::metric::MENU_ROW;
+    let row_height = phiber::theme::style::metric::DEFAULT_DIMENSIONS.tree_row_height;
     let panel = bounds(cx, &["popover-panel"], "the open File menu");
     let first = bounds(cx, &["menu-New"], "the menu's first row");
 

@@ -112,10 +112,10 @@ fn the_arrow_is_its_own_column_and_leaves_the_shortcut_free() {
 
 #[test]
 fn the_arrow_is_drawn_as_an_icon_in_a_column_of_its_own() {
-    let menu = include_str!("../src/view/draw/menu.rs");
+    // A menu's row is the one row (`view/draw/item`).
+    let menu = include_str!("../src/view/draw/item/mod.rs");
     assert!(menu.contains("Submenu"), "the row has a submenu part");
-    assert!(menu.contains("glyph(\"chevron_right\", ctx)"), "drawn as an icon, not as text");
-    assert!(menu.contains("fn glyph("), "through the one glyph builder a menu row has");
+    assert!(menu.contains("icon_in(\"chevron_right\""), "drawn as an icon, not as text");
     assert!(
         std::path::Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/assets/icons/chevron_right.svg")).exists(),
         "and the icon is in the set"
