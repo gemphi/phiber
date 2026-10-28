@@ -19,6 +19,13 @@ impl BView {
         Self::split(vec![Self::label(heading), Self::ctrl(ctrl)])
     }
 
+    /// A read-out in a side column: `label` and `value` on the property
+    /// split, label left and value right, as an inspector's label and its
+    /// control stand. Every label/value row in a sidebar is this one row.
+    pub fn value_row(label: impl Into<String>, value: impl Into<String>) -> Self {
+        Self::split(vec![Self::label(label.into()), Self::label(value.into())])
+    }
+
     /// A boolean row: its text from the row's left edge and the switch at
     /// its right (`BCtrlKind::Switch`) — the whole row, so every switch in a
     /// panel or popover lines up and no empty label column pushes its text

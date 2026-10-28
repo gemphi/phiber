@@ -59,6 +59,16 @@ pub fn floating_strip_room(is_right: bool, ctx: &BRenderCtx) -> f32 {
     strip_width(is_right, ctx) + panels_width(is_right, ctx) + 2.0 * ctx.style.spacing.pad_sm + 2.0 * ctx.style.spacing.pad_xs
 }
 
+/// The width of the details column a strip's right pane heads: the host's
+/// sidebar, strip and open panels (the Project Browser's), or a panel's
+/// width where the details are a region of their own (the File Browser's).
+fn details_width(ctx: &BRenderCtx) -> BLen {
+    match crate::part::sidebar::show::BSidebarShown(ctx.host).holds_panels() {
+        true => BLen::Measured(strip_width(true, ctx) + panels_width(true, ctx)),
+        false => BLen::Dim(BDim::PanelWidth),
+    }
+}
+
 /// The sidebar region beside a right-hand strip while it is open (the N panel).
 fn panels_width(is_right: bool, ctx: &BRenderCtx) -> f32 {
     if is_right { crate::part::sidebar::show::BSidebarShown(ctx.host).beside_width(ctx.state, ctx.style) } else { 0.0 }
@@ -217,7 +227,7 @@ impl BFlexed for BPanePart {
                 // at the column's end; a row split by a spacer gives its first
                 // group the column's first half (`half`).
                 (_, _, _, true) => match (columns, ctx.host.has_details_column()) {
-                    (true, true) => base.keeps_size().width(BLen::Dim(BDim::PanelWidth)).pad_right(BSpace::Seam).justify(BJustify::End),
+                    (true, true) => base.keeps_size().width(details_width(ctx)).pad_right(BSpace::Seam).justify(BJustify::End),
                     (true, false) => base.keeps_size().justify(BJustify::End).pad_x(BSpace::Seam),
                     (false, _) => base.keeps_size().justify(BJustify::End),
                 },

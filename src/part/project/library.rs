@@ -170,14 +170,14 @@ fn tile(key: String, label: &str) -> BView {
     BView::thumbnail(BThumb { preview_path: key, icon: "shoe".into(), label: label.into(), subtitle: String::new(), size: 96.0, selected: false, action: None })
 }
 
-/// The inspector for a picked design: its fields, its six views, its
-/// sketch check and the box that confirms it, and the button that opens
+/// The sidebar's sections for a picked design: its fields, its six views,
+/// its sketch check and the box that confirms it, and the button that opens
 /// its set on the stage.
-pub fn info(s: &BState) -> Option<BView> {
+pub fn sections(s: &BState) -> Option<Vec<BView>> {
     let lib = library();
     let d = lib.design(lib.find(s.get(ProjectKey::Selected)?)?)?;
-    let mut rows = vec![BView::pair("Name", d.label)];
-    rows.extend(d.fields().into_iter().map(|(k, v)| BView::pair(k, v)));
+    let mut rows = vec![BView::value_row("Name", d.label)];
+    rows.extend(d.fields().into_iter().map(|(k, v)| BView::value_row(k, v)));
     let mut cards: Vec<BView> = vec![details::section(s, "Design", "shoe", "design", rows)];
     let views = BShot::SHEET.iter().enumerate().map(|(i, shot)| tile(format!("{VIEW}{}:{i}", d.slug), shot.label())).collect();
     cards.push(details::section(s, "Views", "view", "views", vec![BView::grid(views)]));
@@ -189,7 +189,7 @@ pub fn info(s: &BState) -> Option<BView> {
     }
     let open = BView::Button(BControl::new().with_icon("play").with_label(format!("Open {}", d.set.spec().label)).with_action(BAction::Set(OpKey::Wear.path(), d.set.spec().slug.into())));
     cards.push(details::section(s, d.set.spec().label, "folder", "set", vec![BView::label(d.set.spec().caption), open]));
-    Some(details::column(cards))
+    Some(cards)
 }
 
 /// The picture a `wear:` or `wear-view:` key names, as (width, height,
@@ -233,7 +233,7 @@ mod tests {
         s.set(ProjectKey::Folder, "mesh");
         assert_eq!(folder(&s), None);
         s.set(ProjectKey::Selected, "wear:tall-classique");
-        assert!(info(&s).is_some(), "a picked design has an inspector");
+        assert!(sections(&s).is_some(), "a picked design has its sidebar sections");
         assert!(image("wear-view:tall-classique:5").is_some(), "its sole view");
     }
 }

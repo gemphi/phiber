@@ -39,6 +39,9 @@ pub enum BSidebarBody {
     /// table, one card per sub-panel, so a box cannot end up ticked in the
     /// popover and clear in the sidebar.
     Overlay,
+    /// The Project Browser's picked asset (`project::details::sections`):
+    /// Info, Stats, Owner, Pricing, and what it uses and is used by.
+    Project,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -152,6 +155,9 @@ static SPREADSHEET: &[BSidebarTabSpec] = &[t("filter", "Filter").with(BSidebarBo
 /// it while every other timing editor beside it carried a strip, which is
 /// the empty column down the right of the Timeline.
 static TIME: &[BSidebarTabSpec] = &[t("play", "Playback").with(BSidebarBody::Playback)];
+/// The Project Browser's details are its sidebar: the picked asset's Item
+/// tab, on the same strip, opening and closing as every sidebar does.
+static PROJECT: &[BSidebarTabSpec] = &[t("item", "Item").with(BSidebarBody::Project)];
 
 pub fn tabs_for(host: BHostType) -> &'static [BSidebarTabSpec] {
     match host {
@@ -169,6 +175,7 @@ pub fn tabs_for(host: BHostType) -> &'static [BSidebarTabSpec] {
         BHostType::Nla => NLA,
         BHostType::Ipo | BHostType::Drivers => IPO,
         BHostType::Spreadsheet => SPREADSHEET,
+        BHostType::Project => PROJECT,
         _ => &[],
     }
 }

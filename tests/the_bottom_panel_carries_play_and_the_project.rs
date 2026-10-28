@@ -63,7 +63,7 @@ async fn the_project_browser_is_a_tab_with_its_three_columns(cx: &mut TestAppCon
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1400.0), px(900.0)));
     show(&app, cx, BHostType::Project);
-    for region in ["region-Tabs-Project", "region-ToolHeader-Project", "region-Tools-Project", "region-Center-Project", "region-UI-Project"] {
+    for region in ["region-Tabs-Project", "region-ToolHeader-Project", "region-Tools-Project", "region-Center-Project"] {
         assert!(cx.debug_bounds(region).is_some(), "{region}: {:?}", selectors(cx));
     }
     // Two rows, not three: the tab names and switches the editor, so there is
@@ -74,8 +74,11 @@ async fn the_project_browser_is_a_tab_with_its_three_columns(cx: &mut TestAppCon
     assert!(bar.origin.y >= tabs.origin.y + tabs.size.height - px(1.0), "the toolbar is the row under the tabs: {tabs:?} {bar:?}");
     let nav = cx.debug_bounds("region-Tools-Project").unwrap();
     let cards = cx.debug_bounds("region-Center-Project").unwrap();
-    let info = cx.debug_bounds("region-UI-Project").unwrap();
-    assert!(nav.origin.x < cards.origin.x && cards.origin.x < info.origin.x, "navigator, cards, inspector, left to right: {nav:?} {cards:?} {info:?}");
+    // The details are the sidebar every host has, at the cards' right: its
+    // strip and, open by default, its panels (`sidebar::set`, the Item tab).
+    let info = cx.debug_bounds("pane-Right-Project").expect("the Project Browser's sidebar");
+    let cards = cx.debug_bounds("pane-Center-Project").unwrap_or(cards);
+    assert!(nav.origin.x < cards.origin.x && cards.origin.x < info.origin.x, "navigator, cards, sidebar, left to right: {nav:?} {cards:?} {info:?}");
     // Its three groups stand over those columns: the search centred over the
     // cards and never wider than a panel.
     let search = cx

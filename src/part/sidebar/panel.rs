@@ -60,6 +60,7 @@ impl BSidebarPanels {
             BSidebarBody::Action => crate::part::action::template::BActionTemplate::new(self.host).cards(tab.label, s),
             BSidebarBody::Playback => self.folded(tab.label, &PLAYBACK_PANELS, s),
             BSidebarBody::Overlay => self.overlay_cards(tab.label, s),
+            BSidebarBody::Project => crate::part::project::details::sections(s),
         };
         built
     }

@@ -33,9 +33,15 @@ impl BSidebarShown {
     }
 
     /// Is the region open? Closed until opened, as Blender's startup file
-    /// has it.
+    /// has it; open until closed where the sidebar is the host's details
+    /// (the Project Browser's picked asset).
     pub fn on(self, s: &BState) -> bool {
-        self.holds_panels() && s.get(&self.key()) == Some(V_TRUE)
+        let set = s.get(&self.key());
+        self.holds_panels()
+            && match self.0 {
+                BHostType::Project => set != Some(crate::state::val::V_FALSE),
+                _ => set == Some(V_TRUE),
+            }
     }
 
     /// Does any of the host's tabs draw something in the region?

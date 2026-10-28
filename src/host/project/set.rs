@@ -18,12 +18,16 @@ static BAR_PANES: &[BPaneSpec] = &[
     BPaneSpec { kind: BPaneType::Right, parts: &[BPartType::ProjectView] },
 ];
 static NAV_PANES: &[BPaneSpec] = &[BPaneSpec { kind: BPaneType::Center, parts: &[BPartType::ProjectNav] }];
-static CENTER_PANES: &[BPaneSpec] = &[BPaneSpec { kind: BPaneType::Center, parts: &[BPartType::Custom] }];
-static INFO_PANES: &[BPaneSpec] = &[BPaneSpec { kind: BPaneType::Center, parts: &[BPartType::ProjectInfo] }];
+/// The cards, then the sidebar every host has: the picked asset's details
+/// on its Item tab, on the same strip and opening and closing as the
+/// viewport's and the Dope Sheet's do.
+static CENTER_PANES: &[BPaneSpec] = &[
+    BPaneSpec { kind: BPaneType::Center, parts: &[BPartType::Custom] },
+    BPaneSpec { kind: BPaneType::Right, parts: &[BPartType::Sidebar] },
+];
 
 pub static REGIONS: &[BRegionSpec] = &[
     BRegionSpec { kind: BRegionType::ToolHeader, panes: BAR_PANES },
     BRegionSpec { kind: BRegionType::Tools, panes: NAV_PANES },
     BRegionSpec { kind: BRegionType::Center, panes: CENTER_PANES },
-    BRegionSpec { kind: BRegionType::UI, panes: INFO_PANES },
 ];
