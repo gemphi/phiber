@@ -23,8 +23,9 @@ phiphx = { path = "../phiphx" }
 phiray = { path = "../phiray" }
 # The game the Play host picks and plays (`scene::play`).
 phiplay = { path = "../phiplay" }
-# The Project Browser's asset database (`part::project::db`).
-phiecs = { path = "../../../phinet/crates/phiecs" }
+# The Project Browser's asset database (`part::project::db`), on phikit's
+# own phiecs core, so phiber builds with no phinet folder beside it.
+phiecs = { path = "../phicore/phiecs" }
 exr = "1.74"
 image = { workspace = true }
 # The 5.5 MB of `assets/` a browser build carries in the binary
