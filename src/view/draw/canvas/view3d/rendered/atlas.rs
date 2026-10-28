@@ -12,9 +12,10 @@ impl BMeshPalette {
     /// The leading entries for this palette's shading, in slot order.
     pub fn lead(&self, atlas: &mut Atlas) {
         // Workbench modes never read the world, so no image goes up. Material
-        // Preview takes Blender's studio light; Rendered takes the file's world.
+        // Preview takes Blender's studio light, and so does Rendered with
+        // Scene World off (`studio`); Rendered otherwise takes the file's world.
         if !self.shading.uses_viewport_color() {
-            let env = if self.shading == crate::scene::BShading::Material {
+            let env = if self.studio {
                 super::studio::environment()
             } else {
                 super::environment().map(|(env, _)| std::sync::Arc::new(env))
@@ -22,10 +23,11 @@ impl BMeshPalette {
             if let Some(env) = env {
                 atlas.add_hdr(env.width, env.height, &env.rgb);
                 atlas.add_env_cdf(env.width, env.height, &env.rgb);
-                // Material Preview lights from the environment in one pass:
+                // The studio light lights from the environment in one pass:
                 // its irradiance and prefiltered copies go up with it
-                // (`ENV_IRRADIANCE_SLOT`, `ENV_PREFILTERED_SLOT`).
-                if self.shading == crate::scene::BShading::Material {
+                // (`ENV_IRRADIANCE_SLOT`, `ENV_PREFILTERED_SLOT`), which
+                // `world::studio_lighting` points the camera at.
+                if self.studio {
                     let lighting = atlas.add_env_lighting(env.width, env.height, &env.rgb);
                     debug_assert_eq!((lighting.irradiance, lighting.prefiltered), (super::ENV_IRRADIANCE_SLOT, super::ENV_PREFILTERED_SLOT));
                 }
