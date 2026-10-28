@@ -116,6 +116,14 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
         && !ctx.listed
         && (!chrome::in_strip(ctx) || ctx.region == Some(crate::region::BRegionType::Execute));
     let is_row = label.is_some() && !chrome::in_strip(ctx) && !action_button;
+    // An action outside a strip — a dialog's Save, Don't Save, Cancel — is an
+    // answer: it takes its share of the row it stands in, its word centred,
+    // so a row of answers reads as one bar of equal buttons (`row.rs`).
+    let answer = action_button && !chrome::in_strip(ctx);
+    row = match answer {
+        true => BFlex::cell().width(BLen::Full).justify(BJustify::Center).styled(row, ctx),
+        false => row,
+    };
     // A value column fills — but an icon tile is a square wherever it sits:
     // stretched, a checkbox's fill became a pill the height of the row.
     if ctx.fill && label.is_some() {
@@ -168,7 +176,7 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
     // the gaps between them, so the row keeps its places (`BControl::span`).
     let slot = 2.0 * ctx.style.spacing.pad_md + ctx.style.dimensions.icon_size;
     let spans = f32::from(ctl.span.max(1));
-    let base = match (ctl.span > 1, wide) {
+    let base = match (ctl.span > 1, wide || answer) {
         (true, _) => BFlex::row().min_width(BLen::Measured(spans * slot + (spans - 1.0) * ctx.style.spacing.gap_xs)).div(ctx),
         (false, true) => BFlex::row().fills().div(ctx),
         (false, false) => div(),

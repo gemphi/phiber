@@ -41,6 +41,10 @@ enum BCardPart {
     Head { kind: BCardKind, open: bool, rule: bool },
     /// A fixed-size slot in the header: the triangle, the grip.
     Glyph { dimmed: bool },
+    /// The heading's icon, on the faint glyph tile every row's icon stands
+    /// on (`BDim::GlyphTile`, `BFill::IconTileRest`): one heading icon in
+    /// every host.
+    HeadIcon,
     /// The title, which takes the header's free space and clips.
     Title,
     /// A run of header controls (`draw_header` / `draw_header_preset`).
@@ -140,6 +144,14 @@ impl BFlexed for BCardPart {
                 let cell = BFlex::row().align(BAlign::Center).justify(BJustify::Center).keeps_size();
                 if *dimmed { cell.dimmed() } else { cell }
             }
+            Self::HeadIcon => BFlex::row()
+                .width(BLen::Dim(super::flex::BDim::GlyphTile))
+                .height(BLen::Dim(super::flex::BDim::GlyphTile))
+                .keeps_size()
+                .align(BAlign::Center)
+                .justify(BJustify::Center)
+                .radius(BRadius::Role(BStyleRole::Button))
+                .fill(BFill::IconTileRest),
             Self::Title => BFlex::row()
                 .fills()
                 .min_width(BLen::Zero)
@@ -221,7 +233,7 @@ fn head(card: &BCard, name: &str, ctx: &BRenderCtx) -> Option<AnyElement> {
         .child(walk(&BView::icon(triangle), ctx)));
     }
     if let Some(icon) = &head.icon {
-        strip = strip.child(BCardPart::Glyph { dimmed: false }.flex(ctx).div(ctx).child(walk(&BView::icon(icon.clone()), ctx)));
+        strip = strip.child(BCardPart::HeadIcon.flex(ctx).div(ctx).child(walk(&BView::icon(icon.clone()), ctx)));
     }
     // `draw_header` lays its controls out before the label: Blender offsets
     // the title by what the header drew (`panel->labelofs`).

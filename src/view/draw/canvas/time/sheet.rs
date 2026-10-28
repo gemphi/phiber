@@ -19,7 +19,7 @@ impl BTimeGesture {
     /// bands, and outside the Dope Sheet.
     pub(super) fn sheet_press(&self, event: &gpui::MouseDownEvent, window: &mut Window, app: &mut App) -> Option<BTimeDrag> {
         let v = &self.view;
-        if v.channel_width <= 0.0 || v.values.is_some() || v.nla {
+        if !v.sheet || v.values.is_some() || v.nla {
             return None;
         }
         let b = self.bounds.get()?;

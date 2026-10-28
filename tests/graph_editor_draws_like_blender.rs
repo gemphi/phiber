@@ -1,7 +1,8 @@
 //! End to end: switching the Layout's bottom editor to the Graph editor
-//! paints the animation window with its channel region, and a press in the
-//! window scrubs on the Graph editor's own view (`graph_create`: `0 .. efra`),
-//! not the Timeline's. What the window paints for loaded curves — the
+//! paints the animation window — with its channel region once something
+//! animates, edge to edge while nothing does — and a press in the window
+//! scrubs on the Graph editor's own view (`graph_create`: `0 .. efra`), not
+//! the Timeline's. What the window paints for loaded curves — the
 //! value axis, the colours, the vertices — is unit-tested in
 //! `canvas/time/curve` and `canvas/time/grid`; this drives the built window.
 
@@ -15,8 +16,10 @@ fn pt(x: f32, y: f32) -> Point<gpui::Pixels> {
     Point::new(px(x), px(y))
 }
 
-/// `ANIM_UI_get_channel_name_width`: the channel region on the window's left.
-const CHANNEL_WIDTH: f32 = 200.0;
+/// The channel list is a side column beside the window
+/// (`part::channels::time`), not a region inside it: the curves start at the
+/// window's left edge.
+const CHANNEL_WIDTH: f32 = 0.0;
 
 #[gpui::test]
 async fn the_graph_editor_is_the_animation_window_on_its_own_view(cx: &mut TestAppContext) {
@@ -42,23 +45,19 @@ async fn the_graph_editor_is_the_animation_window_on_its_own_view(cx: &mut TestA
         app.read_with(cx, |a, _| a.state.get(CtxKey::Frame).map_or(1, |v| v.parse().unwrap()))
     };
 
-    // The channel region takes the press without scrubbing.
-    let before = frame(&app, cx);
-    cx.simulate_mouse_down(pt(left + CHANNEL_WIDTH * 0.5, y), MouseButton::Left, Modifiers::none());
-    cx.simulate_mouse_up(pt(left + CHANNEL_WIDTH * 0.5, y), MouseButton::Left, Modifiers::none());
-    cx.run_until_parked();
-    assert_eq!(frame(&app, cx), before, "a press in the channel region is not a scrub");
-
-    // The Graph editor opens on `0 .. efra`, so halfway across its window
-    // is frame 125 — where the Timeline, on `−9 .. 260`, would give 126.
-    let graph_width = width - CHANNEL_WIDTH;
-    let press = pt(left + CHANNEL_WIDTH + graph_width * 0.5, y);
+    // Nothing animates, so no channel column stands empty beside the window
+    // (`time::view::set`): the curves run from its left edge, as the
+    // Timeline's keys do. The Graph editor opens on `0 .. efra`, so halfway
+    // across its window is frame 125 — where the Timeline, on `−9 .. 260`,
+    // would give 126.
+    let graph_width = width;
+    let press = pt(left + graph_width * 0.5, y);
     cx.simulate_mouse_down(press, MouseButton::Left, Modifiers::none());
     cx.simulate_mouse_up(press, MouseButton::Left, Modifiers::none());
     cx.run_until_parked();
     let halfway = frame(&app, cx);
     assert!((halfway - 125).abs() <= 1, "a press halfway sets frame 125 on the Graph editor's view, got {halfway}");
-    let press = pt(left + CHANNEL_WIDTH + graph_width * 0.1, y);
+    let press = pt(left + graph_width * 0.1, y);
     cx.simulate_mouse_down(press, MouseButton::Left, Modifiers::none());
     cx.simulate_mouse_up(press, MouseButton::Left, Modifiers::none());
     cx.run_until_parked();

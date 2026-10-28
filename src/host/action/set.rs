@@ -10,9 +10,14 @@ use crate::pane::{BPaneSpec, BPaneType};
 use crate::part::BPartType;
 use crate::region::{BRegionSpec, BRegionType};
 
-/// The channel region is drawn by the window's canvas (`canvas/time/row`),
-/// so the rows and their names share one geometry.
+/// The channel list at the left, as every side column is
+/// (`part::channels::time`), the keys in the middle on the same rows, the
+/// sidebar at the right.
 static CENTER_PANES: &[BPaneSpec] = &[
+    BPaneSpec {
+        kind: BPaneType::Left,
+        parts: &[BPartType::Channels],
+    },
     BPaneSpec {
         kind: BPaneType::Center,
         parts: &[BPartType::Custom],

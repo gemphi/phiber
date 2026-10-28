@@ -25,6 +25,7 @@ impl BTimeView {
         view.rows = BTimeRow::list(s, host, axis);
         view.row_height = BTimeRow::height(host);
         view.nla = host == BHostType::Nla;
+        view.sheet = host == BHostType::Action;
         if host == BHostType::Action {
             view.key_picks = crate::scene::action::dope::BKeySelection::now(s);
             view.key_grab = crate::scene::action::dope::BKeyGrab::active(s);
@@ -33,9 +34,6 @@ impl BTimeView {
                 let [f0, f1, r0, r1] = v[..] else { return None };
                 Some((f0, f1, r0 as usize, r1 as usize))
             });
-        }
-        if matches!(host, BHostType::Action | BHostType::Ipo | BHostType::Nla | BHostType::Drivers) {
-            view.channel_width = CHANNEL_WIDTH;
         }
         // `SpaceAction.flag & SACTION_SHOW_MARKERS` (`DNA_action_types.h`):
         // the Timeline/Dope/Graph editor shows markers when on (default), and
@@ -65,6 +63,15 @@ impl BTimeView {
             BHostType::Time | BHostType::Action | BHostType::Nla => {}
             _ => {}
         }
+        // The channel list beside the keys. The Dope Sheet always has its
+        // Summary; the Graph, NLA and Drivers editors list only what
+        // animates, and with nothing to list the column goes rather than
+        // standing empty beside the window (the Timeline hides it too).
+        // Deliberate, recorded: Blender keeps the region open, empty.
+        view.channel_width = match (host, view.rows.is_empty() && view.curves.is_empty()) {
+            (BHostType::Action, _) | (BHostType::Ipo | BHostType::Nla | BHostType::Drivers, false) => CHANNEL_WIDTH,
+            _ => 0.0,
+        };
         // Zoomed, scrolled or framed since it opened: the range it keeps
         // (`cur.rs`), as a region's `v2d.cur` outlives a redraw.
         if let Some(cur) = super::cur::BTimeCur::stored(s, host) {
@@ -87,7 +94,7 @@ mod tests {
         let graph = BTimeView::now(&BState::default(), BHostType::Ipo, AXIS);
         assert_eq!((graph.first, graph.last), (0.0, 250.0), "`graph_create`: 0 .. efra");
         assert_eq!(graph.values, Some((-9.0, 10.0)), "`graph_create`: sfra − 10 .. 10");
-        assert_eq!(graph.channel_width, row::CHANNEL_WIDTH);
+        assert_eq!(graph.channel_width, 0.0, "nothing animates: no channel column beside the window");
         assert!(!graph.drivers);
         let sheet = BTimeView::now(&BState::default(), BHostType::Action, AXIS);
         assert_eq!((sheet.first, sheet.last, sheet.values), (-9.0, 260.0, None));
@@ -95,7 +102,8 @@ mod tests {
         let drivers = BTimeView::now(&BState::default(), BHostType::Drivers, AXIS);
         assert_eq!((drivers.first, drivers.last), DRIVER_VIEW, "`ED_drivers_editor_init`: −2 .. 2");
         assert_eq!(drivers.values, Some(DRIVER_VIEW));
-        assert!(drivers.drivers && drivers.channel_width == row::CHANNEL_WIDTH);
+        assert!(drivers.drivers && drivers.channel_width == 0.0, "no drivers: no channel column");
+        assert_eq!(sheet.channel_width, row::CHANNEL_WIDTH, "the Dope Sheet keeps its Summary");
     }
 
     #[test]

@@ -235,6 +235,14 @@ impl BCard {
         self
     }
 
+    /// One section of a side column — a source list's, a navigator's, an
+    /// inspector's, an animation editor's channel list: its heading's icon
+    /// and word over its rows, on no surface of its own. Every side column
+    /// is built from this one section.
+    pub fn side(title: impl Into<String>, icon: impl Into<String>) -> Self {
+        Self::panel(title).icon(icon).bare()
+    }
+
     /// This card as a section of a source list ([`BCardKind::Section`]).
     pub fn section(mut self) -> Self {
         self.kind = BCardKind::Section;

@@ -2,6 +2,7 @@
 
 use super::ctx::BRenderCtx;
 use super::{walk, strip};
+use super::flex::BFlexed;
 use crate::view::BView;
 use gpui::prelude::*;
 use gpui::AnyElement;
@@ -57,11 +58,18 @@ impl BRow<'_> {
         } else {
             strip::BStripFit::Divide
         };
+        // A row of answers — a dialog's Save, Don't Save, Cancel after a
+        // spacer — stands at the row's end and takes half of it, its buttons
+        // sharing that half equally (`button.rs`, `answer`).
+        if let Some(answers) = answers(self.0) {
+            let half = answers.iter().fold(BRowPart::Answers.flex(ctx).div(ctx), |half, view| half.child(walk(view, ctx)));
+            return BRowPart::AnswerRow.flex(ctx).div(ctx).child(half).into_any_element();
+        }
         let groups: Vec<Vec<AnyElement>> = groups(self.0)
             .into_iter()
             .map(|views| views.iter().map(|v| walk(v, ctx)).collect())
             .collect();
-        let mut element = strip::place(strip::BStripAxis::Row, fit, groups, ctx);
+        let mut element = strip::place_kept(strip::BStripAxis::Row, fit, groups, ctx);
         element = if in_header {
             // A header row passes the strip's height straight through and
             // centres its controls on the strip's line; a cap's `self_end`
@@ -92,6 +100,34 @@ fn groups(list: &[BView]) -> Vec<&[BView]> {
         }
     }
     out.push(&list[start..]);
-    out.retain(|group| !group.is_empty());
+    // An empty group is a place: a row that starts with a spacer puts what
+    // follows at its end, one that ends with one keeps it at its start
+    // (`strip::slot`). Dropping them put `[spacer, buttons]` at the start.
     out
+}
+
+/// The answers of a row of answers: the buttons after a leading spacer,
+/// every one an action (a word and nothing else), or `None`.
+fn answers(list: &[BView]) -> Option<&[BView]> {
+    let (BView::Spacer, rest) = list.split_first()? else { return None };
+    let action = |view: &BView| matches!(view, BView::Button(c) if c.label.is_some() && c.icon.as_deref().unwrap_or("").is_empty() && c.mark.is_none() && c.swatch.is_none());
+    (!rest.is_empty() && rest.iter().all(action)).then_some(rest)
+}
+
+/// The parts of a row of answers.
+enum BRowPart {
+    /// The row: its answers pushed to its end.
+    AnswerRow,
+    /// The answers: half the row, a gap between them.
+    Answers,
+}
+
+impl super::flex::BFlexed for BRowPart {
+    fn flex(&self, _ctx: &BRenderCtx) -> super::flex::BFlex {
+        use super::flex::{BAlign, BFlex, BJustify, BLen, BSpace};
+        match self {
+            Self::AnswerRow => BFlex::row().width(BLen::Full).align(BAlign::Center).justify(BJustify::End),
+            Self::Answers => BFlex::row().width(BLen::Share(0.5)).align(BAlign::Center).gap(BSpace::GapXs),
+        }
+    }
 }

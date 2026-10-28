@@ -12,21 +12,12 @@ use phiber::app::BPhiberApp;
 use phiber::host::BHostType;
 use phiber::space::BSpaceType;
 
-/// `ANIM_UI_get_channel_name_width`, `UI_TIME_SCRUB_MARGIN_Y`,
-/// `ANIM_UI_get_channel_height` and `_skip`.
-const CHANNEL_WIDTH: f32 = 200.0;
-/// The frame-number strip's height. Blender's `UI_TIME_SCRUB_MARGIN_Y` is
-/// 23 at scale 1, but the strip reads as a header for the window below it,
-/// so the renderer fills it from the theme's `header_height` instead
-/// (`the_scrub_strip_is_as_tall_as_a_header`). This constant followed that
-/// change; at 23 every row below the strip was 13 px out and every row
-/// assertion here missed.
+/// The channel list is a side column beside the window
+/// (`part::channels::time`): the view starts at the window's left edge.
+const CHANNEL_WIDTH: f32 = 0.0;
+/// The frame-number strip's height: the theme's `header_height`
+/// (`the_scrub_strip_is_as_tall_as_a_header`).
 const SCRUB: f32 = 36.0;
-const ROW: f32 = 16.0;
-const SKIP: f32 = 2.0;
-/// `acf_generic_group_offset` (`0.7 × widget_unit`) and `ICON_WIDTH` (`0.85 ×`).
-const CURVE_OFFSET: f32 = 14.0;
-const ICON_WIDTH: f32 = 17.0;
 /// `GPU_line_width(2.0)` for the cursor.
 const CURSOR_WIDTH: f32 = 2.0;
 
@@ -96,14 +87,11 @@ async fn the_drivers_editor_lists_the_drivers_and_crosses_its_cursor_at_the_orig
     // No frame range: no curtain at its alpha.
     let in_view = |x: f32, y: f32| x >= left - 1.0 && x < left + width && y >= top && y < top + height;
     assert!(!painted.iter().any(|(x, y, _, _, alpha, _)| in_view(*x, *y) && (alpha - 0.6).abs() < 0.01), "no `ANIM_draw_framerange` in the Drivers editor");
-    // The channel region: the object on the first row, then a swatch on each
-    // driver's row, `ICON_WIDTH` wide at the group offset.
-    let row_top = |index: usize| top + SCRUB + SKIP + index as f32 * (ROW + SKIP);
-    for row in [1, 2] {
-        assert!(
-            painted.iter().any(|(x, y, w, h, alpha, _)| near(*x, canvas_left + CURVE_OFFSET) && near(*w, ICON_WIDTH) && near(*y, row_top(row)) && near(*h, ROW) && *alpha == 1.0),
-            "driver row {row} carries its colour swatch: {painted:?}"
-        );
+    // The channel list beside the window: the object, then each driver with
+    // its colour swatch (`part::channels::time`), as a side column's rows.
+    let list = cx.debug_bounds("panel-sidebar-column").expect("the drivers' channel list");
+    assert!(f32::from(list.origin.x + list.size.width) <= canvas_left, "the list stands beside the view");
+    for row in [0, 1, 2] {
+        assert!(cx.debug_bounds(Box::leak(format!("card-row-drivers-{row}").into_boxed_str())).is_some(), "channel row {row} is listed");
     }
-    assert!(!painted.iter().any(|(x, y, w, _, _, _)| near(*x, canvas_left + CURVE_OFFSET) && near(*w, ICON_WIDTH) && near(*y, row_top(0))), "the object row has no swatch");
 }

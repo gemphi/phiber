@@ -369,7 +369,7 @@ impl BPartItem {
             BPartType::ProjectNav => crate::part::project::BProjectNav.build(s),
             BPartType::ProjectBar => crate::part::project::BProjectBar.build(s),
             BPartType::ProjectView => crate::part::project::BProjectView.build(s),
-            BPartType::ProjectInfo => crate::part::project::BProjectInfo.build(s),
+            BPartType::ProjectInfo => crate::part::project::details::BProjectInfo.build(s),
             BPartType::FileInfo => crate::part::file::info::BFileInfo.build(s),
             BPartType::Playback => crate::part::playback::BPlayback::new(h).build(s),
             BPartType::FrameRange => crate::part::framerange::BFrameRange::new(h).build(s),

@@ -20,8 +20,11 @@ use crate::state::BState;
 pub const ROW_HEIGHT: f32 = 0.8 * super::WIDGET_UNIT;
 /// `NLATRACK_HEIGHT` with strip curves shown: `1.2 × widget_unit`.
 pub const NLA_ROW_HEIGHT: f32 = 1.2 * super::WIDGET_UNIT;
-/// `ANIM_UI_get_channel_skip` / `NLATRACK_SKIP`: `0.1 × widget_unit`.
-pub const ROW_SKIP: f32 = 0.1 * super::WIDGET_UNIT;
+/// The skip between rows: the side column's gap between its rows (the
+/// theme's `gap_xs`), so the keys' rows and the channel list's rows beside
+/// them (`part::channels::time`) share one pitch. Blender's own is
+/// `ANIM_UI_get_channel_skip`, `0.1 × widget_unit`.
+pub const ROW_SKIP: f32 = 0.2 * super::WIDGET_UNIT;
 /// `ANIM_UI_get_channel_name_width` / `NLATRACK_NAMEWIDTH`: the channel
 /// region, `10 × widget_unit`.
 pub const CHANNEL_WIDTH: f32 = 10.0 * super::WIDGET_UNIT;

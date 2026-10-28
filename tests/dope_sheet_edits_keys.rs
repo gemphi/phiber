@@ -20,10 +20,13 @@ use std::path::{Path, PathBuf};
 
 type Cx<'a> = &'a mut gpui::VisualTestContext;
 
-/// `ANIM_UI_get_channel_name_width`, `_height`, `_skip`, `UI_TIME_SCRUB_MARGIN_Y`.
-const CHANNEL_WIDTH: f32 = 200.0;
-const ROW: f32 = 16.0;
-const SKIP: f32 = 2.0;
+/// The channel list is a side column beside the window
+/// (`part::channels::time`), so the window's keys start at its left edge;
+/// its rows are the side column's: the theme's row height, the column's
+/// gap between them.
+const CHANNEL_WIDTH: f32 = 0.0;
+const ROW: f32 = phiber::theme::style::metric::MODULE;
+const SKIP: f32 = phiber::view::draw::canvas::time::row::ROW_SKIP;
 /// The frame-number strip's height. Blender's `UI_TIME_SCRUB_MARGIN_Y` is
 /// 23 at scale 1, but the strip reads as a header for the window below it,
 /// so the renderer fills it from the theme's `header_height` instead

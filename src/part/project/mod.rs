@@ -19,11 +19,12 @@
 
 pub mod check;
 pub mod db;
+pub mod details;
 pub mod library;
 pub mod thumb;
 
 use crate::state::{BKey as _, BState, FileKey, OpKey, ProjectKey};
-use crate::state::val::{V_FALSE, V_TRUE};
+use crate::state::val::V_TRUE;
 use crate::view::prim::{BAction, BCard, BColumn, BControl, BThumb};
 use crate::view::{BView, BViewItem};
 use db::{BAssetKind, BProjectDb};
@@ -126,12 +127,6 @@ impl BViewItem for BProjectNav {
         let row = |icon: &str, label: String, here: bool, slug: &str| {
             BView::MenuItem(BControl::new().with_icon(icon).with_label(label).with_active(here).with_action(BAction::Set(ProjectKey::Folder.path(), slug.to_string())))
         };
-        // Each group a section that folds, standing on one ground when open,
-        // as the file browser's source list does (`file::sidebar::panel`).
-        let section = |label: &'static str, slug: &'static str, rows: Vec<BView>| -> BView {
-            let open = s.get(ProjectKey::Open(slug)) != Some(V_FALSE);
-            BCard::panel(label).bare().fold(ProjectKey::Open(slug).path(), open).body(rows).into()
-        };
         let mut project = Vec::new();
         if let Some(db) = db::current() {
             for kind in BAssetKind::ALL {
@@ -144,12 +139,13 @@ impl BViewItem for BProjectNav {
         if project.is_empty() {
             project.push(BView::label("Open a scene to list its files."));
         }
-        let cards = vec![
-            section("Collections", "collections", vec![row("grid", "All Files".into(), at.is_none() && library::folder(s).is_none(), "all")]),
-            section("Project", "project", project),
-            section("Library", "library", library::nav(s)),
-        ];
-        BView::from(BCard::column(BColumn::Sidebar, cards))
+        // Each group a section of the one side-column accordion
+        // (`details::section`), the inspector's kind of section too.
+        details::column(vec![
+            details::section(s, "Collections", "grid", "collections", vec![row("grid", "All Files".into(), at.is_none() && library::folder(s).is_none(), "all")]),
+            details::section(s, "Project", "folder", "project", project),
+            details::section(s, "Library", "book", "library", library::nav(s)),
+        ])
     }
 }
 
@@ -195,39 +191,5 @@ impl BViewItem for BProjectView {
             BView::Button(BControl::new().with_icon(if list { "grid" } else { "list" }).with_tooltip(if list { "Show as Icons" } else { "Show as List" }).with_action(BAction::Set(ProjectKey::List.path(), (!list).to_string()))),
             BView::Button(BControl::new().with_icon("sort").with_tooltip(if descending { "Sort A to Z" } else { "Sort Z to A" }).with_active(s.get(ProjectKey::Descending).is_some()).with_action(BAction::Set(ProjectKey::Descending.path(), (!descending).to_string()))),
         ])
-    }
-}
-
-/// The inspector: the picked asset's values and its links, or the prompt.
-#[derive(Clone, Copy, Debug)]
-pub struct BProjectInfo;
-
-impl BViewItem for BProjectInfo {
-    fn build(&self, s: &BState) -> BView {
-        if let Some(view) = library::info(s) {
-            return view;
-        }
-        let found = db::current().and_then(|db| {
-            let spelling = s.get(ProjectKey::Selected)?;
-            let w = db.world.words().iter().copied().find(|&w| db.world.spelling(w) == spelling)?;
-            Some((db, w))
-        });
-        let Some((db, w)) = found else {
-            return BView::from(BCard::column(BColumn::Sidebar, vec![BView::label("Select a file to view its properties.")]));
-        };
-        let Some(a) = db.asset(w) else { return BView::empty() };
-        let mut rows = vec![BView::pair("Name", a.name.clone()), BView::pair("Kind", a.kind.label().trim_end_matches('s').to_string())];
-        rows.extend(a.info.iter().map(|(k, v)| BView::pair(k.clone(), v.clone())));
-        let names = |ws: Vec<Word>| ws.iter().filter_map(|&u| db.asset(u)).map(|u| u.name.clone()).collect::<Vec<_>>();
-        let mut cards = vec![BCard::panel("Info").icon(a.kind.icon()).body(rows).into()];
-        let uses = names(db.uses_of(w));
-        if !uses.is_empty() {
-            cards.push(BCard::panel(format!("Uses ({})", uses.len())).body(uses.into_iter().take(24).map(BView::label).collect()).into());
-        }
-        let users = names(db.used_by(w));
-        if !users.is_empty() {
-            cards.push(BCard::panel(format!("Used by ({})", users.len())).body(users.into_iter().take(24).map(BView::label).collect()).into());
-        }
-        BView::from(BCard::column(BColumn::Sidebar, cards))
     }
 }

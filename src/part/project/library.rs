@@ -11,6 +11,7 @@
 //! checks `wear-check:<design>:<n>` (`check`).
 
 use super::check;
+use super::details;
 use crate::state::{BKey as _, BState, OpKey, ProjectKey};
 use crate::view::BView;
 use crate::view::prim::{BAction, BCard, BColumn, BControl, BThumb};
@@ -177,18 +178,18 @@ pub fn info(s: &BState) -> Option<BView> {
     let d = lib.design(lib.find(s.get(ProjectKey::Selected)?)?)?;
     let mut rows = vec![BView::pair("Name", d.label)];
     rows.extend(d.fields().into_iter().map(|(k, v)| BView::pair(k, v)));
-    let mut cards: Vec<BView> = vec![BCard::panel("Design").icon("shoe").body(rows).into()];
+    let mut cards: Vec<BView> = vec![details::section(s, "Design", "shoe", "design", rows)];
     let views = BShot::SHEET.iter().enumerate().map(|(i, shot)| tile(format!("{VIEW}{}:{i}", d.slug), shot.label())).collect();
-    cards.push(BCard::panel("Views").icon("view").body(vec![BView::grid(views)]).into());
+    cards.push(details::section(s, "Views", "view", "views", vec![BView::grid(views)]));
     let checks = check::checks(d);
     if !checks.is_empty() {
         let mut body = vec![BView::grid(checks.iter().enumerate().map(|(i, c)| tile(check::key(d, i), c.label)).collect())];
         body.push(BView::check_row(s, "", ProjectKey::Confirmed(d.slug).path(), false, "Confirmed against the sketch"));
-        cards.push(BCard::panel("Sketch Check").icon("image").body(body).into());
+        cards.push(details::section(s, "Sketch Check", "image", "check", body));
     }
     let open = BView::Button(BControl::new().with_icon("play").with_label(format!("Open {}", d.set.spec().label)).with_action(BAction::Set(OpKey::Wear.path(), d.set.spec().slug.into())));
-    cards.push(BCard::panel(d.set.spec().label).icon("folder").body(vec![BView::label(d.set.spec().caption), open]).into());
-    Some(BView::from(BCard::column(BColumn::Sidebar, cards)))
+    cards.push(details::section(s, d.set.spec().label, "folder", "set", vec![BView::label(d.set.spec().caption), open]));
+    Some(details::column(cards))
 }
 
 /// The picture a `wear:` or `wear-view:` key names, as (width, height,

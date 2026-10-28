@@ -6,7 +6,7 @@
 //! (`ANIMTYPE_NLATRACK`) each strip's hold backdrops, box, outline, repeat
 //! lines and name (`nla_draw_strip`, `nla_draw_strip_text`).
 
-use super::super::row::{BRowKind, BTimeRow, NLA_ROW_HEIGHT, ROW_SKIP, set::diamond};
+use super::super::row::{BRowKind, BTimeRow, ROW_SKIP, set::diamond};
 use super::super::set::{hsla, rect, shape, text_at};
 use super::super::BTimeView;
 use super::{BTrackStrips, HOLD_AFTER_ALPHA, HOLD_BEFORE_ALPHA, MUTED_ALPHA, REPEAT_INSET, TEXT_MARGIN};
@@ -46,7 +46,8 @@ impl BTimeView {
         let width = f32::from(at.size.width);
         let x = |frame: f32| self.x_of(frame, width);
         for (index, row) in self.rows.iter().enumerate() {
-            let (top, bottom) = (BTimeRow::top(index, NLA_ROW_HEIGHT, self.scrub_height), BTimeRow::top(index, NLA_ROW_HEIGHT, self.scrub_height) + NLA_ROW_HEIGHT);
+            let top = BTimeRow::top(index, self.row_height, self.scrub_height);
+            let bottom = top + self.row_height;
             match &row.kind {
                 BRowKind::Action { name, tweaking } => paint_action(row, action_color(name.is_some(), *tweaking, colors), top, bottom, colors, at, &x, window),
                 BRowKind::Track(track) => {

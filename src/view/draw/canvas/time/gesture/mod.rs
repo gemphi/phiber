@@ -118,10 +118,6 @@ impl BTimeGesture {
         }
         let extend = event.modifiers.shift;
         let hit = BTimeRow::index_at(y, self.view.row_height, self.view.scrub_height).and_then(|i| Some((i, BTimeRow::track_at(&self.view.rows, i)?)));
-        let x = x - self.view.channel_width;
-        if x < 0.0 {
-            return Some(hit.map_or(String::new(), |(_, (object, track))| BNlaOp::channel(&object, track, extend)));
-        }
         let width = f32::from(self.view.window(b).size.width);
         let strip = hit.and_then(|(i, (object, track))| {
             let BRowKind::Track(row) = &self.view.rows[i].kind else { return None };
@@ -131,14 +127,6 @@ impl BTimeGesture {
         Some(BNlaOp::click(strip.as_ref().map(|(o, t, k)| (o.as_str(), *t, *k)), extend))
     }
 
-    /// A press in the channel column of a non-NLA editor, on a channel that can
-    /// expand: the write that flips it, or `None` when the press was elsewhere.
-    fn expander_press(&self, event: &gpui::MouseDownEvent) -> Option<BAction> {
-        let b = self.bounds.get()?;
-        let (x, y) = (f32::from(event.position.x - b.origin.x), f32::from(event.position.y - b.origin.y));
-        super::expander::expander_write(&self.view.rows, x, y, self.view.row_height, self.view.channel_width, self.view.scrub_height)
-    }
-
     pub fn down(&self, event: &gpui::MouseDownEvent, window: &mut Window, app: &mut App) {
         PRESSED.set(BTimeDrag::Scrub);
         if self.view.key_grab {
@@ -146,16 +134,6 @@ impl BTimeGesture {
         }
         if self.grabbing {
             return self.marker("grab:confirm".into(), window, app);
-        }
-        // Before the key pick and the scrub fallback: a press in the channel
-        // column is neither. It used to fall through to a scrub, so clicking a
-        // channel name in the Dope Sheet moved the playhead.
-        if !self.view.nla
-            && let Some(write) = self.expander_press(event)
-        {
-            PRESSED.set(BTimeDrag::Held);
-            (self.handler)(&write, window, app);
-            return;
         }
         if let Some(drag) = self.sheet_press(event, window, app) {
             return PRESSED.set(drag);

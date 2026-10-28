@@ -61,9 +61,13 @@ pub struct BTimeView {
     pub scrub_height: f32,
     /// The F-curves the Graph editor draws.
     pub curves: Vec<BDrawnCurve>,
-    /// The channel region's width: the Dope Sheet and Graph editor show it,
-    /// the Timeline hides it (`RGN_FLAG_HIDDEN` in `action_create`).
+    /// The channel list's width: the Dope Sheet and Graph editor show it,
+    /// the Timeline hides it (`RGN_FLAG_HIDDEN` in `action_create`). The list
+    /// is a side column beside the canvas (`part::channels::time`); the
+    /// canvas paints only the keys and draws this as zero.
     pub channel_width: f32,
+    /// The Dope Sheet: its keys pick and move (`sheet.rs`).
+    pub sheet: bool,
     /// `Scene.markers` as `(frame, name, selected)`, in frame order; the
     /// Drivers editor, whose x axis is not time, carries none.
     pub markers: Vec<(f32, String, bool)>,
@@ -97,6 +101,7 @@ impl BTimeView {
             scrub_height: super::SCRUB_HEIGHT,
             curves: Vec::new(),
             channel_width: 0.0,
+            sheet: false,
             markers: Vec::new(),
             marker_box: None,
             key_picks: Default::default(),

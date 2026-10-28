@@ -17,7 +17,7 @@ pub mod row;
 pub mod set;
 pub mod sheet;
 pub mod show;
-pub mod expander;
+
 pub mod strip;
 pub mod view;
 
@@ -61,6 +61,14 @@ impl BTime {
         // The one place the theme meets this window's geometry: `now` builds
         // from the scene and Blender's own constants and has no style to read.
         view.scrub_height = ctx.style.dimensions.header_height;
+        // The channel list is a side column beside this canvas
+        // (`part::channels::time`), so the canvas starts after it and paints
+        // only the keys, on that column's rows: a heading tall above them
+        // (the scrub band), a row of the theme's row height each.
+        if view.channel_width > 0.0 {
+            view.row_height = ctx.style.dimensions.row_height;
+            view.channel_width = 0.0;
+        }
         // The paint pass knows the canvas's bounds; the gestures, which need
         // them to turn a pointer into a frame, read them from here.
         let bounds: Rc<Cell<Option<Bounds<Pixels>>>> = Rc::new(Cell::new(None));
@@ -84,9 +92,6 @@ impl BTime {
         let window = BFlex::column().place(BPlace::Overlay).fill(BFill::Swatch(crate::theme::BAnimColors::rgba(colors.back)));
         let painter = canvas(|_, _, _| (), move |b, (), window, cx| {
             seen.set(Some(b));
-            if painted.channel_width > 0.0 {
-                row::set::paint_channels(&painted.rows, painted.row_height, painted.scrub_height, &colors, b, window, cx);
-            }
             painted.paint(&colors, painted.window(b), window, cx);
             if playing {
                 window.request_animation_frame();

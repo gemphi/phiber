@@ -98,10 +98,10 @@ impl BTimeView {
         // The Dope Sheet lays its keys out in rows; the NLA editor lays its
         // strips out in taller ones; the Graph editor draws the curves
         // themselves over its value axis.
-        match self.values {
-            None if self.row_height > super::row::ROW_HEIGHT => self.paint_nla_rows(colors, at, window, cx),
-            None => super::row::set::paint_rows(&self.rows, colors, at, &x, &|row, frame| self.picked(row, frame), self.scrub_height, window),
-            Some(_) => self.paint_curves(&self.curves, colors, at, window),
+        match (self.values, self.nla) {
+            (None, true) => self.paint_nla_rows(colors, at, window, cx),
+            (None, false) => super::row::set::paint_rows(&self.rows, colors, at, &x, &|row, frame| self.picked(row, frame), (self.row_height, self.scrub_height), window),
+            (Some(_), _) => self.paint_curves(&self.curves, colors, at, window),
         }
         self.paint_cursor(colors, at, window);
         self.paint_scrub(colors, step, at, window, cx);

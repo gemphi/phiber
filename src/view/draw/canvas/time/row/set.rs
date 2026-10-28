@@ -1,37 +1,25 @@
-//! What a channel row paints — `draw_backdrops` and `draw_keyframes` in
-//! `action_draw.cc`, and the channel region's names
-//! (`action_channel_region_draw`) — in the theme's colours (`BAnimColors`).
+//! What a channel row paints in the window — `draw_backdrops` and
+//! `draw_keyframes` in `action_draw.cc` — in the theme's colours
+//! (`BAnimColors`). The channels' names are a side column beside it
+//! (`part::channels::time`).
 
-use super::super::set::{hsla, rect, shape, text_at, triangle};
-use super::{BRowKind, BTimeRow, CHANNEL_WIDTH, ROW_HEIGHT};
+use super::super::set::{hsla, rect};
+use super::{BRowKind, BTimeRow};
 use crate::theme::BAnimColors;
-use gpui::{App, Bounds, PathBuilder, Pixels, Window, fill, point, px};
+use gpui::{Bounds, PathBuilder, Pixels, Window, fill, point, px};
 
 /// `channel_ui_data_init`: `icon_size = widget_unit / 2`.
 const ICON_SIZE: f32 = super::super::WIDGET_UNIT * 0.5;
-/// `anim_channels_defines.cc`: `ICON_WIDTH` is `0.85 × widget_unit`; a
-/// channel under an ID outside the Action editor sits `0.7 × widget_unit`
-/// in (`acf_generic_group_offset`); the name follows its widgets by 3.
-const ICON_WIDTH: f32 = 0.85 * super::super::WIDGET_UNIT;
-const CURVE_OFFSET: f32 = 0.7 * super::super::WIDGET_UNIT;
-const NAME_PAD: f32 = 3.0;
-/// A group sits one `acf_generic_group_offset` step in from its object, and
-/// a curve in a group one step further than an ungrouped one.
-pub(in crate::view::draw::canvas::time) const GROUP_OFFSET: f32 = CURVE_OFFSET;
-
-/// How much further in a curve row starts: one step under a group.
-fn curve_step(kind: &BRowKind) -> f32 {
-    if matches!(kind, BRowKind::Curve { grouped: true, .. }) { CURVE_OFFSET } else { 0.0 }
-}
-
 /// The backdrops, then the diamonds, of every Dope Sheet row, in the
 /// window `at` (`x_of` maps a frame to a pixel across it); a picked column
 /// (`picked(row, frame)`) in `TH_KEYTYPE_KEYFRAME_SELECT`. The NLA's rows
 /// are `strip/set.rs`.
-pub fn paint_rows(rows: &[BTimeRow], colors: &BAnimColors, at: Bounds<Pixels>, x_of: &dyn Fn(f32) -> f32, picked: &dyn Fn(usize, f32) -> bool, scrub: f32, window: &mut Window) {
+/// `(height, scrub)` is the rows' geometry: their height and the band above
+/// them (`BTimeView::row_height`, `scrub_height`).
+pub fn paint_rows(rows: &[BTimeRow], colors: &BAnimColors, at: Bounds<Pixels>, x_of: &dyn Fn(f32) -> f32, picked: &dyn Fn(usize, f32) -> bool, (height, scrub): (f32, f32), window: &mut Window) {
     let width = f32::from(at.size.width);
     for (index, row) in rows.iter().enumerate() {
-        let (top, center) = (BTimeRow::top(index, ROW_HEIGHT, scrub), BTimeRow::center(index, ROW_HEIGHT, scrub));
+        let (top, center) = (BTimeRow::top(index, height, scrub), BTimeRow::center(index, height, scrub));
         let back = match &row.kind {
             BRowKind::Summary { expanded: true } => Some(colors.summary_back),
             BRowKind::Summary { expanded: false } => None,
@@ -41,7 +29,7 @@ pub fn paint_rows(rows: &[BTimeRow], colors: &BAnimColors, at: Bounds<Pixels>, x
             BRowKind::Action { .. } | BRowKind::Track(_) | BRowKind::Driver { .. } => None,
         };
         if let Some(back) = back {
-            window.paint_quad(fill(rect(0.0, top, width, top + ROW_HEIGHT, at), hsla(back)));
+            window.paint_quad(fill(rect(0.0, top, width, top + height, at), hsla(back)));
         }
         // The row's keys in three strokes — every border, the plain
         // fills, the picked fills — not two paths a key: a rig's rows hold
@@ -91,112 +79,4 @@ pub fn diamond(x: f32, y: f32, size: f32, inner: crate::theme::BColor, colors: &
             window.paint_path(path, hsla(color));
         }
     }
-}
-
-/// The channel region: its background, each row's backdrop where Blender
-/// gives it one (`acf_generic_root_backdrop` for an object, the action
-/// line's own colour, a track's), and each row's name on its line — a
-/// selected track's in the selection's colour, as its strips are
-/// (`TH_TEXT_HI` in Blender).
-pub fn paint_channels(rows: &[BTimeRow], row_height: f32, scrub: f32, colors: &BAnimColors, at: Bounds<Pixels>, window: &mut Window, cx: &mut App) {
-    let height = f32::from(at.size.height);
-    window.paint_quad(fill(rect(0.0, 0.0, CHANNEL_WIDTH, height, at), hsla(colors.channel_back)));
-    let indent = super::super::WIDGET_UNIT * 0.5;
-    for (index, row) in rows.iter().enumerate() {
-        let top = BTimeRow::top(index, row_height, scrub);
-        let back = match &row.kind {
-            BRowKind::Object { .. } if row_height > ROW_HEIGHT => Some(colors.object_back),
-            BRowKind::Action { name, tweaking } => Some(super::super::strip::set::action_color(name.is_some(), *tweaking, colors)),
-            BRowKind::Track(_) => Some(colors.track_back),
-            BRowKind::Driver { .. } | BRowKind::Curve { .. } => Some(colors.curve_back),
-            BRowKind::Group { .. } => Some(colors.group_back),
-            BRowKind::Slot { .. } => Some(colors.object_back),
-            BRowKind::Summary { .. } | BRowKind::Object { .. } => None,
-        };
-        if let Some(back) = back {
-            window.paint_quad(fill(rect(0.0, top, CHANNEL_WIDTH, top + row_height, at), hsla(back)));
-        }
-        // `ANIM_channel_draw` in the Graph editor: an F-curve's colour
-        // swatch, then its visibility toggle's width, before the name.
-        if let BRowKind::Driver { color, .. } | BRowKind::Curve { color, .. } = &row.kind {
-            let swatch = gpui::Rgba { r: color[0], g: color[1], b: color[2], a: 1.0 };
-            let x = CURVE_OFFSET + curve_step(&row.kind);
-            window.paint_quad(fill(rect(x, top, x + ICON_WIDTH, top + row_height, at), swatch));
-        }
-        // `ANIM_channel_draw` step 2: a channel that CAN expand reserves
-        // `ICON_WIDTH` for its widget; one that cannot, and is not an F-curve,
-        // pads `0.2 × widget_unit` instead; an F-curve gets neither, because
-        // "F-Curves are not containers" (`acf_fcurve_setting_valid`).
-        match &row.kind {
-            BRowKind::Object { expanded, .. } | BRowKind::Slot { expanded, .. } => expander(*expanded, indent, BTimeRow::center(index, row_height, scrub), colors, at, window),
-            BRowKind::Group { expanded, .. } => expander(*expanded, GROUP_OFFSET, BTimeRow::center(index, row_height, scrub), colors, at, window),
-            _ => {}
-        }
-        let ink = match &row.kind {
-            BRowKind::Track(track) if track.flag & crate::phiphx::blend::TRACK_SELECTED != 0 => colors.strip_select,
-            _ => colors.channel_text,
-        };
-        let line = shape(row.name(), ink, window);
-        let x = match row.kind {
-            BRowKind::Summary { .. } => indent,
-            // Past the expander widget this row reserves, then its gap — in
-            // the NLA's taller rows too, where the triangle is drawn as well.
-            BRowKind::Object { .. } | BRowKind::Slot { .. } => indent + ICON_WIDTH + NAME_PAD,
-            BRowKind::Action { .. } | BRowKind::Track(_) => indent * 2.0,
-            // `acf_generic_group_offset`: a curve under an ID sits one step in
-            // from the channel it belongs to, past its swatch and toggle.
-            BRowKind::Driver { .. } | BRowKind::Curve { .. } => CURVE_OFFSET + curve_step(&row.kind) + ICON_WIDTH * 2.0 + NAME_PAD,
-            BRowKind::Group { .. } => GROUP_OFFSET + ICON_WIDTH + NAME_PAD,
-        };
-        text_at(&line, x, BTimeRow::center(index, row_height, scrub), at, window, cx);
-        // A slot's ID type at the channel's right edge, where Blender draws
-        // its icon (what tells a camera's slot from its data's).
-        if let BRowKind::Slot { identifier, .. } = &row.kind {
-            let kind = shape(id_type(identifier.get(..2).unwrap_or("")), colors.muted, window);
-            let right = CHANNEL_WIDTH - f32::from(kind.width) - indent;
-            text_at(&kind, right, BTimeRow::center(index, row_height, scrub), at, window, cx);
-        }
-    }
-}
-
-/// The ID type an action slot's identifier leads with (`ID_OB`, `ID_CA`, …)
-/// as a word.
-fn id_type(code: &str) -> &'static str {
-    match code {
-        "OB" => "Object",
-        "CA" => "Camera",
-        "LA" => "Light",
-        "ME" => "Mesh",
-        "MA" => "Material",
-        "WO" => "World",
-        "SC" => "Scene",
-        "AR" => "Armature",
-        "KE" => "Shape Keys",
-        "NT" => "Node Tree",
-        "CU" => "Curve",
-        _ => "",
-    }
-}
-
-/// The expand widget — `ICON_TRIA_DOWN` when open, `ICON_TRIA_RIGHT` when shut
-/// (`anim_channels_defines.cc:5885`), drawn in the `ICON_WIDTH` slot
-/// `ANIM_channel_draw` reserves for it.
-///
-/// Blender draws this as a real UI widget rather than a glyph, so what transfers
-/// is the pair of shapes and the slot, not a font character: a right-pointing
-/// triangle for shut and a down-pointing one for open, which is the convention
-/// every tree in the program uses.
-fn expander(expanded: bool, x: f32, mid: f32, colors: &BAnimColors, at: Bounds<Pixels>, window: &mut Window) {
-    // Sized off the icon slot so it tracks `widget_unit` with everything else.
-    let half = ICON_SIZE * 0.5;
-    let centre = x + ICON_WIDTH * 0.5;
-    let point = |dx: f32, dy: f32| gpui::point(at.origin.x + px(centre + dx), at.origin.y + px(mid + dy));
-    let (a, b, c) = if expanded {
-        // Down: the flat edge on top, the tip below.
-        (point(-half, -half * 0.6), point(half, -half * 0.6), point(0.0, half * 0.8))
-    } else {
-        // Right: the flat edge at the left, the tip to the right.
-        (point(-half * 0.6, -half), point(-half * 0.6, half), point(half * 0.8, 0.0))
-    };
-    triangle(a, b, c, colors.channel_text, window);
 }

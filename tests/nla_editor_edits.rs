@@ -22,10 +22,12 @@ use std::path::PathBuf;
 
 type Cx<'a> = &'a mut gpui::VisualTestContext;
 
-/// `NLATRACK_NAMEWIDTH`, `NLATRACK_HEIGHT`, `NLATRACK_SKIP`, `UI_TIME_SCRUB_MARGIN_Y`.
-const CHANNEL_WIDTH: f32 = 200.0;
-const ROW: f32 = 24.0;
-const SKIP: f32 = 2.0;
+/// The track list is a side column beside the window
+/// (`part::channels::time`), so the strips start at the window's left edge,
+/// on the side column's rows: the theme's row height, the column's gap.
+const CHANNEL_WIDTH: f32 = 0.0;
+const ROW: f32 = phiber::theme::style::metric::MODULE;
+const SKIP: f32 = phiber::view::draw::canvas::time::row::ROW_SKIP;
 /// The frame-number strip's height. Blender's `UI_TIME_SCRUB_MARGIN_Y` is
 /// 23 at scale 1, but the strip reads as a header for the window below it,
 /// so the renderer fills it from the theme's `header_height` instead
@@ -43,11 +45,10 @@ fn at(cx: Cx, frame: f32, row: usize) -> gpui::Point<gpui::Pixels> {
     gpui::point(px(left + (frame + 9.0) / 269.0 * width), px(y))
 }
 
-/// A click on row `row`'s name in the channel list.
+/// A click on row `row`'s name in the track list beside the window.
 fn name(cx: Cx, row: usize) -> gpui::Point<gpui::Pixels> {
-    let window = cx.debug_bounds("time-window").expect("the NLA window");
-    let y = f32::from(window.origin.y) + SCRUB + SKIP + row as f32 * (ROW + SKIP) + ROW / 2.0;
-    gpui::point(window.origin.x + px(60.0), px(y))
+    let id: &'static str = Box::leak(format!("card-row-tracks-{row}").into_boxed_str());
+    cx.debug_bounds(id).unwrap_or_else(|| panic!("track list row {row}")).center()
 }
 
 fn click(cx: Cx, point: gpui::Point<gpui::Pixels>, shift: bool) {

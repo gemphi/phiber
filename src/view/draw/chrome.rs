@@ -92,15 +92,21 @@ pub fn active_fill(ctx: &BRenderCtx) -> gpui::Hsla {
     ctx.style.control_fill(BControlState::Active, ctx.floating).map(to_hsla).unwrap_or_else(|| to_hsla(ctx.style.colors.accent))
 }
 
-/// Ink that reads on `fill`: the theme's `text`, or white where both are
-/// dark — a light theme's text on its accent — as Blender draws a selected
-/// widget's text in its own `text_sel` rather than the resting text.
+/// Ink that reads on `fill`, as Blender draws a selected widget's text in its
+/// own `text_sel` rather than the resting text: the theme's `text` when it
+/// already stands apart from the fill, else the fill's own hue taken nearly
+/// to black on a light fill, or white on a dark one. A dark theme's light
+/// text on its light accent (a dialog's Save) read as nothing.
 pub fn ink_on(fill: gpui::Hsla, text: gpui::Hsla) -> gpui::Hsla {
-    match fill.l < 0.5 && text.l < 0.5 {
-        true => gpui::Hsla { a: text.a, ..gpui::white() },
-        false => text,
+    match (fill.l > LIGHT_FILL, text.l > LIGHT_FILL) {
+        (true, true) => gpui::Hsla { h: fill.h, s: fill.s * 0.6, l: 0.12, a: text.a },
+        (false, false) => gpui::Hsla { a: text.a, ..gpui::white() },
+        _ => text,
     }
 }
+
+/// Where a fill counts as light, for the ink on it.
+const LIGHT_FILL: f32 = 0.55;
 
 /// Every icon tile not lit, in every host, rests on the one tile shade
 /// (`BFill::IconTileRest`), half way to the lit fill, so a row of tiles reads

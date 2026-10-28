@@ -162,14 +162,28 @@ impl BRegionItem {
         if !modes_for(self.host).is_empty() {
             Self::ensure_first_part(panes, BPaneType::Left, BPartType::Modebar, self.host, state);
         }
-        // The window's own bars (top bar, status bar) are not editors: there
-        // is no editor type to switch them to, so they lead with what they
-        // are — the brand and menus, the status read-out — not a switcher.
-        // Nor does a header under the bottom area's tabs: the tabs are its
-        // switcher, and a second one drew the editor's icon twice beside the
-        // mode dropdown (the Graph Editor's icon, then F-Curves with it).
-        if !self.host.is_fixed_bar() && !crate::part::areatabs::BAreaTabs::shown() {
+        self.lead_with_switcher(panes, state);
+    }
+
+    /// Every editor's first strip leads with its switcher, the active
+    /// editor's icon: any host can be switched, so every one says which it
+    /// is, under the bottom area's tabs too (icon only there,
+    /// `part::switcher`). The first strip is the header, or the tool header
+    /// of a host with none (the Project Browser). The window's own bars (top
+    /// bar, status bar) are not editors and lead with what they are.
+    fn lead_with_switcher(&self, panes: &mut Vec<BView>, state: &BState) {
+        if !self.host.is_fixed_bar() {
             Self::ensure_first_part(panes, BPaneType::Left, BPartType::Switcher, self.host, state);
+        }
+    }
+
+    /// Whether this region is its host's first strip: the header, or the
+    /// tool header of a host that has no header.
+    fn leads_host(&self) -> bool {
+        match self.region.kind {
+            BRegionType::Header => true,
+            BRegionType::ToolHeader => !self.host.spec().regions.iter().any(|r| r.kind == BRegionType::Header),
+            _ => false,
         }
     }
 }
@@ -226,8 +240,10 @@ impl BViewItem for BRegionItem {
             };
         }
         let mut list = BPaneList::new(self.host, self.region.panes).items(state);
-        if self.region.kind == BRegionType::Header {
-            self.complete_header(&mut list, state);
+        match (self.region.kind == BRegionType::Header, self.leads_host()) {
+            (true, _) => self.complete_header(&mut list, state),
+            (false, true) => self.lead_with_switcher(&mut list, state),
+            (false, false) => {}
         }
         // An execute bar with nothing to execute — the file browser's, with
         // no purpose set — is not there at all, rather than an empty strip

@@ -1,6 +1,7 @@
 //! Channels — vertical list of animation channels.
 
 pub mod set;
+pub mod time;
 
 use crate::host::BHostType;
 use crate::state::BState;
@@ -63,6 +64,8 @@ impl BChannels {
 
 impl BViewItem for BChannels {
     fn build(&self, s: &BState) -> BView {
-        BView::column(BChannelsList::new(self.host).items(s))
+        // The animation editors list their channels as a side column
+        // (`time`); the rest list theirs from `set`.
+        time::list(s, self.host).unwrap_or_else(|| BView::column(BChannelsList::new(self.host).items(s)))
     }
 }

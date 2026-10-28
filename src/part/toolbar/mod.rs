@@ -65,6 +65,11 @@ impl BToolbarList {
     /// The whole strip as one view.
     pub fn rail(&self, s: &BState) -> BView {
         let tools = tools_for(self.host);
+        // A host with no tools has no toolbar: an expander alone opened onto
+        // nothing (the Sequencer's empty strip).
+        if tools.is_empty() {
+            return BView::empty();
+        }
         let default_tool = tools.first().map(|t| t.label).unwrap_or("");
         let active = s.host(self.host).get("tool").unwrap_or(default_tool);
         let expanded = strip::is_expanded(s, self.host, "tool");

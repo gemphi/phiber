@@ -21,7 +21,9 @@ pub(super) fn applies(kind: BPaneType, columns: bool, ctx: &BRenderCtx) -> bool 
 }
 
 /// `view` into the halved pane `element`: a part whose body is a row is
-/// split at its first spacer; anything else is walked as it is.
+/// split at its first spacer; anything else, a row with no spacer among
+/// them, is walked as it is and so ends at the pane's far edge as every
+/// right-hand group does.
 pub(super) fn halved(element: Stateful<Div>, view: &BView, ctx: &BRenderCtx) -> Stateful<Div> {
     let list = match view {
         BView::Part { body, .. } => match body.as_ref() {
@@ -30,7 +32,9 @@ pub(super) fn halved(element: Stateful<Div>, view: &BView, ctx: &BRenderCtx) -> 
         },
         _ => return element.child(walk(view, ctx)),
     };
-    let at = list.iter().position(|view| matches!(view, BView::Spacer)).unwrap_or(list.len());
+    let Some(at) = list.iter().position(|view| matches!(view, BView::Spacer)) else {
+        return element.child(walk(view, ctx));
+    };
     // Each control is handed its share's width (`filling`), so an icon
     // button runs it as a wide tile (`button.rs`).
     let filling = ctx.filling();

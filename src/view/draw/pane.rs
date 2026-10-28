@@ -211,11 +211,13 @@ impl BFlexed for BPanePart {
                         (false, false) => cell.min_width(BLen::Zero),
                     }
                 }
-                // Over a details column the right pane is that column: its
-                // width, its inset; a tool strip's view buttons take its
-                // first half and the rest of its row the second (`half`).
+                // The right pane ends at the strip's right edge, in every
+                // strip: what is on the right is pushed right. Over a details
+                // column it is that column (its width, its inset), its group
+                // at the column's end; a row split by a spacer gives its first
+                // group the column's first half (`half`).
                 (_, _, _, true) => match (columns, ctx.host.has_details_column()) {
-                    (true, true) => base.keeps_size().width(BLen::Dim(BDim::PanelWidth)).pad_right(BSpace::Seam).justify(BJustify::Between),
+                    (true, true) => base.keeps_size().width(BLen::Dim(BDim::PanelWidth)).pad_right(BSpace::Seam).justify(BJustify::End),
                     (true, false) => base.keeps_size().justify(BJustify::End).pad_x(BSpace::Seam),
                     (false, _) => base.keeps_size().justify(BJustify::End),
                 },

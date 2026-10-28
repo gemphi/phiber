@@ -93,7 +93,18 @@ pub fn place(
     groups: Vec<Vec<AnyElement>>,
     ctx: &BRenderCtx,
 ) -> Div {
-    let filled: Vec<Vec<AnyElement>> = groups.into_iter().filter(|g| !g.is_empty()).collect();
+    place_kept(axis, fit, groups.into_iter().filter(|g| !g.is_empty()).collect(), ctx)
+}
+
+/// [`place`], each group in the place it was given: an empty one keeps its
+/// place and paints nothing, so a row's group after a leading spacer stands
+/// at its end (`row.rs`).
+pub fn place_kept(
+    axis: BStripAxis,
+    fit: BStripFit,
+    filled: Vec<Vec<AnyElement>>,
+    ctx: &BRenderCtx,
+) -> Div {
     let total = filled.len();
     let mut element = container(axis, ctx);
     for (n, group) in filled.into_iter().enumerate() {
