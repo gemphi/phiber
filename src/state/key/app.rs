@@ -73,6 +73,10 @@ pub enum AppKey {
     /// (`U.viewport_aa`): `OFF`, `FXAA` or a sample count
     /// (`scene::viewport_aa`); unset is Blender's 8.
     ViewportAa,
+    /// Preferences ▸ Navigation ▸ Orbit & Pan ▸ Orbit Around Selection
+    /// (`use_rotate_around_active`): `true` / `false`; unset is on
+    /// (`scene::orbit_around`).
+    OrbitAroundSelection,
 }
 
 impl BKey for AppKey {
@@ -105,6 +109,7 @@ impl BKey for AppKey {
             Self::CollabChannel(n) => BPath::owned(vec!["collab", "channel", n]),
             Self::Gpu => BPath::owned(vec!["gpu"]),
             Self::ViewportAa => BPath::owned(vec!["pref", "viewport_aa"]),
+            Self::OrbitAroundSelection => BPath::owned(vec!["pref", "orbit_around_selection"]),
         }
     }
 }

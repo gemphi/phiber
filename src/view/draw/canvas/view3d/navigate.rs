@@ -27,7 +27,8 @@
 //! preference by the time gpui hands us a delta, so there is nothing to
 //! invert here beyond the magnify itself.
 
-use crate::scene::{pan_x_key, pan_y_key, pitch_key, pitch_step, view_pan, view_pitch, view_yaw, view_zoom, yaw_key, zoom_key, zoom_step};
+use crate::scene::orbit_around;
+use crate::scene::{pan_x_key, pan_y_key, pitch_key, pitch_step, pivot_key, view_pan, view_pitch, view_yaw, view_zoom, yaw_key, zoom_key, zoom_step};
 use crate::state::BState;
 use crate::view::prim::BAction;
 use gpui::{Modifiers, ScrollDelta, TouchPhase};
@@ -122,11 +123,16 @@ pub struct BViewWrite {
     pub pitch: f32,
     pub pan: (f32, f32),
     pub zoom: f32,
+    /// The view's centre, and the selection's when an orbit turns about it
+    /// (`scene::orbit_around`).
+    pub pivot: glam::Vec3,
+    pub around: Option<glam::Vec3>,
 }
 
 impl BViewWrite {
     pub fn now(state: &BState) -> Self {
-        Self { yaw: view_yaw(state), pitch: view_pitch(state), pan: view_pan(state), zoom: view_zoom(state) }
+        let base = crate::scene::navigate::BNavBase::now(state);
+        Self { yaw: view_yaw(state), pitch: view_pitch(state), pan: view_pan(state), zoom: view_zoom(state), pivot: base.pivot, around: base.around }
     }
 
     /// Write `move_to` through `handler`. Zoom goes through `zoom_step` and
@@ -144,13 +150,24 @@ impl BViewWrite {
             BViewMove::Zoom { factor } => {
                 handler(&BAction::Set(zoom_key(), zoom_step(self.zoom, factor).to_string()), window, app);
             }
+            // About the selection, the centre swings round it as it turns.
             BViewMove::Orbit { yaw, pitch } => {
-                handler(&BAction::Set(yaw_key(), (self.yaw + yaw).to_string()), window, app);
-                handler(&BAction::Set(pitch_key(), pitch_step(self.pitch, pitch).to_string()), window, app);
+                let to = (self.yaw + yaw, pitch_step(self.pitch, pitch));
+                handler(&BAction::Set(yaw_key(), to.0.to_string()), window, app);
+                handler(&BAction::Set(pitch_key(), to.1.to_string()), window, app);
+                if let Some(about) = self.around {
+                    let pivot = orbit_around::turn_pivot(self.pivot, about, (self.yaw, self.pitch), to);
+                    handler(&BAction::Set(pivot_key(), orbit_around::encode(pivot)), window, app);
+                }
             }
+            // `view3d.move` slides the orbit centre (`orbit_around::pan_pivot`),
+            // folding any old screen-space pan into it.
             BViewMove::Pan { x, y } => {
-                handler(&BAction::Set(pan_x_key(), (self.pan.0 + x).to_string()), window, app);
-                handler(&BAction::Set(pan_y_key(), (self.pan.1 + y).to_string()), window, app);
+                let shift = (self.pan.0 + x, self.pan.1 + y);
+                let pivot = orbit_around::pan_pivot(self.pivot, (self.yaw, self.pitch), self.zoom, shift);
+                handler(&BAction::Set(pivot_key(), orbit_around::encode(pivot)), window, app);
+                handler(&BAction::Set(pan_x_key(), "0".to_string()), window, app);
+                handler(&BAction::Set(pan_y_key(), "0".to_string()), window, app);
             }
         }
     }

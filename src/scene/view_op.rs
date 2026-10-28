@@ -79,11 +79,8 @@ impl BRule for BView3dOpRule {
         let objects = super::source::scene_objects(state);
         let hidden = crate::part::outliner::key::BHidden::now(state);
         let visible: Vec<&BObject3D> = objects.iter().filter(|o| !hidden.hides(state, o.name())).collect();
-        let turn = |state: &mut BState, key: View3dKey, by: f32, wrap: bool| {
-            let now = if wrap { super::view_yaw(state) } else { super::view_pitch(state) };
-            let next = if wrap { (now + by).rem_euclid(360.0) } else { super::orbit::BTurntable::wrap(now + by) };
-            state.set(&super::view_slot::BViewSlot::key(key), next.to_string());
-        };
+        // About the selection under Orbit Around Selection (`orbit_around`).
+        let turn = |state: &mut BState, key: View3dKey, by: f32| super::orbit_around::step(state, key, by);
         let zoom = |state: &mut BState, factor: f32| {
             let next = super::zoom_step(super::view_zoom(state), factor);
             state.set(&super::zoom_key(), next.to_string());
@@ -95,10 +92,10 @@ impl BRule for BView3dOpRule {
                 let selected: Vec<&BObject3D> = visible.iter().copied().filter(|o| selection.contains(o.name())).collect();
                 frame(state, &selected).then_some("Framed the selection")
             }
-            "orbit_left" => { turn(state, View3dKey::Yaw, -ORBIT_STEP, true); Some("Orbited left") }
-            "orbit_right" => { turn(state, View3dKey::Yaw, ORBIT_STEP, true); Some("Orbited right") }
-            "orbit_up" => { turn(state, View3dKey::Pitch, ORBIT_STEP, false); Some("Orbited up") }
-            "orbit_down" => { turn(state, View3dKey::Pitch, -ORBIT_STEP, false); Some("Orbited down") }
+            "orbit_left" => { turn(state, View3dKey::Yaw, -ORBIT_STEP); Some("Orbited left") }
+            "orbit_right" => { turn(state, View3dKey::Yaw, ORBIT_STEP); Some("Orbited right") }
+            "orbit_up" => { turn(state, View3dKey::Pitch, ORBIT_STEP); Some("Orbited up") }
+            "orbit_down" => { turn(state, View3dKey::Pitch, -ORBIT_STEP); Some("Orbited down") }
             "zoom_in" => { zoom(state, ZOOM_STEP); Some("Zoomed in") }
             "zoom_out" => { zoom(state, 1.0 / ZOOM_STEP); Some("Zoomed out") }
             // `view3d.toggle_xray` (Alt Z): the switch of the shading in use

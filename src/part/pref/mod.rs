@@ -2,6 +2,7 @@
 //! Blender ref: `space_userpref/space_userpref.cc` WINDOW region.
 
 pub mod device;
+pub mod navigation;
 pub mod quality;
 pub mod rule;
 
@@ -54,6 +55,9 @@ impl BViewItem for BPrefsItem {
         }
         if category.kind == BSettingsCategory::Viewport {
             cards.push(quality::BViewportQuality::view(state));
+        }
+        if category.kind == BSettingsCategory::Navigation {
+            cards.push(navigation::BOrbitPan::view(state));
         }
         let sections: Vec<BView> = SECTIONS
             .iter()

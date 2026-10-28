@@ -95,6 +95,7 @@ pub mod pick;
 pub mod select;
 pub mod view_op;
 pub mod orbit;
+pub mod orbit_around;
 pub mod navigate;
 pub mod shading;
 pub mod matcap;
