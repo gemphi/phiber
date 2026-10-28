@@ -2,9 +2,11 @@
 
     python phiberize.py SRC.otf DST.otf WIDTH TRACK STYLE [FAMILY [RATIO]]
 
-WIDTH  horizontal scale of every glyph (1.08 = 8% wider)
+WIDTH  horizontal scale of every letter's shape (1.2 = 20% wider); the side
+       bearings stay the source font's, so the spacing between letters does
+       not grow with the letters
 TRACK  letter spacing added to every advance, in font units (split either
-       side of the glyph, so letters move apart evenly)
+       side of the glyph, so letters move apart evenly); 0 keeps the font's
 STYLE  the style name written into the name table (Light, Regular, ...)
 
 The outlines are redrawn through a transform (CFF), advances and side
@@ -197,23 +199,34 @@ if ratio is not None:
 redrawn = {}
 for name in font.getGlyphOrder():
     advance, lsb = metrics[name]
-    new_advance = round(advance * width + track)
     original = strings[name]
     private = original.private
+    source = outline(name)
+    ops = inset(source, thin, bar) if thin else source
+    # Only the letter changes: thinned and widened, it is set back between
+    # Phi-Soft's own side bearings, so the space between letters is the
+    # font's (plus TRACK). Thinning pulls a letter's outer edges in and
+    # widening scales them out; neither may move the gap. A glyph with no
+    # ink (the space) keeps its width.
+    def bounds_of(path):
+        pen = BoundsPen(None)
+        for op, args in path:
+            getattr(pen, op)(*args)
+        return pen.bounds
+    was, ink = bounds_of(source), bounds_of(ops)
+    match (was, ink):
+        case (None, _) | (_, None):
+            shift, new_advance = track / 2, round(advance + track)
+        case _:
+            left, right = was[0], advance - was[2]
+            shift = left - ink[0] * width + track / 2
+            new_advance = round(left + (ink[2] - ink[0]) * width + right + track)
     pen = T2CharStringPen(width=new_advance - private.nominalWidthX, glyphSet=glyphs)
-    target = TransformPen(pen, (width, 0, 0, 1, track / 2, 0))
-    ops = outline(name)
-    if thin:
-        ops = inset(ops, thin, bar)
-    bounds = BoundsPen(None)
-    measured = TransformPen(bounds, (width, 0, 0, 1, track / 2, 0))
+    target = TransformPen(pen, (width, 0, 0, 1, shift, 0))
     for op, args in ops:
         getattr(target, op)(*args)
-        getattr(measured, op)(*args)
     redrawn[name] = pen.getCharString(private=private, globalSubrs=original.globalSubrs)
-    # The left side bearing is where the drawn outline now starts.
-    left = bounds.bounds[0] if bounds.bounds else lsb * width + track / 2
-    metrics[name] = (new_advance, round(left))
+    metrics[name] = (new_advance, round(was[0] + track / 2) if was and ink else lsb)
 for name, charstring in redrawn.items():
     strings[name] = charstring
 

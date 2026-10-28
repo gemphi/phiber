@@ -40,15 +40,15 @@ Any key left out keeps the theme's own value. A line is `key = number`, and `#` 
 | Loras-Spark | Lora's Spark, Lora's Spark Condensed (slug `lora_s_spark`) | same |
 | Chatty-Whims | Chatty Whims, Chatty Whims Condensed | same |
 
-The default is **Phiber Light**: Phi-Soft Light opened up for the interface. Phi-Soft draws its vertical stems twice as thick as its horizontal strokes, which crowds the inside of each letter; Phiber thins the verticals to 1.2x the horizontals (the horizontals keep their thickness exactly), then makes every letter 20% wider and spaces them 64 units (of 1000) further apart, so text reads at 12-14 px without feeling cramped. Phi-Soft's Regular read heavy, its Condensed width cramped, and even its full width tight.
+The default is **Phiber Light**: Phi-Soft Light opened up for the interface. Phi-Soft draws its vertical stems twice as thick as its horizontal strokes, which crowds the inside of each letter; Phiber thins the verticals to 1.2x the horizontals (the horizontals keep their thickness exactly), then makes every letter 20% wider, so text reads at 12-14 px without feeling cramped. The space between letters stays Phi-Soft's own: each letter is set back between Phi-Soft's side bearings after it is thinned and widened, so the gaps neither shrink with the thinning nor grow with the widening, and no extra tracking is added. (An earlier build added 64 units of tracking and let the widening scale the side bearings too; the letters read spaced apart.) Phi-Soft's Regular read heavy, its Condensed width cramped, and even its full width tight.
 
 `Phiber/phiberize.py` makes the family from Phi-Soft's four weights (it needs `fontTools`):
 
 ```
-python phiberize.py ../Phi-Soft/PhiSoft-Light.otf Phiber-Light.otf 1.20 64 Light Phiber 1.2
+python phiberize.py ../Phi-Soft/PhiSoft-Light.otf Phiber-Light.otf 1.20 0 Light Phiber 1.2
 ```
 
-Rerun it with other numbers to tune the openness: the width scale, the extra spacing in font units, and the stem ratio (vertical stem thickness as a multiple of the horizontal stroke, measured on H and E). No stroke is thinned below a horizontal's thickness. Phi-Soft's SemiBold and Bold draw M and W as solid stencil shapes by design, and Phiber keeps them. It redraws the outlines, moves the side bearings, scales any kerning, and renames the family so it registers beside Phi-Soft.
+Rerun it with other numbers to tune the openness: the width scale, the extra spacing in font units, and the stem ratio (vertical stem thickness as a multiple of the horizontal stroke, measured on H and E). No stroke is thinned below a horizontal's thickness. Phi-Soft's SemiBold and Bold draw M and W as solid stencil shapes by design, and Phiber keeps them. It redraws the outlines, keeps the side bearings, scales any kerning, and renames the family so it registers beside Phi-Soft.
 
 ## Notes
 

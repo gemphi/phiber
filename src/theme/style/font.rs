@@ -12,8 +12,9 @@
 //! The default is Phiber, Light: Phi-Soft Light opened up for the interface.
 //! Phi-Soft draws its vertical stems twice as thick as its horizontal
 //! strokes; Phiber thins the verticals to 1.2x the horizontals (which keep
-//! their thickness), then makes each letter 20% wider and spaces them 64
-//! units further apart (`assets/phi-fonts/Phiber`, made by `phiberize.py`). Phi-Soft's
+//! their thickness), then makes each letter 20% wider, keeping Phi-Soft's
+//! own spacing between letters (`assets/phi-fonts/Phiber`, made by
+//! `phiberize.py`). Phi-Soft's
 //! Regular read heavy at interface sizes, its Condensed width cramped, and
 //! even its full width felt tight at 12-14 px.
 
