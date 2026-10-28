@@ -19,6 +19,9 @@ use gpui::prelude::*;
 use super::floor::control_floor;
 use gpui::{AnyElement, Hsla, hsla};
 
+#[path = "pane_half.rs"]
+mod half;
+
 /// True when this pane lives inside a floating-side-panel host's center
 /// region and should be rendered as a floating absolute overlay instead of a
 /// flex slot. The host set is owned by [`BHostType::floats_side_panels`] (the
@@ -209,15 +212,13 @@ impl BFlexed for BPanePart {
                     }
                 }
                 // Over a details column the right pane is that column: its
-                // width, its inset, its controls spread across it.
-                (_, _, _, true) => {
-                    let cell = base.keeps_size().justify(BJustify::End);
-                    match (columns, ctx.host.has_details_column()) {
-                        (true, true) => cell.width(BLen::Dim(BDim::PanelWidth)).pad_right(BSpace::Seam).justify(BJustify::Between),
-                        (true, false) => cell.pad_x(BSpace::Seam),
-                        (false, _) => cell,
-                    }
-                }
+                // width, its inset; a tool strip's view buttons take its
+                // first half and the rest of its row the second (`half`).
+                (_, _, _, true) => match (columns, ctx.host.has_details_column()) {
+                    (true, true) => base.keeps_size().width(BLen::Dim(BDim::PanelWidth)).pad_right(BSpace::Seam).justify(BJustify::Between),
+                    (true, false) => base.keeps_size().justify(BJustify::End).pad_x(BSpace::Seam),
+                    (false, _) => base.keeps_size().justify(BJustify::End),
+                },
                 // The left pane of a strip laid out as the columns under it
                 // (the file browser's path strip over its source list) is the
                 // tools region: as wide as it, padded as it is, its parts at
@@ -331,6 +332,9 @@ pub fn view(kind: BPaneType, list: &[BView], ctx: &BRenderCtx) -> AnyElement {
             (false, false) => None,
         };
         element = match slot {
+            // Over a details column the tool strip's view buttons take half
+            // of it, each a wide tile (`half`).
+            _ if half::applies(kind, columns, ctx) => half::halved(element, ch, ctx),
             Some(part) => element.child(part.flex(ctx).div(ctx).child(walk(ch, ctx))),
             None => element.child(walk(ch, ctx)),
         };

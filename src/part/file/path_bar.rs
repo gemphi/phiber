@@ -41,23 +41,23 @@ fn directory_field(s: &BState) -> BView {
     BView::Crumbs { trail, edit }
 }
 
-fn display_modes(s: &BState) -> BView {
+/// The display-mode radio, one button per mode: the strip's first group, which
+/// over a details column takes half of it (`draw::pane`'s halved row).
+fn display_modes(s: &BState) -> Vec<BView> {
     let active = s.get(&FileKey::Display.path()).unwrap_or(DISPLAY_MODES[0].label);
-    BView::row(
-        DISPLAY_MODES
-            .iter()
-            .map(|v| {
-                // A header toggle is a button, as the switcher beside it is
-                // — one height, one shape — lit when it is the mode in force.
-                BView::Button(
-                    BControl::new()
-                        .with_icon(v.icon)
-                        .with_active(v.label == active)
-                        .with_action(BAction::Set(FileKey::Display.path(), v.label.to_string())),
-                )
-            })
-            .collect(),
-    )
+    DISPLAY_MODES
+        .iter()
+        .map(|v| {
+            // A header toggle is a button, as the switcher beside it is
+            // — one height, one shape — lit when it is the mode in force.
+            BView::Button(
+                BControl::new()
+                    .with_icon(v.icon)
+                    .with_active(v.label == active)
+                    .with_action(BAction::Set(FileKey::Display.path(), v.label.to_string())),
+            )
+        })
+        .collect()
 }
 
 /// The master filter switch — `FILTER` / `FILTER_FILLED` in Blender. Rendered
@@ -160,8 +160,10 @@ impl BTypeFilter {
 
 impl BViewItem for BTypeFilter {
     fn build(&self, s: &BState) -> BView {
-        // Spread over the details column: the modes, the filters, the gear.
-        BView::row(vec![display_modes(s), BView::spacer(), filter_toggle(s), filter_popover(s), BView::spacer(), sidebar_toggle(s)])
+        // Over the details column: the modes across its first half, then the
+        // filters and, at its end, the gear.
+        let rest = [BView::spacer(), filter_toggle(s), filter_popover(s), BView::spacer(), sidebar_toggle(s)];
+        BView::row(display_modes(s).into_iter().chain(rest).collect())
     }
 }
 

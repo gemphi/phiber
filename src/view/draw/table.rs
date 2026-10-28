@@ -3,13 +3,16 @@
 //! before `BTableRow::render` so the source-text test sees the selection
 //! logic between the two wrappers.
 
+use super::atom::icon_path;
+use super::chrome;
 use super::ctx::BRenderCtx;
 use super::flex::{BAlign, BDim, BFill, BFlex, BFlexed, BJustify, BLen, BOverflow, BRadius, BSpace, BType};
 use super::walk;
 use crate::theme::BStyleRole;
+use crate::view::BView;
 use crate::view::prim::{BAction, BColAlign, BColWidth, BRowShade, BTableCell};
 use gpui::prelude::*;
-use gpui::AnyElement;
+use gpui::{AnyElement, svg};
 
 pub struct BTableRow<'a> {
     pub cell_list: &'a [BTableCell],
@@ -91,12 +94,24 @@ impl BTableHeader<'_> {
 
 impl BTableCellView<'_> {
     fn render(&self, ctx: &BRenderCtx) -> AnyElement {
-        BTablePart::Cell(self.0.width, self.0.align)
-            .flex(ctx)
-            .div(ctx)
-            .child(walk(&self.0.view, &ctx.clipping()))
-            .into_any_element()
+        let clipping = ctx.clipping();
+        let content = match self.0.view.as_ref() {
+            BView::Row { list } => match list.split_first() { Some((BView::Icon { name }, rest)) => lead(name, rest, &clipping), _ => walk(&self.0.view, &clipping) },
+            view => walk(view, &clipping),
+        };
+        BTablePart::Cell(self.0.width, self.0.align).flex(ctx).div(ctx).child(content).into_any_element()
     }
+}
+
+/// A value that leads with its kind's glyph (a file row's folder or file):
+/// the glyph a size over a button's, on an oval of the resting tile every
+/// icon button stands on (`chrome::paint_state`), so the list reads as
+/// things with names rather than names with marks beside them.
+fn lead(name: &str, rest: &[BView], ctx: &BRenderCtx) -> AnyElement {
+    let glyph = BTablePart::Glyph.flex(ctx).styled(svg().path(icon_path(name)), ctx);
+    let tile = BTablePart::GlyphTile.flex(ctx).div(ctx).id("row-glyph").child(glyph);
+    let tile = chrome::paint_state(tile, false, false, &BRenderCtx { floating: true, listed: false, ..ctx.clone() });
+    rest.iter().fold(BTablePart::Lead.flex(ctx).div(ctx).child(tile), |row, view| row.child(walk(view, ctx))).into_any_element()
 }
 
 fn table_row_id(cell_list: &[BTableCell], action: Option<&BAction>) -> String {
@@ -153,6 +168,13 @@ enum BTablePart {
     /// content left the columns short of the row, so a value sat at whatever
     /// height its own text happened to be.
     Cell(BColWidth, BColAlign),
+    /// A cell's glyph and the words after it, on the cell's centre line.
+    Lead,
+    /// The oval a leading glyph stands on: a tile's height, wider than it
+    /// is tall, rounded to a pill.
+    GlyphTile,
+    /// The leading glyph: a button's icon and two pixels more.
+    Glyph,
 }
 
 impl BFlexed for BTablePart {
@@ -229,8 +251,16 @@ impl BFlexed for BTablePart {
                     BColWidth::Flex => cell.fills().min_width(BLen::Zero),
                 }
             }
+            Self::Lead => BFlex::row().fills().min_width(BLen::Zero).height(BLen::Full).align(BAlign::Center).gap(BSpace::GapSm),
+            Self::GlyphTile => BFlex::row().width(BLen::Measured(glyph_size(ctx) + 2.0 * BSpace::PadMd.px(ctx))).height(BLen::Dim(BDim::Tile)).keeps_size().align(BAlign::Center).justify(BJustify::Center).radius(BRadius::Pill),
+            Self::Glyph => BFlex::cell().width(BLen::Measured(glyph_size(ctx))).height(BLen::Measured(glyph_size(ctx))).keeps_size().ink(),
         }
     }
+}
+
+/// A row's leading glyph: a button's icon and two pixels more.
+fn glyph_size(ctx: &BRenderCtx) -> f32 {
+    ctx.style.dimensions.icon_size + 2.0
 }
 
 /// A row's text from either end of its band, and a heading's over it: a

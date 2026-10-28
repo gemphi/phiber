@@ -103,6 +103,10 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
         .rounded(radius)
         .text_color(ink)
         .text_size(px(ctx.style.typography.body));
+    // A tile in a strip slot that hands it its width (`ctx.fill`: the file
+    // browser's view modes, sharing half the details column) runs that
+    // width at a tile's height: a wide tile, still a tile's shape and ground.
+    let wide = label.is_none() && ctx.fill && chrome::in_strip(ctx);
     if label.is_none() {
         // Said as a `BFlex`, not three raw calls: the style budget refused the
         // raw version and was right to — a width and a centring are exactly
@@ -110,7 +114,7 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
         // tile, not the full button: its fill clears the row top and bottom
         // (`tile_size`).
         row = BFlex::cell()
-            .width(BLen::Dim(BDim::Tile))
+            .width(if wide { BLen::Full } else { BLen::Dim(BDim::Tile) })
             .height(BLen::Dim(BDim::Tile))
             .keeps_size()
             .justify(BJustify::Center)
@@ -160,7 +164,17 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
         row = row.child(SharedString::from(text.to_string()));
     }
     let Some(action) = action else {
-        return row.into_any_element();
+        // An icon tile with nothing to do right now (Back before there is
+        // any history) keeps its square on the resting shade its neighbours
+        // stand on. Without it, the file browser's Back and Forward floated
+        // as bare glyphs beside the lit tiles of Up and Refresh.
+        return match label {
+            None => {
+                let id = SharedString::from(format!("btn-icon-idle-{icon}"));
+                chrome::paint_state(row.id(id), false, ctl.muted, &BRenderCtx { floating: true, ..ctx.clone() }).into_any_element()
+            }
+            Some(_) => row.into_any_element(),
+        };
     };
     let handler = ctx.handler.clone();
     let action_copy = action.clone();
@@ -172,10 +186,10 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
     // the gaps between them, so the row keeps its places (`BControl::span`).
     let slot = 2.0 * ctx.style.spacing.pad_md + ctx.style.dimensions.icon_size;
     let spans = f32::from(ctl.span.max(1));
-    let base = if ctl.span > 1 {
-        BFlex::row().min_width(BLen::Measured(spans * slot + (spans - 1.0) * ctx.style.spacing.gap_xs)).div(ctx)
-    } else {
-        div()
+    let base = match (ctl.span > 1, wide) {
+        (true, _) => BFlex::row().min_width(BLen::Measured(spans * slot + (spans - 1.0) * ctx.style.spacing.gap_xs)).div(ctx),
+        (false, true) => BFlex::row().fills().div(ctx),
+        (false, false) => div(),
     };
     let mut element = base
         .id(SharedString::from(id_text.clone()))
