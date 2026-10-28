@@ -39,9 +39,11 @@ impl BShading {
     pub fn icon(self) -> &'static str {
         match self {
             // One sphere four ways, as RCP draws its viewport toolbar: a
-            // wire globe, a lit sphere half in shade, a glossy ball, and the
-            // world lit (RCP's environment hills). Four shapes of one thing
-            // read as a radio; a cube, a hexagon and two rings did not.
+            // wire globe, a lit sphere half in shade, a checkered ball, and
+            // the world lit (RCP's environment hills). Four shapes of one
+            // thing read as a radio; a cube, a hexagon and two rings did not.
+            // The checker is Blender's SHADING_TEXTURE: the glossy grey ball
+            // it replaced read as Solid's half-shaded one at header size.
             Self::Wireframe => "shading_wire",
             Self::Solid => "shading_solid",
             Self::Material => "shading_material",
