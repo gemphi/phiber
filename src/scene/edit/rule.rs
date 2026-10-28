@@ -1,7 +1,8 @@
 //! `ctx.op.scene_edit`: the operators that edit the scene — add a
-//! primitive, delete, duplicate, hide and unhide the selection.
+//! primitive, a lamp, a camera or an empty, delete, duplicate, hide and
+//! unhide the selection.
 
-use super::{BSceneEdit, SHAPES, unique_name};
+use super::{BAddKind, BSceneEdit, unique_name};
 use crate::state::{BKey as _, BPath, BState, CtxKey, OpKey, log, rule::BRule, val::{V_FALSE, V_TRUE}};
 
 /// `ctx.op.scene_edit` → `add:<shape>` / `delete` / `duplicate` / `hide` / `unhide`.
@@ -12,12 +13,21 @@ impl BRule for BSceneEditRule {
         *path == OpKey::SceneEdit.path()
     }
     fn after(&self, _: &BPath, op: &str, state: &mut BState) {
-        let names: Vec<String> = crate::scene::source::scene_objects(state).iter().map(|o| o.name().to_string()).collect();
         let selection = crate::scene::select::BSelection::now(state);
         let mut edit = BSceneEdit::now(state);
+        // Every name taken: the meshes drawn, the model's lamps, cameras and
+        // empties, and what was added since the model in scope was built.
+        let names: Vec<String> = crate::scene::source::with_loaded(|model| {
+            let meshes: Vec<String> = crate::scene::source::scene_objects(state).iter().map(|o| o.name().to_string()).collect();
+            let extras = model.into_iter().flat_map(|m| m.lights.iter().map(|l| &l.name).chain(m.cameras.iter().map(|c| &c.name)).chain(m.empties.iter().map(|e| &e.name)));
+            let mut all: Vec<String> = meshes.into_iter().chain(extras.cloned()).chain(edit.added.iter().map(|(n, _)| n.clone())).collect();
+            all.dedup();
+            all
+        });
         match op.split_once(':') {
             Some(("add", shape)) => {
-                let Some(&(_, label, _)) = SHAPES.iter().find(|(slug, ..)| *slug == shape) else { return };
+                // A mesh primitive, or a lamp, camera or empty (`kind.rs`).
+                let Some((_, label)) = BAddKind::of(shape) else { return };
                 let name = unique_name(label, &names);
                 edit.added.push((name.clone(), shape.to_string()));
                 edit.write(state);

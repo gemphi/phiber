@@ -30,18 +30,19 @@ thread_local! {
 /// The mesh of a primitive by slug, in Blender's Z-up object space.
 pub fn primitive_mesh(shape: &str) -> Option<Arc<SceneMesh>> {
     let &(slug, _, kind) = SHAPES.iter().find(|(slug, ..)| *slug == shape)?;
-    Some(PRIMITIVES.with(|cell| {
-        Arc::clone(cell.borrow_mut().entry(slug).or_insert_with(|| {
-            // The spatial buffers are (x, up, z); Blender is (x, y, z up).
-            let (vertices, indices, normals) = SpatialObject3D::buffers(kind);
-            Arc::new(SceneMesh {
-                vertices: vertices.iter().map(|v| [v.0, v.2, v.1]).collect(),
-                indices,
-                normals: SceneNormals::PerVertex(normals.iter().map(|n| [n.0, n.2, n.1]).collect()),
-                corners: Default::default(),
-            })
-        }))
-    }))
+    Some(PRIMITIVES.with(|cell| Arc::clone(cell.borrow_mut().entry(slug).or_insert_with(|| Arc::new(mesh_of(kind))))))
+}
+
+/// A spatial primitive as a mesh in Blender's Z-up object space: the
+/// buffers are (x, up, z), Blender is (x, y, z up).
+pub fn mesh_of(kind: PhiQuiMeshType) -> SceneMesh {
+    let (vertices, indices, normals) = SpatialObject3D::buffers(kind);
+    SceneMesh {
+        vertices: vertices.iter().map(|v| [v.0, v.2, v.1]).collect(),
+        indices,
+        normals: SceneNormals::PerVertex(normals.iter().map(|n| [n.0, n.2, n.1]).collect()),
+        corners: Default::default(),
+    }
 }
 
 /// `Cube`, then `Cube.001`, `Cube.002`, … — Blender's `BLI_uniquename`.

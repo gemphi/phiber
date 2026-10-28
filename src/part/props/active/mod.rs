@@ -33,12 +33,22 @@ impl BRule for BActiveObjectRule {
 pub fn seed(state: &mut BState, model: &SceneModel, name: &str) {
     use crate::scene::transform::{BTransform, BTransforms};
     let edit = crate::scene::edit::BSceneEdit::now(state);
-    if let Some(object) = model.objects.iter().find(|object| object.name == name) {
-        set::seed_transform(state, object);
-        set::seed_shadow(state, object.shadow);
-        if let Some(material) = object.materials.first() {
-            set::seed_material(state, material);
+    match (model.objects.iter().find(|object| object.name == name), edit.added.iter().any(|(added, _)| added == name)) {
+        (Some(object), _) => {
+            set::seed_transform(state, object);
+            set::seed_shadow(state, object.shadow);
+            // A mesh with no material — an added primitive, the default
+            // scene's (`edit::stage`) — shows the grey a first edit starts
+            // from and a recolour gives it (`BRecolors::apply`), not the
+            // last object's colour.
+            let neutral = crate::phiphx::scene::SceneMaterial::neutral();
+            set::seed_material(state, object.materials.first().unwrap_or(&neutral));
         }
+        // Made this session (Add ▸ Mesh): no material yet, so the Surface
+        // fields show the grey a first edit starts from, not the last
+        // object's colour.
+        (None, true) => set::seed_material(state, &crate::phiphx::scene::SceneMaterial::neutral()),
+        (None, false) => {}
     }
     // What the panel switched for it this session, over what the file says.
     if let Some(shadow) = crate::scene::shadow::BObjectShadowList::now(state).get(name) {

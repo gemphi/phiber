@@ -13,7 +13,9 @@
 //!   `path_bar` — nav · directory · search · display · filter │ modal dialog
 //!   `sidebar`  — Volumes / System / Bookmarks / Recent panels│ and the hosts
 //!   `execute`  — filename + Cancel / <Execute>               ┘
+//!   `asset_grid` — the Asset host's assets, in place of the file table
 
+pub mod asset_grid;
 pub mod asset_sidebar;
 pub mod execute;
 pub mod fsmenu;
@@ -67,7 +69,10 @@ impl BFileItem {
 
 impl BViewItem for BFileItem {
     fn build(&self, s: &BState) -> BView {
-        self::table::view(s)
+        match self.host {
+            BHostType::Asset => self::asset_grid::view(s),
+            _ => self::table::view(s),
+        }
     }
 }
 

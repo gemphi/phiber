@@ -58,13 +58,16 @@ impl BSceneTree {
             members.entry(path.clone()).or_default().push((now(name), ty.clone()));
         }
         let root = model.collections.first().map(|c| c.name.clone()).unwrap_or_default();
+        // An added object is a mesh, a lamp, a camera or an empty
+        // (`edit::BAddKind`).
+        let added_type = |name: &str| edit.added.iter().find(|(n, _)| n == name).and_then(|(_, slug)| crate::scene::edit::BAddKind::of(slug)).map_or("MESH", |(kind, _)| kind.object_type());
         for (copy, source) in &edit.copied {
             let home = members.iter().find(|(_, list)| list.iter().any(|(n, _)| n == source)).map(|(p, list)| (p.clone(), list.iter().find(|(n, _)| n == source).map(|(_, t)| t.clone())));
             let (path, ty) = home.map_or((root.clone(), None), |(p, t)| (p, t));
-            members.entry(path).or_default().push((copy.clone(), ty.unwrap_or_else(|| "MESH".into())));
+            members.entry(path).or_default().push((copy.clone(), ty.unwrap_or_else(|| added_type(source).into())));
         }
         for (name, _) in &edit.added {
-            members.entry(root.clone()).or_default().push((name.clone(), "MESH".into()));
+            members.entry(root.clone()).or_default().push((name.clone(), added_type(name).into()));
         }
         let type_of = |members: &HashMap<String, Vec<(String, String)>>, object: &str| members.values().flatten().find(|(n, _)| n == object).map(|(_, t)| t.clone());
         for (object, path) in &links.moved {

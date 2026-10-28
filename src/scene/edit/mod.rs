@@ -4,13 +4,24 @@
 //! `renamed`) applied over its object list, so Undo is a state step and a
 //! reload is a clean slate.
 //!
+//! What was added stands in the model in scope as a file's object would
+//! (`model.rs`), lamps and cameras included (`kind.rs`), so its keys play;
+//! with no file open, the default scene stands in as that model once the
+//! session builds on it (`stage.rs`).
+//!
 //! Blender ref: `object.add` / `mesh.primitive_*_add` (at the 3D cursor,
 //! `scene::cursor` — named after the primitive, `.001` when taken),
 //! `object.delete`, `object.duplicate` (in place), `object.hide_view_set`,
 //! `object.hide_view_clear` and the rename popup (`TOPBAR_PT_name`, F2).
 
+mod kind;
+mod model;
 mod rule;
 mod shape;
+mod stage;
+pub use kind::{BAddKind, EXTRAS};
+pub use model::BEditScene;
+pub use stage::BStage;
 pub use rule::BSceneEditRule;
 pub use shape::{SHAPES, primitive_mesh, unique_name};
 
@@ -97,17 +108,26 @@ impl BSceneEdit {
 
     /// The file's objects with the edits applied: deletions removed,
     /// duplicates beside their sources, added primitives at the origin.
+    /// An object the model already holds — what the session made, once the
+    /// model in scope has it (`model.rs`) — is not added a second time.
     pub fn apply(&self, mut objects: Vec<BObject3D>) -> Vec<BObject3D> {
         if self.is_empty() {
             return objects;
         }
         objects.retain(|object| !self.deleted.iter().any(|gone| gone == object.name()));
+        let held = |objects: &[BObject3D], name: &str| objects.iter().any(|object| object.name() == name);
         for (copy, source) in &self.copied {
+            if held(&objects, copy) {
+                continue;
+            }
             if let Some(original) = objects.iter().find(|object| object.name() == source).cloned() {
                 objects.push(original.renamed(copy));
             }
         }
         for (name, shape) in &self.added {
+            if held(&objects, name) {
+                continue;
+            }
             if let Some(mesh) = primitive_mesh(shape) {
                 objects.push(BObject3D::Loaded {
                     name: name.clone(),

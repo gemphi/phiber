@@ -92,8 +92,12 @@ pub fn set_loaded_shared(model: Option<std::sync::Arc<SceneModel>>) {
 
 /// Set the loaded model and the frame it is shown at for this render pass.
 pub fn set_loaded_at(model: Option<std::sync::Arc<SceneModel>>, state: &BState) {
-    // The file's model with the session's actions in (`scene::action`).
-    let model = model.map(|m| super::action::set::BActionScene::over(m, state));
+    // The file's model — or, with no file open, the default scene's stage
+    // once the session built on it (`scene::edit::stage`) — with the
+    // objects the session added in (`scene::edit::model`), then the
+    // session's actions over that (`scene::action`): a key on an added
+    // object plays.
+    let model = super::edit::BStage::under(model, state).map(|m| super::action::set::BActionScene::over(super::edit::BEditScene::over(m, state), state));
     let frame = super::motion::shown_frame(state);
     let moved = model.as_deref().and_then(|m| super::transform::BTransforms::now(state).extra_worlds(state, m, frame));
     set_loaded_shared(model);

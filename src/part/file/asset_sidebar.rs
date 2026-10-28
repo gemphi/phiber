@@ -1,5 +1,6 @@
 //! Asset-browser tools region: library selector + "Catalogs" panel
-//! (All / Unassigned), Blender's `asset_catalog_tree_view`.
+//! (All / Unassigned, then the library's own catalogs), Blender's
+//! `asset_catalog_tree_view`. The assets themselves are `asset_grid.rs`.
 
 use super::sidebar::panel;
 use crate::state::{BPath, BState};
@@ -19,6 +20,15 @@ pub fn k_library() -> BPath {
 /// Blender's built-in library choices (`ASSET_LIBRARY_*` in `asset_library.hh`).
 pub const LIBRARIES: &[&str] = &["Current File", "Essentials", "All"];
 
+/// The library a new Asset Browser shows: every library at once, as
+/// Blender's does (`ASSET_LIBRARY_ALL`).
+pub const DEFAULT_LIBRARY: &str = "All";
+
+/// The library chosen.
+pub fn library(s: &BState) -> &str {
+    s.get(&k_library()).unwrap_or(DEFAULT_LIBRARY)
+}
+
 fn catalog_button(s: &BState, icon: &'static str, label: &'static str, value: &'static str) -> BView {
     let active = s.get(&k_catalog()).unwrap_or("all") == value;
     BView::Button(
@@ -29,9 +39,16 @@ fn catalog_button(s: &BState, icon: &'static str, label: &'static str, value: &'
     )
 }
 
+/// All, Unassigned, then each catalog the library's assets are in.
+fn catalog_rows(s: &BState, library: &str) -> Vec<BView> {
+    let mut rows = vec![catalog_button(s, "asset", "All", "all"), catalog_button(s, "help_circle", "Unassigned", "unassigned")];
+    rows.extend(super::asset_grid::catalogs(library).into_iter().map(|c| catalog_button(s, "folder", c, c)));
+    rows
+}
+
 /// Asset mode — library selector + "Catalogs" panel (All / Unassigned).
 pub fn asset_view(s: &BState) -> BView {
-    let current = s.get(&k_library()).unwrap_or(LIBRARIES[0]);
+    let current = library(s);
     let library_rows: Vec<BView> = LIBRARIES
         .iter()
         .map(|lib| {
@@ -45,13 +62,6 @@ pub fn asset_view(s: &BState) -> BView {
         .collect();
     BView::from(BCard::column(BColumn::Sidebar, with_peers(vec![
             panel(s, "Library", library_rows),
-            panel(
-                s,
-                "Catalogs",
-                vec![
-                    catalog_button(s, "asset", "All", "all"),
-                    catalog_button(s, "help_circle", "Unassigned", "unassigned"),
-                ],
-            ),
+            panel(s, "Catalogs", catalog_rows(s, current)),
         ]),))
 }

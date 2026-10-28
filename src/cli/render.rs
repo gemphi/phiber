@@ -11,7 +11,7 @@
 //! for.
 
 use crate::app::seed::{seed_output_props, seed_render_props, seed_view_layer};
-use crate::scene::{BObject3D, plan_at, render_set, source::set_loaded_shared};
+use crate::scene::{BObject3D, plan_at, render_set, source::{loaded_shared, set_loaded_at}};
 use crate::state::{BState, CtxKey};
 use crate::view::draw::canvas::view3d::rendered::{BMatStand, BRayLook, environment, still, view_words};
 
@@ -93,13 +93,33 @@ impl BHeadlessRender {
     /// reading it a second time here doubled the wait before the first
     /// sample — on the crystal caves city, two ten-minute opens of the same
     /// 620 MB.
-    pub fn run_with(&self, mut model: crate::phiphx::scene::SceneModel) -> Result<Vec<BFrameCost>, String> {
-        let (outdir, _) = Self::frame_path(&self.out, 1);
-        std::fs::create_dir_all(&outdir).map_err(|e| format!("outdir: {e}"))?;
+    pub fn run_with(&self, model: crate::phiphx::scene::SceneModel) -> Result<Vec<BFrameCost>, String> {
+        let model = self.overridden(model);
+        let mut state = BState::new();
+        seed_view_layer(&mut state, &model);
+        seed_render_props(&mut state, &model);
+        // Film ▸ Transparent and the output settings live in the other
+        // seed; without it every render painted a background Blender
+        // leaves out.
+        seed_output_props(&mut state, &model);
+        self.frames(model, state)
+    }
+
+    /// [`Self::run_with`] on a scene a session built: `state` holds what
+    /// it did over `model` — objects added (a lamp and a camera among them),
+    /// keyed, moved, recoloured — and each frame is rendered as F12 in the
+    /// app renders it, through the scene the draw pass scopes
+    /// (`source::set_loaded_at`). `model` can be empty: nothing about the
+    /// scene has to come from a `.blend`. The state is taken as it stands,
+    /// its render settings included; nothing is seeded over it.
+    pub fn run_in(&self, model: crate::phiphx::scene::SceneModel, state: BState) -> Result<Vec<BFrameCost>, String> {
+        self.frames(self.overridden(model), state)
+    }
+
+    /// `model` with the measurement switches ([`BLookOverride`]) and
+    /// `--camera` in.
+    fn overridden(&self, mut model: crate::phiphx::scene::SceneModel) -> crate::phiphx::scene::SceneModel {
         if let Some(camera) = &self.camera {
-            if !model.cameras.iter().any(|c| &c.name == camera) {
-                return Err(format!("--camera: no camera object named {camera:?} in the scene"));
-            }
             model.render.camera = camera.clone();
         }
         if let Some(albedo) = self.look.material {
@@ -114,14 +134,13 @@ impl BHeadlessRender {
         if let Some(view) = &self.look.view {
             model.render.view_transform = view.clone();
         }
+        model
+    }
 
-        let mut state = BState::new();
-        seed_view_layer(&mut state, &model);
-        seed_render_props(&mut state, &model);
-        // Film ▸ Transparent and the output settings live in the other
-        // seed; without it every render painted a background Blender
-        // leaves out.
-        seed_output_props(&mut state, &model);
+    /// Every frame of `model` as `state` has the scene, one PNG each.
+    fn frames(&self, model: crate::phiphx::scene::SceneModel, mut state: BState) -> Result<Vec<BFrameCost>, String> {
+        let (outdir, _) = Self::frame_path(&self.out, 1);
+        std::fs::create_dir_all(&outdir).map_err(|e| format!("outdir: {e}"))?;
         // What the render is given, and which of it Phiray reads
         // (`render_audit`): printed, since a background render has no
         // journal window to read it in.
@@ -132,7 +151,7 @@ impl BHeadlessRender {
         // meshes are read, and a second copy of it is what ran a 2 GB scene
         // out of memory before a single sample.
         let model = std::sync::Arc::new(model);
-        set_loaded_shared(Some(model.clone()));
+        set_loaded_at(Some(model.clone()), &state);
         let mut set = render_set(&state);
         set.samples = self.sample_count();
 
@@ -144,11 +163,19 @@ impl BHeadlessRender {
             // The frame the scene stands at: `current_scene` poses the rig
             // and the objects, `plan_at` puts the camera where it is.
             state.set(CtxKey::Frame, format!("{frame}"));
+            // The scene at that frame as the app's draw pass scopes it: the
+            // file's, with what the session added and keyed in
+            // (`set_loaded_at`) — the same model F12 renders.
+            set_loaded_at(Some(model.clone()), &state);
+            let scene = loaded_shared().unwrap_or_else(|| model.clone());
+            if let Some(camera) = self.camera.as_ref().filter(|c| !scene.cameras.iter().any(|k| &k.name == *c)) {
+                return Err(format!("--camera: no camera object named {camera:?} in the scene"));
+            }
             // The render's own restrictions — the camera toggle and excluded
             // collections, not the viewport's eye: Blender renders what the
             // viewport hides and leaves out what the camera disables
             // (`render_cast.rs`, the same cast F12 in the app draws).
-            let cast = crate::scene::render_cast::BRenderCast::of(&state, Some(&model));
+            let cast = crate::scene::render_cast::BRenderCast::of(&state, Some(&scene));
             if let Some(note) = &cast.note {
                 println!("{note}");
             }
@@ -166,8 +193,11 @@ impl BHeadlessRender {
             let look = BRayLook {
                 sky: gpui::hsla(0.0, 0.0, 0.14, 1.0),
                 grid: gpui::hsla(0.0, 0.0, 0.3, 1.0),
-                world: Some(model.world.background.radiance()),
-                lights: crate::scene::pose::lights_in_render(&state, crate::scene::motion::lights_at(&model, Some(frame))),
+                world: Some(scene.world.background.radiance()),
+                lights: match self.look.no_lights {
+                    true => Vec::new(),
+                    false => crate::scene::pose::lights_in_render(&state, crate::scene::motion::lights_at(&scene, Some(frame))),
+                },
                 wire: None,
                 view: view_words(&state),
                 grid_hide: 0,
@@ -175,7 +205,7 @@ impl BHeadlessRender {
                 set,
                 studio: false,
             };
-            let mut plan = plan_at(&model, set, &look, plain, Some(frame)).ok_or("the scene names no camera")?;
+            let mut plan = plan_at(&scene, set, &look, plain, Some(frame)).ok_or("the scene names no camera")?;
             if let Some(denoise) = self.look.denoise {
                 plan.denoise = denoise;
             }

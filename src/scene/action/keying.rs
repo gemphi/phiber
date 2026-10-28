@@ -42,12 +42,14 @@ pub struct BKeyNow<'a> {
 
 impl BKeyNow<'_> {
     /// The object's transform properties now: its rest values with its
-    /// curves at the frame written over them (a copy stands as its source),
-    /// then the Transform panel's edit over those.
+    /// curves at the frame written over them (a copy with no motion of its
+    /// own stands as its source; a copy of an added object has one,
+    /// `edit::model`), then the Transform panel's edit over those.
     pub fn raw(&self, object: &str) -> ObjectTransformRaw {
         let file = self.edit.renamed.iter().find(|(new, _)| new == object).map_or(object, |(_, old)| old.as_str());
         let source = self.edit.copied.iter().find(|(copy, _)| copy == file).map_or(file, |(_, from)| from.as_str());
-        let mut raw = self.model.motion.named(source).map(|m| m.raw_at(self.frame)).unwrap_or_default();
+        let motion = self.model.motion.named(file).or_else(|| self.model.motion.named(source));
+        let mut raw = motion.map(|m| m.raw_at(self.frame)).unwrap_or_default();
         if let Some(t) = self.transforms.get(object) {
             let (loc, rot, scale) = t.to_blend();
             let quat = Quat::from_euler(EulerRot::ZYX, rot[2], rot[1], rot[0]);
@@ -146,18 +148,22 @@ impl BRule for BKeyframeRule {
         let objects = crate::scene::select::BSelection::now(state).list;
         let mut edits = BSceneActions::now(state);
         let mut transforms = BTransforms::now(state);
-        let keyed = crate::scene::source::with_loaded(|model| {
-            let Some(model) = model else { return Vec::new() };
+        // With no file open, the default scene's stage is what is keyed
+        // (`edit::stage`): I on its Cube makes the default scene a scene.
+        let scoped = crate::scene::source::loaded_shared().unwrap_or_else(crate::scene::edit::BStage::model);
+        let keyed = {
+            let model = scoped.as_ref();
             let frame = crate::scene::motion::shown_frame(state).unwrap_or(model.timeline.current_frame as f32);
             let now = BKeyNow { model, edit: BSceneEdit::now(state), transforms: transforms.clone(), frame };
             let keyed = edits.key(how, &objects, &now);
-            // Keyed where it stands, a file object is driven by its curves
-            // from here on; one the session made has none to drive it yet.
+            // Keyed where it stands, an object with a motion — the file's,
+            // the stage's, or one the session added (`edit::model`) — is
+            // driven by its curves from here on.
             if how == BKeying::Transforms {
                 keyed.iter().filter(|o| now.moves(o)).for_each(|o| transforms.forget(o));
             }
             keyed.into_iter().map(|o| (o, frame)).collect::<Vec<_>>()
-        });
+        };
         let frame = keyed.first().map_or(0.0, |(_, f)| *f);
         let keyed: Vec<String> = keyed.into_iter().map(|(o, _)| o).collect();
         let said = match keyed.as_slice() {

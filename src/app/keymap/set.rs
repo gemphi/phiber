@@ -91,9 +91,13 @@ pub fn bindings(over: Option<BHostType>) -> Vec<BBinding> {
             BAction::Set(OpKey::NodeView.path(), format!("{}:all", host.slug()))
         });
     }
-    // The 3D Viewport's own key outside its menus: Alt Z, `view3d.toggle_xray`.
+    // The 3D Viewport's own keys outside its menus: Alt Z,
+    // `view3d.toggle_xray`, and Shift A, which opens the Add menu
+    // (`VIEW3D_MT_add`; Blender opens it at the pointer, here it drops from
+    // the header like the editor's other menus).
     if over == Some(BHostType::View3D) {
         fixed(&mut out, "Alt Z", "view3d.toggle_xray", |_| BAction::Set(OpKey::View3d.path(), "toggle_xray".to_string()));
+        fixed(&mut out, "Shift A", "wm.call_menu (VIEW3D_MT_add)", |_| BAction::Toggle(crate::state::MenuKey::Top(crate::host::view3d::SLUG, "Add").path()));
     }
     // The NLA editor's Shift A, `nla.actionclip_add`: the Add menu opens on
     // Action ▸ and the actions (Blender opens a search over them).
@@ -202,6 +206,17 @@ mod tests {
         assert_eq!(find(Some(BHostType::Time), "F2").as_deref(), Some("Marker ▸ Rename Marker"), "over the Timeline F2 renames a marker");
         assert_eq!(find(Some(BHostType::View3D), "F2").as_deref(), find(None, "F2").as_deref(), "elsewhere the top bar's Rename Active Item");
         assert_eq!(find(Some(BHostType::Time), "Space").as_deref(), Some("screen.animation_play"), "a key the editor does not bind falls through");
+    }
+
+    #[test]
+    fn shift_a_over_the_viewport_opens_its_add_menu() {
+        let all = bindings(Some(BHostType::View3D));
+        let shift_a = all.iter().find(|b| b.stroke == stroke("Shift A")).expect("Shift A is bound over the 3D viewport");
+        let mut state = BState::new();
+        let menu = crate::state::MenuKey::Top(crate::host::view3d::SLUG, "Add");
+        let open = (shift_a.action)(&state);
+        apply_action(&mut state, &open);
+        assert_eq!(state.get(&menu.path()), Some(V_TRUE), "the Add menu is open");
     }
 
     #[test]

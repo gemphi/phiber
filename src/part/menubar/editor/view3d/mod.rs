@@ -101,11 +101,33 @@ static VIEW3D_ADD_MESH: &[BMenuItem] = &[
     SEP,
     fire("Monkey", "", OpKey::SceneEdit, "add:monkey"),
 ];
+/// `object.empty_add`'s types, as Blender lists them.
+static VIEW3D_ADD_EMPTY: &[BMenuItem] = &[
+    fire("Plain Axes", "", OpKey::SceneEdit, "add:empty_plain_axes"),
+    fire("Arrows", "", OpKey::SceneEdit, "add:empty_arrows"),
+    fire("Single Arrow", "", OpKey::SceneEdit, "add:empty_single_arrow"),
+    fire("Circle", "", OpKey::SceneEdit, "add:empty_circle"),
+    fire("Cube", "", OpKey::SceneEdit, "add:empty_cube"),
+    fire("Sphere", "", OpKey::SceneEdit, "add:empty_sphere"),
+    fire("Cone", "", OpKey::SceneEdit, "add:empty_cone"),
+];
+/// `VIEW3D_MT_light_add`: the four lamps (`scene/edit/kind.rs`).
+static VIEW3D_ADD_LIGHT: &[BMenuItem] = &[
+    fire("Point", "", OpKey::SceneEdit, "add:light_point"),
+    fire("Sun", "", OpKey::SceneEdit, "add:light_sun"),
+    fire("Spot", "", OpKey::SceneEdit, "add:light_spot"),
+    fire("Area", "", OpKey::SceneEdit, "add:light_area"),
+];
+/// `VIEW3D_MT_add` (Shift A over the viewport), in Blender's order.
 pub static VIEW3D_ADD: &[BMenuItem] = &[
     sub("Mesh", VIEW3D_ADD_MESH),
     op("Curve", ""),
-    op("Camera", ""),
-    op("Light", ""),
+    SEP,
+    sub("Empty", VIEW3D_ADD_EMPTY),
+    SEP,
+    sub("Light", VIEW3D_ADD_LIGHT),
+    SEP,
+    fire("Camera", "", OpKey::SceneEdit, "add:camera"),
 ];
 static OBJECT_SHOW_HIDE: &[BMenuItem] = &[
     fire("Show Hidden Objects", "Alt H", OpKey::SceneEdit, "unhide"),
