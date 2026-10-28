@@ -56,9 +56,16 @@ pub(super) fn broadcast(choice: &BChoice, demo: &SceneModel) -> Option<SceneCame
     camera.name = "Broadcast".into();
     camera.location = from.into();
     camera.matrix_world = at.to_cols_array_2d();
-    // Wide enough for a court's length; a pitch is followed in part, as a
-    // broadcast's main camera frames it.
-    camera.focal_length_mm = if hx > 25.0 { 20.0 } else { 32.0 };
+    // Wide enough that both goals sit inside the frame from where the
+    // camera ended up standing, worked out rather than picked: a lens
+    // chosen by a threshold on the field's size ignores how far back the
+    // bowl let the camera go, and a 28 m court at 32 mm cut both baskets
+    // off the ends of the picture (2026-10-28). The margin keeps the end
+    // lines off the very edge. A pitch is still followed in part, as a
+    // broadcast's main camera frames it, so the lens never goes below the
+    // widest that reads as one.
+    let half = (hx / (hy + back)).atan() * 1.06;
+    camera.focal_length_mm = (18.0 / half.tan()).clamp(18.0, 32.0);
     camera.clip_end = camera.clip_end.max(hx * 8.0);
     Some(camera)
 }
@@ -66,7 +73,7 @@ pub(super) fn broadcast(choice: &BChoice, demo: &SceneModel) -> Option<SceneCame
 /// The read report a file would carry: what was built, and how big.
 pub(super) fn report(model: &mut SceneModel, choice: &BChoice) {
     let r = &mut model.report;
-    r.scene = format!("{} — {} v {}", choice.sport.spec().label, choice.home.spec().name, choice.away.spec().name);
+    r.scene = format!("{} - {} v {}", choice.sport.spec().label, choice.home.spec().name, choice.away.spec().name);
     r.file_version = "phiplay".into();
     r.objects = model.objects.len();
     // Shared meshes count once each time they are drawn, as Blender's
