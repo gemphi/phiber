@@ -9,19 +9,20 @@
 //! not have falls back down its own stack, then to the system's
 //! (`Font.fallbacks`), so a choice never leaves the window blank.
 //!
-//! The default is Phi-Soft Condensed, the platform's own face, set Light:
-//! its Regular reads heavy at interface sizes.
+//! The default is Phi-Soft, the platform's own face, at its full width and
+//! set Light: its Regular reads heavy at interface sizes, and side by side
+//! at 12-14 px the Condensed width read worse than the full one.
 
 use super::bundle;
 
-/// The family name Phi-Soft Condensed answers to (its typographic family,
-/// name ID 16, shared by every weight).
-pub const PHI_SOFT_FAMILY: &str = "Phi-Soft Condensed";
+/// The family name Phi-Soft answers to (its typographic family, name ID 16,
+/// shared by every weight).
+pub const PHI_SOFT_FAMILY: &str = "Phi-Soft";
 
-/// Phi-Soft Condensed (1.100) Light, compiled into the binary: the face the
-/// browser build draws in (it has no folder to read) and the one a desktop
-/// build falls back to when `assets/phi-fonts` is missing.
-pub const PHI_SOFT_FACES: [&[u8]; 1] = [include_bytes!("../../../assets/phi-fonts/Phi-Soft/PhiSoftCondensed-Light.otf")];
+/// Phi-Soft (1.100) Light, compiled into the binary: the face the browser
+/// build draws in (it has no folder to read) and the one a desktop build
+/// falls back to when `assets/phi-fonts` is missing.
+pub const PHI_SOFT_FACES: [&[u8]; 1] = [include_bytes!("../../../assets/phi-fonts/Phi-Soft/PhiSoft-Light.otf")];
 
 /// One family Preferences offers.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -60,7 +61,7 @@ impl BFontFamily {
         BFontFamily::CascadiaCode,
         BFontFamily::JetBrainsMono,
     ];
-    pub const DEFAULT: BFontFamily = BFontFamily::Bundled("phi_soft_condensed");
+    pub const DEFAULT: BFontFamily = BFontFamily::Bundled("phi_soft");
 
     /// Every choice, in the order Preferences lists them: the bundled
     /// families, then the system's.

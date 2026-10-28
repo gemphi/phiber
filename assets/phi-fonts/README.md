@@ -39,9 +39,9 @@ Any key left out keeps the theme's own value. A line is `key = number`, and `#` 
 | Loras-Spark | Lora's Spark, Lora's Spark Condensed (slug `lora_s_spark`) | same |
 | Chatty-Whims | Chatty Whims, Chatty Whims Condensed | same |
 
-The default is **Phi-Soft Condensed Light**. Its Regular reads heavy at interface sizes.
+The default is **Phi-Soft Light**, the full width. Its Regular reads heavy at interface sizes, and at 12-14 px the Condensed width reads worse than the full one.
 
 ## Notes
 
-- **The browser build** has no disk to read this folder from. It carries one face compiled into the binary, Phi-Soft Condensed Light (`font::PHI_SOFT_FACES`). A desktop build whose folder is missing falls back to the same face.
+- **The browser build** has no disk to read this folder from. It carries one face compiled into the binary, Phi-Soft Light (`font::PHI_SOFT_FACES`). A desktop build whose folder is missing falls back to the same face.
 - **Windows:** our vendored DirectWrite backend (`phigpu/gpui_windows`, `typographic_collection`) groups added fonts by typographic family. Without that, the two widths of a folder would merge into one family and the Condensed faces could never be reached.

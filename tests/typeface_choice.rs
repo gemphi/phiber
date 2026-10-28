@@ -1,6 +1,6 @@
 //! The typeface is a Preferences choice — *Typography ▸ Family* and *Weight*.
-//! The families are every one found in `assets/phi-fonts` (Phi-Soft
-//! Condensed, the platform's own, is the default), then the system's, two
+//! The families are every one found in `assets/phi-fonts` (Phi-Soft, the
+//! platform's own, at full width, is the default), then the system's, two
 //! Mac faces, Inter, and VS Code's four code faces — resolved like every other
 //! style value and applied once at the root.
 
@@ -29,7 +29,7 @@ fn the_folder_families_then_the_systems_each_with_a_stack_and_a_slug_that_round_
             "{family:?} ends on the generic {generic}"
         );
     }
-    assert_eq!(BFontFamily::DEFAULT.label(), "Phi-Soft Condensed", "the platform's own face, which ships in the app");
+    assert_eq!(BFontFamily::DEFAULT.label(), "Phi-Soft", "the platform's own face at full width, which ships in the app");
     assert_eq!(BFontFamily::from_slug("comic_sans"), None);
 }
 
@@ -46,7 +46,7 @@ fn the_family_is_a_typography_choice_that_resolves_from_state() {
 
     let defaults = ui_style_defaults(BPaletteName::Sphere);
     let mut state = BState::new();
-    assert_eq!(resolve_ui_style(defaults, &state).typography.family, BFontFamily::DEFAULT, "Phi-Soft Condensed until another is chosen");
+    assert_eq!(resolve_ui_style(defaults, &state).typography.family, BFontFamily::DEFAULT, "Phi-Soft until another is chosen");
     state.set(&key::TYPOGRAPHY_FAMILY, "menlo");
     assert_eq!(resolve_ui_style(defaults, &state).typography.family, BFontFamily::Menlo);
     state.set(&key::TYPOGRAPHY_FAMILY, "phi_sans");
@@ -54,7 +54,7 @@ fn the_family_is_a_typography_choice_that_resolves_from_state() {
     state.set(&key::TYPOGRAPHY_FAMILY, "papyrus");
     assert_eq!(resolve_ui_style(defaults, &state).typography.family, BFontFamily::DEFAULT, "an unknown face is ignored");
     for palette in BPaletteName::ALL.iter().copied() {
-        assert_eq!(ui_style_defaults(palette).typography.family, BFontFamily::DEFAULT, "{palette:?}: every theme starts on Phi-Soft Condensed");
+        assert_eq!(ui_style_defaults(palette).typography.family, BFontFamily::DEFAULT, "{palette:?}: every theme starts on Phi-Soft");
     }
 }
 

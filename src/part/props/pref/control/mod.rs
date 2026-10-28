@@ -31,11 +31,20 @@ impl BPreferenceReset {
         BAction::Reset(self.row.key().clone())
     }
 
+    /// An icon square, its words in the tooltip, faded while there is no
+    /// override to restore.
+    ///
+    /// It was the icon and "Restore Default" as a labelled button, and a
+    /// labelled button in a value column runs the column's width and keeps
+    /// it (`button::view`): beside the control it took the whole row, the
+    /// control shrank to nothing, and no preference could be read or
+    /// changed. An icon button is a tile of fixed size wherever it stands.
     pub fn view(self) -> BView {
         BView::Button(
             BControl::new()
                 .with_icon("rotate_ccw")
-                .with_label("Restore Default")
+                .with_tooltip("Restore Default")
+                .with_muted(!self.enabled)
                 .with_action(self.action()),
         )
     }
@@ -174,8 +183,51 @@ impl BPreferenceEditor {
                     .format_value(effective)
                     .or_else(|| row.descriptor().choices().first().map(|c| c.value.to_string()))
                     .unwrap_or_default();
-                BCtrl::read(BCtrlKind::Select, key, BValue::Enum(chosen), s).with_options(options)
+                // Open-ness kept with every other dropdown's, as Quality's
+                // anti-aliasing select keeps its (`pref.viewport_aa`): without
+                // a key a `Select` draws as a plain button and never opens,
+                // and with one outside `buts.dropdown` the choice is written
+                // but nothing closes the list (`menu::close_overlays`).
+                use crate::state::BKey as _;
+                let mut segs = crate::state::ButsKey::Dropdown("pref").path().segs.to_vec();
+                segs.push(row.descriptor().target);
+                let open = crate::state::BPath::owned(segs);
+                BCtrl::read(BCtrlKind::Select, key, BValue::Enum(chosen), s).with_options(options).with_menu(open, s)
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::theme::UI_STYLE_DESCRIPTORS;
+
+    /// Typography ▸ Family as Preferences draws it: a dropdown that can
+    /// open, and beside it a reset that is an icon, not a labelled button
+    /// that takes the row from it.
+    #[test]
+    fn a_choice_opens_and_its_reset_leaves_it_the_row() {
+        let family = UI_STYLE_DESCRIPTORS.iter().find(|d| d.target == "typography.family").expect("the family row");
+        let row = BPreferenceRow::from_descriptor(family);
+        let mut state = BState::new();
+        let view = |state: &BState| BPreferenceControls::for_row(row, state, crate::theme::ui_style_defaults_for(state)).view(state);
+        let BView::Row { list } = view(&state) else { panic!("a control and its reset") };
+        let (BView::Ctrl(ctrl), BView::Button(reset)) = (&list[0], &list[1]) else { panic!("{list:?}") };
+        let open = ctrl.open_key.clone().expect("a dropdown keeps whether it is open");
+        assert!(!ctrl.open);
+        assert_eq!((reset.label.as_deref(), reset.tooltip.as_deref()), (None, Some("Restore Default")));
+        assert!(reset.muted, "nothing chosen yet, nothing to restore");
+
+        state.set(&open, crate::state::val::V_TRUE);
+        state.set(row.key(), "phi_soft");
+        let BView::Row { list } = view(&state) else { panic!() };
+        let (BView::Ctrl(ctrl), BView::Button(reset)) = (&list[0], &list[1]) else { panic!("{list:?}") };
+        assert!(ctrl.open, "the list opens");
+        assert!(!reset.muted, "a choice made can be restored");
+
+        // Choosing closes it, as every dropdown closes on its choice.
+        crate::state::action::apply_action(&mut state, &ctrl.set(crate::state::BValue::Enum("segoe_ui".into())));
+        assert_ne!(state.get(&open), Some(crate::state::val::V_TRUE), "the list closes once a family is chosen");
     }
 }

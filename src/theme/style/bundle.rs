@@ -221,6 +221,6 @@ mod tests {
     #[test]
     fn the_compiled_in_face_describes_itself() {
         let (name, weight) = describe(super::super::font::PHI_SOFT_FACES[0]).expect("a readable font");
-        assert_eq!((name.as_str(), weight), ("Phi-Soft Condensed", 300));
+        assert_eq!((name.as_str(), weight), ("Phi-Soft", 300));
     }
 }
