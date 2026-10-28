@@ -7,10 +7,10 @@ pub static DOC: BReaderDoc = BReaderDoc {
     slug: "report_bug",
     icon: "bug",
     title: "Report a Bug",
-    source: "blender.org — Support ▸ Report a Bug; Blender Manual — Help System",
+    source: "blender.org - Support ▸ Report a Bug; Blender Manual - Help System",
     blocks: &[
         Para("Sometimes bugs happen, but don't worry! Developers got your back. Please read the best practices guidance before reporting."),
-        Para("Blender's reports go to the Blender Bug Tracker at projects.blender.org (registration needed). Phiber's own issues are tracked on the Phiber website — a fault in this window is Phiber's, not Blender's."),
+        Para("Blender's reports go to the Blender Bug Tracker at projects.blender.org (registration needed). Phiber's own issues are tracked on the Phiber website - a fault in this window is Phiber's, not Blender's."),
         Heading("Before reporting"),
         Item("Make sure the problem still happens in the latest version."),
         Item("Search the tracker: someone may have reported it already, and their report may hold a workaround."),

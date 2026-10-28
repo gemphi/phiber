@@ -39,7 +39,7 @@ fn block(b: &BReaderBlock) -> BView {
         BReaderBlock::Heading(t) => BView::prose(BProse::Heading, t),
         BReaderBlock::Para(t) => BView::prose(BProse::Para, t),
         BReaderBlock::Item(t) => BView::prose(BProse::Item, t),
-        BReaderBlock::Term(term, text) => BView::prose(BProse::Term, format!("{term} — {text}")),
+        BReaderBlock::Term(term, text) => BView::prose(BProse::Term, format!("{term} - {text}")),
         BReaderBlock::Note(t) => BView::prose(BProse::Note, t),
     }
 }

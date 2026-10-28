@@ -7,7 +7,7 @@ pub static DOC: BReaderDoc = BReaderDoc {
     slug: "community",
     icon: "community",
     title: "User Communities",
-    source: "Blender Manual — About ▸ The Blender Community; blender.org — Community",
+    source: "Blender Manual - About ▸ The Blender Community; blender.org - Community",
     blocks: &[
         Para("Being freely available from the start, even while it was closed source, considerably helped Blender's adoption by the community. A large, stable, and active community of users has gathered around Blender since 1998. The community showed its support for Blender in 2002 when they helped raise €100,000 in seven weeks to enable Blender to go Open Source under the GNU GPL V2 License."),
         Heading("Independent Sites"),
@@ -38,7 +38,7 @@ pub static DOC: BReaderDoc = BReaderDoc {
         Term("BlenderNation", "An overview of everything Blender: development updates, new tutorials, artwork and community information."),
         Term("Blend Swap", "Community of passionate Blender artists who share their work under Creative Commons licenses."),
         Term("CG Cookie Community", "Learn Blender, online tutorials, ask questions and get feedback from peers."),
-        Para("Groups also meet in Arabic, Chinese, Dutch, French, German, Greek, Italian, Japanese, Korean, Indonesian, Malay, Russian, Spanish, Turkish and Vietnamese — from Blenderlounge and the Blender User Group de Paris to Blender Italia, Blender.jp, Blender Hoy and BlenderVN."),
+        Para("Groups also meet in Arabic, Chinese, Dutch, French, German, Greek, Italian, Japanese, Korean, Indonesian, Malay, Russian, Spanish, Turkish and Vietnamese - from Blenderlounge and the Blender User Group de Paris to Blender Italia, Blender.jp, Blender Hoy and BlenderVN."),
         Heading("Other Useful Links"),
         Item("Blender FAQ (Can I use Blender commercially? What is GPL/GNU? …)"),
         Item("Demo and benchmark files"),

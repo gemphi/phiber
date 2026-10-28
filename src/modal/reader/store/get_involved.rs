@@ -6,7 +6,7 @@ pub static DOC: BReaderDoc = BReaderDoc {
     slug: "get_involved",
     icon: "involve",
     title: "Get Involved",
-    source: "blender.org — Get Involved",
+    source: "blender.org - Get Involved",
     blocks: &[
         Para("Join hundreds of contributors worldwide working together towards the freedom to create."),
         Para("Blender is being developed by hundreds of contributors from around the world, including studios and individual artists, professionals and hobbyists, scientists and students, VFX experts and animators, and many more. All united by the desire to have access to a fully free and open-source 3D creation pipeline."),

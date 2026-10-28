@@ -6,7 +6,7 @@ pub static DOC: BReaderDoc = BReaderDoc {
     slug: "credits",
     icon: "heart",
     title: "Credits",
-    source: "blender.org — About ▸ Credits; Get Involved",
+    source: "blender.org - About ▸ Credits; Get Involved",
     blocks: &[
         Para("Blender is being developed by hundreds of contributors from around the world, including studios and individual artists, professionals and hobbyists, scientists and students, VFX experts and animators, and many more. All united by the desire to have access to a fully free and open-source 3D creation pipeline."),
         Para("The Blender Foundation supports and facilitates these goals. Thanks to donations, the Blender Institute and Blender Studio projects enable a small group of people to work full-time on Blender. For everything else, the project depends on volunteers from the online community."),

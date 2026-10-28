@@ -6,7 +6,7 @@ pub static DOC: BReaderDoc = BReaderDoc {
     slug: "support",
     icon: "support",
     title: "Support",
-    source: "blender.org — Support",
+    source: "blender.org - Support",
     blocks: &[
         Heading("Documentation"),
         Para("Blender's user manual is available online in several languages and is constantly updated by a worldwide collaboration of volunteers."),

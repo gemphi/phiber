@@ -6,7 +6,7 @@ pub static DOC: BReaderDoc = BReaderDoc {
     slug: "help",
     icon: "help",
     title: "Help System",
-    source: "Blender Manual — Getting Started ▸ Help System",
+    source: "Blender Manual - Getting Started ▸ Help System",
     blocks: &[
         Heading("Tooltips"),
         Para("After hovering the mouse cursor over a button or setting for a few moments, a tooltip will appear."),
