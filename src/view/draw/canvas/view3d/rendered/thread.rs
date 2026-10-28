@@ -57,6 +57,7 @@ pub(super) fn run(gpu: Gpu, rx: Receiver<BRayJob>, out: Arc<Mutex<Option<BRayFra
             }
         }
         if let Some((key, of, objects, palette)) = next_scene {
+            super::wake::SCENES_TAKEN.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
             let last = held.as_ref().filter(|_| of == shape).map(|(_, o, _)| o.as_slice());
             match tracer.as_mut().filter(|_| of == shape).and_then(|t| place::update(&gpu, t, last, &objects, &palette)) {
                 Some(place::BKept::Placed) => {}
@@ -162,6 +163,7 @@ pub(super) fn run(gpu: Gpu, rx: Receiver<BRayJob>, out: Arc<Mutex<Option<BRayFra
             *slot = Some(BRayFrame { seq, view: key, w, h, bgra: px, done });
         }
         super::wake::FRESH.store(true, std::sync::atomic::Ordering::Release);
+        super::wake::IMAGES_SHOWN.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         // The first image is up: the other kernels compile meanwhile, on a
         // thread of their own (`compile.rs`).
         warmed.once(&gpu);

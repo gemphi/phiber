@@ -85,8 +85,14 @@ pub fn still_stepwise(
     // log which settings a render actually used.
     crate::app::journal::BJournal::note(if adapt[3] != 0.0 {
         format!(
-            "Adaptive sampling: threshold {:.4}, min {} samples, checked every {}",
-            adapt[0], adapt[1] as u32, adapt[2] as u32,
+            // The panel's Noise Threshold, then the one the kernel compares
+            // (× `BAdaptive::SCALE`): the log said 0.1000 for a file's 0.02,
+            // which read as the wrong threshold when it was the right one.
+            "Adaptive sampling: noise threshold {:.4} (compared as {:.4}), min {} samples, checked every {}",
+            adapt[0] / crate::scene::render_set::BAdaptive::SCALE,
+            adapt[0],
+            adapt[1] as u32,
+            adapt[2] as u32,
         )
     } else {
         "Adaptive sampling: off — every pixel takes every sample".to_string()

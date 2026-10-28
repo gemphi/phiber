@@ -58,7 +58,7 @@ use self::state::{MAX_SIDE, POSTED, STATE};
 pub use self::state::{shown_image, views_posted};
 use self::worker::{BRayJob, BRayShot, BRayWorker};
 pub(in crate::view::draw::canvas::view3d) use self::view::BRayView;
-pub use self::wake::{drawing, landed, refining, set_ticking, take_fresh, ticking};
+pub use self::wake::{counts, drawing, landed, refining, set_ticking, take_fresh, ticking};
 pub(super) use self::wake::REFINING;
 
 

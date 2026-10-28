@@ -10,6 +10,19 @@
 pub static FRESH: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 pub static REFINING: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 
+/// Scenes the viewport posted, scenes the render thread took (several
+/// posted between two samples are taken as the last), and images it
+/// published: counted for the playback summary (`app::playback`), which is
+/// how to tell where a choppy playback loses its frames.
+pub static SCENES_POSTED: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+pub static SCENES_TAKEN: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+pub static IMAGES_SHOWN: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+/// `[posted, taken, shown]` so far.
+pub fn counts() -> [u64; 3] {
+    [&SCENES_POSTED, &SCENES_TAKEN, &IMAGES_SHOWN].map(|n| n.load(std::sync::atomic::Ordering::Relaxed))
+}
+
 /// A frame landed — the render thread's, or a final render's sample
 /// (`scene/render_job.rs`): the window is drawn once for it.
 pub fn landed() {

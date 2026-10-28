@@ -60,7 +60,10 @@ impl BRayWorker {
         use std::sync::atomic::Ordering::Relaxed;
         match &job {
             BRayJob::View(key, _) => self.posted.view.store(*key, Relaxed),
-            BRayJob::Scene(key, ..) => self.posted.scene.store(*key, Relaxed),
+            BRayJob::Scene(key, ..) => {
+                self.posted.scene.store(*key, Relaxed);
+                super::wake::SCENES_POSTED.fetch_add(1, Relaxed);
+            }
         }
         let _ = self.tx.send(job);
     }

@@ -42,6 +42,10 @@ impl BAdaptive {
     /// (`adaptive_sampling.cpp` asserts it).
     pub const STEP: u32 = 16;
 
+    /// What Cycles multiplies the panel's Noise Threshold by before the
+    /// kernel compares against it — so a file's 0.02 is tested as 0.1.
+    pub const SCALE: f32 = 5.0;
+
     /// Resolve the panel's three rows against `samples`, the render's total.
     pub fn of(set: &BRenderSet, samples: u32) -> Self {
         if !set.adaptive {
@@ -64,7 +68,7 @@ impl BAdaptive {
         .max(4);
         // "Arbitrary factor that makes the threshold more similar to what
         // it was before, and gives arguably more intuitive values."
-        threshold *= 5.0;
+        threshold *= Self::SCALE;
         Self { use_it: true, threshold, min_samples, step: Self::STEP }
     }
 

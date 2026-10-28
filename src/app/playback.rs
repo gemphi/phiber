@@ -40,6 +40,7 @@ impl BPhiberApp {
         }
         self.playing_ticker = true;
         let mut due = Instant::now() + period_of(float_or(&self.state, CtxKey::Fps, 24.0));
+        let mut run = BPlayRun::start();
         cx.spawn(async move |this, cx| loop {
             let now = Instant::now();
             if due > now {
@@ -50,11 +51,13 @@ impl BPhiberApp {
                     // Forwards, or backwards while playing in reverse.
                     let Some(step) = BTransportButton::tick_step(&app.state) else {
                         app.playing_ticker = false;
+                        run.note();
                         return false;
                     };
                     let period = period_of(float_or(&app.state, CtxKey::Fps, 24.0));
                     let (frames, next) = frames_due(due, Instant::now(), period);
                     due = next;
+                    run.ticked(frames);
                     let signed = if step.starts_with('-') { -frames } else { frames };
                     // `screen_animation_step`: the loop mode decides what
                     // the end of the range does (`part/time/step.rs`).
@@ -68,6 +71,42 @@ impl BPhiberApp {
             }
         })
         .detach();
+    }
+}
+
+/// One playback, from Play to stop, counted for the journal: playback that
+/// keeps time but looks choppy loses its frames somewhere between the
+/// ticker and the screen, and these say where.
+struct BPlayRun {
+    began: Instant,
+    ticks: u32,
+    stepped: i32,
+    /// The viewport's `[posted, taken, shown]` when it started (`rendered::counts`).
+    then: [u64; 3],
+}
+
+impl BPlayRun {
+    fn start() -> Self {
+        Self { began: Instant::now(), ticks: 0, stepped: 0, then: crate::view::draw::canvas::view3d::rendered::counts() }
+    }
+
+    fn ticked(&mut self, frames: i32) {
+        self.ticks += 1;
+        self.stepped += frames;
+    }
+
+    /// The line a stopped playback leaves in the session journal.
+    fn note(&self) {
+        let secs = self.began.elapsed().as_secs_f32().max(1e-3);
+        let now = crate::view::draw::canvas::view3d::rendered::counts();
+        let [posted, taken, shown] = [0, 1, 2].map(|i| now[i].saturating_sub(self.then[i]));
+        crate::app::journal::BJournal::note(format!(
+            "Playback: {} frames stepped in {secs:.1}s ({:.1} a second) over {} ticks; the viewport posted {posted} scenes, the render thread took {taken} and showed {shown} images ({:.1} a second)",
+            self.stepped,
+            self.stepped as f32 / secs,
+            self.ticks,
+            shown as f32 / secs,
+        ));
     }
 }
 
