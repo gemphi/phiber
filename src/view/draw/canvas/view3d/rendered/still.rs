@@ -37,7 +37,7 @@ impl BStillLook {
 
     pub(super) fn palette(&self) -> BMeshPalette {
         let plain = self.plain;
-        BMeshPalette { shading: self.shading, cube: plain, sphere: plain, gem: plain, loaded: plain, accent: plain, accent_active: plain, matcap: self.matcap, texture: self.texture }
+        BMeshPalette { shading: self.shading, cube: plain, sphere: plain, gem: plain, loaded: plain, accent: plain, accent_active: plain, matcap: self.matcap, texture: self.texture, studio: self.shading == crate::scene::BShading::Material }
     }
 }
 
@@ -183,8 +183,16 @@ impl BStill {
     fn lay(&mut self, piece: &Self, y0: usize, rows: usize, skip: usize, w: usize) {
         let (at, from, n) = (y0 * w, skip * w, rows * w);
         // A band whose readback came back short leaves the frame as it was
-        // rather than bringing the render down (`lay_rgba`).
-        if (at + n) * 4 > self.rgba.len() || (from + n) * 4 > piece.rgba.len() {
+        // rather than bringing the render down (`lay_rgba`). Every plane is
+        // checked, not the colour alone: a lost device under load handed
+        // back an empty depth plane with a full colour one, and frame 83 of
+        // the basketball animation panicked here (2026-10-28).
+        let short = |have: usize, need: usize| have < need;
+        if short(self.rgba.len(), (at + n) * 4)
+            || short(piece.rgba.len(), (from + n) * 4)
+            || [self.display.len(), self.linear.len(), self.albedo.len(), self.normal.len(), self.depth.len()].iter().any(|&l| short(l, at + n))
+            || [piece.display.len(), piece.linear.len(), piece.albedo.len(), piece.normal.len(), piece.depth.len()].iter().any(|&l| short(l, from + n))
+        {
             return;
         }
         self.rgba[at * 4..(at + n) * 4].copy_from_slice(&piece.rgba[from * 4..(from + n) * 4]);
