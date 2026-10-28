@@ -101,3 +101,14 @@ pub fn ink_on(fill: gpui::Hsla, text: gpui::Hsla) -> gpui::Hsla {
         false => text,
     }
 }
+
+/// Every icon tile not lit, in every host, rests on the one tile shade
+/// (`BFill::IconTileRest`), half way to the lit fill, so a row of tiles reads
+/// as tiles with the lit ones stronger. A host does not pick a shade of its
+/// own. Only the resting ground changes: the hover still lifts it.
+pub fn tile_rest<E: Styled>(element: E, resting_tile: bool, ctx: &BRenderCtx) -> E {
+    match resting_tile {
+        true => super::flex::BFlex::cell().fill(super::flex::BFill::IconTileRest).styled(element, ctx),
+        false => element,
+    }
+}

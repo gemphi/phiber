@@ -95,7 +95,7 @@ impl BFlexed for BSplitPart {
                 // At least the module tall; a vector's stacked X / Y / Z
                 // grow it, rather than spilling over the rows under it.
                 .min_height(BLen::Dim(BDim::CardHead))
-                .pad_x(BSpace::PadSm),
+                .pad_x(BSpace::RowInset),
         }
     }
 }

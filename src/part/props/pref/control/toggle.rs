@@ -35,14 +35,9 @@ impl BPreferenceToggle {
     }
 
     pub fn view(self) -> BView {
-        let icon = if self.checked {
-            "check_square"
-        } else {
-            "square"
-        };
         BView::Button(
             BControl::new()
-                .with_icon(icon)
+                .with_mark(crate::view::prim::BMark::Check(self.checked))
                 .with_label(self.row.metadata().label)
                 .with_action(self.action()),
         )

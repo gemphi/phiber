@@ -162,7 +162,7 @@ impl BFlexed for BCardPart {
             Self::Row { text, own } => {
                 let row = BFlex::row().width(BLen::Full).align(BAlign::Center);
                 let row = if *own { row } else { row.min_height(BLen::Dim(super::flex::BDim::CardHead)) };
-                if *text { row.pad_x(BSpace::PadSm) } else { row }
+                if *text { row.pad_x(BSpace::RowInset) } else { row }
             }
             Self::Foot => BFlex::row()
                 .width(BLen::Full)
@@ -294,7 +294,7 @@ fn draw(card: &BCard, ctx: &BRenderCtx) -> AnyElement {
             // a paragraph — takes the row's inset; a control carries its own.
             // Only `Label` did, so the details column's pairs ran to the
             // card's edge while its heading and preview stood in from it.
-            let text = matches!(row, BView::Label { .. } | BView::Pair { .. } | BView::Prose { .. });
+            let text = super::column::is_words(row);
             // A menu row and a read-out are their own height: a stack of
             // them reads as a list, not rungs a button's height apart.
             let own = matches!(row, BView::MenuItem(_) | BView::Pair { .. });

@@ -20,9 +20,10 @@ impl BPopover<'_> {
         match two_column.then(|| self.switcher_columns(ctx)).flatten() {
             Some(columns) => content = content.child(columns),
             None => {
-                // A menu with no glyph in it reserves no icon slot.
+                // A menu with no glyph in it (no icon, no mark) reserves no
+                // icon slot.
                 let glyphs = !self.body.iter().any(|v| matches!(v, BView::MenuItem(_)))
-                    || self.body.iter().any(|v| matches!(v, BView::MenuItem(c) if c.icon.as_deref().is_some_and(|i| !i.is_empty())));
+                    || self.body.iter().any(|v| matches!(v, BView::MenuItem(c) if c.mark.is_some() || c.icon.as_deref().is_some_and(|i| !i.is_empty())));
                 let ctx = &BRenderCtx { glyphs, ..ctx.clone() };
                 // A divider splits a menu into groups; each group stands on a
                 // ground of its own and the divider itself becomes the gap

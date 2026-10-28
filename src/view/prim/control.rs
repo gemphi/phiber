@@ -56,6 +56,28 @@ pub struct BControl {
     /// arrow in the shortcut's quieter caption type. A row can now say that
     /// it leads somewhere AND say what key opens it.
     pub submenu: bool,
+    /// This control is a checkbox or a radio option, and which state it is
+    /// in. Every renderer that draws a control (`button`, `menu`, `ctrl`)
+    /// draws it through the one mark (`view/draw/mark.rs`), so a tick looks
+    /// the same in a panel, a menu and a preference.
+    pub mark: Option<BMark>,
+}
+
+/// The two marks a control can be: a box that is ticked or not, and a radio
+/// option that is chosen or not. Declared once; drawn once (`draw::mark`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum BMark {
+    Check(bool),
+    Radio(bool),
+}
+
+impl BMark {
+    /// Whether the mark is on: ticked or chosen.
+    pub const fn on(self) -> bool {
+        match self {
+            Self::Check(on) | Self::Radio(on) => on,
+        }
+    }
 }
 
 impl BControl {
@@ -98,6 +120,10 @@ impl BControl {
     }
     pub fn with_active(mut self, active: bool) -> Self {
         self.active = active;
+        self
+    }
+    pub fn with_mark(mut self, mark: BMark) -> Self {
+        self.mark = Some(mark);
         self
     }
     pub fn with_submenu(mut self, submenu: bool) -> Self {

@@ -22,7 +22,7 @@ use crate::state::{
     val::{V_FALSE, V_TRUE},
 };
 use crate::view::BView;
-use crate::view::prim::{BAction, BControl};
+use crate::view::prim::{BAction, BControl, BMark};
 use crate::view::BViewItem;
 
 /// The directory: breadcrumbs, each folder a link (`listing::trail`); a
@@ -83,9 +83,8 @@ fn filter_body(s: &BState) -> Vec<BView> {
     let mut body = vec![
         BView::MenuItem(
             BControl::new()
-                .with_icon(if hidden_on { "check_square" } else { "square" })
+                .with_mark(BMark::Check(hidden_on))
                 .with_label("Show Hidden Files")
-                .with_active(hidden_on)
                 .with_action(BAction::Toggle(FileKey::ShowHidden.path())),
         ),
         BView::menu_sep(),

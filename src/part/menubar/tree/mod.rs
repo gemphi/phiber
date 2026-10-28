@@ -167,18 +167,15 @@ pub fn item_view(host: &'static str, labels: &[&'static str], it: &BMenuItem, s:
                 .collect();
             it.live_sub(host, labels, s, body)
         }
-        // A checked entry takes the active fill as well as the check, which is
-        // what a ticked row in a picker or the file browser's filter has
-        // always done. The glyph alone made the menubar's checkables the one
-        // family where "on" was a 12px mark and nothing else.
+        // A checkable entry is a checkbox row: the one mark
+        // (`view/draw/mark.rs`), its accent tile when ticked.
         BMenuKind::Toggle(key, on_by_default) => {
             let on = if on_by_default { s.get(&key()) != Some(V_FALSE) } else { s.get(&key()) == Some(V_TRUE) };
             BView::MenuItem(
                 BControl::new()
-                    .with_icon(if on { "check" } else { "" })
+                    .with_mark(crate::view::prim::BMark::Check(on))
                     .with_label(it.label)
                     .with_shortcut(it.shortcut)
-                    .with_active(on)
                     .with_action(leaf_action(host, labels, it)),
             )
         }
@@ -190,10 +187,9 @@ pub fn item_view(host: &'static str, labels: &[&'static str], it: &BMenuItem, s:
             });
             BView::MenuItem(
                 BControl::new()
-                    .with_icon(if on { "check" } else { "" })
+                    .with_mark(crate::view::prim::BMark::Check(on))
                     .with_label(it.label)
                     .with_shortcut(it.shortcut)
-                    .with_active(on)
                     .with_action(leaf_action(host, labels, it)),
             )
         }

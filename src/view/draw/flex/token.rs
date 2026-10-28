@@ -4,6 +4,7 @@
 
 pub use super::ink::BInk;
 use super::super::ctx::BRenderCtx;
+pub use super::dim::BDim;
 use crate::theme::BStyleRole;
 
 /// A spacing token: a gap, a padding or a margin, resolved from the theme.
@@ -35,6 +36,12 @@ pub enum BSpace {
     /// the row's text one surface gutter (`PadMd`) in — the column the
     /// heading's fold triangle starts in.
     CardInset,
+    /// A row's own inset from the surface it sits in, the one every row
+    /// kind takes: a property row, a menu row, a switch's and a labelled
+    /// checkbox's. With the surface's `CardInset` (a card's body, a popover's)
+    /// it lands every row's first word one gutter (`PadMd`) in, so no row
+    /// kind keeps a padding of its own.
+    RowInset,
     /// A folding card's rows, in to where its title starts less a row's own
     /// `PadSm`: children stand under the parent's word. `sub`: a nested head.
     FoldBody { sub: bool },
@@ -63,6 +70,7 @@ impl BSpace {
             Self::ContentPad => ctx.style.content_pad(ctx.host),
             Self::MenuTopGap => ctx.style.dimensions.menu_top_gap,
             Self::CardInset => (s.pad_md - s.pad_sm).max(0.0),
+            Self::RowInset => s.pad_sm,
             Self::FoldBody { sub } => {
                 let head = if sub { s.pad_sm } else { s.pad_md };
                 head + ctx.style.dimensions.icon_size + s.gap_sm - s.pad_sm
@@ -72,68 +80,6 @@ impl BSpace {
     }
 }
 
-/// A named dimension from the theme.
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum BDim {
-    HeaderHeight,
-    /// A card's heading strip: the button height, so a panel heading and
-    /// the rows and buttons under it are one module.
-    CardHead,
-    FooterHeight,
-    ButtonHeight,
-    /// An icon tile: the button less its inset (`tile_size`).
-    Tile,
-    RowHeight,
-    /// A tree's row (`tree_row_height`).
-    TreeRow,
-    /// A menu-popover row: compact, below the module (`menu_row_height`).
-    MenuRow,
-    ScrubbingHeight,
-    AssetShelfHeight,
-    BottomStripHeight,
-    BottomPanelHeight,
-    StatusLogHeight,
-    ToolbarWidth,
-    /// Every rail's collapsed width (`BResolvedUiStyle::rail_width`).
-    RailWidth,
-    NavbarWidth,
-    SidebarMinWidth,
-    PanelWidth,
-    MenuWidth,
-    ChannelsWidth,
-    ToolPropsWidth,
-    SideZoneDefaultWidth,
-}
-
-impl BDim {
-    pub(super) fn px(self, ctx: &BRenderCtx) -> f32 {
-        let d = &ctx.style.dimensions;
-        match self {
-            Self::HeaderHeight => d.header_height,
-            Self::CardHead => d.card_head_height(),
-            Self::FooterHeight => d.footer_height,
-            Self::ButtonHeight => d.button_height,
-            Self::Tile => d.tile_size(),
-            Self::RowHeight => d.row_height,
-            Self::TreeRow => d.tree_row_height,
-            Self::MenuRow => d.menu_row_height,
-            Self::ScrubbingHeight => d.scrubbing_height,
-            Self::AssetShelfHeight => d.asset_shelf_height,
-            Self::BottomStripHeight => d.bottom_strip_height,
-            Self::BottomPanelHeight => d.bottom_panel_height,
-            Self::StatusLogHeight => d.status_log_height,
-            Self::ToolbarWidth => d.toolbar_width,
-            Self::RailWidth => ctx.style.rail_width(),
-            Self::NavbarWidth => d.navbar_width,
-            Self::SidebarMinWidth => d.sidebar_min_width,
-            Self::PanelWidth => d.panel_width,
-            Self::MenuWidth => d.menu_width,
-            Self::ChannelsWidth => d.channels_width,
-            Self::ToolPropsWidth => d.tool_props_width,
-            Self::SideZoneDefaultWidth => d.side_zone_default_width,
-        }
-    }
-}
 
 /// A length on one axis.
 #[derive(Clone, Copy, Debug, PartialEq)]

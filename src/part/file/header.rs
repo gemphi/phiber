@@ -40,9 +40,13 @@ fn menu(s: &BState, mode: BBrowseMode, label: &'static str, items: &[(&'static s
             if text.is_empty() {
                 BView::menu_sep()
             } else {
+                // A ticked entry draws the one checkbox mark; any other its icon.
+                let item = match *ic {
+                    "check_square" => BControl::new().with_mark(crate::view::prim::BMark::Check(true)),
+                    ic => BControl::new().with_icon(ic),
+                };
                 BView::MenuItem(
-                    BControl::new()
-                        .with_icon(*ic)
+                    item
                         .with_label(*text)
                         .with_action(BAction::Set(key.clone(), V_EMPTY.to_string())),
                 )

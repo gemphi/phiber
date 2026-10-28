@@ -3,7 +3,7 @@
 use super::color::to_hsla;
 use super::ctx::BRenderCtx;
 use super::chrome;
-use super::flex::{BDim, BEdge, BFill, BFlex, BJustify, BLen, BRadius};
+use super::flex::{BDim, BFlex, BJustify, BLen};
 use super::atom::icon_path;
 use crate::theme::BStyleRole;
 use crate::view::prim::{BAction, BControl};
@@ -29,20 +29,6 @@ pub fn element_id(icon: &str, label: Option<&str>, action: &BAction) -> String {
         "btn-{role}-{action_id}-{}",
         if role == "icon" { icon } else { "text" }
     )
-}
-
-/// A swatch button's face: a square of the colour, bordered so a colour close to
-/// the panel's own shade still reads as a swatch rather than as a hole.
-fn swatch_face(color: crate::theme::BColor, ctx: &BRenderCtx) -> BFlex {
-    // An icon's size, the way the zone glyph states it: there is no `BDim` for it.
-    let size = BLen::Measured(ctx.style.dimensions.icon_size);
-    BFlex::cell()
-        .width(size)
-        .height(size)
-        .keeps_size()
-        .radius(BRadius::Role(BStyleRole::Field))
-        .border(BEdge::All)
-        .fill(BFill::SwatchHsl(color))
 }
 
 pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
@@ -73,20 +59,11 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
         .items_center()
         .gap(px(ctx.style.spacing.gap_sm))
         .px(px(if label.is_none() {
-            // An icon-only button is a SQUARE, everywhere, and that is decided
-            // here rather than per host.
-            //
-            // Its height has always been `button_height`; its width was its
-            // padding twice plus an icon, and the padding differs inside a
-            // strip and out (`pad_md` against `pad_sm`). So the same transport
-            // button came out one width in the Timeline's header and another
-            // in a panel, and every icon rail disagreed with every other about
-            // how wide an icon is. Blender has no such drift: `UI_UNIT_X` and
-            // `UI_UNIT_Y` are both `U.widget_unit`, so an icon button is a unit
-            // square by construction.
-            //
-            // The centring below does the rest: with no label there is nothing
-            // for the padding to separate.
+            // An icon-only button is a SQUARE, everywhere, decided here rather
+            // than per host: padding twice plus an icon came out one width in
+            // a strip and another in a panel. Blender's `UI_UNIT_X` and
+            // `UI_UNIT_Y` are both `U.widget_unit`; the centring below does the
+            // rest, with no label for the padding to separate.
             0.0
         } else if chrome::in_strip(ctx) {
             // In a strip every control is a menu, so it takes the menu's own
@@ -134,6 +111,7 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
     let action_button = label.is_some()
         && icon.is_empty()
         && ctl.swatch.is_none()
+        && ctl.mark.is_none()
         && !ctx.fill
         && !ctx.listed
         && (!chrome::in_strip(ctx) || ctx.region == Some(crate::region::BRegionType::Execute));
@@ -149,17 +127,20 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
     // that is what this control shows. Stated as a `BFlex` rather than hand-rolled
     // divs: the style budget caught the hand-rolled version, and it was right —
     // `BCtrlPart::Swatch` describes the same square the same way.
-    if let Some(color) = ctl.swatch {
-        row = row.child(swatch_face(color, ctx).div(ctx));
-    } else if !icon.is_empty() {
-        row = row.child(
+    // A checkbox or radio button draws the one mark (`mark.rs`) where its
+    // icon would be.
+    row = match (ctl.mark, ctl.swatch) {
+        (Some(mark), _) => row.child(super::mark::view(mark, ctx)),
+        (None, Some(color)) => row.child(super::ctrl::swatch_face(color, ctx).div(ctx)),
+        (None, None) if !icon.is_empty() => row.child(
             svg()
                 .path(icon_path(icon))
                 .size(px(ctx.style.dimensions.icon_size))
                 .flex_shrink_0()
                 .text_color(ink),
-        );
-    }
+        ),
+        (None, None) => row,
+    };
     if let Some(text) = label {
         row = row.child(SharedString::from(text.to_string()));
     }
@@ -172,7 +153,7 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
             None => {
                 let id = SharedString::from(format!("btn-icon-idle-{icon}"));
                 let element = chrome::paint_state(row.id(id), false, ctl.muted, &BRenderCtx { floating: true, ..ctx.clone() });
-                browser_rest(element, true, ctx).into_any_element()
+                chrome::tile_rest(element, true, ctx).into_any_element()
             }
             Some(_) => row.into_any_element(),
         };
@@ -237,7 +218,7 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
     let tile = label.is_none() || action_button || is_row;
     let paint_ctx = if tile { BRenderCtx { floating: true, ..ctx.clone() } } else { ctx.clone() };
     let element = chrome::paint_state(element, ctl.active, ctl.muted, &paint_ctx);
-    let mut element = browser_rest(element, label.is_none() && !ctl.active, ctx).on_click(
+    let mut element = chrome::tile_rest(element, label.is_none() && !ctl.active, ctx).on_click(
         move |_event: &ClickEvent, window, app| {
             (Rc::clone(&handler))(&action_copy, window, app);
         },
@@ -252,17 +233,4 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
         });
     }
     element.into_any_element()
-}
-
-/// A browser's strip tiles (the File Browser's header and path strip, every
-/// icon button not lit, left and right) rest on the browser's own tile shade
-/// (`BFill::IconTileRest`), half way to the lit fill, so the strip reads as
-/// one row of tiles with the lit ones stronger. Elsewhere the control shade
-/// `chrome::paint_state` gave stands. Only the resting ground changes: the
-/// hover still lifts it.
-fn browser_rest<E: Styled>(element: E, resting_tile: bool, ctx: &BRenderCtx) -> E {
-    match resting_tile && chrome::in_strip(ctx) && ctx.host.heads_its_columns() {
-        true => BFlex::cell().fill(BFill::IconTileRest).styled(element, ctx),
-        false => element,
-    }
 }

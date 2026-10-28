@@ -18,7 +18,7 @@
 1 scene/pose/worker.rs
 1 scene/video/mod.rs
 4 theme/palette/shade/mod.rs
-3 view/draw/button.rs
+2 view/draw/button.rs
 1 view/draw/canvas/image/uv.rs
 1 view/draw/canvas/time/curve/set.rs
 2 view/draw/canvas/time/grid/set.rs
@@ -28,7 +28,6 @@
 2 view/draw/canvas/view3d/mesh/kernel.rs
 1 view/draw/canvas/view3d/mesh/paint.rs
 1 view/draw/canvas/view3d/mod.rs
-1 view/draw/ctrl/complex.rs
 1 view/draw/modal/part.rs
 2 view/draw/row.rs
 2 view/draw/tab/mod.rs

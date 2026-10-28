@@ -139,10 +139,13 @@ fn the_shared_builders_say_both() {
         "`BPick::item` is THE picker row; it had picked the glyph alone, so every picker built on it was quieter than the same dropdown built through `BCtrlKind::Select`"
     );
     let ctrl = include_str!("../src/view/draw/ctrl/mod.rs");
-    // The checkbox is a glyph, not a tile: it lights by taking the accent.
-    assert!(ctrl.contains("if on { (on_icon, ctx.style.colors.accent) }"), "`flag` — the checkbox — lights");
+    // The checkbox is the one mark (`view/draw/mark.rs`): its tile takes the
+    // accent when ticked, which is how it lights.
+    assert!(ctrl.contains("super::mark::view(BMark::Check(on), ctx)"), "`flag` — the checkbox — lights");
+    let mark = include_str!("../src/view/draw/mark.rs");
+    assert!(mark.contains("true => BFill::SwatchHsl(ctx.style.colors.accent)"), "the mark's tile takes the accent when on");
     let tree = include_str!("../src/part/menubar/tree/mod.rs");
-    assert!(tree.contains(".with_active(on)"), "a checkable menu row lights");
+    assert!(tree.contains(".with_mark(crate::view::prim::BMark::Check(on))"), "a checkable menu row lights");
 }
 
 /// A popover's button reads as open while its popover is.

@@ -1,6 +1,6 @@
 //! Menubar anchor with stable geometry and resolved semantic styling.
 
-use super::flex::{BEdge, BFlex};
+use super::flex::{BEdge, BFill, BFlex};
 use super::color::to_hsla;
 use super::ctx::BRenderCtx;
 use super::{brand, chrome};
@@ -52,17 +52,34 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
     } else {
         row.flex_shrink_0()
     };
-    // A menu in an editor's strip — its header, tool header or footer — is
-    // outlined at rest with the line the strip closes on, as the search
-    // beside it is: bare words in a row read as a line of text, not as
-    // menus. The window's own bars (the top bar, the status bar) keep bare
-    // words. Inside the control's height, so a strip's controls stay one
-    // height (`a_row_is_one_height`).
-    let outlined = chrome::in_strip(ctx)
-        && !ctx.host.is_fixed_bar()
-        && matches!(ctx.region, Some(crate::region::BRegionType::Header | crate::region::BRegionType::ToolHeader | crate::region::BRegionType::Footer));
-    row = match outlined {
-        true => BFlex::cell().border(BEdge::Outline).styled(row, ctx),
+    // A menu in an editor's strip — its header, tool header or footer —
+    // stands on the resting tile shade every icon tile rests on
+    // (`BFill::IconTileRest`): bare words in a row read as a line of text,
+    // not as menus. Its edge shows only under the pointer (`BEdge::Active`),
+    // with the hover fill; an outline at rest made the strip look drawn
+    // over. A dropdown in a property row's value column (`ctx.fill`) is the
+    // same control and stands on the same ground. The window's own bars (the
+    // top bar, the status bar) keep bare words. Inside the control's height,
+    // so a strip's controls stay one height (`a_row_is_one_height`).
+    let grounded = ctx.fill
+        || (chrome::in_strip(ctx)
+            && !ctx.host.is_fixed_bar()
+            && matches!(ctx.region, Some(crate::region::BRegionType::Header | crate::region::BRegionType::ToolHeader | crate::region::BRegionType::Footer)));
+    // A dropdown in a value column reads as a field: its choice first, the
+    // chevron at its far end. A menu in a strip leads with its icon.
+    let text = label.filter(|text| !text.is_empty()).map(|text| SharedString::from(text.to_string()));
+    let (lead, trail) = match ctx.fill {
+        true => (text, None),
+        false => (None, text),
+    };
+    if let Some(text) = lead {
+        row = row.child(text);
+    }
+    row = match grounded {
+        true => {
+            let ground = BFlex::cell().fill(BFill::IconTileRest).border(BEdge::Active).hovered(BFill::ItemHover);
+            ground.under_pointer(ground.styled(row, ctx), ctx)
+        }
         false => row,
     };
 
@@ -90,8 +107,8 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
             )
         };
     }
-    if let Some(text) = label.filter(|text| !text.is_empty()) {
-        row = row.child(SharedString::from(text.to_string()));
+    if let Some(text) = trail {
+        row = row.child(text);
     }
     let Some(action) = action else {
         return row.self_center().into_any_element();
@@ -116,6 +133,12 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
         .self_center()
         .overflow_hidden()
         .child(row);
+    // In a value column the clickable runs the column's width with the row
+    // inside it: every dropdown there is the column's width, not its own.
+    let element = match ctx.fill {
+        true => BFlex::cell().width(super::flex::BLen::Full).styled(element, ctx),
+        false => element,
+    };
     let element = cap.round(element, r);
     // Rest / hover / active come from the one strip treatment, so a menu, an
     // icon button and a tab in the same row cannot drift apart. Active is a

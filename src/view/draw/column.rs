@@ -1,13 +1,21 @@
 //! Focused renderer for `BView::Column` — flex-col filling its slot.
 
 use super::ctx::BRenderCtx;
-use super::flex::{BFlex, BLen};
+use super::flex::{BFlex, BLen, BSpace};
 use super::walk;
 use crate::view::BView;
 use gpui::prelude::*;
 use gpui::{AnyElement, div, px};
 
 pub struct BColumn<'a>(pub &'a [BView]);
+
+/// A view that is only words — a label, a `name: value`, a paragraph. Words
+/// take a row's inset (`BSpace::RowInset`) wherever they stand, in a card's
+/// body or a column of rows, so a heading over a group of switches starts
+/// where the switches' own labels do; a control carries its own.
+pub fn is_words(view: &BView) -> bool {
+    matches!(view, BView::Label { .. } | BView::Pair { .. } | BView::Prose { .. })
+}
 
 impl BColumn<'_> {
     pub fn render(&self, ctx: &BRenderCtx<'_>) -> AnyElement {
@@ -49,7 +57,10 @@ impl BColumn<'_> {
             .gap(px(gap));
         let Some(_depth) = deepest else {
             for child in self.0 {
-                element = element.child(walk(child, ctx));
+                element = element.child(match is_words(child) {
+                    true => BFlex::row().pad_x(BSpace::RowInset).div(ctx).child(walk(child, ctx)).into_any_element(),
+                    false => walk(child, ctx),
+                });
             }
             return element.into_any_element();
         };

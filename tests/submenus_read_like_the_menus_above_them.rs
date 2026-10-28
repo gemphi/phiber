@@ -161,7 +161,7 @@ fn hovering_an_open_submenu_leaves_it_open() {
 }
 
 #[test]
-fn a_checked_entry_takes_the_fill_as_well_as_the_check() {
+fn a_checked_entry_is_a_checkbox_mark() {
     // The topbar's own checkables, whatever they happen to be.
     let mut found = 0;
     for spec in BMenuSpec::list_for(BHostType::Topbar) {
@@ -176,8 +176,8 @@ fn a_checked_entry_takes_the_fill_as_well_as_the_check() {
                 let BView::MenuItem(ctl) = item_view(BHostType::Topbar.slug(), &[spec.label], it, s) else {
                     panic!("a checkable is a menu row");
                 };
-                assert_eq!(ctl.active, want, "{:?}: {what} reads as {want}", it.label);
-                assert_eq!(ctl.icon.as_deref() == Some("check"), want, "{:?}: and the glyph agrees", it.label);
+                // The one checkbox mark says it; its accent tile is the fill.
+                assert_eq!(ctl.mark, Some(phiber::view::prim::BMark::Check(want)), "{:?}: {what} reads as {want}", it.label);
             }
         }
     }

@@ -14,7 +14,7 @@
 //! the popover drifted from the cards beside it every time either moved.
 
 use super::ctx::BRenderCtx;
-use super::flex::{BAlign, BDim, BFill, BFlex, BFlexed, BLen, BOverflow, BPlace, BRadius, BSpace};
+use super::flex::{BAlign, BDim, BEdge, BFill, BFlex, BFlexed, BLen, BOverflow, BPlace, BRadius, BSpace};
 use super::surface::compatible_inner_radius;
 use super::walk;
 mod leave;
@@ -102,10 +102,13 @@ impl BFlexed for BPopoverPart {
                 // Every corner rounds: a menu stands clear of the control
                 // that opened it, as every control stands clear of its row.
                 let _ = side;
-                // No border: a menu is a surface on its shadow, and its
-                // groups are grounds within it, not boxes drawn round rows.
+                // Bordered: a popover is elevated, and the border is what
+                // separates it from what it floats over, the shadow alone did
+                // not on a light theme. Every dropdown, menu and header
+                // popover is this one panel.
                 let panel = BFlex::column()
                     .fill(BFill::Tone(BSurfaceTone::Card))
+                    .border(BEdge::All)
                     .ink()
                     .radius(BRadius::All(radius))
                     // A menu hugs its rows from a menu's least width; the
@@ -142,16 +145,22 @@ impl BFlexed for BPopoverPart {
                 // gets a picker that fits inside it.
                 if two_column { panel.max_width(BLen::Measured(wide)) } else { panel }
             }
+            // A group is a surface within the panel and insets its rows as
+            // every surface does (`CardInset`), the same on every side.
             Self::Group => BFlex::column()
                 .width(BLen::Full)
-                .pad(BSpace::PadXs)
+                .pad(BSpace::CardInset)
                 .gap(BSpace::GapXs)
                 .radius(BRadius::Role(BStyleRole::MenuItem))
                 .fill(BFill::Tone(BSurfaceTone::Nested(1))),
             Self::Content { empty } => {
+                // A surface's inset (`CardInset`), the same as a card body's
+                // and the same on every side, so a row's hover fill stands as
+                // far from the panel's edge above as beside it; with every
+                // row's own `RowInset`, its first word lands one gutter in.
                 let column = BFlex::column()
                     .width(BLen::Full)
-                    .pad(BSpace::PadXs)
+                    .pad(BSpace::CardInset)
                     .gap(BSpace::GapXs);
                 // An empty body would collapse a flex column to no height at
                 // all, which reads as a menu that did not open.

@@ -20,7 +20,7 @@ use super::track::BTrack;
 use crate::state::val::BValue;
 use crate::theme::BStyleRole;
 use crate::view::BView;
-use crate::view::prim::{BAction, BControl, BCtrl, BCtrlKind, BPopoverSide};
+use crate::view::prim::{BAction, BControl, BCtrl, BCtrlKind, BMark, BPopoverSide};
 use gpui::prelude::*;
 use gpui::AnyElement;
 
@@ -39,11 +39,11 @@ enum BCtrlPart {
     Track(bool),
     /// The knob: a white disc with a hairline, so it reads on either fill.
     Knob,
-    /// A checkbox's row: the box, then its label, a control's height.
-    CheckRow,
-    /// The box's cell: a tile's square, so the box sits where an icon
-    /// button's glyph would.
-    CheckBox,
+    /// A checkbox's row: the mark, then its label, a control's height, on
+    /// its own centre line. `labelled`: a row of its own (a popover's, a
+    /// panel's), which takes every row's inset; a mark alone sits in a
+    /// property row's value column, which has already taken it.
+    CheckRow { labelled: bool },
 }
 
 /// The switch's track and knob, in pixels — `UISwitch`'s proportions at the
@@ -67,10 +67,16 @@ impl BFlexed for BCtrlPart {
                 .keeps_size()
                 .align(BAlign::Center)
                 .gap(BSpace::GapSm)
+                .pad_x(BSpace::RowInset)
                 .min_width(BLen::Zero),
             Self::SwitchLabel => BFlex::row().fills().min_width(BLen::Zero).ink().type_size(BType::Body),
-            Self::CheckRow => BFlex::row().align(BAlign::Center).self_align(super::flex::BSelf::Center).gap(BSpace::GapSm).height(BLen::Dim(BDim::ButtonHeight)),
-            Self::CheckBox => BFlex::cell().width(BLen::Dim(BDim::Tile)).height(BLen::Dim(BDim::Tile)).keeps_size().align(BAlign::Center).justify(BJustify::Center),
+            Self::CheckRow { labelled } => {
+                let row = BFlex::row().align(BAlign::Center).self_align(super::flex::BSelf::Center).gap(BSpace::GapSm).height(BLen::Dim(BDim::ButtonHeight));
+                match labelled {
+                    true => row.width(BLen::Full).pad_x(BSpace::RowInset),
+                    false => row,
+                }
+            }
             Self::Track(on) => BFlex::row()
                 .width(BLen::Measured(SWITCH_TRACK.0))
                 .height(BLen::Measured(SWITCH_TRACK.1))
@@ -117,7 +123,7 @@ pub struct BCtrlView<'a>(pub &'a BCtrl);
 impl BCtrlView<'_> {
     pub fn render(&self, ctx: &BRenderCtx) -> AnyElement {
         match self.0.kind {
-            BCtrlKind::Check => self.flag("check_square", "square", ctx),
+            BCtrlKind::Check => self.flag(ctx),
             BCtrlKind::Switch => self.switch(ctx),
             BCtrlKind::Select => self.select(ctx),
             BCtrlKind::Int { .. } | BCtrlKind::Number { .. } => self.number(ctx),
@@ -134,18 +140,15 @@ impl BCtrlView<'_> {
     /// state, no glyph — for `BCtrlKind::Toggle`, which no caller ever
     /// produced. The glyphs are glyphs again now that the fallback has gone
     /// with that variant.
-    /// A checkbox: the box glyph, the accent when ticked and the dim text
-    /// when not, the same size either way, then its label. It is a mark, not
-    /// a button — no tile behind it and no fill when on — so a column of
-    /// boxes reads as one column whichever are ticked.
-    fn flag(&self, on_icon: &str, off_icon: &str, ctx: &BRenderCtx) -> AnyElement {
+    /// A checkbox: the one mark (`mark.rs`), on its tile, the accent when
+    /// ticked, then its label.
+    fn flag(&self, ctx: &BRenderCtx) -> AnyElement {
         let ctrl = self.0;
         let on = matches!(ctrl.value, BValue::Bool(true));
-        let (glyph, color) = if on { (on_icon, ctx.style.colors.accent) } else { (off_icon, ctx.style.colors.text_dim) };
-        let mut row = BCtrlPart::CheckRow
+        let mut row = BCtrlPart::CheckRow { labelled: ctrl.label.is_some() }
             .flex(ctx)
             .div(ctx)
-            .child(BCtrlPart::CheckBox.flex(ctx).div(ctx).child(super::atom::icon_in(glyph, color, ctx)));
+            .child(super::mark::view(BMark::Check(on), ctx));
         if let Some(label) = &ctrl.label {
             row = row.child(BCtrlPart::SwitchLabel.flex(ctx).div(ctx).child(gpui::SharedString::from(label.clone())));
         }
@@ -191,4 +194,18 @@ impl BCtrlView<'_> {
 
 pub fn view(ctrl: &BCtrl, ctx: &BRenderCtx) -> AnyElement {
     BCtrlView(ctrl).render(ctx)
+}
+
+/// A swatch button's face: a square of the colour, bordered so a colour close to
+/// the panel's own shade still reads as a swatch rather than as a hole.
+pub fn swatch_face(color: crate::theme::BColor, ctx: &BRenderCtx) -> BFlex {
+    // An icon's size, the way the zone glyph states it: there is no `BDim` for it.
+    let size = BLen::Measured(ctx.style.dimensions.icon_size);
+    BFlex::cell()
+        .width(size)
+        .height(size)
+        .keeps_size()
+        .radius(BRadius::Role(BStyleRole::Field))
+        .border(BEdge::All)
+        .fill(BFill::SwatchHsl(color))
 }

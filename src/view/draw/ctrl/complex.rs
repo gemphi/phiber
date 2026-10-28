@@ -16,7 +16,7 @@ pub(super) fn select(&self, ctx: &BRenderCtx) -> AnyElement {
     let shown = chosen
         .map(|o| o.label.clone())
         .or_else(|| ctrl.label.clone())
-        .unwrap_or_else(|| "—".to_string());
+        .unwrap_or_else(|| "-".to_string());
     let Some(open_key) = ctrl.open_key.clone() else {
         return button::view(&BControl::new().with_label(shown), ctx);
     };
@@ -32,13 +32,14 @@ pub(super) fn select(&self, ctx: &BRenderCtx) -> AnyElement {
         .iter()
         .map(|o| {
             let on = chosen.is_some_and(|ch| ch.key == o.key);
-            BView::MenuItem(
-                BControl::new()
-                    .with_icon(if on { "check" } else if o.icon.is_empty() { "" } else { o.icon.as_str() })
-                    .with_label(o.label.clone())
-                    .with_active(on)
-                    .with_action(ctrl.set(BValue::Enum(o.key.clone()))),
-            )
+            // One of several: a radio option (`BMark::Radio`), chosen in the
+            // accent. An option that has its own icon keeps it, and says
+            // chosen with the lit row instead.
+            let item = BControl::new().with_label(o.label.clone()).with_action(ctrl.set(BValue::Enum(o.key.clone())));
+            BView::MenuItem(match o.icon.is_empty() {
+                true => item.with_mark(BMark::Radio(on)),
+                false => item.with_icon(o.icon.as_str()).with_active(on),
+            })
         })
         .collect();
     walk(&BView::popover(anchor, body, ctrl.open, BAction::Reset(open_key), BPopoverSide::Below), ctx)

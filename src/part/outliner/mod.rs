@@ -186,13 +186,11 @@ impl BOutlinerItem {
         let key = self::tree::k_restrict(id, "exclude");
         let excluded = s.get(&key) == Some(V_TRUE);
         let next = if excluded { V_FALSE } else { V_TRUE };
-        // Ticked AND lit when included, as every other checkable row in the
-        // app is — the glyph says which one when you are reading the column,
-        // the fill says it when you are not (`on_state_budget`).
+        // The one checkbox mark (`view/draw/mark.rs`): its accent tile says
+        // "included" whether you are reading the column or not.
         BView::Button(
             BControl::new()
-                .with_icon(if excluded { "square" } else { "check_square" })
-                .with_active(!excluded)
+                .with_mark(crate::view::prim::BMark::Check(!excluded))
                 .with_tooltip("Exclude from View Layer")
                 .with_action(BAction::Set(key, next.to_string())),
         )

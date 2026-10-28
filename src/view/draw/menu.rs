@@ -30,7 +30,11 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
     // A menu with no glyph anywhere keeps no slot at all (`ctx.glyphs`).
     if ctx.glyphs {
         let icon = BMenuPart::IconSlot { glyph: !ic.is_empty() }.flex(ctx).div(ctx);
-        row = row.child(if ic.is_empty() { icon.into_any_element() } else { icon.child(sized_glyph(ic, ctx.style.dimensions.icon_size, ctx)).into_any_element() });
+        // A checkbox or radio row draws the one mark (`mark.rs`) in the slot.
+        row = row.child(match ctl.mark {
+            Some(mark) => super::mark::view(mark, ctx),
+            None => if ic.is_empty() { icon.into_any_element() } else { icon.child(sized_glyph(ic, ctx.style.dimensions.icon_size, ctx)).into_any_element() },
+        });
     }
     // The label hugs the slot and reads left-aligned; `flex_1` lets the
     // shortcut sit at the far end.
@@ -175,14 +179,13 @@ impl BFlexed for BMenuPart {
                 .keeps_size()
                 .align(BAlign::Center)
                 .gap(BSpace::GapSm)
-                // One small step in from the panel's own gutter: the label
-                // (or the glyph's tile) starts close to the edge, as a
-                // macOS menu's does, not a slot and two gutters in.
-                .pad_x(BSpace::PadXs)
+                // Every row kind's one inset (`RowInset`): a menu row's
+                // glyph starts where a property row's word does.
+                .pad_x(BSpace::RowInset)
                 .ink()
                 .type_size(BType::Body),
             Self::IconSlot { glyph } => {
-                let tile = BLen::Measured(ctx.style.dimensions.icon_size + 2.0 * BSpace::PadXs.px(ctx));
+                let tile = BLen::Dim(BDim::GlyphTile);
                 let cell = BFlex::row().width(tile).height(tile).keeps_size().align(BAlign::Center).justify(BJustify::Center);
                 match glyph {
                     true => cell.fill(BFill::IconTileRest).radius(BRadius::Role(BStyleRole::Button)),

@@ -36,18 +36,35 @@ impl BFlex {
         }
     }
 
+    /// What the container shows under the pointer: its hover fill, and an
+    /// edge that appears only then (`BEdge::Active`). A hover is a fill like
+    /// any other, applied here rather than written out as `.hover(|s| …)`
+    /// wherever a hoverable thing is built; `Styled` cannot express it, so it
+    /// lands on an interactive element. One closure, because a second
+    /// `.hover` replaces the first.
+    pub fn under_pointer<E: InteractiveElement>(&self, element: E, ctx: &BRenderCtx) -> E {
+        let fill = self.hover_fill.map(|hover| hover.background(ctx));
+        let edge = (self.border == Some(BEdge::Active)).then(|| to_hsla(ctx.style.colors.border));
+        match (fill, edge) {
+            (None, None) => element,
+            _ => element.hover(move |style| {
+                let style = match fill {
+                    Some(fill) => style.bg(fill),
+                    None => style,
+                };
+                match edge {
+                    Some(edge) => style.border_color(edge),
+                    None => style,
+                }
+            }),
+        }
+    }
+
     /// The container, styled. The only place in the renderer that turns a
     /// layout decision into GPUI style.
     pub fn div(&self, ctx: &BRenderCtx) -> Div {
         let mut element = self.styled(div(), ctx);
-        // A hover is a fill like any other, applied here rather than written
-        // out as `.hover(|s| s.bg(…))` wherever a hoverable thing is built.
-        // `Styled` cannot express it, so it lands on the concrete `Div`.
-        if let Some(hover) = self.hover_fill {
-            let fill = hover.background(ctx);
-            element = element.hover(move |style| style.bg(fill));
-        }
-        if self.border == Some(BEdge::Active) { let edge = to_hsla(ctx.style.colors.border); element = element.hover(move |style| style.border_color(edge)); }
+        element = self.under_pointer(element, ctx);
         if self.occludes {
             element = element.occlude();
         }
