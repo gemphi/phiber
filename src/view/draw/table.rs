@@ -4,7 +4,6 @@
 //! logic between the two wrappers.
 
 use super::atom::icon_path;
-use super::chrome;
 use super::ctx::BRenderCtx;
 use super::flex::{BAlign, BDim, BFill, BFlex, BFlexed, BJustify, BLen, BOverflow, BRadius, BSpace, BType};
 use super::walk;
@@ -104,13 +103,12 @@ impl BTableCellView<'_> {
 }
 
 /// A value that leads with its kind's glyph (a file row's folder or file):
-/// the glyph a size over a button's, on an oval of the resting tile every
-/// icon button stands on (`chrome::paint_state`), so the list reads as
-/// things with names rather than names with marks beside them.
+/// the glyph a size over a button's, on an oval of the browser's resting
+/// tile (`BFill::IconTileRest`), so the list reads as things with names
+/// rather than names with marks beside them.
 fn lead(name: &str, rest: &[BView], ctx: &BRenderCtx) -> AnyElement {
     let glyph = BTablePart::Glyph.flex(ctx).styled(svg().path(icon_path(name)), ctx);
-    let tile = BTablePart::GlyphTile.flex(ctx).div(ctx).id("row-glyph").child(glyph);
-    let tile = chrome::paint_state(tile, false, false, &BRenderCtx { floating: true, listed: false, ..ctx.clone() });
+    let tile = BTablePart::GlyphTile.flex(ctx).div(ctx).child(glyph);
     rest.iter().fold(BTablePart::Lead.flex(ctx).div(ctx).child(tile), |row, view| row.child(walk(view, ctx))).into_any_element()
 }
 
@@ -252,7 +250,7 @@ impl BFlexed for BTablePart {
                 }
             }
             Self::Lead => BFlex::row().fills().min_width(BLen::Zero).height(BLen::Full).align(BAlign::Center).gap(BSpace::GapSm),
-            Self::GlyphTile => BFlex::row().width(BLen::Measured(glyph_size(ctx) + 2.0 * BSpace::PadMd.px(ctx))).height(BLen::Dim(BDim::Tile)).keeps_size().align(BAlign::Center).justify(BJustify::Center).radius(BRadius::Pill),
+            Self::GlyphTile => BFlex::row().width(BLen::Measured(glyph_size(ctx) + 2.0 * BSpace::PadMd.px(ctx))).height(BLen::Dim(BDim::Tile)).keeps_size().align(BAlign::Center).justify(BJustify::Center).radius(BRadius::Pill).fill(BFill::IconTileRest),
             Self::Glyph => BFlex::cell().width(BLen::Measured(glyph_size(ctx))).height(BLen::Measured(glyph_size(ctx))).keeps_size().ink(),
         }
     }

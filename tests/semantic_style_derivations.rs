@@ -184,3 +184,25 @@ fn steps_stay_on_the_ladder_and_off_ladder_colours_nudge() {
     assert_eq!((nudged.0, nudged.1), (accent.0, accent.1), "the accent keeps its hue and saturation");
     assert!((nudged.2 - accent.2 - 3.0).abs() < 1e-4, "and moves a step's worth of lightness");
 }
+
+#[test]
+fn a_browser_tile_at_rest_stands_half_way_to_the_lit_fill() {
+    // The File Browser's icon tiles rest on their own shade: half way in
+    // lightness from the header ground they stand on to the lit fill (its
+    // sweep averaged), so a resting tile shows in every theme, light or dark,
+    // and never reads as on: short of the lit fill, in the ground's own hue.
+    use phiber::theme::{BThemeMode, ui_style_defaults_in};
+    for name in BPaletteName::ALL.iter().copied() {
+        for mode in [BThemeMode::Light, BThemeMode::Dark] {
+            let style = BResolvedUiStyle::from(ui_style_defaults_in(name, mode));
+            let ground = style.host_header_surface(BHostType::File).bottom;
+            let lit = style.host_item_active_gradient(BHostType::File);
+            let lit = (lit.bottom.2 + lit.top.2) / 2.0;
+            let rest = style.icon_tile_rest(BHostType::File);
+            assert!((rest.2 - (ground.2 + lit) / 2.0).abs() < 1e-4, "{name:?} {mode:?}: half way, {ground:?} to {lit}: {rest:?}");
+            assert!((rest.2 - ground.2).abs() >= 1.5, "{name:?} {mode:?}: a tile you can see against its ground: {ground:?} to {rest:?}");
+            assert!((rest.2 - lit).abs() >= 1.5, "{name:?} {mode:?}: and short of the lit fill: {rest:?} against {lit}");
+            assert_eq!((rest.0, rest.1, rest.3), (ground.0, ground.1, ground.3), "{name:?} {mode:?}: the ground's own hue");
+        }
+    }
+}

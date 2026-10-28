@@ -172,6 +172,22 @@ impl BResolvedUiStyle {
     pub fn host_item_active_gradient(&self, _host: BHostType) -> BGradientColors {
         self.sheen(self.colors.bg_active)
     }
+
+    /// An icon tile at rest in a browser (the File Browser's strip buttons,
+    /// its source list's glyphs, a file row's glyph): half way in lightness
+    /// from the ground it stands on (the host's header shade, which its
+    /// cards share) to the lit fill as it reads, its sweep averaged. Plainly
+    /// a tile, at half the lit fill's contrast, so it never reads as on; and
+    /// toward the lit fill whichever way that lies, so it holds in a light
+    /// theme and a dark one alike. The control shade (`bg_control`) sat
+    /// within a level or two of that ground in the light themes, so the
+    /// tiles there did not show.
+    pub fn icon_tile_rest(&self, host: BHostType) -> BColor {
+        let ground = self.host_header_surface(host).bottom;
+        let lit = self.host_item_active_gradient(host);
+        let lit = (lit.bottom.2 + lit.top.2) / 2.0;
+        (ground.0, ground.1, (ground.2 + lit) / 2.0, ground.3)
+    }
 }
 
 #[path = "set_tab.rs"]

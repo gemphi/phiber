@@ -7,8 +7,7 @@ use super::ctx::BRenderCtx;
 use super::chrome;
 use super::atom::icon_path;
 use super::flex::{BAlign, BDim, BFill, BFlex, BFlexed, BJustify, BLen, BOverflow, BRadius, BSpace, BType};
-use crate::region::BRegionType;
-use crate::theme::{BStyleRole, BSurfaceTone};
+use crate::theme::BStyleRole;
 use crate::view::prim::BControl;
 use gpui::prelude::*;
 use gpui::{AnyElement, ClickEvent, SharedString, px, svg};
@@ -31,7 +30,7 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
     // A menu with no glyph anywhere keeps no slot at all (`ctx.glyphs`).
     if ctx.glyphs {
         let icon = BMenuPart::IconSlot { glyph: !ic.is_empty() }.flex(ctx).div(ctx);
-        row = row.child(if ic.is_empty() { icon.into_any_element() } else { head(icon, ic, ctx) });
+        row = row.child(if ic.is_empty() { icon.into_any_element() } else { icon.child(sized_glyph(ic, ctx.style.dimensions.icon_size, ctx)).into_any_element() });
     }
     // The label hugs the slot and reads left-aligned; `flex_1` lets the
     // shortcut sit at the far end.
@@ -93,37 +92,18 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
     element.into_any_element()
 }
 
-/// The one glyph a menu row draws: the check or icon at its head, the arrow at
-/// its tail when it opens a menu of its own. One builder, so the two are the
-/// same size and the same shade — and so the file spends its raw styling once
-/// rather than once per glyph (`tests/style_budget.rs`).
+/// The arrow at a row's tail when it opens a menu of its own, at the small
+/// icon size. One builder with the head's glyph ([`sized_glyph`]), so the two
+/// are the same shade, and the file spends its raw styling once rather than
+/// once per glyph (`tests/style_budget.rs`).
 fn glyph(name: &str, ctx: &BRenderCtx) -> gpui::Svg {
     sized_glyph(name, ctx.style.dimensions.icon_size_sm, ctx)
 }
 
-/// [`glyph`] at `size`: a menu's small icon, or a button's on a source
-/// list's tile.
+/// [`glyph`] at `size`: the arrow's small icon, or a button's at a row's
+/// head.
 fn sized_glyph(name: &str, size: f32, ctx: &BRenderCtx) -> gpui::Svg {
     svg().path(icon_path(name)).size(px(size)).text_color(to_hsla(ctx.style.colors.text_dim))
-}
-
-/// The glyph at a row's head. In a menu, on its slot's faint tile. In a
-/// source list, at a button's icon size on the resting tile every icon
-/// button stands on, the header's included: painted by the same rule
-/// (`chrome::paint_state`), so the two cannot drift to two shades.
-fn head(slot: gpui::Div, name: &str, ctx: &BRenderCtx) -> AnyElement {
-    if !in_source_list(ctx) {
-        return slot.child(glyph(name, ctx)).into_any_element();
-    }
-    let tile = BMenuPart::ListTile.flex(ctx).div(ctx).id("menu-glyph").child(sized_glyph(name, ctx.style.dimensions.icon_size, ctx));
-    chrome::paint_state(tile, false, false, &BRenderCtx { floating: true, listed: false, ..ctx.clone() }).into_any_element()
-}
-
-/// A row of a source list (the File Browser's folders, the Project Browser's
-/// navigator): a menu row in the tools column of a host that lays panels
-/// there (`BHostType::tools_hold_panels`), not one in a popup menu.
-fn in_source_list(ctx: &BRenderCtx) -> bool {
-    ctx.region == Some(BRegionType::Tools) && ctx.host.tools_hold_panels() && !chrome::in_strip(ctx)
 }
 
 pub fn sep(ctx: &BRenderCtx) -> AnyElement {
@@ -144,11 +124,13 @@ enum BMenuPart {
     /// line down the whole menu. A row without an icon used to start its
     /// label where the icon would have been, which put one menu's labels on
     /// two different left edges — Blender reserves the slot the same way.
+    ///
+    /// A glyph sits at a button's icon size on the browser's resting tile
+    /// (`BFill::IconTileRest`), the one its header's buttons rest on, in a
+    /// popup menu and a source list alike: one row, so the File menu reads
+    /// as the File Browser's sidebar does. An empty slot keeps the tile's
+    /// size and paints nothing.
     IconSlot { glyph: bool },
-    /// A source list's glyph tile: a button's icon with a small pad round
-    /// it, rounded as a button is, inside the row's height. It paints no
-    /// fill of its own; `chrome::paint_state` gives it the resting tile.
-    ListTile,
     /// The label hugs the slot and reads left-aligned; taking the slack is
     /// what lets the shortcut sit at the far end.
     Label,
@@ -199,27 +181,13 @@ impl BFlexed for BMenuPart {
                 .pad_x(BSpace::PadXs)
                 .ink()
                 .type_size(BType::Body),
-            // The glyph sits on a faint tile of its own, as a button's does
-            // — the label beside it does not, so the row reads as an icon
-            // and its name rather than as one long block. An empty slot has
-            // no tile: on a lit row it showed as a blank square.
             Self::IconSlot { glyph } => {
-                let slot = BLen::Measured(ctx.style.dimensions.icon_size_sm);
-                let cell = BFlex::row().width(slot).height(slot).keeps_size().align(BAlign::Center).justify(BJustify::Center);
+                let tile = BLen::Measured(ctx.style.dimensions.icon_size + 2.0 * BSpace::PadXs.px(ctx));
+                let cell = BFlex::row().width(tile).height(tile).keeps_size().align(BAlign::Center).justify(BJustify::Center);
                 match glyph {
-                    true => cell.fill(BFill::Tone(BSurfaceTone::Card)).radius(BRadius::Role(BStyleRole::Button)),
+                    true => cell.fill(BFill::IconTileRest).radius(BRadius::Role(BStyleRole::Button)),
                     false => cell,
                 }
-            }
-            Self::ListTile => {
-                let tile = BLen::Measured(ctx.style.dimensions.icon_size + 2.0 * BSpace::PadXs.px(ctx));
-                BFlex::row()
-                    .width(tile)
-                    .height(tile)
-                    .keeps_size()
-                    .align(BAlign::Center)
-                    .justify(BJustify::Center)
-                    .radius(BRadius::Role(BStyleRole::Button))
             }
             Self::Label => BFlex::row().fills().min_width(BLen::Zero),
             Self::Shortcut => BFlex::row().dim_ink().type_size(BType::Caption),

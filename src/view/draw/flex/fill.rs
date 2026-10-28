@@ -79,6 +79,9 @@ pub enum BFill {
     RowHover(BRowShade),
     /// An item under the pointer — a menu entry, an outliner row.
     ItemHover,
+    /// A browser's icon tile at rest (`icon_tile_rest`): half way from its
+    /// ground to the lit fill.
+    IconTileRest,
     /// A control that is on: a pressed toggle, the active tab.
     ControlActive,
     /// A node frame's box: the control shade at half alpha. A frame is a
@@ -115,6 +118,7 @@ impl BFill {
             },
             Self::RowHover(shade) => to_hsla(shade.hover(ctx.style, ctx.host)).into(),
             Self::ItemHover => to_hsla(ctx.style.host_item_hover(ctx.host)).into(),
+            Self::IconTileRest => to_hsla(ctx.style.icon_tile_rest(ctx.host)).into(),
             Self::ControlActive => to_hsla(ctx.style.colors.bg_active).into(),
             Self::NodeFrame => {
                 let c = ctx.style.colors.bg_control;

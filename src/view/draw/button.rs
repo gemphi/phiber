@@ -171,7 +171,8 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
         return match label {
             None => {
                 let id = SharedString::from(format!("btn-icon-idle-{icon}"));
-                chrome::paint_state(row.id(id), false, ctl.muted, &BRenderCtx { floating: true, ..ctx.clone() }).into_any_element()
+                let element = chrome::paint_state(row.id(id), false, ctl.muted, &BRenderCtx { floating: true, ..ctx.clone() });
+                browser_rest(element, true, ctx).into_any_element()
             }
             Some(_) => row.into_any_element(),
         };
@@ -235,7 +236,8 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
     // does, so a sidebar reads as items rather than words on a wall.
     let tile = label.is_none() || action_button || is_row;
     let paint_ctx = if tile { BRenderCtx { floating: true, ..ctx.clone() } } else { ctx.clone() };
-    let mut element = chrome::paint_state(element, ctl.active, ctl.muted, &paint_ctx).on_click(
+    let element = chrome::paint_state(element, ctl.active, ctl.muted, &paint_ctx);
+    let mut element = browser_rest(element, label.is_none() && !ctl.active, ctx).on_click(
         move |_event: &ClickEvent, window, app| {
             (Rc::clone(&handler))(&action_copy, window, app);
         },
@@ -250,4 +252,17 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
         });
     }
     element.into_any_element()
+}
+
+/// A browser's strip tiles (the File Browser's header and path strip, every
+/// icon button not lit, left and right) rest on the browser's own tile shade
+/// (`BFill::IconTileRest`), half way to the lit fill, so the strip reads as
+/// one row of tiles with the lit ones stronger. Elsewhere the control shade
+/// `chrome::paint_state` gave stands. Only the resting ground changes: the
+/// hover still lifts it.
+fn browser_rest<E: Styled>(element: E, resting_tile: bool, ctx: &BRenderCtx) -> E {
+    match resting_tile && chrome::in_strip(ctx) && ctx.host.heads_its_columns() {
+        true => BFlex::cell().fill(BFill::IconTileRest).styled(element, ctx),
+        false => element,
+    }
 }
