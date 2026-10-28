@@ -104,15 +104,25 @@ pub fn rows(query: &str, kind: super::find::BFindKind, over: Option<BHostType>, 
 /// An operator picked from the palette runs and the palette goes: any
 /// `ctx.op.*` intent closes the command window (Blender's menu search
 /// closes on the pick, the operator running from where it was).
+///
+/// So does a space picked from it. A Space hit sets `ctx.space` itself
+/// rather than going through `command.go`, so what a space switch sets off
+/// (its workspace's mode) still runs — and it left the palette open over the
+/// space it had just switched to, the caret still in its query.
 pub struct BPaletteDismissRule;
 
 impl crate::state::rule::BRule for BPaletteDismissRule {
     fn wants(&self, path: &crate::state::BPath) -> bool {
-        path.segs.first() == Some(&"op")
+        path.segs.first() == Some(&"op") || *path == crate::state::CtxKey::Space.path()
     }
     fn after(&self, _: &crate::state::BPath, _: &str, state: &mut crate::state::BState) {
         if state.get(ModalKey::Open) == Some(crate::state::val::V_MODAL_COMMAND) {
             state.set(ModalKey::Open, V_EMPTY);
+        }
+        // The query's caret goes with it; a field the pick itself opened
+        // keeps its own.
+        if crate::state::edit::is_editing(state, AppKey::CommandQuery) {
+            crate::state::edit::stop(state);
         }
     }
 }

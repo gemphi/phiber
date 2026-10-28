@@ -36,3 +36,18 @@ fn a_sidebar_pick_opens_the_sidebar_on_its_tab() {
     assert_eq!(s.get(&BPath::owned(vec![BHostType::View3D.slug(), "show", "sidebar"])), Some(V_TRUE));
     assert_eq!(s.get(&crate::part::sidebar::show::BSidebarShown(BHostType::View3D).tab_key()), Some("Item"));
 }
+
+#[test]
+fn a_space_pick_switches_the_space_and_closes_the_palette() {
+    // The spaces are found here, not in a row of tabs: picking one has to
+    // land in it with the palette gone and its caret out of the query.
+    use crate::state::action::apply_action;
+    let hit = hits("shading", BFindKind::Space, None).into_iter().next().expect("the Shading space");
+    let mut s = BState::new();
+    apply_action(&mut s, &BAction::Set(ModalKey::Open.path(), V_MODAL_COMMAND.to_string()));
+    assert!(crate::state::edit::is_editing(&s, AppKey::CommandQuery), "the palette takes the caret");
+    apply_action(&mut s, &hit.action);
+    assert_eq!(s.get(CtxKey::Space), Some(BSpaceType::Shading.slug()));
+    assert_eq!(s.get(ModalKey::Open), Some(V_EMPTY), "the palette closes on the pick");
+    assert!(!crate::state::edit::is_editing(&s, AppKey::CommandQuery), "and its caret goes with it");
+}
