@@ -104,13 +104,13 @@ pub fn body(s: &BState) -> Vec<BView> {
     // "About Me" and "Member Since" read — each opening the profile dialog.
     let about: Vec<BView> = [("info", "Status", "status"), ("preferences", "Theme", "theme"), ("chat", "Email", "email")]
         .into_iter()
-        .map(|(icon, label, key)| row(icon, format!("{label}  ·  {}", read(s, key).unwrap_or("—")), Some(open_profile.clone())))
+        .map(|(icon, label, key)| row(icon, format!("{label}  ·  {}", read(s, key).unwrap_or("-")), Some(open_profile.clone())))
         .collect();
     // Account: every field, each a row that opens the profile dialog to edit.
     let account: Vec<BView> = FIELDS
         .iter()
         .map(|field| {
-            let value = read(s, field.key).unwrap_or("—");
+            let value = read(s, field.key).unwrap_or("-");
             row(field.icon, format!("{}  ·  {value}", field.label), Some(open_profile.clone()))
         })
         .collect();

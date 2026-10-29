@@ -13,7 +13,9 @@
 //! frame the object list did — and, when the Transform panel or G / R / S
 //! moved a camera, light or empty (or its parent), where the edits put it
 //! (`transform::BTransforms::extra_worlds`), so the camera view, the
-//! rendered lights and F12 see the moved camera and lamps.
+//! rendered lights and F12 see the moved camera and lamps. The bodies of a
+//! Rigid Body World come in the same way, the simulation's worlds by object
+//! name (`scene::sim`), and a mesh object takes them over its animation.
 
 use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
@@ -35,8 +37,9 @@ pub fn set_moved(moved: Option<HashMap<String, glam::Mat4>>) {
     MOVED.with(|cell| *cell.borrow_mut() = moved.map(Rc::new));
 }
 
-/// Where the edits put `name` at `frame`, when that is the frame in scope.
-fn moved(name: &str, frame: Option<f32>) -> Option<[[f32; 4]; 4]> {
+/// Where the edits - or the rigid body simulation (`scene::sim`) - put
+/// `name` at `frame`, when that is the frame in scope.
+pub fn moved(name: &str, frame: Option<f32>) -> Option<[[f32; 4]; 4]> {
     if frame != scoped_frame() {
         return None;
     }
@@ -67,9 +70,10 @@ pub fn shown_frame(state: &BState) -> Option<f32> {
 }
 
 /// The frame that changes what the viewport draws: the shown frame while
-/// the scene moves, `None` for a still scene or no frame.
+/// the scene moves - its animation, or bodies falling in its Rigid Body
+/// World - `None` for a still scene or no frame.
 pub fn moving_frame(model: &SceneModel, frame: Option<f32>) -> Option<f32> {
-    frame.filter(|_| model.motion.animated())
+    frame.filter(|_| model.motion.animated() || super::sim::moves(model))
 }
 
 /// The scene's matrices at `frame`, when it moves.

@@ -48,8 +48,9 @@ impl BFlexed for BSearchPart {
 }
 
 
-/// The search icon that leads the field, tinted `color`.
-fn lead_icon(color: crate::theme::BColor, ctx: &BRenderCtx) -> impl IntoElement {
+/// The search icon that leads the field, tinted `color` — and the top bar's
+/// crumbs, which are its search at rest (`crumb`).
+pub(super) fn lead_icon(color: crate::theme::BColor, ctx: &BRenderCtx) -> impl IntoElement {
     svg()
         .path(icon_path("search"))
         .size(px(ctx.style.dimensions.icon_size_sm))

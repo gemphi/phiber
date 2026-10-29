@@ -52,11 +52,11 @@ impl BOverlay {
         let shown = crate::scene::BOverlays::now(ctx.state);
         let not_drawn = NOT_DRAWN.with(|n| n.get()).map(|(why, tris)| match why {
             super::view3d::rendered::BRayDeclined::NoGpu => format!(
-                "No GPU adapter — {:.1}M triangles is more than the CPU painter will draw",
+                "No GPU adapter - {:.1}M triangles is more than the CPU painter will draw",
                 tris as f32 / 1e6
             ),
             super::view3d::rendered::BRayDeclined::TooLarge => format!(
-                "GPU declined the scene ({:.1}M triangles exceed one buffer binding) — nothing drawn",
+                "GPU declined the scene ({:.1}M triangles exceed one buffer binding) - nothing drawn",
                 tris as f32 / 1e6
             ),
         });

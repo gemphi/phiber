@@ -284,8 +284,9 @@ impl Render for BPhiberApp {
         let input_wiring = (cx.entity(), focus.clone());
         let (rendered, draw_at) = trace::timed(|| BGpuiRenderer::new(handler, resize, Some(input_wiring)).render(&root, &self.state));
         crate::part::outliner::key::BHidden::end_pass();
-        // A rig still posing the shown frame on its thread: draw again until it lands.
-        if crate::scene::pose::BPoser::waiting() {
+        // A rig still posing the shown frame on its thread, or a rigid body
+        // bake short of it: draw again until it lands.
+        if crate::scene::pose::BPoser::waiting() || crate::scene::sim::waiting() {
             w.request_animation_frame();
         }
         health::BHealth::each_frame();

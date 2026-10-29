@@ -12,7 +12,7 @@
 //!   ([`BRenderQuality::ENGINE`]). A `.blend` saved by Blender names EEVEE
 //!   or Cycles, neither of which is ours to run, so the file's engine is a
 //!   preference here rather than an instruction.
-//! - **2048 samples is the default** ([`BRenderQuality::SAMPLE_FLOOR`]) when
+//! - **4096 samples is the default** ([`BRenderQuality::SAMPLE_FLOOR`]) when
 //!   `--samples` is not given, so the default is the quality render rather
 //!   than whatever the file was saved with. `--samples` is honoured as asked.
 //!

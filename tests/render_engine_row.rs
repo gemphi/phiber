@@ -92,7 +92,7 @@ fn a_files_engine_and_sample_count_meet_the_quality_policy() {
 
     // The default, where both the CLI and F12 read it.
     assert_eq!(BRenderQuality::ENGINE, "PHIRAY");
-    assert_eq!(BRenderQuality::SAMPLE_FLOOR, 2048);
-    assert_eq!(BRenderQuality::samples(None, false), 2048, "nothing asked: the default");
+    assert_eq!(BRenderQuality::SAMPLE_FLOOR, 4096);
+    assert_eq!(BRenderQuality::samples(None, false), 4096, "nothing asked: the default");
     assert_eq!(BRenderQuality::samples(Some(20), false), 20, "pose 26's twenty is believed");
 }

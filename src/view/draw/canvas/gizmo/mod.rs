@@ -4,28 +4,39 @@ pub mod compass;
 
 use super::super::color::to_hsla;
 use super::super::ctx::BRenderCtx;
-use crate::scene::{
-    pan_x_key, pitch_key, pitch_step, view_pitch, view_yaw, view_zoom, yaw_key, zoom_key,
-    zoom_step,
-};
+use crate::scene::{pan_x_key, view_zoom, zoom_key, zoom_step};
+use crate::state::BKey as _;
 use crate::theme::BStyleRole;
 use crate::view::prim::BAction;
 use gpui::prelude::*;
-use gpui::{AnyElement, ClickEvent, SharedString, div, px, svg};
+use gpui::{AnyElement, ClickEvent, MouseButton, SharedString, div, px, svg};
+use std::cell::Cell;
 use std::rc::Rc;
+use std::time::Duration;
+
+// Which arrow is being held, if any: the view's, not an element's.
+//
+// A `Cell` built inside the element lives exactly one frame, and every
+// turn of the view repaints the gizmo, so the press armed frame N's cell
+// while the release cleared frame N+1's and the spin loop watched a cell
+// nobody could clear. The view orbited on after the button came up, until
+// the window happened to lose focus. One pointer holds one arrow, so the
+// gizmo needs one slot, and it has to outlive the repaint that the
+// spinning itself causes. gpui's UI runs on one thread.
+thread_local! {
+    static SPINNING: Cell<Option<&'static str>> = const { Cell::new(None) };
+}
+
+/// How long an orbit arrow is held before it starts turning by itself, and
+/// the pace it turns at then (a frame at 60 Hz).
+const SPIN_DELAY: Duration = Duration::from_millis(300);
+const SPIN_FRAME: Duration = Duration::from_millis(16);
 
 pub struct BGizmo;
 
 impl BGizmo {
-    fn control(
-        &self,
-        name: &'static str,
-        tip: &'static str,
-        action: BAction,
-        ctx: &BRenderCtx,
-    ) -> gpui::Stateful<gpui::Div> {
-        let handler = ctx.handler.clone();
-        let dispatched = action;
+    /// A gizmo button: the square with its icon, before what it does.
+    fn button(&self, name: &'static str, ctx: &BRenderCtx) -> gpui::Stateful<gpui::Div> {
         let selector = format!("gizmo-{name}");
         div()
             .id(SharedString::from(format!("gizmo-{name}")))
@@ -45,21 +56,56 @@ impl BGizmo {
                     .flex_shrink_0()
                     .text_color(to_hsla(ctx.style.colors.text)),
             )
-            .on_click(move |_e: &ClickEvent, w, cx| {
-                let _ = tip;
-                (Rc::clone(&handler))(&dispatched, w, cx);
+    }
+
+    fn control(
+        &self,
+        name: &'static str,
+        tip: &'static str,
+        action: BAction,
+        ctx: &BRenderCtx,
+    ) -> gpui::Stateful<gpui::Div> {
+        let handler = ctx.handler.clone();
+        self.button(name, ctx).on_click(move |_e: &ClickEvent, w, cx| {
+            let _ = tip;
+            (Rc::clone(&handler))(&action, w, cx);
+        })
+    }
+
+    /// An orbit arrow: the press turns the view a step (`view3d.view_orbit`,
+    /// as Numpad 4/6/8/2 do), and holding it keeps the view turning a small
+    /// step a frame (`view_op::ORBIT_SPIN`) until the button comes up, so a
+    /// model can be walked round without a click every 15°.
+    fn held(&self, name: &'static str, way: &'static str, ctx: &BRenderCtx) -> gpui::Stateful<gpui::Div> {
+        let op = move |what: &str| BAction::Set(crate::state::OpKey::View3d.path(), format!("{what}_{way}"));
+        let handler = ctx.handler.clone();
+        self.button(name, ctx)
+            .on_mouse_down(MouseButton::Left, move |_, window, cx| {
+                SPINNING.with(|s| s.set(Some(way)));
+                handler(&op("orbit"), window, cx);
+                let handler = Rc::clone(&handler);
+                window
+                    .spawn(cx, async move |cx| {
+                        cx.background_executor().timer(SPIN_DELAY).await;
+                        // The window captures the pointer on a press, so the
+                        // release reaches `on_mouse_up_out` wherever it lands;
+                        // a switch to another window stops the turn as well.
+                        while SPINNING.with(|s| s.get()) == Some(way) {
+                            let turned = cx.update(|window, cx| {
+                                let on = window.is_window_active();
+                                on.then(|| handler(&op("spin"), window, cx)).is_some()
+                            });
+                            match turned.unwrap_or(false) {
+                                true => {}
+                                false => SPINNING.with(|s| s.set(None)),
+                            }
+                            cx.background_executor().timer(SPIN_FRAME).await;
+                        }
+                    })
+                    .detach();
             })
-    }
-
-    fn yaw_step(&self, ctx: &BRenderCtx, delta: f32) -> BAction {
-        BAction::Set(
-            yaw_key(),
-            format!("{}", (view_yaw(ctx.state) + delta).rem_euclid(360.0)),
-        )
-    }
-
-    fn pitch_step_action(&self, ctx: &BRenderCtx, delta: f32) -> BAction {
-        BAction::Set(pitch_key(), format!("{}", pitch_step(view_pitch(ctx.state), delta)))
+            .on_mouse_up(MouseButton::Left, move |_, _, _| SPINNING.with(|s| s.set(None)))
+            .on_mouse_up_out(MouseButton::Left, move |_, _, _| SPINNING.with(|s| s.set(None)))
     }
 
     fn zoom_action(&self, ctx: &BRenderCtx, factor: f32) -> BAction {
@@ -117,27 +163,17 @@ impl BGizmo {
             .gap(px(ctx.style.spacing.gap_xs / 2.0))
             .px(px(ctx.style.spacing.pad_xs * 0.75))
             .py(px(ctx.style.spacing.pad_xs / 2.0))
-            .child(self.control("arrow_left", "Orbit Left", self.yaw_step(ctx, -15.0), ctx))
+            .child(self.held("arrow_left", "left", ctx))
             .child(
                 div()
                     .flex()
                     .flex_col()
                     .items_center()
                     .gap(px(ctx.style.spacing.gap_xs / 2.0))
-                    .child(self.control(
-                        "arrow_up",
-                        "Orbit Up",
-                        self.pitch_step_action(ctx, 15.0),
-                        ctx,
-                    ))
-                    .child(self.control(
-                        "arrow_down",
-                        "Orbit Down",
-                        self.pitch_step_action(ctx, -15.0),
-                        ctx,
-                    )),
+                    .child(self.held("arrow_up", "up", ctx))
+                    .child(self.held("arrow_down", "down", ctx)),
             )
-            .child(self.control("arrow_right", "Orbit Right", self.yaw_step(ctx, 15.0), ctx))
+            .child(self.held("arrow_right", "right", ctx))
     }
 
     /// The navigate sphere. It lives in the corner the user chose, because it

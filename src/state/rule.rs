@@ -66,6 +66,7 @@ fn table() -> &'static [&'static dyn BRule] {
         &crate::scene::xform::BTransformOpRule,
         &crate::scene::transform::BObjectClearRule,
         &crate::scene::parent::BObjectParentRule,
+        &crate::scene::sim::BRigidBakeRule,
         &crate::area::switch::BEditorTypeRule,
         &crate::scene::action::preview::BPreviewRangeRule,
         &fold::BPropsFoldRule,

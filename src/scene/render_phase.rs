@@ -126,10 +126,10 @@ impl BRenderPhase {
     /// show and the reason is worth saying.
     pub fn placeholder(self) -> Option<&'static str> {
         match self {
-            Self::Empty => Some("No render — F12 to render this frame"),
+            Self::Empty => Some("No render - F12 to render this frame"),
             Self::NoCamera => Some("No camera found in scene"),
             Self::Preparing => Some("Preparing…"),
-            Self::Failed => Some("Render failed — the reason is in the info bar above and the Info editor"),
+            Self::Failed => Some("Render failed - the reason is in the info bar above and the Info editor"),
             _ => None,
         }
     }

@@ -150,6 +150,9 @@ pub enum OpKey {
     /// and makes their extents the preview range (`ACTION_OT_previewrange_set`,
     /// `action_edit.cc`); `clear` turns the preview range off.
     PreviewRange,
+    /// The Rigid Body World's Cache: `bake` (`ptcache.bake`, pinned) or
+    /// `free` (`ptcache.free_bake`) - `scene::sim`.
+    RigidBake,
 }
 
 #[path = "op_impl.rs"]

@@ -87,7 +87,7 @@ impl BAudited {
     fn word(self) -> String {
         match self {
             Self::Applied => "applied".to_string(),
-            Self::NotApplicable(why) => format!("n/a — {why}"),
+            Self::NotApplicable(why) => format!("n/a - {why}"),
             Self::Ignored => "IGNORED by Phiray".to_string(),
         }
     }
@@ -136,7 +136,7 @@ impl BRenderAudit {
             };
             match BAudited::of(spec.key) {
                 BAudited::Applied => read.push((spec.key.to_string(), value)),
-                BAudited::NotApplicable(why) => read.push((spec.key.to_string(), format!("{value} — n/a, {why}"))),
+                BAudited::NotApplicable(why) => read.push((spec.key.to_string(), format!("{value} - n/a, {why}"))),
                 BAudited::Ignored => ignored.push((spec.key.to_string(), value)),
             }
         }
@@ -147,7 +147,7 @@ impl BRenderAudit {
     pub fn note(s: &BState) {
         let lines = Self::lines(s);
         let ignored = lines.iter().filter(|l| l.ends_with("IGNORED by Phiray")).count();
-        crate::app::journal::BJournal::note(format!("Render settings — {} on the Render tab, {ignored} not read by Phiray:\n{}", lines.len(), lines.join("\n")));
+        crate::app::journal::BJournal::note(format!("Render settings - {} on the Render tab, {ignored} not read by Phiray:\n{}", lines.len(), lines.join("\n")));
     }
 
     /// The Status event a render reports to (`state::event`): what was
@@ -198,7 +198,7 @@ mod tests {
         let blur = lines.iter().find(|l| l.contains("render.motion_blur_shutter")).expect("motion blur");
         assert!(blur.contains("0.5 (default)") && blur.ends_with("IGNORED by Phiray"), "{blur}");
         let threads = lines.iter().find(|l| l.contains("render.threads ")).expect("threads");
-        assert!(threads.ends_with("n/a — a GPU render has no CPU threads"), "{threads}");
+        assert!(threads.ends_with("n/a - a GPU render has no CPU threads"), "{threads}");
         // The event's pairs say the same, split by whether Phiray reads it.
         let (read, ignored) = BRenderAudit::pairs(&s);
         assert!(read.contains(&("cycles.samples".to_string(), "256 (set)".to_string())), "{read:?}");

@@ -50,10 +50,12 @@ static CURSOR: &[BPropSpec] = &[
 ];
 
 /// `View3D`'s clipping and local camera, beside the focal length the View
-/// panel already edits.
+/// panel already edits. Blender's defaults, 0.01 m and 1000 m
+/// (`DNA_view3d_defaults.h`): with none the rows read 0.000. The viewport
+/// does not clip by them yet.
 static CLIP: &[BPropSpec] = &[
-    f("space_data.clip_start", "Clip Start", BUnit::Length),
-    f("space_data.clip_end", "End", BUnit::Length),
+    f("space_data.clip_start", "Clip Start", BUnit::Length).about(0.01),
+    f("space_data.clip_end", "End", BUnit::Length).about(1000.0),
     b("space_data.use_local_camera", "Local Camera"),
 ];
 

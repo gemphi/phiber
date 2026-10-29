@@ -33,7 +33,7 @@ impl BRenderDevices {
     /// What is drawing now.
     fn status() -> String {
         match Gpu::in_use() {
-            Some(a) => format!("Drawing on {} — {}, {}, {} MB per binding", a.name, a.kind_label(), a.backend_label(), a.binding >> 20),
+            Some(a) => format!("Drawing on {} - {}, {}, {} MB per binding", a.name, a.kind_label(), a.backend_label(), a.binding >> 20),
             None if GpuAdapters::all().is_empty() => "No GPU found: the viewport draws on the CPU".to_string(),
             None => "Opening the device…".to_string(),
         }
@@ -48,8 +48,8 @@ impl BRenderDevices {
         let found = GpuAdapter::distinct(GpuAdapters::all());
         let auto = Gpu::in_use().filter(|_| s.get(AppKey::Gpu).unwrap_or("").is_empty()).or_else(|| GpuAdapter::pick(&found, None).cloned());
         let option = |key: &str, label: String| BOption { key: key.to_string(), label, icon: String::new() };
-        let mut options = vec![option("", auto.map_or("Auto".to_string(), |a| format!("Auto — {}", a.name)))];
-        options.extend(found.iter().map(|a| option(&a.name, format!("{} — {}", a.name, a.kind_label()))));
+        let mut options = vec![option("", auto.map_or("Auto".to_string(), |a| format!("Auto - {}", a.name)))];
+        options.extend(found.iter().map(|a| option(&a.name, format!("{} - {}", a.name, a.kind_label()))));
         BCtrl::read(BCtrlKind::Select, AppKey::Gpu.path(), crate::state::val::BValue::Enum(String::new()), s).with_options(options).with_menu(open, s)
     }
 
@@ -63,7 +63,7 @@ impl BRenderDevices {
         let found = GpuAdapter::distinct(GpuAdapters::all());
         let best = GpuAdapter::pick(&found, None).map_or(String::new(), |a| format!(" ({})", a.name));
         let mut rows = vec![Self::row(format!("Auto{best}"), chosen.is_empty(), "")];
-        rows.extend(found.iter().map(|a| Self::row(format!("{} — {}, {}", a.name, a.kind_label(), a.backend_label()), chosen == a.name, &a.name)));
+        rows.extend(found.iter().map(|a| Self::row(format!("{} - {}, {}", a.name, a.kind_label(), a.backend_label()), chosen == a.name, &a.name)));
         rows.push(BView::label(Self::status()));
         BCard::panel(Self::TITLE).fold(key, true).body(rows).into()
     }
@@ -118,7 +118,7 @@ mod tests {
         texts(&BRenderDevices::view(&state), &mut shown);
         let a = &gpu.adapter;
         assert_eq!(shown[..2], [format!("Auto ({})", a.name), "[Active]".to_string()]);
-        assert!(shown.contains(&format!("{} — {}, {}", a.name, a.kind_label(), a.backend_label())), "{shown:?}");
+        assert!(shown.contains(&format!("{} - {}, {}", a.name, a.kind_label(), a.backend_label())), "{shown:?}");
         assert!(shown.last().is_some_and(|l| l.starts_with(&format!("Drawing on {}", a.name))), "{shown:?}");
 
         let generation = Gpu::generation();

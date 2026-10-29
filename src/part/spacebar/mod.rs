@@ -1,4 +1,7 @@
-//! Spacebar — the workspace tabs, in the top bar's right-hand group.
+//! Spacebar — the workspace tabs. Placed in no pane now: the top bar names
+//! the space as crumbs in its search (`part::search`, `host::topbar::set`).
+//! It retires, with its rows in the part table and dispatcher, once it has
+//! been moved to `_temp` with its INVENTORY row.
 //!
 //! They show what fits (`part::display`): every tab labelled on a wide
 //! window, the open space labelled and the rest as icons otherwise — or as

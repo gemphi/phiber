@@ -31,6 +31,9 @@ enum BLogPart {
     Frame,
     /// The head row: the fold control and the latest line.
     Head,
+    /// The fold control: its chevrons on a tile, on no ground like the rest
+    /// of the status bar; it lights under the pointer, as a control does.
+    Fold,
     /// One line of text, taking the width it is given, cut with an ellipsis.
     Line { step: u8 },
     /// The drawer: floating over the workspace above the head, the status
@@ -62,6 +65,7 @@ impl BFlexed for BLogPart {
                 .width(BLen::Full)
                 .height(BLen::Full)
                 .min_width(BLen::Zero),
+            Self::Fold => BFlex::row().align(BAlign::Center).justify(BJustify::Center).width(BLen::Dim(BDim::Tile)).height(BLen::Dim(BDim::Tile)).keeps_size().radius(BRadius::Role(BStyleRole::Button)).hovered(BFill::ItemHover),
             Self::Line { step } => BFlex::cell()
                 .fills()
                 .min_width(BLen::Zero)
@@ -119,6 +123,18 @@ fn cell(text: &str, column: BLogColumn, step: u8, ctx: &BRenderCtx) -> AnyElemen
         .into_any_element()
 }
 
+/// The fold control as its glyph (`BLogPart::Fold`), under its old button's selector.
+fn fold(toggle: &BControl, ctx: &BRenderCtx) -> AnyElement {
+    let icon = toggle.icon.as_deref().unwrap_or("");
+    let glyph = super::atom::icon_in(icon, ctx.style.colors.text, ctx);
+    let Some(action) = toggle.action.clone() else { return glyph };
+    let (id, handler) = (button::element_id(icon, None, &action), ctx.handler.clone());
+    BLogPart::Fold.flex(ctx).div(ctx).id(SharedString::from(id.clone())).debug_selector(move || id)
+        .cursor_pointer().child(glyph)
+        .on_click(move |_: &ClickEvent, window, app| (Rc::clone(&handler))(&action, window, app))
+        .into_any_element()
+}
+
 /// The heading row: each column's name, and on the one being ordered by,
 /// which way round it is.
 fn headings(ctx: &BRenderCtx) -> AnyElement {
@@ -157,7 +173,7 @@ pub fn view(open: bool, toggle: &BControl, ctx: &BRenderCtx) -> AnyElement {
         .div(ctx)
         .id("status-log-head")
         .debug_selector(|| "status-log-head".to_string())
-        .child(button::view(toggle, ctx))
+        .child(fold(toggle, ctx))
         .child(match toggle.action.clone() {
             Some(action) => {
                 let handler = ctx.handler.clone();

@@ -46,14 +46,15 @@ impl BRayKey {
         // Solid builds from viewport colours with no images; Material builds
         // from Base Color with the atlas — the studio light and its
         // precomputed lighting in it (`scene::build`), where Rendered holds
-        // the file's world. They are different scenes to the GPU, so
-        // switching shading builds again rather than showing one mode's
-        // data in the other.
+        // the file's world — unless Scene World is off, when Rendered holds
+        // the studio light too (`studio`). They are different scenes to the
+        // GPU, so switching either builds again rather than showing one
+        // mode's data in the other.
         palette.shading.uses_viewport_color().hash(h);
         // MatCap's image goes up with the Solid scene (`scene::build`).
         palette.matcap.hash(h);
         palette.texture.hash(h);
-        (palette.shading == crate::scene::BShading::Material).hash(h);
+        palette.studio.hash(h);
     }
 
     /// The scene's shape: the same objects, meshes and colours, wherever

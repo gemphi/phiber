@@ -63,8 +63,9 @@ pub(super) fn card(
                 }),
         )
         // The body is empty on purpose: everything in it — the socket dots and
-        // their names — is painted over the canvas, because a socket sits ON
-        // the card's border and a div cannot be drawn half outside its parent.
+        // their names — is painted on the sockets' canvas laid over the cards
+        // (`paint::paint_sockets`), because a socket sits ON the card's border
+        // and a div cannot be drawn half outside its parent.
         // What the body contributes is its HEIGHT, which is Blender's; it
         // fills whatever the header leaves.
         .child(div().flex_1());

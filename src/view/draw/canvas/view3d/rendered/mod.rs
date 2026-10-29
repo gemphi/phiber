@@ -46,6 +46,8 @@ mod paint_tests;
 #[cfg(test)]
 mod recolor_tests;
 #[cfg(test)]
+mod share_tests;
+#[cfg(test)]
 mod still_tests;
 #[cfg(test)]
 mod surface_tests;

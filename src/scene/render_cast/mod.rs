@@ -48,7 +48,7 @@ impl BRenderCast {
         let step = if kept == 0 {
             let culprits = Self::culprits(state, loaded);
             format!(
-                "the Outliner's render restrictions disable all {total} objects — collections with the camera off or excluded: {}",
+                "the Outliner's render restrictions disable all {total} objects - collections with the camera off or excluded: {}",
                 if culprits.is_empty() { "none; every object carries its own camera-off flag".to_string() } else { culprits.join(", ") }
             )
         } else {
@@ -62,7 +62,7 @@ impl BRenderCast {
             let n = Self::count_geometry(&raw);
             (raw, format!("rendering the file's {n} meshes as loaded instead"))
         };
-        Self { objects, note: Some(format!("Render would be empty: {step} — {drew}")) }
+        Self { objects, note: Some(format!("Render would be empty: {step} - {drew}")) }
     }
 
     /// The collections whose own row would hide a render — the camera icon

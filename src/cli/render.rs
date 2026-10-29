@@ -11,7 +11,7 @@
 //! for.
 
 use crate::app::seed::{seed_output_props, seed_render_props, seed_view_layer};
-use crate::scene::{BObject3D, plan_at, render_set, source::{loaded_shared, set_loaded_at}};
+use crate::scene::{BObject3D, plan_at, render_set, source::{loaded_shared, set_loaded_at, set_loaded_exact}};
 use crate::state::{BState, CtxKey};
 use crate::view::draw::canvas::view3d::rendered::{BMatStand, BRayLook, environment, still, view_words};
 
@@ -165,8 +165,9 @@ impl BHeadlessRender {
             state.set(CtxKey::Frame, format!("{frame}"));
             // The scene at that frame as the app's draw pass scopes it: the
             // file's, with what the session added and keyed in
-            // (`set_loaded_at`) — the same model F12 renders.
-            set_loaded_at(Some(model.clone()), &state);
+            // (`set_loaded_exact`) — the same model F12 renders, its rigid
+            // bodies at this frame of their bake.
+            set_loaded_exact(Some(model.clone()), &state);
             let scene = loaded_shared().unwrap_or_else(|| model.clone());
             if let Some(camera) = self.camera.as_ref().filter(|c| !scene.cameras.iter().any(|k| &k.name == *c)) {
                 return Err(format!("--camera: no camera object named {camera:?} in the scene"));

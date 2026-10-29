@@ -8,7 +8,10 @@
 //! `filter_search`, both drawn in their header.
 
 use crate::state::BKey as _;
+use crate::state::AppKey;
+use crate::state::CtxKey;
 use crate::state::OutlinerKey;
+use crate::space::BSpaceType;
 use crate::state::FileKey;
 use crate::host::BHostType;
 use crate::state::BPath;
@@ -66,19 +69,66 @@ impl BViewItem for BSearch {
         let Some(key) = search_key(self.host) else {
             return BView::empty();
         };
-        let value = s.get(&key).unwrap_or("").to_string();
-        if self.host == BHostType::Topbar && crate::part::filter::topbar_wraps(s) {
-            // A window too narrow for the bar on one line has no room for a
-            // field either: the search is its icon, which opens the palette.
-            let open = BAction::Set(crate::state::ModalKey::Open.path(), crate::state::val::V_MODAL_COMMAND.to_string());
-            return BView::Button(crate::view::prim::BControl::new().with_icon("search").with_tooltip("Search   F3").with_action(open));
-        }
         if self.host == BHostType::Topbar {
-            // A click opens the palette (`find::BFindFromBarRule`), which
-            // takes the caret; the bar's field never types itself.
-            return BView::filter_field("Search spaces, editors, panels and menus   F3", String::new(), false, BAction::Set(key, String::new()));
+            return whereabouts(s, &key);
         }
+        let value = s.get(&key).unwrap_or("").to_string();
         let editing = edit::is_editing(s, &key);
         BView::filter_field("Search", value, editing, BAction::Set(key, String::new()))
+    }
+}
+
+/// The top bar's search at rest: where the window stands — `Spaces ›
+/// Layout` — as crumbs in the field's box. The spaces are found here, not
+/// in a row of tabs that nine of them would overflow, so the space you are
+/// in reads here too.
+///
+/// A click on the box opens the palette (`find::BFindFromBarRule`), which
+/// takes the caret; the bar's box never types. A crumb opens it on its own
+/// tab: Spaces on the spaces, the space itself on everything. It shows at
+/// every width — with the tabs gone, a wrapped bar's second line has room.
+fn whereabouts(s: &BState, query: &BPath) -> BView {
+    use crate::modal::command::find::BFindKind;
+    let space = s.get(CtxKey::Space).and_then(BSpaceType::from_slug).unwrap_or(BSpaceType::Layout);
+    let tab = |kind: BFindKind| BAction::Set(AppKey::CommandTab.path(), kind.slug().to_string());
+    let trail = vec![
+        (BFindKind::Space.label().to_string(), tab(BFindKind::Space)),
+        (space.label().to_string(), tab(BFindKind::All)),
+    ];
+    BView::Crumbs { trail, edit: vec![BAction::Set(AppKey::Edit.path(), query.encode())] }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::state::action::apply_action;
+    use crate::state::val::V_MODAL_COMMAND;
+    use crate::state::ModalKey;
+
+    #[test]
+    fn the_top_bar_search_reads_the_space_you_are_in_and_opens_the_palette() {
+        let mut s = BState::new();
+        s.set(CtxKey::Space, BSpaceType::Shading.slug());
+        let BView::Crumbs { trail, edit } = BSearch::new(BHostType::Topbar).build(&s) else { panic!("the top bar's search is crumbs") };
+        let names: Vec<&str> = trail.iter().map(|(name, _)| name.as_str()).collect();
+        assert_eq!(names, ["Spaces", BSpaceType::Shading.label()]);
+        for action in &edit {
+            apply_action(&mut s, action);
+        }
+        assert_eq!(s.get(ModalKey::Open), Some(V_MODAL_COMMAND), "a click opens the palette");
+        assert!(edit::is_editing(&s, AppKey::CommandQuery), "with the caret in its query");
+    }
+
+    #[test]
+    fn the_spaces_crumb_opens_the_palette_on_the_spaces() {
+        use crate::modal::command::find::BFindKind;
+        let mut s = BState::new();
+        let BView::Crumbs { trail, edit } = BSearch::new(BHostType::Topbar).build(&s) else { panic!("crumbs") };
+        apply_action(&mut s, &trail[0].1);
+        for action in &edit {
+            apply_action(&mut s, action);
+        }
+        assert_eq!(BFindKind::of(&s), BFindKind::Space);
+        assert_eq!(s.get(ModalKey::Open), Some(V_MODAL_COMMAND));
     }
 }

@@ -596,7 +596,7 @@ pub fn start_in(objects: Vec<BObject3D>, plan: BRenderPlan, scope: super::source
         }
         let status = match (j.cancel.load(Ordering::Relaxed), out.is_none()) {
             (true, _) => "Cancelled",
-            (false, true) => "Failed — no adapter, or a scene the GPU declined",
+            (false, true) => "Failed - no adapter, or a scene the GPU declined",
             (false, false) => "Finished",
         };
         report_end(event, status, began.elapsed());
@@ -610,7 +610,7 @@ pub fn start_in(objects: Vec<BObject3D>, plan: BRenderPlan, scope: super::source
             crate::app::journal::BJournal::note(format!(
                 "Render finished: {}×{}, {taken} samples in {secs:.1}s{}",
                 plan.w, plan.h,
-                if out.is_none() { " — no image (no adapter, or a scene the GPU declined)" } else { "" }
+                if out.is_none() { " - no image (no adapter, or a scene the GPU declined)" } else { "" }
             ));
         }
     };

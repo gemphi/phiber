@@ -155,7 +155,7 @@ pub fn stage(shelf: BShelf, demo: &SceneModel) -> Option<SceneModel> {
     }
     root.extra_names = model.cameras.iter().map(|c| c.name.clone()).chain(model.lights.iter().map(|l| l.name.clone())).collect();
     let r = &mut model.report;
-    r.scene = format!("Footwear — {}", shelf.label());
+    r.scene = format!("Footwear - {}", shelf.label());
     r.file_version = "phiplay".into();
     r.objects = model.objects.len();
     r.verts = model.objects.iter().map(|o| o.mesh.vertices.len()).sum();

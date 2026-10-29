@@ -110,7 +110,7 @@ pub fn save_to(shot: &BRenderShot, output: &BlendOutput, pass: BlendPassSet, fil
         return Err("the render has no image yet".to_string());
     }
     if !shot.settled() {
-        return Err("the render is still running — wait for it to finish, or cancel it, to save what it has".to_string());
+        return Err("the render is still running - wait for it to finish, or cancel it, to save what it has".to_string());
     }
     if let Some(folder) = file.parent().filter(|folder| !folder.as_os_str().is_empty()) {
         std::fs::create_dir_all(folder).map_err(|err| format!("{}: {err}", folder.display()))?;

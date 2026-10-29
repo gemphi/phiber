@@ -16,7 +16,8 @@ pub(in crate::view::draw::canvas::view3d) struct BRayView {
     pub setup: BViewSetup,
     pub sky: Hsla,
     pub grid: Hsla,
-    /// Material Preview: studio lighting, file lights and world ignored.
+    /// Lit by the studio HDRI, the file's world ignored: Solid, and Material
+    /// Preview or Rendered with Scene World off (`scene::scene_light`).
     pub studio: bool,
     /// The scene's lamps the viewport's eye leaves on, where they stand
     /// this frame (`pose::lights_in_viewport`): what the Rendered mode is
@@ -105,7 +106,11 @@ impl BRayView {
         // drew them. Nothing is marked as being transformed here yet, so
         // the transform colour is the selected one — a class the host
         // never sets.
-        let lights = if studio { Vec::new() } else { crate::scene::pose::lights_in_viewport(ctx.state, crate::scene::scene_lights()) };
+        // Lighting ▸ Scene Lights (`scene::scene_light`) for Material
+        // Preview and Rendered; Workbench's studio light takes no lamps.
+        let shading = crate::scene::view_shading(ctx.state);
+        let lamps = crate::scene::BSceneLight::keys(shading).map_or(!studio, |_| crate::scene::BSceneLight::now(ctx.state, shading).lights);
+        let lights = if lamps { crate::scene::pose::lights_in_viewport(ctx.state, crate::scene::scene_lights()) } else { Vec::new() };
         let pick = super::scene::rgba(crate::view::draw::color::to_hsla(ctx.style.colors.accent));
         let lit = super::scene::rgba(crate::view::draw::color::to_hsla(ctx.style.step(ctx.style.colors.accent, 2)));
         // Blender draws a frame's shading and its overlays in one pass from

@@ -24,7 +24,7 @@ impl BPhiberApp {
         // pass runs, and the lamps (`scene_lights`) are read at the frame in
         // scope — a keyed sun lit every frame from where it stood the frame
         // before. The objects the session added and keyed come in with it.
-        crate::scene::source::set_loaded_at(self.scene_cache.as_ref().map(|(_, m)| std::sync::Arc::clone(m)), &self.state);
+        crate::scene::source::set_loaded_exact(self.scene_cache.as_ref().map(|(_, m)| std::sync::Arc::clone(m)), &self.state);
         // No file open: the default scene through the startup file's camera
         // (`BStartupCamera`), as a fresh Blender renders its cube.
         let loaded = crate::scene::source::with_loaded(|m| m.cloned());

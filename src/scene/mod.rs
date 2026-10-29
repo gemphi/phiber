@@ -115,6 +115,7 @@ pub mod warm;
 pub mod view_slot;
 pub mod links;
 pub mod shadow;
+pub mod sim;
 pub mod recolor;
 pub mod transform;
 pub mod xform;

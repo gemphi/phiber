@@ -20,7 +20,7 @@
 //! it.
 
 use super::ctx::BRenderCtx;
-use super::flex::{BAlign, BDim, BFill, BFlex, BInk, BLen, BRadius, BSpace, BType};
+use super::flex::{BAlign, BFlex, BInk, BLen, BSpace, BType};
 use gpui::prelude::*;
 use gpui::{AnyElement, SharedString};
 
@@ -33,17 +33,19 @@ fn inked(ink: BInk, text: String, ctx: &BRenderCtx) -> gpui::Div {
     BFlex::row().ink_tone(ink).div(ctx).child(SharedString::from(text))
 }
 
-/// One `label: value`. In the status bar each one stands on a chip of its
-/// own — a light, rounded ground, a control's height — so the bar reads as
-/// a row of read-outs that can come and go, not a sentence.
+/// One `label: value`. In the status bar each one is plain text with room
+/// after it, so the bar reads as a row of read-outs that can come and go,
+/// not a sentence. They stood on chips once — a light, rounded ground, a
+/// control's height — and a row of chips reads as a row of buttons, which
+/// nothing in it is.
 ///
 /// Elsewhere — a details card — a pair takes the line, and a value longer
 /// than it (a folder's path) ends in an ellipsis inside the card rather
 /// than running out of it.
 pub fn pair(label: &str, value: &str, ctx: &BRenderCtx) -> AnyElement {
-    let chip = ctx.host == crate::host::BHostType::Statusbar;
-    let flex = if chip { CHIP } else { PAIR };
-    let value = match chip {
+    let readout = ctx.host == crate::host::BHostType::Statusbar;
+    let flex = if readout { READOUT } else { PAIR };
+    let value = match readout {
         true => inked(BInk::Text, value.to_string(), ctx),
         false => BFlex::row().fills().min_width(BLen::Zero).ink_tone(BInk::Text).div(ctx).truncate().child(SharedString::from(value.to_string())),
     };
@@ -77,8 +79,8 @@ pub fn phrase(lead: &str, tail: &str, ctx: &BRenderCtx) -> AnyElement {
 const LINE: BFlex = BFlex::row().align(BAlign::Center).gap(BSpace::GapXs).type_size(BType::Caption);
 /// A pair in a card: the line's width, its label on the value's first line.
 const PAIR: BFlex = LINE.fills().min_width(BLen::Zero).align(BAlign::Start);
-/// A pair on its chip: the pair, padded, on the floating chrome's light
-/// shade, rounded all round.
-const CHIP: BFlex = LINE.pad_x(BSpace::PadSm).height(BLen::Dim(BDim::ButtonHeight)).radius(BRadius::Pill).fill(BFill::Floating);
+/// A pair in the status bar: the line, no ground, and room after it — one
+/// gutter, so the next read-out (the version too) starts the same way off.
+const READOUT: BFlex = LINE.pad_right(BSpace::PadMd);
 /// A line of pairs: the same, the pairs a wider gap apart.
 const STRIP: BFlex = BFlex::row().align(BAlign::Center).gap(BSpace::GapSm).type_size(BType::Caption);

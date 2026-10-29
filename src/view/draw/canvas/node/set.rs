@@ -97,8 +97,9 @@ pub fn render(ctx: &BRenderCtx) -> AnyElement {
     // Where every node sits: file location, drag offset, and the fraction of the
     // canvas it is drawn at (`plan::positions`).
     let (located, offsets, placed) = positions(&graph, &view, ctx.state, ctx.host);
-    // A socket straddles a card's border, so the card's fill goes over it.
-    // `TH_WIRE` is the editor's own `back`, so the canvas shade is the outline.
+    // A socket straddles a card's border and is painted over it, as Blender
+    // draws it. `TH_WIRE` is the editor's own `back`, so the canvas shade is
+    // the outline.
     let ink = paint::BNodeInk {
         wire: ctx.style.colors.text_dim,
         wire_shadow: ctx.style.colors.bg_viewport,
@@ -124,7 +125,7 @@ pub fn render(ctx: &BRenderCtx) -> AnyElement {
     // Frames first, behind the links and cards: a frame is a backdrop for the
     // nodes parented into it (`frame::layer`, Blender's `node_draw_nodetree`).
     canvas_div = canvas_div.children(frame::layer(&graph.nodes, &view, size, &offsets, ctx));
-    let (painter, painted_bounds) = paint::canvas::element(
+    let painted = paint::canvas::element(
         paint::canvas::BNodePainting {
             graph: graph.clone(),
             wired: wired.clone(),
@@ -136,8 +137,9 @@ pub fn render(ctx: &BRenderCtx) -> AnyElement {
         },
         ctx,
     );
+    let painted_bounds = painted.bounds;
     canvas_div =
-        canvas_div.child(BFlex::column().place(BPlace::Overlay).styled(painter, ctx));
+        canvas_div.child(BFlex::column().place(BPlace::Overlay).styled(painted.links, ctx));
 
     // Selected last, so the one being dragged is over its neighbours
     // (`draw_order`, Blender's `compare_node_depth`); a frame was drawn first.
@@ -154,6 +156,9 @@ pub fn render(ctx: &BRenderCtx) -> AnyElement {
         };
         canvas_div = canvas_div.child(el);
     }
+    // The sockets over the cards they sit on: a name inside a card's body is
+    // only seen when it is painted after that body (`paint::paint_sockets`).
+    canvas_div = canvas_div.child(BFlex::column().place(BPlace::Overlay).styled(painted.sockets, ctx));
     // Over the cards: a click on a socket's value widget edits it (toggle a bool, step a number) instead of selecting the node (`edit::hit`).
     canvas_div = canvas_div.children(edit::layer::value_layer(&graph.nodes, &placed, &view, size, &wired, &edit::edits_of(ctx.state, ctx.host), ctx));
     let (wire, moving) = wire::for_frame(

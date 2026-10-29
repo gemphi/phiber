@@ -97,6 +97,8 @@ fn value(spec: &BPropSpec, s: &BState) -> BView {
     let axes = match axes(spec.kind) {
         // A path with the folder that browses for it: the Base Color's image.
         [] if spec.key == crate::scene::recolor::IMAGE_FIELD => return super::material::image_row(BView::ctrl(control(spec, spec.value_key(), None, s))),
+        // The Rigid Body World's cache: its state, Bake and Delete Bake.
+        [] if spec.key == crate::scene::sim::CACHE_ROW => return crate::scene::sim::bake_row(s),
         [] => return BView::ctrl(control(spec, spec.value_key(), None, s)),
         axes => axes,
     };

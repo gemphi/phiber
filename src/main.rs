@@ -69,6 +69,7 @@ fn render(cli: &BCli) -> i32 {
         eprintln!("Error: no blend loaded. cannot use '-f / --render-frame'");
         return 1;
     };
+    let opened = std::time::Instant::now();
     let model = match phiber::cli::open::open(&file) {
         Ok(model) => model,
         Err(why) => {
@@ -76,6 +77,9 @@ fn render(cli: &BCli) -> i32 {
             return 1;
         }
     };
+    if !cli.quiet {
+        println!("Read: {} objects, {} triangles in {:.1}s", model.objects.len(), model.report.tris, opened.elapsed().as_secs_f64());
+    }
     // The relative forms in `-f`, `-s` and `-e` are relative to the file's
     // own range, so the frames cannot be resolved until it is open.
     let scene = phiber::cli::frame::BFrameLimit {

@@ -126,7 +126,7 @@ static RENDER_OUTPUT: &[BManualNode] = &[
 
 static RENDER_ENGINES: &[BManualNode] = &[
     // phiber's own: Blender has no page for an engine it does not ship.
-    shot("phiray", "Phiray — phiber's path tracer", "", BSpaceType::Rendering, BHostType::Buts, Drafted),
+    shot("phiray", "Phiray - phiber's path tracer", "", BSpaceType::Rendering, BHostType::Buts, Drafted),
     page("cycles", "Cycles (read as Phiray)", "render/cycles/index.rst", Stub),
     page("eevee", "EEVEE (read as Phiray)", "render/eevee/index.rst", Stub),
     page("workbench", "Workbench", "render/workbench/index.rst", Stub),

@@ -70,7 +70,7 @@ pub fn still_stepwise(
     // than leaving a blank Render Result behind: pose 26 declined here and
     // the info bar still said "Finished" (`phiray::Tracer::why_not`).
     if let Some(why) = phiray::Tracer::why_not(&built, gpu.max_binding(), phiray::Tracer::chunks_for(&gpu)) {
-        note_render_refused(format!("the GPU declined this scene — {why}"));
+        note_render_refused(format!("the GPU declined this scene - {why}"));
         return None;
     }
     let mut tracer = phiray::Tracer::from_scene(&gpu, built)?;

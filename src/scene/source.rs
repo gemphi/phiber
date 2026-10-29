@@ -91,7 +91,19 @@ pub fn set_loaded_shared(model: Option<std::sync::Arc<SceneModel>>) {
 }
 
 /// Set the loaded model and the frame it is shown at for this render pass.
+/// A Rigid Body World shows the newest frame its bake has
+/// (`scene::sim::worlds`); [`set_loaded_exact`] waits for the frame.
 pub fn set_loaded_at(model: Option<std::sync::Arc<SceneModel>>, state: &BState) {
+    scope_at(model, state, false);
+}
+
+/// [`set_loaded_at`] for a render of the frame (F12, the command line):
+/// the simulation's frame itself, waited for.
+pub fn set_loaded_exact(model: Option<std::sync::Arc<SceneModel>>, state: &BState) {
+    scope_at(model, state, true);
+}
+
+fn scope_at(model: Option<std::sync::Arc<SceneModel>>, state: &BState, exact: bool) {
     // The file's model — or, with no file open, the default scene's stage
     // once the session built on it (`scene::edit::stage`) — with the
     // objects the session added in (`scene::edit::model`), then the
@@ -99,9 +111,14 @@ pub fn set_loaded_at(model: Option<std::sync::Arc<SceneModel>>, state: &BState) 
     // object plays.
     let model = super::edit::BStage::under(model, state).map(|m| super::action::set::BActionScene::over(super::edit::BEditScene::over(m, state), state));
     let frame = super::motion::shown_frame(state);
-    let moved = model.as_deref().and_then(|m| super::transform::BTransforms::now(state).extra_worlds(state, m, frame));
-    set_loaded_shared(model);
+    let mut moved = model.as_deref().and_then(|m| super::transform::BTransforms::now(state).extra_worlds(state, m, frame));
+    set_loaded_shared(model.clone());
     super::motion::set_shown_frame(state);
+    // After the model is in scope: the Rigid Body World rows the bake reads
+    // fall back to this model's values (`props::scene::file_value`).
+    if let Some(bodies) = model.as_ref().and_then(|m| super::sim::worlds(m, state, frame, exact)) {
+        moved.get_or_insert_with(Default::default).extend(bodies.iter().map(|(name, m)| (name.clone(), *m)));
+    }
     super::motion::set_moved(moved);
     super::render_set::BResolution::scope(state);
 }
@@ -189,7 +206,7 @@ pub fn scene_objects(s: &BState) -> Rc<Vec<BObject3D>> {
     // A rigged mesh is drawn as the poser's thread has it (`scene::pose`).
     let frame = model.as_deref().and_then(|m| super::motion::moving_frame(m, super::motion::shown_frame(s)));
     let posed = model.as_ref().map(|m| super::pose::BPoser::shown(m, s)).unwrap_or_default();
-    let at = (frame, posed.frame, super::edit::BSceneEdit::now(s).fingerprint() ^ super::transform::BTransforms::fingerprint(s).rotate_left(17) ^ super::shadow::BObjectShadowList::fingerprint(s).rotate_left(41) ^ super::recolor::BRecolors::fingerprint(s).rotate_left(53));
+    let at = (frame, posed.frame, super::edit::BSceneEdit::now(s).fingerprint() ^ super::transform::BTransforms::fingerprint(s).rotate_left(17) ^ super::shadow::BObjectShadowList::fingerprint(s).rotate_left(41) ^ super::recolor::BRecolors::fingerprint(s).rotate_left(53) ^ super::sim::stamp().rotate_left(29));
     if let Some(hit) = BUILT.with(|cell| {
         cell.borrow()
             .as_ref()

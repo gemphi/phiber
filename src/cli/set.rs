@@ -59,7 +59,7 @@ pub static ARG: &[BArgSpec] = &[
     arg("-h", "--help", BArgTake::Nothing, "Print this help text and exit."),
     arg("-v", "--version", BArgTake::Nothing, "Print Phiber version and exit."),
     // ── Phiber's own, long-form only.
-    arg("", "--samples", BArgTake::Word, "Set the sample count for the render (default 2048)."),
+    arg("", "--samples", BArgTake::Word, "Set the sample count for the render (default 4096)."),
     arg("", "--draft", BArgTake::Nothing, "Accepted for older scripts; the sample count is --samples as given."),
     arg("", "--camera", BArgTake::Word, "Render through the named camera object instead of the scene's active one."),
 ];

@@ -14,6 +14,9 @@ use glam::{Mat4, Vec3};
 
 /// `view3d.view_orbit`'s step, degrees (Blender's `Preferences.view.rotation_angle`).
 pub const ORBIT_STEP: f32 = 15.0;
+/// The turn each frame while an orbit arrow of the navigate gizmo is held
+/// (`spin_*`): 3° at 60 Hz, a turn every two seconds.
+pub const ORBIT_SPIN: f32 = 3.0;
 /// `view3d.zoom`'s step, the gizmo's.
 pub const ZOOM_STEP: f32 = 1.2;
 /// Room left around what is framed (Blender's `VIEW3D_MARGIN`-ish).
@@ -96,6 +99,12 @@ impl BRule for BView3dOpRule {
             "orbit_right" => { turn(state, View3dKey::Yaw, ORBIT_STEP); Some("Orbited right") }
             "orbit_up" => { turn(state, View3dKey::Pitch, ORBIT_STEP); Some("Orbited up") }
             "orbit_down" => { turn(state, View3dKey::Pitch, -ORBIT_STEP); Some("Orbited down") }
+            // A held gizmo arrow keeps turning (`gizmo::BGizmo::held`); each
+            // frame's step says nothing, or the status log would fill.
+            "spin_left" => { turn(state, View3dKey::Yaw, -ORBIT_SPIN); None }
+            "spin_right" => { turn(state, View3dKey::Yaw, ORBIT_SPIN); None }
+            "spin_up" => { turn(state, View3dKey::Pitch, ORBIT_SPIN); None }
+            "spin_down" => { turn(state, View3dKey::Pitch, -ORBIT_SPIN); None }
             "zoom_in" => { zoom(state, ZOOM_STEP); Some("Zoomed in") }
             "zoom_out" => { zoom(state, 1.0 / ZOOM_STEP); Some("Zoomed out") }
             // `view3d.toggle_xray` (Alt Z): the switch of the shading in use
@@ -194,6 +203,18 @@ mod tests {
         assert!((Vec3::from(view_pivot(&state)) - gem_centre).length() < 1e-4);
         assert!(crate::scene::view_zoom(&state) > 1.0, "a single gem is framed closer than the whole scene");
         assert!(state.get(OpKey::View3d).is_none());
+    }
+
+    #[test]
+    fn a_held_arrow_spins_the_view_a_small_step_without_a_word() {
+        let mut state = BState::new();
+        let (yaw, pitch) = (super::super::view_yaw(&state), super::super::view_pitch(&state));
+        let said = log::entries().len();
+        op(&mut state, "spin_left");
+        op(&mut state, "spin_down");
+        assert_eq!(state.get(View3dKey::Yaw).and_then(|v| v.parse::<f32>().ok()), Some((yaw - ORBIT_SPIN).rem_euclid(360.0)));
+        assert_eq!(state.get(View3dKey::Pitch).and_then(|v| v.parse::<f32>().ok()), Some(pitch - ORBIT_SPIN));
+        assert_eq!(log::entries().len(), said, "sixty steps a second would flood the status log");
     }
 
     #[test]

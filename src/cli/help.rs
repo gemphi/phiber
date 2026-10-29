@@ -67,7 +67,7 @@ mod tests {
             assert!(text.contains(spec.help), "{spec:?}'s help line is missing");
         }
         assert!(text.contains("PHIRAY"), "the engine default is stated");
-        assert!(text.contains("2048"), "the sample default is stated");
+        assert!(text.contains("4096"), "the sample default is stated");
         assert!(text.starts_with("Usage: phiber"));
     }
 

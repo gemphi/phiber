@@ -1,4 +1,8 @@
-//! Scene → phiray triangles and viewport → phiray camera.
+//! Scene → phiray triangles and viewport → phiray camera. Objects that
+//! hold the same mesh — a collection's member and its instances
+//! (`phiphx::scene::share`) — go up as one mesh placed many times
+//! (`Scene::place`): the triangles and their tree once, a matrix each
+//! (roadmap §4.4, Step 1; Cycles' `Object`s over one `Geometry`).
 
 use super::super::mesh::BMeshPalette;
 use super::vert::BRayVerts;
@@ -10,6 +14,8 @@ use glam::Vec3;
 use gpui::Hsla;
 use super::world::{BRayLook, lit};
 use phiray::{Camera, Instance, Scene, Tri};
+use std::collections::HashMap;
+use std::sync::Arc;
 
 pub(super) fn rgba(c: Hsla) -> [f32; 4] {
     let c = c.to_rgb();
@@ -29,7 +35,7 @@ pub const TEXTURE_LIMIT: u32 = 2048;
 
 /// The compact scene (Blender's Z-up world): each object an instance placed
 /// by its matrix, its triangles in its own space with normals, colours and
-/// textures.
+/// textures — held once for every object that shares them.
 pub fn build(scene: &[BObject3D], palette: &BMeshPalette) -> Scene {
     build_with(scene, palette, true)
 }
@@ -53,6 +59,25 @@ pub fn worlds(scene: &[BObject3D]) -> Vec<[[f32; 4]; 4]> {
         .collect()
 }
 
+/// What an object's geometry is known by: its mesh, slot and UV `Arc`s.
+/// Two objects with the same three hold the same geometry (the member
+/// and its instances), and are placed over one upload.
+fn geometry_key(o: &BObject3D) -> Option<(usize, usize, usize)> {
+    match o {
+        BObject3D::Loaded { mesh, material_indices, uvs, .. } => Some((Arc::as_ptr(mesh) as usize, Arc::as_ptr(material_indices) as usize, Arc::as_ptr(uvs) as usize)),
+        BObject3D::Primitive { .. } => None,
+    }
+}
+
+/// Whether `a` and `b`, holding the same geometry, shade it the same: the
+/// same material slots (an instance keeps its member's).
+fn same_materials(a: &BObject3D, b: &BObject3D) -> bool {
+    match (a, b) {
+        (BObject3D::Loaded { materials: m, .. }, BObject3D::Loaded { materials: n, .. }) => m == n,
+        _ => false,
+    }
+}
+
 fn build_with(scene: &[BObject3D], palette: &BMeshPalette, images: bool) -> Scene {
     let mut out = Scene::default();
     if images {
@@ -60,19 +85,35 @@ fn build_with(scene: &[BObject3D], palette: &BMeshPalette, images: bool) -> Scen
     }
     let mut ids = super::surface::BAtlasIds::default();
     let mut verts = BRayVerts::default();
-    for (o, world) in scene.iter().zip(worlds(scene)) {
+    // Geometry key → (the mesh it went up as, the object that put it up).
+    let mut uploaded: HashMap<(usize, usize, usize), (u32, usize)> = HashMap::new();
+    for (k, (o, world)) in scene.iter().zip(worlds(scene)).enumerate() {
         // The object's own colour and its name's hash: Solid's Color ▸
         // Object and ▸ Random (`workbench::Material(Object &, random)`).
         let (name, color, shadow) = match o {
             BObject3D::Primitive { name, .. } => (name.as_str(), [1.0; 3], crate::phiphx::blend::BlendShadowCast::default()),
             BObject3D::Loaded { name, color, shadow, .. } => (name.as_str(), [color[0], color[1], color[2]], *shadow),
         };
-        let id = out.instance_of(world, color, phiray::trace::hash::ObjectHash::of(name));
+        let hash = phiray::trace::hash::ObjectHash::of(name);
+        let key = geometry_key(o);
+        // The same geometry as an object already up: one more placement of
+        // its mesh, nothing added to the arrays.
+        let shared = key.and_then(|key| uploaded.get(&key)).filter(|(_, first)| same_materials(&scene[*first], o)).map(|(mesh, _)| *mesh);
+        let id = match shared {
+            Some(mesh) => out.place(mesh, world, color, hash),
+            None => out.instance_of(world, color, hash),
+        };
         // Solid and Wireframe follow Viewport Display ▸ Shadow
         // (`OB_DRAW_NO_SHADOW_CAST`, `workbench_shadow.cc`); the ray-traced
         // modes Visibility ▸ Ray ▸ Shadow (`OB_HIDE_SHADOW`).
         if !shadow.casts_in(palette.shading.uses_viewport_color()) {
             out.hide_shadow(id);
+        }
+        if shared.is_some() {
+            continue;
+        }
+        if let Some(key) = key {
+            uploaded.insert(key, (out.mesh_of(id), k));
         }
         match o {
             BObject3D::Primitive { shape, .. } => {

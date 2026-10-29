@@ -115,7 +115,7 @@ async fn an_expanded_rail_entry_fills_the_rail(cx: &mut TestAppContext) {
 // ── Header cells ──────────────────────────────────────────────────────────
 
 #[gpui::test]
-async fn the_workspace_tabs_stay_put_when_the_space_changes(cx: &mut TestAppContext) {
+async fn the_top_bar_centre_stays_put_when_the_space_changes(cx: &mut TestAppContext) {
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1280.0), px(800.0)));
     let mut centres = Vec::new();
@@ -135,7 +135,7 @@ async fn the_workspace_tabs_stay_put_when_the_space_changes(cx: &mut TestAppCont
     for c in &centres {
         assert!(
             (c - centres[0]).abs() < 0.5,
-            "the workspace tabs must not move between spaces: {centres:?}"
+            "the top bar's centre (its search) must not move between spaces: {centres:?}"
         );
     }
 }

@@ -10,9 +10,11 @@
 //! it shows nothing, which is what Blender's status bar does with a figure
 //! it does not have.
 //!
-//! The counts come from `scene::stats_line`, the same function the
+//! The counts come from `scene::stats_pairs`, the same function the
 //! viewport's read-out draws, so the corner of the canvas and the foot of
-//! the window cannot disagree about how big the scene is.
+//! the window cannot disagree about how big the scene is. They are three
+//! read-outs, each its own `label: value`, not one line of text — and
+//! plain text, with no chip under them (`view/draw/pair.rs`).
 
 use phiber::part::statusbar::{BStatusSegment, BStatusbarItem};
 use phiber::part::statusbar::set::SEGMENTS;
@@ -23,11 +25,19 @@ fn spec(kind: BStatusSegment) -> &'static phiber::part::statusbar::BStatusSegmen
     SEGMENTS.iter().find(|s| s.kind == kind).expect("the segment")
 }
 
-fn text(kind: BStatusSegment, state: &BState) -> Option<String> {
-    match BStatusbarItem::new(*spec(kind)).build(state) {
-        BView::Label { text } => Some(text),
+/// A segment as it reads: a label's text, a pair's `label: value`, a row's
+/// read-outs with `|` between them; nothing when it shows nothing.
+fn read(view: &BView) -> Option<String> {
+    match view {
+        BView::Label { text } => Some(text.clone()),
+        BView::Pair { label, value } => Some(format!("{label}: {value}")),
+        BView::Row { list } => Some(list.iter().filter_map(read).collect::<Vec<_>>().join(" | ")),
         _ => None,
     }
+}
+
+fn text(kind: BStatusSegment, state: &BState) -> Option<String> {
+    read(&BStatusbarItem::new(*spec(kind)).build(state))
 }
 
 #[test]
@@ -53,10 +63,20 @@ fn the_stats_are_the_viewports_own_count() {
     // One function, two read-outs. A second copy here is how the corner of
     // the canvas and the foot of the window come to disagree.
     let state = BState::new();
-    let shown = text(BStatusSegment::Stats, &state).expect("the stats segment");
-    assert_eq!(shown, phiber::scene::stats_line(&state));
-    assert!(shown.starts_with("Objects: "), "Blender's wording: {shown}");
-    assert!(shown.contains("Verts: ") && shown.contains("Faces: "));
+    let BView::Row { list } = BStatusbarItem::new(*spec(BStatusSegment::Stats)).build(&state) else {
+        panic!("the stats are a row of read-outs");
+    };
+    let shown: Vec<(String, String)> = list
+        .iter()
+        .map(|view| match view {
+            BView::Pair { label, value } => (label.clone(), value.clone()),
+            other => panic!("each stat is a label and a value: {other:?}"),
+        })
+        .collect();
+    assert_eq!(shown, phiber::scene::stats_pairs(&state).to_vec());
+    let labels: Vec<&str> = shown.iter().map(|(label, _)| label.as_str()).collect();
+    assert_eq!(labels, ["Objects", "Verts", "Faces"], "Blender's wording");
+    assert_eq!(text(BStatusSegment::Stats, &state), Some(phiber::scene::stats_line(&state)));
 }
 
 #[test]
@@ -67,19 +87,13 @@ fn the_version_is_the_build() {
 }
 
 #[test]
-fn a_written_value_still_wins() {
-    // A render writes the stats line (`app::seed`); what it wrote is what
-    // shows, not the count derived here.
-    let mut state = BState::new();
-    state.set(&BPath::owned(vec!["stats"]), "Objects: 9 | Verts: 9 | Faces: 9");
-    assert_eq!(text(BStatusSegment::Stats, &state).as_deref(), Some("Objects: 9 | Verts: 9 | Faces: 9"));
-}
-
-#[test]
-fn an_empty_written_value_does_not_blank_a_segment_that_can_answer() {
-    // A key cleared to "" is not a value: falling through to the derived
-    // count beats printing an empty segment.
-    let mut state = BState::new();
-    state.set(&BPath::owned(vec!["stats"]), "");
-    assert_eq!(text(BStatusSegment::Stats, &state), Some(phiber::scene::stats_line(&state)));
+fn the_stats_are_counted_live_not_written() {
+    // A file's load writes its stats line (`app::seed`), but the bar counts
+    // what the view layer shows now — the same as the viewport's corner —
+    // so a written line, or an empty one, does not stand in for the count.
+    for written in ["Objects: 9 | Verts: 9 | Faces: 9", ""] {
+        let mut state = BState::new();
+        state.set(&BPath::owned(vec!["stats"]), written);
+        assert_eq!(text(BStatusSegment::Stats, &state), Some(phiber::scene::stats_line(&state)), "written {written:?}");
+    }
 }

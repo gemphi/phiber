@@ -57,6 +57,7 @@ impl OpKey {
         Self::ObjectParent,
         Self::EditorType,
         Self::PreviewRange,
+        Self::RigidBake,
     ];
 
     /// The last segment of this op's path.
@@ -116,6 +117,7 @@ impl OpKey {
             Self::ObjectParent => "object_parent",
             Self::EditorType => "editor_type",
             Self::PreviewRange => "preview_range",
+            Self::RigidBake => "rigid_bake",
         }
     }
 

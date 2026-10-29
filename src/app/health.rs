@@ -37,7 +37,7 @@ impl BHealth {
             out.push("Debug build: the interface runs several times slower than `cargo run --release -p phiber`".to_string());
         }
         out.push(format!(
-            "Session log: {} — every action with its time, every frame over {:.0} ms, the frame summaries and the tracer's timings; send it when the app feels slow",
+            "Session log: {} - every action with its time, every frame over {:.0} ms, the frame summaries and the tracer's timings; send it when the app feels slow",
             super::journal::BJournal::path().display(),
             super::trace::SLOW_MS
         ));
@@ -50,7 +50,7 @@ impl BHealth {
         let a = phiray::Gpu::in_use()?;
         let line = format!("Render device: {} ({}, {})", a.name, a.backend_label(), a.kind_label().to_lowercase());
         Some(if a.is_software() {
-            format!("{line} — a software adapter: no GPU phiray could use was found, so Rendered shading and F12 run on the CPU; check the driver and Preferences ▸ System ▸ Render Devices")
+            format!("{line} - a software adapter: no GPU phiray could use was found, so Rendered shading and F12 run on the CPU; check the driver and Preferences ▸ System ▸ Render Devices")
         } else {
             line
         })

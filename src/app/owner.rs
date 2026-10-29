@@ -16,7 +16,7 @@ impl BPhiberApp {
         if let Some(previous) = self.load_owner.replace(Arc::new(AtomicBool::new(false))) {
             previous.store(true, Ordering::Relaxed);
             let was = self.state.get(&crate::scene::selected_key()).unwrap_or("").to_string();
-            super::journal::BJournal::note(format!("Open: a read of {was} was under way and is cancelled — this one takes over"));
+            super::journal::BJournal::note(format!("Open: a read of {was} was under way and is cancelled - this one takes over"));
         }
         self.load_gen = self.load_gen.wrapping_add(1);
         (self.load_gen, self.load_owner.clone().expect("set just above"))

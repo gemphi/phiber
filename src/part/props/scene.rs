@@ -64,6 +64,9 @@ static RIGID_BODY_WORLD: &[BPropSpec] = &[
     i("rigidbody_world.solver_iterations", "Solver Iterations", 1, 1000).at(10),
     f("rigidbody_world.time_scale", "Speed", BUnit::None).about(1.0),
     b("rigidbody_world.use_split_impulse", "Split Impulse"),
+    // `SCENE_PT_rigid_body_cache`: what is baked, Bake and Delete Bake
+    // (`scene::sim::bake_row`).
+    p(crate::scene::sim::CACHE_ROW, "Cache", "PointCache"),
 ];
 
 pub static SECTIONS: &[BSectionSpec] = &[

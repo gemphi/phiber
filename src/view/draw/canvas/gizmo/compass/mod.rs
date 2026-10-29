@@ -1,15 +1,40 @@
 //! Axis compass gizmo that tracks viewport yaw and preserves snap actions.
+//!
+//! A click on a cap snaps the view to that axis; a drag on the ball orbits
+//! it, as Blender's navigation gizmo does (`VIEW3D_GGT_navigate`'s rotate) —
+//! the same turntable as a drag on the canvas (`scene::navigate::drag_sets`),
+//! so the view keeps turning for as long as the pointer moves.
 
 mod axis;
 
 use self::axis::BAxis;
 use super::super::super::color::to_hsla;
 use super::super::super::ctx::BRenderCtx;
+use crate::scene::navigate::{BDragNav, BNavBase, drag_sets};
 use crate::scene::{project3_full, view_pitch, view_yaw};
+use crate::view::prim::BAction;
 use gpui::prelude::*;
-use gpui::{AnyElement, SharedString, div, px};
+use gpui::{AnyElement, Context, IntoElement, Pixels, Point, Render, SharedString, Window, div, px};
+use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 
 pub struct BCompass;
+
+/// One drag on the ball: the view it started from and where, in the ball.
+#[derive(Clone, Copy)]
+struct BBallDrag {
+    base: BNavBase,
+    start: (f32, f32),
+}
+
+/// What gpui draws under the pointer while the ball is dragged: nothing.
+struct BBallGhost;
+
+impl Render for BBallGhost {
+    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+        div()
+    }
+}
 
 impl BCompass {
     pub fn render(&self, ctx: &BRenderCtx) -> AnyElement {
@@ -154,6 +179,24 @@ impl BCompass {
         for index in order {
             root = root.child(caps[index].render(ctx));
         }
-        root.into_any_element()
+        // About the selection under Orbit Around Selection, as the canvas's.
+        let base = BNavBase::now(ctx.state);
+        let drag = Arc::new(Mutex::new(BBallDrag { base, start: (0.0, 0.0) }));
+        let handler = ctx.handler.clone();
+        root.on_drag(drag, |state, position: Point<Pixels>, _window, cx| {
+            if let Ok(mut state) = state.lock() {
+                state.start = (f32::from(position.x), f32::from(position.y));
+            }
+            cx.new(|_| BBallGhost)
+        })
+        .on_drag_move::<Arc<Mutex<BBallDrag>>>(move |event, window, app| {
+            let Some(BBallDrag { base, start }) = event.drag(app).lock().ok().map(|d| *d) else { return };
+            let at = event.event.position - event.bounds.origin;
+            let total = (f32::from(at.x) - start.0, f32::from(at.y) - start.1);
+            for (key, value) in drag_sets(BDragNav::Orbit, base, total, crate::scene::camera::last_size().0) {
+                (Rc::clone(&handler))(&BAction::Set(key, value), window, app);
+            }
+        })
+        .into_any_element()
     }
 }

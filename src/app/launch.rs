@@ -133,9 +133,12 @@ fn boot(cx: &mut App, persist: Persist, file: Option<String>, play: bool) {
     // Closing the window asks about unsaved changes as File ▸ Quit does
     // (`op::close::may_close`).
     let _ = window.update(cx, |view, w, cx| {
-        let app = cx.entity();
+        // Weak: the callback lives as long as the window's platform state,
+        // and a strong handle kept the app entity alive past quit, which
+        // gpui's leak check turned into a panic on every close.
+        let app = cx.entity().downgrade();
         w.on_window_should_close(cx, move |window, cx| {
-            app.update(cx, |app, cx| app.may_close(window, cx))
+            app.update(cx, |app, cx| app.may_close(window, cx)).unwrap_or(true)
         });
         // A file on the command line is opened as Blender opens it — its
         // own UI, no splash — instead of resuming the last session.

@@ -182,7 +182,7 @@ fn dimension_card(state: &BState) -> BView {
         return BCard::panel("Dimension").preset(switch).fold(key, false).into();
     }
     let note = BView::split(vec![BView::label(
-        "The coat the whole window wears — flat, or the spatial virtual-world look.",
+        "The coat the whole window wears - flat, or the spatial virtual-world look.",
     )]);
     BCard::panel("Dimension").preset(switch).fold(key, true).body(vec![note]).into()
 }

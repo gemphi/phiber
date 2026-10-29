@@ -141,8 +141,9 @@ impl BViewItem for BStatusLog {
             // is a two-way control whichever way it is pointing.
             .with_icon(if open { "chevrons_down_up" } else { "chevrons_up_down" })
             .with_tooltip(if open { "Fold the log" } else { "Show every event" })
-            // Lit while the drawer is down, as the asset shelf's identical
-            // chevron fold already was (`on_state_budget`).
+            // On while the drawer is down (`on_state_budget`). The bar draws
+            // it as its glyph alone, with no tile to light (`draw::log`):
+            // the chevrons turning round are what show it.
             .with_active(open)
             .with_action(BAction::Toggle(AppKey::StatusLogOpen.path()));
         BView::log(open, toggle)

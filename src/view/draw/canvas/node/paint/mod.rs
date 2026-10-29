@@ -144,16 +144,9 @@ pub fn handles(p0: (f32, f32), p3: (f32, f32), curving: f32) -> ((f32, f32), (f3
     ((p0.0 + handle, p0.1), (p3.0 - handle, p3.1))
 }
 
-/// Paint every link, then every socket over them — a socket sits on a card's
-/// edge, so a link drawn after it would cross the dot it ends at.
-pub fn paint(
-    cards: &[BNodeCard],
-    links: &[((f32, f32), (f32, f32))],
-    ink: &BNodeInk,
-    at: Bounds<Pixels>,
-    window: &mut Window,
-    cx: &mut App,
-) {
+/// Paint every link. They go under the cards, as Blender draws them before
+/// its nodes (`node_draw_nodetree`); the sockets go over (`paint_sockets`).
+pub fn paint_links(links: &[((f32, f32), (f32, f32))], ink: &BNodeInk, at: Bounds<Pixels>, window: &mut Window) {
     let origin = |x: f32, y: f32| point(at.origin.x + px(x), at.origin.y + px(y));
     // A link being dragged is drawn by exactly the same two strokes as a real
     // one, because in Blender it IS one — `nldrag.links` are `bNodeLink`s and
@@ -174,6 +167,17 @@ pub fn paint(
             }
         }
     }
+}
+
+/// Paint every socket — its dot, its name, its value — over the cards.
+///
+/// The cards are divs with an opaque body, painted after the links' canvas;
+/// sockets painted on that canvas went under them, so every name and value
+/// inside a card was hidden by its fill and only an end running past the
+/// card's edge showed. Blender draws a node's sockets and labels as part of
+/// the node, over its body and border, so they are painted on a canvas laid
+/// over the cards (`canvas::sockets`).
+pub fn paint_sockets(cards: &[BNodeCard], ink: &BNodeInk, at: Bounds<Pixels>, window: &mut Window, cx: &mut App) {
     for card in cards {
         for row in &card.sockets {
             dot::paint_socket(card, row, ink, at, window, cx);

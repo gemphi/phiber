@@ -78,7 +78,8 @@ impl BPosed {
         let objects = match loaded {
             None => OBJECTS.iter().map(|o| BObject3D::Primitive { name: o.name.to_string(), shape: o.shape, x: o.x, y: o.y }).collect(),
             Some(model) => {
-                let posed = motion::posed(model, motion::shown_frame(s));
+                let frame = motion::shown_frame(s);
+                let posed = motion::posed(model, frame);
                 model
                     .objects
                     .iter()
@@ -88,7 +89,7 @@ impl BPosed {
                         mesh: self.meshes.get(&i).cloned().unwrap_or_else(|| o.mesh.clone()),
                         location: o.location,
                         scale: o.scale,
-                        matrix_world: posed.as_ref().and_then(|p| p.object(i)).unwrap_or(o.matrix_world),
+                        matrix_world: motion::moved(&o.name, frame).or_else(|| posed.as_ref().and_then(|p| p.object(i))).unwrap_or(o.matrix_world),
                         materials: o.materials.clone(),
                         material_indices: o.material_indices.clone(),
                         uvs: o.uvs.clone(),

@@ -30,7 +30,7 @@ fn render(samples: Option<u32>, draft: bool) -> BHeadlessRender {
 
 #[test]
 fn a_headless_render_takes_the_samples_the_command_line_takes() {
-    assert_eq!(render(None, false).sample_count(), 2048, "silent: the default");
+    assert_eq!(render(None, false).sample_count(), 4096, "silent: the default");
     assert_eq!(render(Some(64), false).sample_count(), 64, "asked: honoured");
     assert_eq!(render(Some(4096), false).sample_count(), 4096, "asked: honoured");
     assert_eq!(render(Some(64), true).sample_count(), 64, "--draft changes nothing");

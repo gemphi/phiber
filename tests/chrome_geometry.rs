@@ -58,18 +58,19 @@ async fn the_rails_are_as_wide_as_a_strip_is_tall(cx: &mut TestAppContext) {
 }
 
 #[gpui::test]
-async fn a_tab_hangs_from_its_strip_with_one_gap_above(cx: &mut TestAppContext) {
+async fn the_top_bar_search_sits_in_its_strip_as_a_control(cx: &mut TestAppContext) {
     let cx = workspace(cx, BSpaceType::Layout).await;
-    // The workspace tabs live in the topbar's strips.
+    // The top bar names the space as crumbs in its search (`Spaces › Layout`,
+    // `part::search`); there is no row of workspace tabs to measure any more.
     let strip = bounds(cx, &["region-Header-Topbar", "region-ToolHeader-Topbar"], "the topbar strip");
-    let tab = bounds(cx, &["tab-entity-Layout"], "the Layout tab");
-    // A tab is a control like every other in its strip: the control height,
-    // centred on the strip's line, clear of its top and bottom alike.
+    let search = bounds(cx, &["search-crumbs"], "the top bar's search");
+    // A control like every other in its strip: the control height, centred
+    // on the strip's line, clear of its top and bottom alike.
     let clear = phiber::theme::style::metric::CONTROL_CLEAR;
-    assert_eq!(f32::from(tab.size.height), METRICS.h_header - 2.0 * clear, "a tab is a control's height");
+    assert_eq!(f32::from(search.size.height), METRICS.h_header - 2.0 * clear, "the search is a control's height");
     let band_mid = f32::from(strip.origin.y) + METRICS.h_header / 2.0;
-    let tab_mid = f32::from(tab.origin.y) + f32::from(tab.size.height) / 2.0;
-    assert!((tab_mid - band_mid).abs() < 0.51, "and centred in its strip: {tab_mid} vs {band_mid}");
+    let mid = f32::from(search.origin.y) + f32::from(search.size.height) / 2.0;
+    assert!((mid - band_mid).abs() < 0.51, "and centred in its strip: {mid} vs {band_mid}");
 }
 
 #[gpui::test]

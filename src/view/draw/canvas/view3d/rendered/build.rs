@@ -15,13 +15,15 @@ use web_time::Instant;
 pub(super) fn built(gpu: &Gpu, key: u64, objects: &[BObject3D], palette: &BMeshPalette, refused: &Mutex<Vec<u64>>) -> Option<Tracer> {
     let at = Instant::now();
     let scene = scene::build(objects, palette);
-    let (faces, atlas_mb, built_ms) = (scene.len(), scene.atlas.bytes() as f64 / 1e6, at.elapsed().as_secs_f64() * 1000.0);
+    let (faces, meshes, insts) = (scene.len(), scene.meshes.len(), scene.insts.len());
+    let (atlas_mb, built_ms) = (scene.atlas.bytes() as f64 / 1e6, at.elapsed().as_secs_f64() * 1000.0);
     let tracer = Tracer::from_scene(gpu, scene);
+    let device_mb = tracer.as_ref().map_or(0.0, |t| t.bytes() as f64 / 1e6);
     crate::app::journal::BJournal::note(format!(
-        "Tracer: scene built — {faces} triangles, {atlas_mb:.0} MB of images: triangles {built_ms:.0}ms, tree and upload {:.0}ms{}",
+        "Tracer: scene built - {faces} triangles over {meshes} meshes under {insts} instances, {atlas_mb:.0} MB of images, {device_mb:.0} MB on the device: triangles {built_ms:.0}ms, tree and upload {:.0}ms{}",
         at.elapsed().as_secs_f64() * 1000.0 - built_ms,
         match &tracer {
-            None => " — refused: more than the device holds",
+            None => " - refused: more than the device holds",
             Some(t) if t.raster() => "; Solid and Wireframe rasterize their primary hits",
             Some(_) => "; Solid and Wireframe trace their primary hits (software adapter)",
         }
