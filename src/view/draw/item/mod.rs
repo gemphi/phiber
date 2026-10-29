@@ -5,6 +5,7 @@
 //! frame — never a renderer of its own.
 
 mod frame;
+mod property;
 
 pub use frame::BItemFrame;
 
@@ -25,6 +26,24 @@ pub fn view(item: &BItem, ctx: &BRenderCtx) -> AnyElement {
 
 /// One row in `frame`.
 pub fn view_in(item: &BItem, frame: BItemFrame, ctx: &BRenderCtx) -> AnyElement {
+    match frame {
+        BItemFrame::Property => property::view(item, ctx),
+        BItemFrame::Popup | BItemFrame::Source => list(item, frame, ctx),
+    }
+}
+
+/// A read-out (`BView::Pair`): in the status bar a line of words after
+/// one another (`pair::pair`); in a side column the property frame, the
+/// label left and the value right.
+pub fn pair(label: &str, value: &str, ctx: &BRenderCtx) -> AnyElement {
+    match ctx.host == crate::host::BHostType::Statusbar {
+        true => super::pair::pair(label, value, ctx),
+        false => property::view(&BItem::read(format!("section-{label}"), label, BItemValue::Text(value.to_string())), ctx),
+    }
+}
+
+/// A list's row, in a popup or a source list.
+fn list(item: &BItem, frame: BItemFrame, ctx: &BRenderCtx) -> AnyElement {
     let mut row = BItemPart::Row(frame).flex(ctx).div(ctx);
     // Every row reserves its lead's slot, drawn or not, so a list's labels
     // share one left edge; a list with no lead anywhere keeps none

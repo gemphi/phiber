@@ -13,14 +13,14 @@ mod picker;
 mod swatch;
 
 use self::swatch::BCtrlSwatch;
-use super::flex::{BAlign, BDim, BEdge, BFill, BFlex, BFlexed, BJustify, BLen, BRadius, BSpace, BType};
+use super::flex::{BAlign, BDim, BEdge, BFill, BFlex, BFlexed, BJustify, BLen, BRadius, BSpace};
 use super::ctx::BRenderCtx;
 use super::{walk, button, search, track};
 use super::track::BTrack;
 use crate::state::val::BValue;
 use crate::theme::BStyleRole;
 use crate::view::BView;
-use crate::view::prim::{BAction, BControl, BCtrl, BCtrlKind, BMark, BPopoverSide};
+use crate::view::prim::{BAction, BControl, BCtrl, BCtrlKind, BItem, BItemValue, BLead, BMark, BPopoverSide};
 use gpui::prelude::*;
 use gpui::AnyElement;
 
@@ -30,20 +30,14 @@ enum BCtrlPart {
     /// A colour's swatch, filled with the value — in whichever spelling the
     /// control carries it (`BCtrlSwatch`).
     Swatch(BCtrlSwatch),
-    /// A switch's row: the label, then the track at the end.
-    SwitchRow,
-    /// The switch's label, taking the slack so the track sits at the end.
-    SwitchLabel,
     /// The pill track, `true` while on: accent-filled with the knob at the
     /// end, else the card tone with the knob at the start.
     Track(bool),
     /// The knob: a white disc with a hairline, so it reads on either fill.
     Knob,
-    /// A checkbox's row: the mark, then its label, a control's height, on
-    /// its own centre line. `labelled`: a row of its own (a popover's, a
-    /// panel's), which takes every row's inset; a mark alone sits in a
-    /// property row's value column, which has already taken it.
-    CheckRow { labelled: bool },
+    /// A checkbox alone in a property row's value column: the mark on the
+    /// row's centre line, a control's height.
+    CheckBox,
 }
 
 /// The switch's track and knob, in pixels — `UISwitch`'s proportions at the
@@ -61,22 +55,7 @@ impl BFlexed for BCtrlPart {
     fn flex(&self, _c: &BRenderCtx) -> BFlex {
         match self {
             Self::Row => BFlex::row().align(BAlign::Center).gap(BSpace::GapXs).min_width(BLen::Zero),
-            Self::SwitchRow => BFlex::row()
-                .width(BLen::Full)
-                .height(BLen::Dim(super::flex::BDim::ButtonHeight))
-                .keeps_size()
-                .align(BAlign::Center)
-                .gap(BSpace::GapSm)
-                .pad_x(BSpace::RowInset)
-                .min_width(BLen::Zero),
-            Self::SwitchLabel => BFlex::row().fills().min_width(BLen::Zero).ink().type_size(BType::Body),
-            Self::CheckRow { labelled } => {
-                let row = BFlex::row().align(BAlign::Center).self_align(super::flex::BSelf::Center).gap(BSpace::GapSm).height(BLen::Dim(BDim::ButtonHeight));
-                match labelled {
-                    true => row.width(BLen::Full).pad_x(BSpace::RowInset),
-                    false => row,
-                }
-            }
+            Self::CheckBox => BFlex::row().align(BAlign::Center).self_align(super::flex::BSelf::Center).height(BLen::Dim(BDim::ButtonHeight)),
             Self::Track(on) => BFlex::row()
                 .width(BLen::Measured(SWITCH_TRACK.0))
                 .height(BLen::Measured(SWITCH_TRACK.1))
@@ -140,55 +119,44 @@ impl BCtrlView<'_> {
     /// state, no glyph — for `BCtrlKind::Toggle`, which no caller ever
     /// produced. The glyphs are glyphs again now that the fallback has gone
     /// with that variant.
-    /// A checkbox: the one mark (`mark.rs`), on its tile, the accent when
-    /// ticked, then its label.
+    /// A checkbox: the one row (`item`) leading with the checkbox mark, its
+    /// label after it, the whole row flipping the box. A box with no label
+    /// stands alone in a property row's value column, the mark and nothing
+    /// else.
     fn flag(&self, ctx: &BRenderCtx) -> AnyElement {
         let ctrl = self.0;
         let on = matches!(ctrl.value, BValue::Bool(true));
-        let mut row = BCtrlPart::CheckRow { labelled: ctrl.label.is_some() }
-            .flex(ctx)
-            .div(ctx)
-            .child(super::mark::view(BMark::Check(on), ctx));
-        if let Some(label) = &ctrl.label {
-            row = row.child(BCtrlPart::SwitchLabel.flex(ctx).div(ctx).child(gpui::SharedString::from(label.clone())));
-        }
-        let id = gpui::SharedString::from(format!("check-{}", ctrl.key.encode()));
-        let (handler, action) = (ctx.handler.clone(), ctrl.flip());
-        row.id(id.clone())
-            .debug_selector(move || id.to_string())
-            .cursor_pointer()
-            .on_click(move |_e: &gpui::ClickEvent, w: &mut gpui::Window, cx: &mut gpui::App| {
-                (std::rc::Rc::clone(&handler))(&action, w, cx);
-            })
-            .into_any_element()
+        let id = format!("check-{}", ctrl.key.encode());
+        let Some(label) = &ctrl.label else {
+            let (handler, action, id) = (ctx.handler.clone(), ctrl.flip(), gpui::SharedString::from(id));
+            return BCtrlPart::CheckBox
+                .flex(ctx)
+                .div(ctx)
+                .id(id.clone())
+                .debug_selector(move || id.to_string())
+                .cursor_pointer()
+                .on_click(move |_e: &gpui::ClickEvent, w: &mut gpui::Window, cx: &mut gpui::App| (std::rc::Rc::clone(&handler))(&action, w, cx))
+                .child(super::mark::view(BMark::Check(on), ctx))
+                .into_any_element();
+        };
+        let item = BItem::read(id, label.clone(), BItemValue::None).led(BLead::Mark(BMark::Check(on))).acting(ctrl.flip());
+        super::item::view_in(&item, super::item::BItemFrame::Property, ctx)
     }
 
-    /// A switch (`UISwitch`): the label fills the row and the pill track sits
-    /// at its end; the knob is justified to the end it is on, so no offset
-    /// is computed — on, the track takes the accent, off, the card tone.
-    /// Full-width by construction, which the box-button it replaces, hugging
-    /// its text, never was: a column of these lines up.
+    /// A switch (`UISwitch`): the one row, its label taking the slack and the
+    /// track at its end (`switch_track`), the whole row flipping it, so a
+    /// column of these lines up.
     fn switch(&self, ctx: &BRenderCtx) -> AnyElement {
         let ctrl = self.0;
         let on = matches!(ctrl.value, BValue::Bool(true));
-        let label = ctrl.label.clone().unwrap_or_default();
-        let knob = BCtrlPart::Knob.flex(ctx).div(ctx);
-        let track = BCtrlPart::Track(on).flex(ctx).div(ctx).child(knob);
-        let row = BCtrlPart::SwitchRow
-            .flex(ctx)
-            .div(ctx)
-            .child(BCtrlPart::SwitchLabel.flex(ctx).div(ctx).child(gpui::SharedString::from(label)))
-            .child(track);
-        let id = gpui::SharedString::from(format!("switch-{}", ctrl.key.encode()));
-        let (handler, action) = (ctx.handler.clone(), ctrl.flip());
-        row.id(id.clone())
-            .debug_selector(move || id.to_string())
-            .cursor_pointer()
-            .on_click(move |_e: &gpui::ClickEvent, w: &mut gpui::Window, cx: &mut gpui::App| {
-                (std::rc::Rc::clone(&handler))(&action, w, cx);
-            })
-            .into_any_element()
+        let item = BItem::read(format!("switch-{}", ctrl.key.encode()), ctrl.label.clone().unwrap_or_default(), BItemValue::Switch(on)).acting(ctrl.flip());
+        super::item::view_in(&item, super::item::BItemFrame::Property, ctx)
     }
+}
+
+/// A switch's track, on or off: the pill with its knob at the end it is on.
+pub fn switch_track(on: bool, ctx: &BRenderCtx) -> AnyElement {
+    BCtrlPart::Track(on).flex(ctx).div(ctx).child(BCtrlPart::Knob.flex(ctx).div(ctx)).into_any_element()
 }
 
 

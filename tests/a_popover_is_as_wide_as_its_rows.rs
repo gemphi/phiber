@@ -111,8 +111,9 @@ async fn a_panel_in_a_region_still_gives_its_width_up(cx: &mut TestAppContext) {
 fn the_shrink_rule_is_scoped_to_where_a_width_exists() {
     let split = include_str!("../src/view/draw/split.rs");
     assert!(split.contains("const VALUE_SHARE: f32 = 0.6;"), "Blender's split, named");
-    assert!(split.contains("BLen::Share(if value { VALUE_SHARE } else { 1.0 - VALUE_SHARE })"), "and applied to both columns");
-    assert!(!split.contains("BFlex::row().fills().min_width(BLen::Zero)"), "the equal halves are gone");
+    // The split is the one row's property frame (`item/property.rs`).
+    let row = include_str!("../src/view/draw/item/property.rs");
+    assert!(row.contains("BLen::Share(1.0 - VALUE_SHARE)") && row.contains("BLen::Share(VALUE_SHARE)"), "and applied to both columns");
 }
 
 /// Every boolean control in the popover is one width — its column's —

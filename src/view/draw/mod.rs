@@ -112,7 +112,7 @@ pub(crate) fn walk(v: &BView, ctx: &BRenderCtx) -> AnyElement {
         BView::Shared(view) => walk(view, ctx),
         BView::Split { list } => split::BSplit(list).render(ctx),
         BView::Label { text } => atom::label(text, ctx),
-        BView::Pair { label, value } => pair::pair(label, value, ctx),
+        BView::Pair { label, value } => item::pair(label, value, ctx),
         BView::Prose { role, text } => prose::view(*role, text, ctx),
         BView::VLabel { text } => vlabel::view(text, ctx),
         BView::Field { text } => field::view(text, ctx),

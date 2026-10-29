@@ -23,14 +23,21 @@ pub enum BLead {
 }
 
 /// What the row says after its label.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 pub enum BItemValue {
     None,
     /// A key binding, quieter than the label, at the row's end.
     Shortcut(String),
+    /// A read-out's value: in a side column, on the property split, the
+    /// label left and the value right; in the status bar, after it.
+    Text(String),
+    /// A property's control or controls, in the split's value column.
+    Views(Vec<crate::view::BView>),
+    /// A switch at the row's end, on or off (`UISwitch`).
+    Switch(bool),
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct BItem {
     /// The row's id, for clicks and for tests: `menu-<label>` for a menu's,
     /// the button's own for a list's.
@@ -48,6 +55,23 @@ pub struct BItem {
 }
 
 impl BItem {
+    /// A row that only says `label`, with `value` after it.
+    pub fn read(id: String, label: impl Into<String>, value: BItemValue) -> Self {
+        Self { id, lead: BLead::None, label: label.into(), value, submenu: false, active: false, muted: false, action: None, hover: None }
+    }
+
+    /// This row leading with `lead`.
+    pub fn led(mut self, lead: BLead) -> Self {
+        self.lead = lead;
+        self
+    }
+
+    /// This row doing `action` when clicked.
+    pub fn acting(mut self, action: BAction) -> Self {
+        self.action = Some(action);
+        self
+    }
+
     /// A control as a row: its glyph, mark or swatch, its label, its
     /// shortcut, and its id.
     pub fn of(ctl: &BControl, id: String) -> Self {

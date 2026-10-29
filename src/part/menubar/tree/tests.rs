@@ -34,7 +34,7 @@ fn a_shared_table_s_sidebar_is_checked_against_the_showing_editor() {
     let mut s = BState::new();
     s.set(&BSidebarShown(BHostType::Uv).key(), V_TRUE);
     let checked = |host: BHostType| match item_view(host.slug(), &["View"], it, &s) {
-        BView::MenuItem(ctl) => ctl.icon.as_deref() == Some("check"),
+        BView::MenuItem(ctl) => ctl.mark == Some(crate::view::prim::BMark::Check(true)),
         other => panic!("a menu row, got {other:?}"),
     };
     assert!(checked(BHostType::Uv), "the UV editor's row shows its open sidebar");
