@@ -12,7 +12,7 @@ use super::flex::{BAlign, BDim, BFill, BFlex, BFlexed, BJustify, BLen, BOverflow
 use super::walk;
 use crate::theme::BStyleRole;
 use crate::view::BView;
-use crate::view::prim::{BAction, BRowShade};
+use crate::view::prim::{BAction, BItem, BItemTree, BItemValue, BLead, BRowShade};
 use gpui::prelude::*;
 use gpui::AnyElement;
 
@@ -44,6 +44,10 @@ pub(super) enum BTreePart {
     /// icon column line up down the whole tree by construction rather than
     /// by two places agreeing on a number.
     IconSlot,
+    /// The glyph's tile inside its slot: the faint shade every icon stands
+    /// on, one indent unit square, so the arrow and icon columns still line
+    /// up.
+    GlyphTile,
     /// The name and whatever the row lists after it: takes the slack, clips.
     Main,
     /// The controls at the row's end (the restriction toggles).
@@ -114,6 +118,14 @@ impl BFlexed for BTreePart {
                 .keeps_size()
                 .align(BAlign::Center)
                 .justify(BJustify::Center),
+            Self::GlyphTile => BFlex::row()
+                .width(BLen::Measured(unit))
+                .height(BLen::Measured(unit))
+                .keeps_size()
+                .align(BAlign::Center)
+                .justify(BJustify::Center)
+                .radius(BRadius::Role(BStyleRole::Button))
+                .fill(BFill::IconTileRest),
             Self::Main => BFlex::row()
                 .fills()
                 .min_width(BLen::Zero)
@@ -157,62 +169,87 @@ impl BTreeIndent {
 }
 
 impl BTreeRow<'_> {
+    /// The row as the one row (`item`) in its tree frame: the name's action
+    /// lifted to the row (Blender selects an outliner item by clicking
+    /// anywhere on its row, and a labelled button as the name cell gave the
+    /// name its own hover inside the row's), the rest of its cells after the
+    /// name, its toggles at its end.
     pub fn render(&self, ctx: &BRenderCtx) -> AnyElement {
-        let selected = matches!(self.shade, BRowShade::Selected | BRowShade::Active);
-        let mut element = BTreePart::Row { shade: self.shade, selected }.flex(ctx).div(ctx);
-        element = element.child(BTreeIndent { depth: self.depth, shade: self.shade }.render(ctx));
-        element = element.child(
-            BTreeDisclosure {
-                expanded: self.expanded,
-                toggle: self.toggle,
-            }
-            .render(ctx),
-        );
-        for child in self.lead {
-            element = element.child(walk(child, ctx));
-        }
-        element = element
-            .child(BTreePart::IconSlot.flex(ctx).div(ctx).child(atom::icon(self.icon, ctx)));
-
-        // The row is the control. Blender selects an outliner item by clicking
-        // anywhere on its row and lights the whole row on hover; a labelled
-        // button as the name cell gave the name its own hover fill inside the
-        // row's, so only the text looked hovered. The name's action lifts to
-        // the row and the name draws as plain text.
-        let (select, cell_list) = match self.list.split_first() {
-            Some((BView::Button(ctl), rest)) if ctl.icon.is_none() && ctl.action.is_some() => {
-                (ctl.action.clone(), std::iter::once(BView::label(ctl.label.clone().unwrap_or_default())).chain(rest.iter().cloned()).collect::<Vec<_>>())
-            }
-            _ => (None, self.list.to_vec()),
+        let (select, label, rest) = match self.list.split_first() {
+            Some((BView::Button(ctl), rest)) if ctl.icon.is_none() && ctl.action.is_some() => (ctl.action.clone(), ctl.label.clone().unwrap_or_default(), rest.to_vec()),
+            _ => (None, String::new(), self.list.to_vec()),
         };
-        let mut main = BTreePart::Main.flex(ctx).div(ctx);
-        for child in &cell_list {
-            main = main.child(walk(child, ctx));
-        }
-        element = element.child(main);
-
-        if !self.trail.is_empty() {
-            let mut trail = BTreePart::Trail.flex(ctx).div(ctx);
-            for child in self.trail {
-                trail = trail.child(walk(child, ctx));
-            }
-            element = element.child(trail);
-        }
         let id = match (&select, self.drag) {
             (_, Some(drag)) => format!("outliner-row-{}", drag.payload),
             (Some(action), None) => super::button::element_id("tree-row", None, action),
-            (None, None) => return element.into_any_element(),
+            (None, None) => String::new(),
         };
-        let mut element = element.id(gpui::SharedString::from(id));
-        if let Some(action) = select {
-            let handler = ctx.handler.clone();
-            element = element.cursor_pointer().on_click(move |_event, window, app| {
-                (std::rc::Rc::clone(&handler))(&action, window, app);
-            });
+        let tree = BItemTree {
+            depth: self.depth,
+            expanded: self.expanded,
+            toggle: self.toggle.cloned(),
+            leads: self.lead.to_vec(),
+            shade: self.shade,
+            drag: self.drag.cloned(),
+        };
+        let item = BItem {
+            lead: BLead::Glyph(self.icon.to_string()),
+            action: select,
+            trail: self.trail.to_vec(),
+            tree: Some(tree),
+            ..BItem::read(id, label, BItemValue::Views(rest))
+        };
+        super::item::view_in(&item, super::item::BItemFrame::Tree, ctx)
+    }
+}
+
+/// A row in the tree frame (`item::BItemFrame::Tree`): its depth's guides,
+/// its fold, what leads it (a collection's checkbox), its glyph in the
+/// indent-unit slot (so a child's arrow stands under its parent's icon), its
+/// name and cells, its toggles; its band at rest and its drag.
+pub(in crate::view::draw) fn frame(item: &BItem, tree: &BItemTree, ctx: &BRenderCtx) -> AnyElement {
+    let selected = matches!(tree.shade, BRowShade::Selected | BRowShade::Active);
+    let mut element = BTreePart::Row { shade: tree.shade, selected }.flex(ctx).div(ctx);
+    element = element.child(BTreeIndent { depth: tree.depth, shade: tree.shade }.render(ctx));
+    element = element.child(BTreeDisclosure { expanded: tree.expanded, toggle: tree.toggle.as_ref() }.render(ctx));
+    for child in &tree.leads {
+        element = element.child(walk(child, ctx));
+    }
+    let icon = match &item.lead {
+        BLead::Glyph(icon) => icon.as_str(),
+        _ => "",
+    };
+    let glyph = match icon.is_empty() {
+        true => BTreePart::IconSlot.flex(ctx).div(ctx),
+        false => BTreePart::IconSlot.flex(ctx).div(ctx).child(BTreePart::GlyphTile.flex(ctx).div(ctx).child(atom::icon(icon, ctx))),
+    };
+    element = element.child(glyph);
+    let mut main = BTreePart::Main.flex(ctx).div(ctx);
+    if !item.label.is_empty() {
+        main = main.child(walk(&BView::label(item.label.clone()), ctx));
+    }
+    if let BItemValue::Views(cells) = &item.value {
+        for child in cells {
+            main = main.child(walk(child, ctx));
         }
-        match self.drag {
-            Some(drag) => self::drag::BRowDrag::wire(element, drag, self.icon, ctx).into_any_element(),
-            None => element.into_any_element(),
-        }
+    }
+    element = element.child(main);
+    if !item.trail.is_empty() {
+        let trail = item.trail.iter().fold(BTreePart::Trail.flex(ctx).div(ctx), |trail, child| trail.child(walk(child, ctx)));
+        element = element.child(trail);
+    }
+    if item.id.is_empty() {
+        return element.into_any_element();
+    }
+    let mut element = element.id(gpui::SharedString::from(item.id.clone()));
+    if let Some(action) = item.action.clone() {
+        let handler = ctx.handler.clone();
+        element = element.cursor_pointer().on_click(move |_event, window, app| {
+            (std::rc::Rc::clone(&handler))(&action, window, app);
+        });
+    }
+    match &tree.drag {
+        Some(drag) => self::drag::BRowDrag::wire(element, drag, icon, ctx).into_any_element(),
+        None => element.into_any_element(),
     }
 }

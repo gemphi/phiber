@@ -37,6 +37,20 @@ pub enum BItemValue {
     Switch(bool),
 }
 
+/// What a tree's row has that no other row does: its depth (the run of
+/// indent guides before it), its fold, what stands between the fold and the
+/// glyph (a collection's checkbox), its band, and its drag.
+#[derive(Clone, Debug)]
+pub struct BItemTree {
+    pub depth: u16,
+    /// `Some(true)` open, `Some(false)` shut, `None` a leaf.
+    pub expanded: Option<bool>,
+    pub toggle: Option<BAction>,
+    pub leads: Vec<crate::view::BView>,
+    pub shade: super::BRowShade,
+    pub drag: Option<super::BTreeDrag>,
+}
+
 #[derive(Clone, Debug)]
 pub struct BItem {
     /// The row's id, for clicks and for tests: `menu-<label>` for a menu's,
@@ -52,12 +66,16 @@ pub struct BItem {
     pub action: Option<BAction>,
     /// Fired when the pointer enters (a submenu opens on hover).
     pub hover: Option<BAction>,
+    /// What stands at the row's end (a tree's restriction toggles).
+    pub trail: Vec<crate::view::BView>,
+    /// The row is a tree's: its depth, fold, band and drag.
+    pub tree: Option<BItemTree>,
 }
 
 impl BItem {
     /// A row that only says `label`, with `value` after it.
     pub fn read(id: String, label: impl Into<String>, value: BItemValue) -> Self {
-        Self { id, lead: BLead::None, label: label.into(), value, submenu: false, active: false, muted: false, action: None, hover: None }
+        Self { id, lead: BLead::None, label: label.into(), value, submenu: false, active: false, muted: false, action: None, hover: None, trail: Vec::new(), tree: None }
     }
 
     /// This row leading with `lead`.
@@ -95,6 +113,8 @@ impl BItem {
             muted: ctl.muted,
             action: ctl.action.clone(),
             hover: ctl.hover.clone(),
+            trail: Vec::new(),
+            tree: None,
         }
     }
 }

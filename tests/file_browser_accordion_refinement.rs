@@ -294,7 +294,10 @@ fn properties_keep_transparent_rows_outer_border_and_bounded_scroll_owner() {
     // The property-split row (`split.rs`) is transparent in every host, not
     // just Properties: a label/value row is text and a control on whatever
     // it sits on, with no section tone boxed behind its label.
-    let section = source("src/view/draw/split.rs");
+    // The split is the one row's property frame (`item/property.rs`).
+    let section = source("src/view/draw/item/property.rs").replace("
+", "
+");
     assert!(section.contains("    Row,\n"), "the row part carries no tone");
     assert!(!section.contains("BSurfaceTone::Section"), "no section tone behind a row");
 

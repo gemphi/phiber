@@ -13,7 +13,7 @@ use super::color::{resolved_gradient, to_hsla};
 use super::ctx::BRenderCtx;
 use super::chrome;
 use super::atom::icon_path;
-use super::flex::{BFlex, BFlexed, BLen, BOverflow};
+use super::flex::{BAlign, BDim, BFill, BFlex, BFlexed, BJustify, BLen, BOverflow, BRadius};
 
 pub mod cap;
 mod shape;
@@ -86,11 +86,17 @@ fn cap_view(ctl: &BControl, side: BCapSide, ctx: &BRenderCtx) -> AnyElement {
         // paint stops at the rounded corners instead of over-painting them.
         row = side.round(row, r);
     }
+    // Every icon stands on the one faint tile (`chrome::tile_rest`): an
+    // icon-only entry at rest IS that tile; a labelled tab's icon stands on
+    // its own before the word.
+    if shape.icon_only() && !active {
+        row = side.round(chrome::tile_rest(row, true, ctx), r);
+    }
 
     if !ic.is_empty() {
         let icon_id_text = format!("tab-icon-{}-{}", ic, lbl.unwrap_or(ic));
         row = row.child(
-            BCapPart::Icon
+            BCapPart::Icon { tile: !shape.icon_only() }
                 .flex(ctx)
                 .div(ctx)
                 .id(SharedString::from(icon_id_text.clone()))
@@ -160,16 +166,29 @@ fn cap_view(ctl: &BControl, side: BCapSide, ctx: &BRenderCtx) -> AnyElement {
 /// level states its parts (`BCardPart`, `BModalPart`, `BTablePart`). Which
 /// *kind* of cap this is, is `BCapShape` (`tab/shape.rs`).
 enum BCapPart {
-    /// The icon cell: one icon size, never shrinking.
-    Icon,
+    /// The icon cell: one icon size, never shrinking; in a labelled tab, a
+    /// row's glyph tile on the faint shade (`BDim::GlyphTile`), as every
+    /// icon stands.
+    Icon { tile: bool },
 }
 
 impl BFlexed for BCapPart {
     fn flex(&self, ctx: &BRenderCtx) -> BFlex {
         match self {
-            Self::Icon => {
+            Self::Icon { tile: false } => {
                 let size = BLen::Measured(ctx.style.dimensions.icon_size);
                 BFlex::row().width(size).height(size).keeps_size()
+            }
+            Self::Icon { tile: true } => {
+                let size = BLen::Dim(BDim::GlyphTile);
+                BFlex::row()
+                    .width(size)
+                    .height(size)
+                    .keeps_size()
+                    .align(BAlign::Center)
+                    .justify(BJustify::Center)
+                    .radius(BRadius::Role(BStyleRole::Button))
+                    .fill(BFill::IconTileRest)
             }
         }
     }

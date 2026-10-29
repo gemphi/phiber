@@ -27,7 +27,7 @@ pub mod tree;
 pub use action::{BAction, BZoneToggle};
 pub use card::{BCard, BCardHead, BCardKind, BColumn, BFold, BStrip, with_peers};
 pub use control::{BControl, BMark};
-pub use item::{BItem, BItemValue, BLead};
+pub use item::{BItem, BItemTree, BItemValue, BLead};
 pub use ctrl::{BCtrl, BCtrlKind, BOption};
 pub use menu::{BPick, BPopoverSide};
 pub use prose::BProse;

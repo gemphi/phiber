@@ -14,6 +14,8 @@ pub enum BItemFrame {
     Source,
     /// A property row: its label and its value or control on the split.
     Property,
+    /// A tree's row: its depth's guides, its fold, its band, its drag.
+    Tree,
 }
 
 impl BItemFrame {
@@ -32,7 +34,7 @@ impl BItemFrame {
     /// rows, the module for a property's.
     pub fn height(self) -> BDim {
         match self {
-            Self::Popup | Self::Source => BDim::CompactRow,
+            Self::Popup | Self::Source | Self::Tree => BDim::CompactRow,
             Self::Property => BDim::CardHead,
         }
     }

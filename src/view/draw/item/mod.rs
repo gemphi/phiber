@@ -28,6 +28,10 @@ pub fn view(item: &BItem, ctx: &BRenderCtx) -> AnyElement {
 pub fn view_in(item: &BItem, frame: BItemFrame, ctx: &BRenderCtx) -> AnyElement {
     match frame {
         BItemFrame::Property => property::view(item, ctx),
+        BItemFrame::Tree => match &item.tree {
+            Some(tree) => super::tree::frame(item, tree, ctx),
+            None => list(item, BItemFrame::Source, ctx),
+        },
         BItemFrame::Popup | BItemFrame::Source => list(item, frame, ctx),
     }
 }
