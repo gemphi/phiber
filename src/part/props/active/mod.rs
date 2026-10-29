@@ -1,7 +1,8 @@
 //! The active object's own values in the Properties editor — Blender's
-//! `context.object` behind the Object and Material tabs. Structure: the
-//! rule that follows the active object, and the entry the loader calls.
-//! What is written, and from which field, is `set.rs`.
+//! `context.object` behind the Object, Material and Physics tabs.
+//! Structure: the rule that follows the active object, and the entry the
+//! loader calls. What is written, and from which field, is `set.rs` for
+//! the Object and Material tabs and `props::physics` for the Physics tab.
 
 pub mod set;
 
@@ -50,6 +51,11 @@ pub fn seed(state: &mut BState, model: &SceneModel, name: &str) {
         (None, true) => set::seed_material(state, &crate::phiphx::scene::SceneMaterial::neutral()),
         (None, false) => {}
     }
+    // The Physics tab: the object's rigid body, constraint, collision,
+    // cloth, soft body and force field as the file has them - an empty's
+    // joint or field as much as a mesh's body - and the RNA defaults for a
+    // kind it does not carry.
+    super::physics::seed(state, &model.physics, name);
     // What the panel switched for it this session, over what the file says.
     if let Some(shadow) = crate::scene::shadow::BObjectShadowList::now(state).get(name) {
         set::seed_shadow(state, shadow);

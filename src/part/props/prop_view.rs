@@ -55,16 +55,34 @@ fn default_of(spec: &BPropSpec, kind: BPropKind) -> Option<BValue> {
     })
 }
 
-/// One control over `key`, read from the state.
-fn control(spec: &BPropSpec, key: BPath, s: &BState) -> BCtrl {
+/// The components a vector property is drawn as, one control each; none
+/// for a scalar.
+fn axes(kind: BPropKind) -> &'static [&'static str] {
+    match kind {
+        BPropKind::Vec3 { .. } => &["x", "y", "z"],
+        BPropKind::Vec4 { .. } => &["r", "g", "b", "a"],
+        _ => &[],
+    }
+}
+
+/// What a control shows while the state holds nothing for its key: the
+/// open file's value for a Scene-tab row the file carries
+/// (`scene::file_value` — the Rigid Body World, the gravity), else the
+/// property's RNA default, else the kind's factory value.
+fn fallback(spec: &BPropSpec, axis: Option<usize>, factory: BValue) -> BValue {
+    super::scene::file_value(spec.key, axis).or_else(|| default_of(spec, spec.kind)).unwrap_or(factory)
+}
+
+/// One control over `key`, read from the state; `axis` is the component
+/// of a vector property it edits.
+fn control(spec: &BPropSpec, key: BPath, axis: Option<usize>, s: &BState) -> BCtrl {
     // The Render tab's Device: the card phiray draws on, not Cycles' CPU /
     // GPU switch read from the file (`pref::device`).
     if spec.key == "cycles.device" {
         return crate::part::pref::device::BRenderDevices::control(spec.open_key(), s);
     }
     let (kind, factory) = ctrl_for(spec.kind);
-    let default = default_of(spec, spec.kind).unwrap_or(factory);
-    let mut ctrl = BCtrl::read(kind, key, default, s);
+    let mut ctrl = BCtrl::read(kind, key, fallback(spec, axis, factory), s);
     match spec.kind {
         BPropKind::Enum(items) => {
             ctrl = ctrl.with_options(options(items)).with_menu(spec.open_key(), s);
@@ -76,12 +94,11 @@ fn control(spec: &BPropSpec, key: BPath, s: &BState) -> BCtrl {
 }
 
 fn value(spec: &BPropSpec, s: &BState) -> BView {
-    let axes: &[&str] = match spec.kind {
-        BPropKind::Vec3 { .. } => &["x", "y", "z"],
-        BPropKind::Vec4 { .. } => &["r", "g", "b", "a"],
+    let axes = match axes(spec.kind) {
         // A path with the folder that browses for it: the Base Color's image.
-        _ if spec.key == crate::scene::recolor::IMAGE_FIELD => return super::material::image_row(BView::ctrl(control(spec, spec.value_key(), s))),
-        _ => return BView::ctrl(control(spec, spec.value_key(), s)),
+        [] if spec.key == crate::scene::recolor::IMAGE_FIELD => return super::material::image_row(BView::ctrl(control(spec, spec.value_key(), None, s))),
+        [] => return BView::ctrl(control(spec, spec.value_key(), None, s)),
+        axes => axes,
     };
     // Blender's `uiItemR` on a vector: one field per axis, stacked, each
     // naming its axis inside the field ("X  0 m"). Side by side they were
@@ -89,7 +106,8 @@ fn value(spec: &BPropSpec, s: &BState) -> BView {
     // clipped them to the first — Location showed one number.
     BView::column(
         axes.iter()
-            .map(|axis| BView::ctrl(control(spec, ButsKey::Axis(spec.key, axis).path(), s).with_label(axis.to_uppercase())))
+            .enumerate()
+            .map(|(k, axis)| BView::ctrl(control(spec, ButsKey::Axis(spec.key, axis).path(), Some(k), s).with_label(axis.to_uppercase())))
             .collect(),
     )
 }
@@ -104,6 +122,18 @@ pub fn prop_row(spec: &BPropSpec, s: &BState) -> BView {
 /// control alone, no label — Motion Blur's checkbox before the title.
 pub fn header_ctrl(spec: &BPropSpec, s: &BState) -> BView {
     value(spec, s)
+}
+
+/// The value a property's row shows, read the way the row reads it: the
+/// state's, else `fallback`. `axis` picks a vector's component. What a
+/// test asks when it wants to know what the panel says rather than what
+/// the state holds.
+pub fn shown(spec: &BPropSpec, axis: Option<usize>, s: &BState) -> BValue {
+    let key = match axis.and_then(|k| axes(spec.kind).get(k).copied()) {
+        Some(name) => ButsKey::Axis(spec.key, name).path(),
+        None => spec.value_key(),
+    };
+    control(spec, key, axis, s).value
 }
 
 impl BPropSpec {
