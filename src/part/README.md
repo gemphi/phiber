@@ -22,7 +22,7 @@ Part — the leaf. Every variant lives in its own subfolder with item + list.
 | `panel/` | Panel — accordion of property sections with RNA-backed props. |
 | `set.rs` | Part set — one `BPartSpec` per `BPartType`, order matches the enum. |
 | `sidebar/` | Sidebar — vertical tab strip. |
-| `spacebar/` | Spacebar — workspace tabs at the top center. |
+| `spacebar/` | Spacebar — workspace tabs; placed in no pane since the top bar's search shows the space as crumbs. Due to retire. |
 | `spec.rs` | `BPartSpec` — one part descriptor (identity + label). |
 | `statusbar/` | Statusbar (part) — horizontal segments: scene • frame • stats • mem • version. |
 | `strip.rs` | Shared vertical icon-strip state helpers. |

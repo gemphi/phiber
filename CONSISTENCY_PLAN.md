@@ -31,6 +31,13 @@ the cross-cutting roadmap. Updated as items land.
 5. **Elevation scale** (`view`, `theme` jobs): base · zone · popover · modal as
    one shadow/glass ladder from theme tokens.
 
+6. **Dashes in copy** ✅: text a user reads (labels, tooltips, menus, the
+   status bar, journal lines, the manual and reader pages) takes a hyphen,
+   `-`, never an em dash. Comments, doc comments and test assertion messages
+   keep their typography; they are read by us, not the user. Other glyphs
+   (`▸`, `…`, `›`) are not dashes and stay. Done: phiber `1cbde46` (reader)
+   and the runtime-string sweep.
+
 ## C — Functional parity
 
 6. **Shading / node editors: add & edit trees.** The graph renders ✅; the Add
