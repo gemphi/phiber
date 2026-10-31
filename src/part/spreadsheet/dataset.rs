@@ -9,8 +9,7 @@
 //! tools.
 
 use super::set::{BSpreadsheetDomain, active_object};
-use crate::host::BHostType;
-use crate::state::{BPath, BState};
+use crate::state::{BKey as _, BState, SpreadsheetKey};
 use crate::view::prim::{BAction, BCard, BColumn, BControl};
 use crate::view::{BView, BViewItem, BViewList};
 
@@ -20,11 +19,6 @@ pub struct BDataset;
 impl BDataset {
     pub fn new() -> Self {
         Self
-    }
-
-    /// The host key the chosen domain lives at.
-    fn key() -> BPath {
-        BPath::owned(vec![BHostType::Spreadsheet.slug(), "domain"])
     }
 }
 
@@ -41,7 +35,7 @@ impl BViewItem for BDataset {
                 BControl::new()
                     .with_label(format!("{}  {}", domain.label(), domain.count(&object.mesh)))
                     .with_active(domain == active)
-                    .with_action(BAction::Set(Self::key(), domain.slug().to_string())),
+                    .with_action(BAction::Set(SpreadsheetKey::Domain.path(), domain.slug().to_string())),
             )
         }));
         BView::from(BCard::column(BColumn::Body, list))

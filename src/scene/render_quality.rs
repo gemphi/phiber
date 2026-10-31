@@ -9,10 +9,14 @@
 //!   exception, because Workbench is an engine phiber really does have
 //!   (`render_engine.rs`, `workbench_render.cc`) — a file saved under it
 //!   still rasterizes.
-//! - **4096 samples is the DEFAULT** for a final render — Blender's own
-//!   (`addon/properties.py`), and the top of the 2048–4096 the team's
-//!   quality research settled on, adaptive sampling stopping the pixels
-//!   that settle sooner.
+//! - **2048 samples is the DEFAULT** for a final render — the *bottom* of
+//!   the 2048–4096 the team's quality research settled on, with adaptive
+//!   sampling stopping the pixels that settle sooner. It was 4096 (the top
+//!   of that range, and Blender's own `addon/properties.py` default) until
+//!   2026-10-30: on the GTX 1660 Ti a heavy scene runs seconds per sample,
+//!   so the top of the range turned every unqualified render into a
+//!   three-quarter-hour job and the count was the first thing anyone
+//!   overrode. The default is the one you would pick, not the ceiling.
 //! - **A file opens at its own counts** ([`Self::OPENING`]). Max Samples,
 //!   Viewport and Min Samples take the quality counts only where the file
 //!   saved none, as Blender fills in an unsaved property with its default.
@@ -38,10 +42,10 @@ impl BRenderQuality {
     ///
     /// Still named `SAMPLE_FLOOR` because that is what it was and what
     /// the command line calls it; it is a default now, not a minimum.
-    pub const SAMPLE_FLOOR: u32 = 4096;
+    pub const SAMPLE_FLOOR: u32 = 2048;
 
     /// The counts a file opens at where it saved none: `(Cycles property, quality)`.
-    /// Max Samples at the render default; the viewport at Blender's 1024;
+    /// Max Samples at the render default (2048); the viewport at Blender's 1024;
     /// and every pixel at least 256 samples before adaptive sampling may
     /// stop it, which the research asks for over Cycles' automatic 64.
     pub const OPENING: &'static [(&'static str, u32)] = &[
@@ -85,7 +89,7 @@ mod tests {
 
     #[test]
     fn a_count_that_was_asked_for_is_the_count_that_renders() {
-        assert_eq!(BRenderQuality::samples(None, false), 4096, "nothing asked: the default");
+        assert_eq!(BRenderQuality::samples(None, false), 2048, "nothing asked: the default");
         // The row is believed. This used to assert the opposite — that
         // twenty was "lifted to the floor" — which is exactly why typing
         // 64 into Max Samples rendered 2048 and looked like a dead
@@ -105,7 +109,7 @@ mod tests {
         assert_eq!(BRenderQuality::opening("adaptive_min_samples", Some(0)), Some(0));
         assert_eq!(BRenderQuality::opening("samples", Some(8192)), Some(8192));
         // Never saved: the quality counts.
-        assert_eq!(BRenderQuality::opening("samples", None), Some(4096));
+        assert_eq!(BRenderQuality::opening("samples", None), Some(2048));
         assert_eq!(BRenderQuality::opening("preview_samples", None), Some(1024));
         assert_eq!(BRenderQuality::opening("adaptive_min_samples", None), Some(256));
         // Everything else is the file's.

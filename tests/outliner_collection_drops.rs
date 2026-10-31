@@ -70,7 +70,7 @@ async fn collections_nest_objects_link_and_the_save_keeps_it(cx: &mut TestAppCon
     cx.simulate_resize(size(px(1400.0), px(900.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
+        app.state.set(phiber::state::SceneKey::LoadedPath, path.clone());
         app.scene_cache = Some((path.clone(), std::sync::Arc::new(model)));
         cx.notify();
     });

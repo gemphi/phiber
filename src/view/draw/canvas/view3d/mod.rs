@@ -160,6 +160,7 @@ impl BView3d<'_> {
             passepartout: to_hsla(ctx.style.camera_passepartout()),
             back: to_hsla(ctx.style.viewport_surface()),
             overlay: to_hsla(ctx.style.view_overlay()),
+            region_line: to_hsla(ctx.style.colors.axis_x),
             region: region.on.then_some(region.rect),
         };
         let corners = super::surface::corners(ctx);
@@ -188,7 +189,7 @@ impl BView3d<'_> {
                     if let Some(view) = &through {
                         self::frame::paint(bounds, view, frame_palette, window);
                     } else if let Some(own) = own_border {
-                        self::frame::paint_region(bounds, own.rect, frame_palette.back, window);
+                        self::frame::paint_region(bounds, own.rect, (frame_palette.back, frame_palette.region_line), window);
                     }
                     gestures.paint(bounds, window);
                 },

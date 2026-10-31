@@ -151,6 +151,9 @@ pub struct BRenderPlan {
     pub h: u32,
     pub samples: u32,
     pub denoise: bool,
+    /// Bloom / Glare: `Some([threshold, intensity, radius])` when the
+    /// panel's EEVEE Bloom is on, `None` otherwise (`Tracer::glow`).
+    pub glow: Option<[f32; 3]>,
     /// Adaptive Sampling, resolved against Cycles' automatic rules at plan
     /// time (`BAdaptive::of`): `[threshold, min samples, step, on]`. It is
     /// resolved here, on the main thread, because the rules read the
@@ -226,7 +229,11 @@ pub fn plan_at(model: &SceneModel, set: BRenderSet, look: &BRayLook, plain: gpui
         });
     }
     let time_limit = if still_look.shading == crate::scene::BShading::Rendered { set.time_limit } else { 0.0 };
-    Some(BRenderPlan { camera, w, h, samples, denoise, adapt, time_limit, look: still_look, region })
+    // Bloom only on a path-traced frame (the glare runs on scene-linear
+    // radiance); Workbench's rasterized shading has no such buffer.
+    let glow = (set.bloom && still_look.shading == crate::scene::BShading::Rendered)
+        .then_some([set.bloom_threshold, set.bloom_intensity, set.bloom_radius]);
+    Some(BRenderPlan { camera, w, h, samples, denoise, glow, adapt, time_limit, look: still_look, region })
 }
 
 // ---------------------------------------------------------------------------
@@ -306,6 +313,20 @@ pub(crate) struct BJob {
     pub(crate) seq: AtomicU32,
     /// When the render in flight (or the last one) began, for the info bar.
     pub(super) started: Mutex<Option<web_time::Instant>>,
+    /// When the render's FIRST sample landed — the start of the window the
+    /// `Remaining:` pace is measured over (`render_status::remaining`).
+    ///
+    /// Not the same instant as `started`, and the difference is the whole
+    /// point: between them sit the scene build, the BVH, the readback of
+    /// the file's textures and the shader compile, none of which happen
+    /// again. Pacing a render over `started` therefore charges every
+    /// remaining sample for the setup, and the estimate that came out was
+    /// not slightly wrong but wrong by two orders of magnitude — a
+    /// 256-sample frame that finished in 1.59 s announced
+    /// `Remaining:03:48.71` at its first sample, because 0.89 s of opening
+    /// the file was being read as the price of one sample and multiplied
+    /// by the 255 to come.
+    pub(super) sampling: Mutex<Option<web_time::Instant>>,
     /// How long the last finished render took — Blender's
     /// `RenderStats.lastframetime`, which `pipeline.cc:1510` sets ONCE as
     /// `BLI_time_now_seconds() - starttime` when the frame ends, and
@@ -460,7 +481,11 @@ pub fn report_sample(event: u64, elapsed: std::time::Duration, taken: u32, targe
     }
     BEvents::set(event, "Sample", format!("{taken}/{target}"));
     BEvents::set(event, "Time", timecode(elapsed));
-    BEvents::set(event, "Remaining", remaining(elapsed, taken, target, done).map_or_else(|| "-".to_string(), timecode));
+    // The pace is measured over the samples, not over `elapsed`, which
+    // still has the scene build and the shader compile in it.
+    crate::scene::render_status::mark_sample(taken);
+    let since = crate::scene::render_status::sampling().unwrap_or_default();
+    BEvents::set(event, "Remaining", remaining(since, taken, target, done).map_or_else(|| "-".to_string(), timecode));
 }
 
 /// How the render ended, into its Status event.
@@ -496,6 +521,13 @@ pub fn start_in(objects: Vec<BObject3D>, plan: BRenderPlan, scope: super::source
     }
     if let Ok(mut started) = j.started.lock() {
         *started = Some(web_time::Instant::now());
+    }
+    // This render has taken no sample yet, so it has no pace: the mark is
+    // laid by the first one to land (`render_status::mark_sample`). Cleared
+    // here and not left over, or a second render would be paced against
+    // the first one's clock.
+    if let Ok(mut sampling) = j.sampling.lock() {
+        *sampling = None;
     }
     // A new frame has no time yet: the bar counts up again until it finishes.
     if let Ok(mut took) = j.took.lock() {
@@ -540,6 +572,7 @@ pub fn start_in(objects: Vec<BObject3D>, plan: BRenderPlan, scope: super::source
             plan.h,
             plan.samples,
             plan.denoise,
+            plan.glow,
             plan.adapt,
             plan.time_limit,
             plan.region,

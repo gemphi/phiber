@@ -69,7 +69,7 @@ impl BSpreadsheetDomain {
 
     /// The domain the Spreadsheet is showing.
     pub fn now(s: &BState) -> Self {
-        Self::of(s.host(crate::host::BHostType::Spreadsheet).get("domain").unwrap_or(""))
+        Self::of(s.get(crate::state::SpreadsheetKey::Domain).unwrap_or(""))
     }
 
     /// How many elements the mesh has in this domain: a vertex each, a

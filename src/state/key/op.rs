@@ -134,6 +134,15 @@ pub enum OpKey {
     /// `protect:on|off|toggle`, `mute:on|off|toggle` — a curve's
     /// extrapolation and its Protect / Mute (`scene/action/channel.rs`).
     Channels,
+    /// Channel ▸ Expand / Collapse Channels (`ANIM_OT_channels_expand` /
+    /// `_collapse`, Numpad `+` / `-`): `<editor>:expand` / `<editor>:collapse`
+    /// — the editor's shown channel rows fold (`scene/action/channel_fold.rs`).
+    ///
+    /// Its own key rather than another verb under [`Self::Channels`]: a fold
+    /// is UI state and the others are file overlays, so they are two rules,
+    /// and a rule claims its work through `BRule::wants` — not by reading a
+    /// value to see whether the value was meant for it.
+    ChannelFold,
     /// Object ▸ Clear (Alt G / R / S): `location` / `rotation` / `scale` back
     /// to identity on the selected objects (`scene/transform`).
     ObjectClear,

@@ -13,7 +13,7 @@ use phiber::part::statusbar::BStatusbar;
 use phiber::space::BSpaceType;
 use phiber::state::{BState, CtxKey, ModalKey};
 use phiber::state::log;
-use phiber::scene::{load_progress_key, load_stage_key, selected_key};
+
 use phiber::view::{BView, BViewItem, BViewList};
 
 /// The labels a built view carries, flattened — including a button's label and
@@ -67,9 +67,9 @@ fn the_status_bar_becomes_a_loading_panel_and_goes_back() {
     assert!(!has_wide_bar(&idle), "no loading bar when nothing is opening");
 
     // A file opens: the bar gives way to the panel.
-    s.set(&selected_key(), "C:/files/THYMUS-BOLDROID-WAVE-003.blend");
-    s.set(&load_progress_key(), "0.4");
-    s.set(&load_stage_key(), "Reading objects 431/2104 Cube.003");
+    s.set(phiber::state::FileKey::Selected, "C:/files/THYMUS-BOLDROID-WAVE-003.blend");
+    s.set(phiber::state::SceneKey::LoadProgress, "0.4");
+    s.set(phiber::state::SceneKey::LoadStage, "Reading objects 431/2104 Cube.003");
     let loading = panel(&s);
     let mut found = Vec::new();
     labels(&loading, &mut found);
@@ -85,7 +85,7 @@ fn the_status_bar_becomes_a_loading_panel_and_goes_back() {
     assert!(has_wide_bar(&loading), "with a full-width bar across the foot");
 
     // Settled: back to the ordinary row.
-    s.remove(&load_progress_key());
+    s.remove(phiber::state::SceneKey::LoadProgress);
     let back = panel(&s);
     let mut back_labels = Vec::new();
     labels(&back, &mut back_labels);
@@ -100,8 +100,8 @@ fn the_panel_shows_the_stages_with_their_timings() {
     log::push("Parsing meshes"); // newest first
 
     let mut s = BState::new();
-    s.set(&load_progress_key(), "0.6");
-    s.set(&load_stage_key(), "Parsing meshes");
+    s.set(phiber::state::SceneKey::LoadProgress, "0.6");
+    s.set(phiber::state::SceneKey::LoadStage, "Parsing meshes");
 
     let mut found = Vec::new();
     labels(&panel(&s), &mut found);
@@ -118,8 +118,8 @@ fn the_panel_shows_the_stages_with_their_timings() {
 fn opening_a_file_does_not_raise_a_modal() {
     let mut s = BState::new();
     // A load in flight: nothing is raised over the screen.
-    s.set(&load_progress_key(), "0.4");
-    s.set(&load_stage_key(), "Reading file");
+    s.set(phiber::state::SceneKey::LoadProgress, "0.4");
+    s.set(phiber::state::SceneKey::LoadStage, "Reading file");
     assert!(BModalList::new().items(&s).is_empty(), "the load is not a modal");
 
     // A dialog the user opened stays up and is not shoved aside by the load.
@@ -156,8 +156,8 @@ async fn the_status_zone_expands_while_loading_and_collapses_after(cx: &mut Test
     let folded = height(cx, "region-Header-Statusbar");
 
     app.update(cx, |app, cx| {
-        app.state.set(&load_progress_key(), "0.4");
-        app.state.set(&load_stage_key(), "Reading objects 431/2104 Cube.003");
+        app.state.set(phiber::state::SceneKey::LoadProgress, "0.4");
+        app.state.set(phiber::state::SceneKey::LoadStage, "Reading objects 431/2104 Cube.003");
         cx.notify();
     });
     cx.run_until_parked();
@@ -177,8 +177,8 @@ async fn the_status_zone_expands_while_loading_and_collapses_after(cx: &mut Test
     );
 
     app.update(cx, |app, cx| {
-        app.state.remove(&load_progress_key());
-        app.state.remove(&load_stage_key());
+        app.state.remove(phiber::state::SceneKey::LoadProgress);
+        app.state.remove(phiber::state::SceneKey::LoadStage);
         cx.notify();
     });
     cx.run_until_parked();

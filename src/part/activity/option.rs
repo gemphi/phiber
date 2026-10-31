@@ -14,23 +14,14 @@ use crate::state::{BKey as _, ActivityKey, AppKey, CtxKey};
 use super::set::BActivityEntry;
 use super::set::BActivityOptions;
 use super::set::ENTRIES;
-use crate::host::BHostType;
 use crate::modal::setting::CATEGORIES;
 use crate::modal::splash::recent;
 use crate::space::BSpaceType;
-use crate::state::{
-    BPath, BState,
-};
+use crate::state::BState;
 use crate::view::prim::{BAction, BControl};
 
 /// Peer and channel slots (`collab.peer.<n>`, `collab.channel.<n>`).
 pub const SLOTS: [&str; 16] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"];
-
-/// The Preferences nav-bar tab key, so a category chosen here selects the
-/// same tab the Preferences screen reads.
-pub fn prefs_tab_key() -> BPath {
-    BPath::owned(vec![BHostType::Prefs.slug(), "navbar", "tab"])
-}
 
 /// The session's channels as `(name, owner)`, in slot order.
 pub fn channels(s: &BState) -> Vec<(String, String)> {
@@ -107,7 +98,7 @@ impl BActivityEntry {
                 list.iter().map(|(name, state)| row("user", &format!("{name}  ·  {state}"), name)).collect()
             }
             BActivityOptions::Settings => {
-                let active = s.get(&prefs_tab_key());
+                let active = s.get(crate::state::PrefsKey::NavbarTab);
                 CATEGORIES
                     .iter()
                     .map(|category| row(category.icon, category.label, category.label).with_active(Some(category.label) == active))

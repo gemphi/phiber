@@ -47,7 +47,7 @@ impl BPhiberApp {
         let end = crate::state::key::int_or(&self.state, CtxKey::FrameEnd, 250).max(start);
         let fps = crate::state::key::float_or(&self.state, CtxKey::Fps, 24.0);
         let output = crate::scene::output_set(&self.state);
-        let blend = self.state.get(&crate::scene::loaded_path_key()).unwrap_or_default().to_string();
+        let blend = self.state.get(crate::state::SceneKey::LoadedPath).unwrap_or_default().to_string();
         let folder = std::path::Path::new(&blend).parent().map(std::path::Path::to_path_buf).unwrap_or_default();
         let movie = crate::scene::output_set::wants_movie(&output).then(|| {
             let still = crate::scene::output_set::as_still(&output).file_of(&folder);

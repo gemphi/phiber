@@ -33,7 +33,7 @@ async fn the_render_and_output_tabs_are_written_by_ctrl_s(cx: &mut TestAppContex
     cx.simulate_resize(size(px(1280.0), px(800.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::scene::loaded_path_key(), blend.to_string_lossy().to_string());
+        app.state.set(phiber::state::SceneKey::LoadedPath, blend.to_string_lossy().to_string());
         phiber::app::seed::seed_render_props(&mut app.state, &model);
         phiber::app::seed::seed_output_props(&mut app.state, &model);
         app.scene_cache = Some((blend.to_string_lossy().to_string(), std::sync::Arc::new(model)));

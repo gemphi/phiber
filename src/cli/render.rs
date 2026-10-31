@@ -139,6 +139,13 @@ impl BHeadlessRender {
 
     /// Every frame of `model` as `state` has the scene, one PNG each.
     fn frames(&self, model: crate::phiphx::scene::SceneModel, mut state: BState) -> Result<Vec<BFrameCost>, String> {
+        // Both ways in render without a window, so the flag is set here —
+        // the one point they share — rather than on one of them. It used
+        // to be set by `run_in` alone, whose doc called that "the only
+        // thing that renders without a window"; `phiber -b` goes through
+        // `run_with`, so on the command line the render trace was built,
+        // measured and then printed nowhere.
+        super::set_headless();
         let (outdir, _) = Self::frame_path(&self.out, 1);
         std::fs::create_dir_all(&outdir).map_err(|e| format!("outdir: {e}"))?;
         // What the render is given, and which of it Phiray reads
@@ -227,11 +234,18 @@ impl BHeadlessRender {
                 }
                 last = done;
                 let elapsed = shot.elapsed();
-                let left = crate::scene::render_status::remaining(elapsed, done, target, false)
+                // `Time:` is the whole render, setup included — that is
+                // what Blender shows. `Remaining:` is paced over the
+                // samples alone, which is a different window and why the
+                // two are not computed from the same number
+                // (`render_status::remaining`).
+                crate::scene::render_status::mark_sample(done);
+                let since = crate::scene::render_status::sampling().unwrap_or_default();
+                let left = crate::scene::render_status::remaining(since, done, target, false)
                     .map_or(String::new(), |left| format!(" | Remaining:{}", crate::scene::render_status::timecode(left)));
                 println!("Fra:{frame} | Time:{}{left} | Sample {done}/{target}", crate::scene::render_status::timecode(elapsed));
             };
-            let (pixel, taken) = still(&objects, plan.look, plan.camera, plan.w, plan.h, plan.samples, plan.denoise, plan.adapt, plan.time_limit, report)
+            let (pixel, taken) = still(&objects, plan.look, plan.camera, plan.w, plan.h, plan.samples, plan.denoise, plan.glow, plan.adapt, plan.time_limit, report)
                 // The tracer's own reason (`render_job::note_failure`), not a
                 // guess: headless has no Info editor and no journal, so the
                 // 2048-sample run of pose 26 ended after 30 minutes having

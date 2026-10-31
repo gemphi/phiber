@@ -18,7 +18,7 @@ pub(super) fn save_view(&mut self, name: &str) -> bool {
     let Some(shot) = shot else { return false };
     let output = crate::scene::output_set::as_still(&crate::scene::output_set(&self.state));
     let pass = crate::scene::pass_set(&self.state, Default::default());
-    let blend = self.state.get(&crate::scene::loaded_path_key()).unwrap_or_default().to_string();
+    let blend = self.state.get(crate::state::SceneKey::LoadedPath).unwrap_or_default().to_string();
     let folder = std::path::Path::new(&blend).parent().map(std::path::Path::to_path_buf).unwrap_or_default();
     let file = crate::scene::render_save::view_file(&output, &folder, name);
     match crate::scene::save_render_to(&shot, &output, pass, &file) {
@@ -40,7 +40,7 @@ pub(super) fn movie_job(&self, start: i32, end: i32) -> Option<crate::scene::vid
     if !crate::scene::output_set::wants_movie(&output) {
         return None;
     }
-    let blend = self.state.get(&crate::scene::loaded_path_key()).unwrap_or_default().to_string();
+    let blend = self.state.get(crate::state::SceneKey::LoadedPath).unwrap_or_default().to_string();
     let folder = std::path::Path::new(&blend).parent().map(std::path::Path::to_path_buf).unwrap_or_default();
     let still = crate::scene::output_set::as_still(&output).file_of(&folder);
     let movie = crate::scene::output_set::movie_set(&self.state, self.scene_cache.as_ref().map(|(_, m)| m.render.movie).unwrap_or_default());
@@ -75,7 +75,7 @@ pub(super) fn save_frame(&mut self, frame: i32, into: Option<std::path::PathBuf>
     let Some(shot) = shot else { return false };
     let output = crate::scene::output_set::as_still(&crate::scene::output_set(&self.state));
     let pass = crate::scene::pass_set(&self.state, Default::default());
-    let blend = self.state.get(&crate::scene::loaded_path_key()).unwrap_or_default().to_string();
+    let blend = self.state.get(crate::state::SceneKey::LoadedPath).unwrap_or_default().to_string();
     let folder = std::path::Path::new(&blend).parent().map(std::path::Path::to_path_buf).unwrap_or_default();
     let movie = into.is_some();
     let file = into.unwrap_or_else(|| crate::scene::render_save::frame_file(&output, &folder, frame));

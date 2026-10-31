@@ -36,7 +36,7 @@ pub fn tag_saved(state: &mut BState) {
 /// `(Unsaved)` for a document never saved — then the app.
 pub fn window_title(state: &BState) -> String {
     let mut title = if has_unsaved_changes(state) { "* ".to_string() } else { String::new() };
-    match state.get(&crate::scene::loaded_path_key()).filter(|p| !p.is_empty()) {
+    match state.get(crate::state::SceneKey::LoadedPath).filter(|p| !p.is_empty()) {
         Some(path) => {
             let name = path.rsplit(['/', '\\']).next().unwrap_or(path);
             title.push_str(name.rsplit_once('.').map_or(name, |(stem, _)| stem));
@@ -76,11 +76,11 @@ impl BPhiberApp {
         if *path == FileKey::Purpose.path() && value == BFilePurpose::Open.slug() {
             return Some("open".to_string());
         }
-        if *path == crate::scene::selected_key()
+        if *path == crate::state::FileKey::Selected.path()
             && !value.is_empty()
             && self.state.get(ModalKey::Open) != Some(V_MODAL_FILE_BROWSER)
             && super::purpose_of(&self.state) == BFilePurpose::Open
-            && super::super::import::should_import(self.state.get(&crate::scene::loaded_path_key()), Some(value))
+            && super::super::import::should_import(self.state.get(crate::state::SceneKey::LoadedPath), Some(value))
         {
             return Some(format!("open:{value}"));
         }
@@ -120,7 +120,7 @@ impl BPhiberApp {
         match BCloseAnswer::from_slug(answer) {
             Some(BCloseAnswer::Discard) => {}
             Some(BCloseAnswer::Save) => {
-                if self.state.get(&crate::scene::loaded_path_key()).filter(|p| !p.is_empty()).is_none() {
+                if self.state.get(crate::state::SceneKey::LoadedPath).filter(|p| !p.is_empty()).is_none() {
                     self.save_document(false);
                     return;
                 }
@@ -135,7 +135,7 @@ impl BPhiberApp {
             None if then == "quit" => BAction::Set(OpKey::Quit.path(), String::new()),
             None if then == "open" => BAction::Set(FileKey::Purpose.path(), BFilePurpose::Open.slug().to_string()),
             Some(("new_file", spec)) => BAction::Set(OpKey::NewFile.path(), spec.to_string()),
-            Some(("open", path)) => BAction::Set(crate::scene::selected_key(), path.to_string()),
+            Some(("open", path)) => BAction::Set(crate::state::FileKey::Selected.path(), path.to_string()),
             _ => return,
         };
         self.answered_close = true;

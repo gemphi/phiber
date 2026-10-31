@@ -21,7 +21,7 @@ async fn opening_the_rendering_workspace_renders_the_scene(cx: &mut TestAppConte
     cx.simulate_resize(size(px(1400.0), px(800.0)));
     app.update(cx, |app, cx| {
         app.state.remove(phiber::state::ModalKey::Open);
-        app.state.set(&phiber::scene::loaded_path_key(), path.to_string_lossy().to_string());
+        app.state.set(phiber::state::SceneKey::LoadedPath, path.to_string_lossy().to_string());
         app.state.set(phiber::state::ButsKey::Value("cycles.samples"), phiber::state::val::BValue::Int(1).encode());
         app.scene_cache = Some((path.to_string_lossy().to_string(), std::sync::Arc::new(model)));
         cx.notify();

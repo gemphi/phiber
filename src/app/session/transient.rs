@@ -18,6 +18,7 @@
 //! Load-UI-off reopen with no stash, unlike the playhead (which does need a
 //! stash because the file carries its own saved frame; see `resume_frame`).
 
+use crate::state::BKey as _;
 use std::time::Duration;
 
 pub(super) const THROTTLED: &[&str] = &["view3d", "time_view", "frame"];
@@ -37,7 +38,7 @@ pub(super) const THROTTLE: Duration = Duration::from_millis(1000);
 /// knows what to reopen; applied as a *reopen*, never written straight back
 /// (that would claim a file was loaded with no scene behind it).
 pub fn loaded_path() -> String {
-    crate::scene::loaded_path_key().encode()
+    crate::state::SceneKey::LoadedPath.path().encode()
 }
 
 /// Where a resumed session stashes its playhead, so the reopen's

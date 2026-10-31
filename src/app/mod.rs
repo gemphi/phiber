@@ -182,7 +182,7 @@ impl BPhiberApp {
         let path = session::last_file(text)
             .filter(|p| crate::scene::is_blend_path(p) && std::path::Path::new(p).exists())?;
         self.state.set(FileKey::LoadUi, "false");
-        self.state.set(&crate::scene::selected_key(), path.clone());
+        self.state.set(crate::state::FileKey::Selected, path.clone());
         // The reopen seeds the file's saved frame; stash the resumed playhead
         // so `settle_import` lands on where we actually were (the session
         // outlives the save). The camera survives on its own — Load UI is off.

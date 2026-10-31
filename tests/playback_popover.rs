@@ -73,7 +73,7 @@ async fn the_settings_are_read_from_the_file_and_written_back_on_save(cx: &mut T
     cx.simulate_resize(size(px(1280.0), px(800.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
+        app.state.set(phiber::state::SceneKey::LoadedPath, path.clone());
         settings::seed(&mut app.state, &model.playback);
         app.scene_cache = Some((path.clone(), std::sync::Arc::new(model)));
         cx.notify();

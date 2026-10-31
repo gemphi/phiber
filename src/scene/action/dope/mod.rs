@@ -22,6 +22,8 @@
 //! animated through (`BKeyTarget`).
 
 pub mod set;
+#[path = "set_copy.rs"]
+mod set_copy;
 #[path = "set_edit.rs"]
 mod set_edit;
 #[path = "set_grab.rs"]
@@ -30,6 +32,9 @@ mod set_grab;
 mod set_jump;
 
 pub use set::BKeyOpRule;
+#[path = "column.rs"]
+mod column;
+pub use column::fold_columns;
 
 use super::retime::{BKeyRetime, BKeyStep};
 use crate::phiphx::scene::{SceneAction, SceneModel};
@@ -112,6 +117,18 @@ impl BKeyTarget {
         out.sort_by(f32::total_cmp);
         out.dedup();
         out
+    }
+
+    /// The same columns with each one's Keyframe Type ([`fold_columns`]):
+    /// what an object's Dope Sheet row draws with.
+    pub fn columns_typed(actions: &[SceneAction], object: &str) -> (Vec<f32>, Vec<u8>) {
+        let keys = actions.iter().filter(|a| a.used_by(object)).flat_map(|a| {
+            let bound = a.bindings.iter().find(|(o, _)| o == object).and_then(|(_, h)| a.slot(*h));
+            let slot = bound.or_else(|| (a.slots.len() == 1).then(|| &a.slots[0]));
+            let curves = slot.map_or(&a.curves[..], |s| &a.curves[s.curves.clone()]);
+            curves.iter().flat_map(|c| c.keys.iter().map(|k| (k.co[0], k.keytype)))
+        });
+        fold_columns(keys.collect::<Vec<_>>())
     }
 
     /// The objects the Dope Sheet lists under its summary, in order, each
@@ -215,6 +232,8 @@ impl BKeyGrab {
 
 #[cfg(test)]
 mod tests;
-#[cfg(test)]
-#[path = "tests_more.rs"]
-mod tests_more;
+// The tests are four files so each sits under the read cap: the originals,
+// the key edits, the copy buffer, and the Select menu.
+#[cfg(test)] #[path = "tests_more.rs"] mod tests_more;
+#[cfg(test)] #[path = "tests_copy.rs"] mod tests_copy;
+#[cfg(test)] #[path = "tests_select.rs"] mod tests_select;

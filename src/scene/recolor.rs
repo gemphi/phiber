@@ -181,7 +181,7 @@ impl BRecolors {
 /// had (`was`, else the panel's values, else Blender's grey). `None`, and a
 /// report, when it does not read as an image.
 fn opened(s: &mut BState, path: &str, was: Option<BRecolor>) -> Option<BRecolor> {
-    let blend = s.get(&super::loaded_path_key()).map(std::path::Path::new).and_then(std::path::Path::parent).map(std::path::Path::to_path_buf);
+    let blend = s.get(crate::state::SceneKey::LoadedPath).map(std::path::Path::new).and_then(std::path::Path::parent).map(std::path::Path::to_path_buf);
     let file = match (path.strip_prefix("//"), blend) {
         (Some(rel), Some(dir)) => dir.join(rel),
         _ => std::path::PathBuf::from(path),

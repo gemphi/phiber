@@ -32,7 +32,7 @@ pub fn never_sent(encoded: &str) -> bool {
         AppKey::EditUndo.path().encode(),
         CtxKey::Space.path().encode(),
         // The scene itself syncs; only the loading machinery is local.
-        crate::scene::loaded_path_key().encode(),
+        crate::state::SceneKey::LoadedPath.path().encode(),
         SceneKey::Loading.path().encode(),
     ];
     let families = [

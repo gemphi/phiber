@@ -38,7 +38,7 @@ fn the_timeline_lists_the_collapsed_summary_alone() {
     assert_eq!(sheet[0].kind, BRowKind::Summary { expanded: true });
     assert!(BTimeRow::list(&s, BHostType::Ipo, axis).is_empty(), "the Graph editor lists no summary");
     assert!(BTimeRow::list(&s, BHostType::Drivers, axis).is_empty(), "nor does the Drivers editor, with nothing loaded");
-    assert_eq!(BTimeRow { kind: BRowKind::Driver { name: "Hide (a)".into(), color: [0.0; 3] }, keys: Vec::new() }.name(), "Hide (a)");
+    assert_eq!(BTimeRow { kind: BRowKind::Driver { name: "Hide (a)".into(), color: [0.0; 3] }, keys: Vec::new(), keytypes: Vec::new() }.name(), "Hide (a)");
 }
 
 #[test]

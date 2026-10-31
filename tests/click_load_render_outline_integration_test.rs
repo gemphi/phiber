@@ -17,11 +17,8 @@ use phiber::{
         SceneLoadError, SceneMesh, SceneModel, SceneNormals, SceneObject,
     },
     app::import::{ImportOutcome, settle_import, should_import},
-    scene::{
-        BObject3D, clear_loaded_scene, error_key, loaded_path_key, loading_key, scene_source,
-        selected_key, set_loaded_scene,
-    },
-    state::{BState, action::apply_action},
+    scene::{BObject3D, clear_loaded_scene, scene_source, set_loaded_scene},
+    state::{BKey as _, BState, action::apply_action},
     view::prim::BAction,
 };
 
@@ -68,28 +65,28 @@ fn success_flow_viewport_and_outliner_see_loaded_objects() {
     // 1. File Browser click: set file.selected to a .blend path.
     apply_action(
         &mut state,
-        &BAction::Set(selected_key(), "/dir/model.blend".to_string()),
+        &BAction::Set(phiber::state::FileKey::Selected.path(), "/dir/model.blend".to_string()),
     );
-    assert_eq!(state.get(&selected_key()), Some("/dir/model.blend"));
+    assert_eq!(state.get(phiber::state::FileKey::Selected), Some("/dir/model.blend"));
 
     // 2. should_import confirms this is a new blend (no prior loaded path).
-    let selected = state.get(&selected_key());
+    let selected = state.get(phiber::state::FileKey::Selected);
     assert!(
         should_import(None, selected),
         "should_import must be true for a new .blend path"
     );
 
     // 3. Simulate spawn: set loading flag.
-    state.set(&loading_key(), "true");
+    state.set(phiber::state::SceneKey::Loading, "true");
 
     // 4. Background task completes: build a stubbed SceneModel and settle it.
     let model = model_with("/dir/model.blend", &["Suzanne", "Cube"]);
     let returned = settle_import(&mut state, ImportOutcome::Loaded(model));
 
     // 5. settle_import clears loading, sets loaded_path, clears error, returns model.
-    assert_eq!(state.get(&loading_key()), None);
-    assert_eq!(state.get(&loaded_path_key()), Some("/dir/model.blend"));
-    assert_eq!(state.get(&error_key()), None);
+    assert_eq!(state.get(phiber::state::SceneKey::Loading), None);
+    assert_eq!(state.get(phiber::state::SceneKey::LoadedPath), Some("/dir/model.blend"));
+    assert_eq!(state.get(phiber::state::SceneKey::Error), None);
     let cached = returned.expect("Loaded outcome must return the model");
 
     // 6. Inject into the render-pass scope.
@@ -121,10 +118,10 @@ fn error_path_retains_prior_scene() {
     let model_a = model_with("/dir/prev.blend", &["Alpha", "Beta"]);
     let returned_a = settle_import(&mut state, ImportOutcome::Loaded(model_a));
     let cached_a = returned_a.expect("first load must succeed");
-    assert_eq!(state.get(&loaded_path_key()), Some("/dir/prev.blend"));
+    assert_eq!(state.get(phiber::state::SceneKey::LoadedPath), Some("/dir/prev.blend"));
 
     // Step 2: simulate a new import attempt starting.
-    state.set(&loading_key(), "true");
+    state.set(phiber::state::SceneKey::Loading, "true");
 
     // Step 3: the new import fails.
     settle_import(
@@ -133,10 +130,10 @@ fn error_path_retains_prior_scene() {
     );
 
     // loading cleared, error set, loaded_path NOT changed.
-    assert_eq!(state.get(&loading_key()), None);
-    assert!(state.get(&error_key()).is_some(), "error must be set on failure");
+    assert_eq!(state.get(phiber::state::SceneKey::Loading), None);
+    assert!(state.get(phiber::state::SceneKey::Error).is_some(), "error must be set on failure");
     assert_eq!(
-        state.get(&loaded_path_key()),
+        state.get(phiber::state::SceneKey::LoadedPath),
         Some("/dir/prev.blend"),
         "loaded_path must be retained after failure"
     );
@@ -164,16 +161,16 @@ fn should_import_not_triggered_for_same_loaded_path() {
     // Establish a prior loaded path.
     let model = model_with("/dir/model.blend", &["Cube"]);
     settle_import(&mut state, ImportOutcome::Loaded(model));
-    assert_eq!(state.get(&loaded_path_key()), Some("/dir/model.blend"));
+    assert_eq!(state.get(phiber::state::SceneKey::LoadedPath), Some("/dir/model.blend"));
 
     // Selecting the same .blend again.
     apply_action(
         &mut state,
-        &BAction::Set(selected_key(), "/dir/model.blend".to_string()),
+        &BAction::Set(phiber::state::FileKey::Selected.path(), "/dir/model.blend".to_string()),
     );
 
-    let loaded_path = state.get(&loaded_path_key());
-    let selected = state.get(&selected_key());
+    let loaded_path = state.get(phiber::state::SceneKey::LoadedPath);
+    let selected = state.get(phiber::state::FileKey::Selected);
     assert!(
         !should_import(loaded_path, selected),
         "should_import must be false when selected matches loaded_path"
@@ -191,15 +188,15 @@ fn timeout_path_retains_prior_scene_and_sets_error() {
     // Establish a prior load.
     let model = model_with("/prior.blend", &["Mesh"]);
     settle_import(&mut state, ImportOutcome::Loaded(model));
-    assert_eq!(state.get(&loaded_path_key()), Some("/prior.blend"));
+    assert_eq!(state.get(phiber::state::SceneKey::LoadedPath), Some("/prior.blend"));
 
     // Simulate import start + timeout.
-    state.set(&loading_key(), "true");
+    state.set(phiber::state::SceneKey::Loading, "true");
     settle_import(&mut state, ImportOutcome::TimedOut);
 
-    assert_eq!(state.get(&loading_key()), None);
-    assert!(state.get(&error_key()).is_some());
-    assert_eq!(state.get(&loaded_path_key()), Some("/prior.blend"));
+    assert_eq!(state.get(phiber::state::SceneKey::Loading), None);
+    assert!(state.get(phiber::state::SceneKey::Error).is_some());
+    assert_eq!(state.get(phiber::state::SceneKey::LoadedPath), Some("/prior.blend"));
 }
 
 // --------------------------------------------------------------------------
@@ -209,7 +206,7 @@ fn timeout_path_retains_prior_scene_and_sets_error() {
 #[test]
 fn fresh_failure_leaves_loaded_path_absent() {
     let mut state = BState::new();
-    assert_eq!(state.get(&loaded_path_key()), None, "precondition");
+    assert_eq!(state.get(phiber::state::SceneKey::LoadedPath), None, "precondition");
 
     settle_import(
         &mut state,
@@ -217,7 +214,7 @@ fn fresh_failure_leaves_loaded_path_absent() {
     );
 
     // loaded_path stays absent since there was no prior successful load.
-    assert_eq!(state.get(&loaded_path_key()), None);
-    assert_eq!(state.get(&loading_key()), None);
-    assert!(state.get(&error_key()).is_some());
+    assert_eq!(state.get(phiber::state::SceneKey::LoadedPath), None);
+    assert_eq!(state.get(phiber::state::SceneKey::Loading), None);
+    assert!(state.get(phiber::state::SceneKey::Error).is_some());
 }

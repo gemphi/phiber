@@ -223,7 +223,7 @@ async fn a_menu_too_tall_for_the_window_scrolls_instead_of_squashing_its_rows(cx
 
 #[gpui::test]
 async fn the_sidebar_takes_the_width_it_was_dragged_to(cx: &mut TestAppContext) {
-    use phiber::view::draw::resize::k_sidebar_width;
+    use phiber::state::SidebarKey;
 
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1280.0), px(800.0)));
@@ -242,7 +242,7 @@ async fn the_sidebar_takes_the_width_it_was_dragged_to(cx: &mut TestAppContext) 
 
     // What a drag writes.
     app.update(cx, |app, cx| {
-        app.state.set(&k_sidebar_width(), (f32::from(before.size.width) + 60.0).to_string());
+        app.state.set(SidebarKey::Width, (f32::from(before.size.width) + 60.0).to_string());
         cx.notify();
     });
     cx.run_until_parked();

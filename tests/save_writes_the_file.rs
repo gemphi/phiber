@@ -34,7 +34,7 @@ async fn ctrl_s_saves_the_edits_save_as_moves_the_document_and_save_copy_does_no
     cx.simulate_resize(size(px(1280.0), px(800.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::scene::loaded_path_key(), blend.to_string_lossy().to_string());
+        app.state.set(phiber::state::SceneKey::LoadedPath, blend.to_string_lossy().to_string());
         app.scene_cache = Some((blend.to_string_lossy().to_string(), std::sync::Arc::new(model)));
         app.state.set(CtxKey::Object, "Cube");
         cx.notify();
@@ -71,7 +71,7 @@ async fn ctrl_s_saves_the_edits_save_as_moves_the_document_and_save_copy_does_no
         app.handle_file_commit(&dir.join("copy").to_string_lossy(), BFilePurpose::SaveCopy, cx);
     });
     assert!(dir.join("copy.blend").is_file(), "the copy gets the extension it lacked");
-    assert_eq!(app.read_with(cx, |a, _| a.state.get(&phiber::scene::loaded_path_key()).map(str::to_string)), Some(blend.to_string_lossy().to_string()));
+    assert_eq!(app.read_with(cx, |a, _| a.state.get(phiber::state::SceneKey::LoadedPath).map(str::to_string)), Some(blend.to_string_lossy().to_string()));
 
     // Save As: the document moves.
     app.update(cx, |app, cx| {
@@ -79,7 +79,7 @@ async fn ctrl_s_saves_the_edits_save_as_moves_the_document_and_save_copy_does_no
     });
     assert!(dir.join("moved.blend").is_file());
     assert_eq!(
-        app.read_with(cx, |a, _| a.state.get(&phiber::scene::loaded_path_key()).map(str::to_string)),
+        app.read_with(cx, |a, _| a.state.get(phiber::state::SceneKey::LoadedPath).map(str::to_string)),
         Some(dir.join("moved.blend").to_string_lossy().to_string())
     );
     // Save Incremental from there: moved1.blend, and the document follows.
@@ -111,7 +111,7 @@ async fn a_new_file_is_the_startup_scene_and_saves_through_it(cx: &mut TestAppCo
     }
     let names = app.read_with(cx, |a, _| a.scene_cache.as_ref().map(|(_, m)| m.objects.iter().map(|o| o.name.clone()).chain(m.cameras.iter().map(|c| c.name.clone())).chain(m.lights.iter().map(|l| l.name.clone())).collect::<Vec<_>>()).unwrap_or_default());
     assert!(names.contains(&"Cube".to_string()) && names.contains(&"Camera".to_string()) && names.contains(&"Light".to_string()), "{names:?}");
-    assert_eq!(app.read_with(cx, |a, _| a.state.get(&phiber::scene::loaded_path_key()).map(str::to_string)), None, "untitled");
+    assert_eq!(app.read_with(cx, |a, _| a.state.get(phiber::state::SceneKey::LoadedPath).map(str::to_string)), None, "untitled");
     assert_eq!(app.read_with(cx, |a, _| a.scene_cache.as_ref().map(|(_, m)| m.report.file_version.clone())), Some("5.0".into()), "nothing was open: the newest layout");
 
     // Ctrl S on an untitled file asks where.
@@ -126,7 +126,7 @@ async fn a_new_file_is_the_startup_scene_and_saves_through_it(cx: &mut TestAppCo
     assert!(target.is_file());
     let saved = read_scene(&target);
     assert!(saved.objects.iter().any(|o| o.name == "Cube" && o.vertices.len() == 8), "{:?}", saved.objects.iter().map(|o| &o.name).collect::<Vec<_>>());
-    assert_eq!(app.read_with(cx, |a, _| a.state.get(&phiber::scene::loaded_path_key()).map(str::to_string)), Some(target.to_string_lossy().to_string()));
+    assert_eq!(app.read_with(cx, |a, _| a.state.get(phiber::state::SceneKey::LoadedPath).map(str::to_string)), Some(target.to_string_lossy().to_string()));
     let _ = std::fs::remove_dir_all(&dir);
 }
 

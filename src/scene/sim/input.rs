@@ -16,17 +16,28 @@ use crate::state::BState;
 use phiray::sim::{BlendBody, BlendObject, BlendShape, BlendWorld, World};
 use std::hash::{DefaultHasher, Hash, Hasher};
 
-/// The Scene tab's Rigid Body World rows a bake reads, as the panel shows
-/// them: typed values over the file's (`part::props::scene`).
+/// The panel rows a bake reads, as the panels show them: the Scene tab's
+/// Rigid Body World, and the Physics tab's Rigid Body for the **active
+/// object** (`part::props::scene`, `part::props::physics::body`).
+///
+/// One body at a time, because Blender's Properties editor edits the active
+/// object: that object's rows are taken over the file's, and every other
+/// body is the file's as read. The rows are part of the bake's key, so
+/// changing Mass re-bakes and scrubbing does not.
 #[derive(Clone, Debug, PartialEq)]
-pub struct BWorldRows {
+pub struct BPhysicsRows {
     pub enabled: bool,
     pub substeps: u32,
     pub iterations: u32,
     pub speed: f32,
+    /// The active object's body as the Physics tab shows it, over the
+    /// file's. `None` when nothing is active or the active object carries no
+    /// rigid body. It names its own object (`BRigidBody::object`), so the
+    /// build knows whose it is.
+    pub body: Option<BRigidBody>,
 }
 
-impl BWorldRows {
+impl BPhysicsRows {
     /// The rows as `s` shows them over `world`.
     pub fn read(s: &BState, world: &BRigidWorld) -> Self {
         use crate::state::val::BValue;
@@ -46,12 +57,24 @@ impl BWorldRows {
                 Some(BValue::Float(v)) => v,
                 _ => world.time_scale,
             },
+            body: Self::active_body(s),
         }
+    }
+
+    /// The active object's body with the Physics tab's rows over it
+    /// (`input_body`). The panel is seeded from the file, so an untouched
+    /// panel reads back the file's values and nothing re-bakes.
+    fn active_body(s: &BState) -> Option<BRigidBody> {
+        let active = s.get(crate::state::CtxKey::Object).filter(|o| !o.is_empty())?;
+        crate::scene::source::with_loaded(|model| {
+            let file = model?.physics.bodies.iter().find(|b| b.object == active)?;
+            Some(super::input_body::shown_over(s, file))
+        })
     }
 
     /// The file's own rows, for a caller with no panel.
     pub fn file(world: &BRigidWorld) -> Self {
-        Self { enabled: world.enabled, substeps: world.substeps_per_frame, iterations: world.solver_iterations, speed: world.time_scale }
+        Self { enabled: world.enabled, substeps: world.substeps_per_frame, iterations: world.solver_iterations, speed: world.time_scale, body: None }
     }
 }
 
@@ -76,7 +99,7 @@ pub struct BSimInput {
 impl BSimInput {
     /// `model`'s rigid bodies with `rows` over its world; `None` when it has
     /// no world, the world is off, or no object carries a body.
-    pub fn of(model: &SceneModel, rows: &BWorldRows) -> Option<Self> {
+    pub fn of(model: &SceneModel, rows: &BPhysicsRows) -> Option<Self> {
         let physics = &model.physics;
         let world = physics.world.as_ref().filter(|_| rows.enabled)?;
         let objects: Vec<BSimObject> = physics
@@ -86,6 +109,9 @@ impl BSimInput {
             .map(|(b, o)| {
                 let m = &o.mesh;
                 let at = |k: u32| m.vertices.get(k as usize).copied().unwrap_or_default();
+                // The Physics tab's rows stand in for the one body it is
+                // showing; the rest are the file's.
+                let b = rows.body.as_ref().filter(|shown| shown.object == b.object).unwrap_or(b);
                 BSimObject { name: o.name.clone(), body: body(b), tris: m.indices.chunks_exact(3).map(|t| [at(t[0]), at(t[1]), at(t[2])]).collect(), world: o.matrix_world }
             })
             .collect();
@@ -119,7 +145,7 @@ pub fn moves(model: &SceneModel) -> bool {
 /// physics settings, the frame rate and the rows over each body's object
 /// as it starts. Another file with the same settings is another bake; a
 /// scrub is not one. The scene part alone is what Bake pins a cache to.
-pub fn key(model: &SceneModel, rows: &BWorldRows) -> (u64, u64) {
+pub fn key(model: &SceneModel, rows: &BPhysicsRows) -> (u64, u64) {
     let mut h = DefaultHasher::new();
     for o in model.objects.iter().filter(|o| model.physics.bodies.iter().any(|b| b.object == o.name)) {
         o.name.hash(&mut h);

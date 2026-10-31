@@ -3,19 +3,9 @@
 //! `asset_catalog_tree_view`. The assets themselves are `asset_grid.rs`.
 
 use super::sidebar::panel;
-use crate::state::{BPath, BState};
+use crate::state::{AssetKey, BKey as _, BState};
 use crate::view::prim::{BAction, BCard, BColumn, BControl, with_peers};
 use crate::view::BView;
-
-/// `ctx.asset.catalog` — the active catalog filter ("all" / "unassigned" / path).
-pub fn k_catalog() -> BPath {
-    BPath::owned(vec!["asset", "catalog"])
-}
-
-/// `ctx.asset.library` — the active asset library name.
-pub fn k_library() -> BPath {
-    BPath::owned(vec!["asset", "library"])
-}
 
 /// Blender's built-in library choices (`ASSET_LIBRARY_*` in `asset_library.hh`).
 pub const LIBRARIES: &[&str] = &["Current File", "Essentials", "All"];
@@ -26,16 +16,16 @@ pub const DEFAULT_LIBRARY: &str = "All";
 
 /// The library chosen.
 pub fn library(s: &BState) -> &str {
-    s.get(&k_library()).unwrap_or(DEFAULT_LIBRARY)
+    s.get(AssetKey::Library).unwrap_or(DEFAULT_LIBRARY)
 }
 
 fn catalog_button(s: &BState, icon: &'static str, label: &'static str, value: &'static str) -> BView {
-    let active = s.get(&k_catalog()).unwrap_or("all") == value;
+    let active = s.get(AssetKey::Catalog).unwrap_or("all") == value;
     BView::Button(
         BControl::new()
             .with_icon(if active { "check" } else { icon })
             .with_label(label)
-            .with_action(BAction::Set(k_catalog(), value.to_string())),
+            .with_action(BAction::Set(AssetKey::Catalog.path(), value.to_string())),
     )
 }
 
@@ -56,7 +46,7 @@ pub fn asset_view(s: &BState) -> BView {
                 BControl::new()
                     .with_icon(if *lib == current { "check" } else { "asset" })
                     .with_label(*lib)
-                    .with_action(BAction::Set(k_library(), lib.to_string())),
+                    .with_action(BAction::Set(AssetKey::Library.path(), lib.to_string())),
             )
         })
         .collect();

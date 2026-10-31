@@ -23,8 +23,22 @@ pub fn wear(window: &Window, state: &BState) {
     if WORN.replace(Some(blurred)) == Some(blurred) {
         return;
     }
-    window.set_background_appearance(match blurred {
-        true => WindowBackgroundAppearance::Blurred,
-        false => WindowBackgroundAppearance::Opaque,
+    window.set_background_appearance(match (blurred, forced()) {
+        (false, _) => WindowBackgroundAppearance::Opaque,
+        (true, Some(forced)) => forced,
+        (true, None) => WindowBackgroundAppearance::Blurred,
     });
+}
+
+/// `PHIBER_BACKDROP=transparent|mica|mica_alt|blurred`: the backdrop the glass
+/// mode asks for instead of the blur, to see what this system's compositor
+/// draws behind the window.
+fn forced() -> Option<WindowBackgroundAppearance> {
+    match std::env::var("PHIBER_BACKDROP").ok()?.as_str() {
+        "transparent" => Some(WindowBackgroundAppearance::Transparent),
+        "mica" => Some(WindowBackgroundAppearance::MicaBackdrop),
+        "mica_alt" => Some(WindowBackgroundAppearance::MicaAltBackdrop),
+        "blurred" => Some(WindowBackgroundAppearance::Blurred),
+        _ => None,
+    }
 }

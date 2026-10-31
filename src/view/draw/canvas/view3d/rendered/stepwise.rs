@@ -33,6 +33,7 @@ pub fn still_stepwise(
     h: u32,
     samples: u32,
     denoise: bool,
+    glow: Option<[f32; 3]>, // `Tracer::glow`: [threshold, intensity, radius]
     // Adaptive Sampling as Cycles resolves it (`BAdaptive::of`):
     // `[threshold, min samples, step, on]`. All zero is off, which is what
     // Workbench and the thumbnail paths pass.
@@ -66,6 +67,24 @@ pub fn still_stepwise(
     let (shading, palette) = (look.shading, look.palette());
     let cam = with_studio(cam, shading);
     let built = scene::build(objects, &palette);
+    // The file summary counts every object's placed triangles. The GPU
+    // uploads shared geometry once, so report both sides of that distinction
+    // before moving the compact scene into the tracer. Pose 26 says 967
+    // objects / 27.99M placed triangles at open but reaches this path as
+    // about 615 instances over 7.28M unique faces.
+    let scene_line = format!(
+        "Render scene: {} visible instances, {} unique meshes, {} unique vertices, {} unique faces, {} materials, {:.1} MB texture atlas",
+        built.insts.len(),
+        built.meshes.len(),
+        built.pos.len(),
+        built.faces.len(),
+        built.mats.len(),
+        built.atlas.words().len() as f64 * 4.0 / 1_048_576.0,
+    );
+    crate::app::journal::BJournal::note(scene_line.clone());
+    if crate::cli::headless() {
+        println!("{scene_line}");
+    }
     // A scene the device will not take is reported with its reason rather
     // than leaving a blank Render Result behind: pose 26 declined here and
     // the info bar still said "Finished" (`phiray::Tracer::why_not`).
@@ -83,7 +102,7 @@ pub fn still_stepwise(
     // are "automatic" by default and Cycles' rules turn them into quite
     // different numbers, so without this there is no way to tell from a
     // log which settings a render actually used.
-    crate::app::journal::BJournal::note(if adapt[3] != 0.0 {
+    let adaptive_line = if adapt[3] != 0.0 {
         format!(
             // The panel's Noise Threshold, then the one the kernel compares
             // (× `BAdaptive::SCALE`): the log said 0.1000 for a file's 0.02,
@@ -96,7 +115,11 @@ pub fn still_stepwise(
         )
     } else {
         "Adaptive sampling: off — every pixel takes every sample".to_string()
-    });
+    };
+    crate::app::journal::BJournal::note(adaptive_line.clone());
+    if crate::cli::headless() {
+        println!("{adaptive_line}");
+    }
     tracer.set_mode(match shading {
         BShading::Wireframe => phiray::Mode::Wire,
         BShading::Solid => phiray::Mode::Solid,
@@ -136,6 +159,13 @@ pub fn still_stepwise(
     let mut told = false;
     let mut told_done = false;
     let mut told_limit = false;
+    // Where the time goes, phase by phase (`scene::render_trace`). Two
+    // `Instant` reads an event; nothing here touches the device.
+    let began_all = web_time::Instant::now();
+    let mut trace = crate::scene::BRenderTrace { bands: bands.list.len() as u32, pixels: u64::from(rw) * u64::from(rh), ..Default::default() };
+    // `Gpu::waited` is process-wide and monotonic, so the render's share is
+    // the difference across it.
+    let waited_before = phiray::Gpu::waited();
     for (k, (y0, rows)) in bands.list.iter().enumerate() {
         let (over, under) = (reach.min(*y0), reach.min(rh - y0 - rows));
         // This band's share of the time limit, by its rows of the frame.
@@ -145,32 +175,88 @@ pub fn still_stepwise(
         let band = phiray::Camera { tile: if tiled { [rx, ry + y0 - over, w, h] } else { [0; 4] }, ..cam };
         loop {
             let at = web_time::Instant::now();
+            let drained_before = phiray::Gpu::waited().0;
             // `go` always says carry on: a final render is never abandoned
             // for a newer view, so `sample_in` never returns `None` here.
-            let (taken, done) = tracer
-                .sample_in(&gpu, band, rw, rows + over + under, slices, || true)
-                .expect("a final render never abandons a sample");
+            // `go` always says carry on, so the only `None` here is a
+            // device that did not drain inside its budget
+            // (`Tracer::sample_in`). That used to be impossible and the
+            // call used to `expect` it; making the drain bounded made it
+            // reachable, and a lost device must be reported rather than
+            // panicked on — the render keeps whatever it has drawn.
+            let Some((taken, done)) = tracer.sample_in(&gpu, band, rw, rows + over + under, slices, || true) else {
+                note_render_refused(format!(
+                    "the GPU did not finish a dispatch within {:.0}s — the display driver may have reset it (sample {}, {was_slices} dispatches)",
+                    gpu.patience().as_secs_f64(),
+                    trace.sample.times + 1,
+                    was_slices = slices,
+                ));
+                note_trace(&mut trace, waited_before, began_all);
+                step(bands.progress(k, trace.sample.times, tracer.samples()), BStillAt::Settled(region.framed(drawn, w, h, reach)));
+                return Some(trace.sample.times);
+            };
             let took = at.elapsed();
+            // The GPU work this sample did: its wall time less the device
+            // drains the slicing itself cost. That is what the watchdog
+            // limits, and the only honest input to the slice count —
+            // see `BSliceCut`.
+            let drained = std::time::Duration::from_nanos(phiray::Gpu::waited().0.saturating_sub(drained_before));
+            let work = took.saturating_sub(drained);
+            trace.sample.add(took);
+            trace.slices = slices;
             let was = slices;
             seen += 1;
+            // Settled ONCE, from the second sample, and deliberately
+            // conservative. Re-deriving it per sample from
+            // `took - drained` was tried and REVERTED: `Gpu::waited` is
+            // process-wide, so that subtraction can underflow to zero, the
+            // count then falls to a single dispatch covering the whole
+            // frame, and one dispatch that long is what the Windows GPU
+            // watchdog resets the driver for. The device is then lost and
+            // the drain below never returns — a 64-sample render that took
+            // 39 s became a 25-minute hang. The over-slicing is the thing
+            // preventing that, not an inefficiency to tune away.
             if seen == 2 {
                 slices = BSliceCut::from(took);
                 if !told {
                     told = true;
                     crate::app::journal::BJournal::note(format!(
-                        "Render pace: {:.0}ms a sample over {rw}×{} px, cut into {was} dispatches of about {:.0}ms; the rest take {slices}",
+                        "Render pace: {:.0}ms a sample over {rw}×{} px ({:.0}ms of it draining {was} dispatches); the rest take {slices}",
                         took.as_secs_f64() * 1000.0,
                         rows + over + under,
-                        took.as_secs_f64() * 1000.0 / f64::from(was.max(1)),
+                        drained.as_secs_f64() * 1000.0,
                     ));
                 }
             }
+            let _ = work;
             // Every pixel settled: the band is finished, whatever the
             // sample count says. Cycles ends a render here rather than
             // running on.
-            let settled = taken > 0
+            // The convergence check is a readback — staging buffer, map,
+            // device drain — so it is timed even though it returns one
+            // word (`Tracer::unconverged`).
+            // The same three conditions the kernel itself applies before it
+            // will write a convergence flag (`adapt.wgsl`, Cycles'
+            // `AdaptiveSampling::need_filter`): adaptive sampling on, the
+            // minimum samples past, and a step boundary. Asking before all
+            // three hold cannot return anything but "not settled", because
+            // no flag has been written — and the question is not free: the
+            // readback measured 25ms against 1ms of tracing a sample, so
+            // on a 256-sample frame the sixteen pointless asks were 0.40s
+            // of a 1.59s render. The minimum was the condition missing
+            // here, and it is the one that matters, since Phiber's default
+            // minimum is 256 samples.
+            let min_samples = adapt[1] as u32;
+            let settled = adapt[3] != 0.0
+                && taken > min_samples
                 && (taken & (crate::scene::render_set::BAdaptive::STEP - 1)) == crate::scene::render_set::BAdaptive::STEP - 1
-                && tracer.unconverged(&gpu) == Some(0);
+                && {
+                    let at = web_time::Instant::now();
+                    let open = tracer.unconverged(&gpu);
+                    trace.converge.add(at.elapsed());
+                    trace.open_pixels = open;
+                    open == Some(0)
+                };
             if settled && !told_done {
                 told_done = true;
                 crate::app::journal::BJournal::note(format!(
@@ -197,23 +283,37 @@ pub fn still_stepwise(
             let go_on = done || {
                 let at = if peek.is_some_and(|every| peeked.elapsed() >= every) {
                     peeked = web_time::Instant::now();
+                    // The whole frame back to the CPU plus a clone of the
+                    // RGBA buffer: the most expensive thing that is not
+                    // tracing, which is why it is on a timer at all.
+                    let began = web_time::Instant::now();
                     let mut peek = drawn.rgba.clone();
                     BStill::lay_rgba(&mut peek, &tracer.pixels(&gpu), *y0 as usize, *rows as usize, over as usize, rw as usize);
-                    BStillAt::Peek(BStill::peek(region.framed_rgba(peek, w, h, reach)))
+                    let shown = BStillAt::Peek(BStill::peek(region.framed_rgba(peek, w, h, reach)));
+                    trace.peek.add(began.elapsed());
+                    shown
                 } else {
                     BStillAt::Counting
                 };
                 step(bands.progress(k, taken + 1, tracer.samples()), at)
             };
             if done || !go_on {
+                let finishing = web_time::Instant::now();
                 if denoise && done {
                     tracer.denoise(&gpu);
                 }
                 if done {
+                    // Glare runs scene-linear, before the overlays.
+                    if let Some([t, i, r]) = glow { tracer.glow(&gpu, t, i, r); }
                     composite(&gpu, &mut tracer);
                 }
-                drawn.lay(&BStill::read(&tracer, &gpu), *y0 as usize, *rows as usize, over as usize, rw as usize);
+                trace.finish.add(finishing.elapsed());
+                let reading = web_time::Instant::now();
+                let bytes = BStill::read(&tracer, &gpu);
+                trace.read.add(reading.elapsed());
+                drawn.lay(&bytes, *y0 as usize, *rows as usize, over as usize, rw as usize);
                 if !go_on {
+                    note_trace(&mut trace, waited_before, began_all);
                     step(bands.progress(k, taken + 1, tracer.samples()), BStillAt::Settled(region.framed(drawn, w, h, reach)));
                     return Some(taken + 1);
                 }
@@ -221,8 +321,27 @@ pub fn still_stepwise(
             }
         }
     }
+    note_trace(&mut trace, waited_before, began_all);
     step(tracer.samples(), BStillAt::Settled(region.framed(drawn, w, h, reach)));
     Some(tracer.samples())
+}
+
+/// Fill in the device-wait phase from phiray's counters and publish the
+/// report: the session journal (the Info editor reads it) and, for a
+/// headless run, stdout — `cli::render` has no journal to show.
+fn note_trace(trace: &mut crate::scene::BRenderTrace, before: (u64, u32), began: web_time::Instant) {
+    let (ns, times) = phiray::Gpu::waited();
+    trace.wait = crate::scene::BPhase {
+        times: times.saturating_sub(before.1),
+        total: std::time::Duration::from_nanos(ns.saturating_sub(before.0)),
+    };
+    let report = trace.report(began.elapsed());
+    for line in report.lines() {
+        crate::app::journal::BJournal::note(line.to_string());
+    }
+    if crate::cli::headless() {
+        print!("{report}");
+    }
 }
 
 /// Material Preview is lit by the studio image `scene::build` puts in the

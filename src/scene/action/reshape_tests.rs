@@ -45,7 +45,7 @@ fn easing_and_handle_set_their_own_fields() {
 
 #[test]
 fn a_reshape_round_trips_through_its_encoding() {
-    let r = reshape(vec![1.0, 5.0], BKeyShape { ipo: Some(IPO_SINE), easing: Some(EASE_OUT), handle: None });
+    let r = reshape(vec![1.0, 5.0], BKeyShape { ipo: Some(IPO_SINE), easing: Some(EASE_OUT), handle: None, keytype: None });
     let text = r.encode();
     assert!(BKeyReshape::is_mark(&text));
     assert_eq!(BKeyReshape::parse(&text), Some(r));
@@ -58,4 +58,46 @@ fn a_menu_value_names_its_shape() {
     assert_eq!(BKeyShape::from_value("handle", "vector"), Some(BKeyShape { handle: Some(HANDLE_VECT), ..Default::default() }));
     assert_eq!(BKeyShape::from_value("ipo", "nonsense"), None);
     assert_eq!(BKeyShape::from_value("what", "lin"), None);
+}
+
+/// Key ▸ Keyframe Type (`ACTION_OT_keyframe_type`): it sets the type
+/// Blender keeps in `BezTriple.hide`, on the named keys alone, and changes
+/// no value and no interpolation — the type only picks how a key is drawn.
+#[test]
+fn keyframe_type_is_set_only_on_the_named_keys_and_changes_nothing_else() {
+    use crate::phiphx::blend::{KEYTYPE_BREAKDOWN, KEYTYPE_KEYFRAME};
+    let mut actions = action_with(&[1.0, 5.0, 9.0]);
+    let before: Vec<[f32; 2]> = actions[0].curves[0].keys.iter().map(|k| k.co).collect();
+    reshape(vec![5.0], BKeyShape { keytype: Some(KEYTYPE_BREAKDOWN), ..Default::default() }).apply(&mut actions);
+    let keys = &actions[0].curves[0].keys;
+    assert_eq!(keys[0].keytype, KEYTYPE_KEYFRAME, "a new key is a plain keyframe");
+    assert_eq!(keys[1].keytype, KEYTYPE_BREAKDOWN, "the named key is a breakdown");
+    assert_eq!(keys[2].keytype, KEYTYPE_KEYFRAME);
+    // No value moved and no interpolation changed.
+    assert_eq!(keys.iter().map(|k| k.co).collect::<Vec<_>>(), before);
+    assert!(keys.iter().all(|k| k.ipo == IPO_BEZ));
+}
+
+/// The mark carries the keyframe type, and a mark written before the field
+/// existed (three fields) still reads — it just leaves the type alone.
+#[test]
+fn the_mark_round_trips_the_keyframe_type_and_tolerates_a_three_field_one() {
+    use crate::phiphx::blend::KEYTYPE_JITTER;
+    let shape = BKeyShape { ipo: Some(IPO_LIN), keytype: Some(KEYTYPE_JITTER), ..Default::default() };
+    let mark = reshape(vec![1.0, 5.0], shape);
+    assert_eq!(BKeyReshape::parse(&mark.encode()), Some(mark.clone()));
+    // The old three-field form: ipo set, no keytype field at all.
+    let old = "^Act#OBCube#1,5=1,-,-";
+    let read = BKeyReshape::parse(old).expect("a three-field mark still reads");
+    assert_eq!((read.shape.ipo, read.shape.keytype), (Some(IPO_LIN), None));
+}
+
+/// Every menu value the Keyframe Type submenu fires resolves to a type.
+#[test]
+fn every_keyframe_type_menu_value_resolves() {
+    for kind in ["keyframe", "breakdown", "movehold", "extreme", "jitter", "generated"] {
+        let shape = BKeyShape::from_value("keytype", kind).unwrap_or_else(|| panic!("{kind} resolves"));
+        assert!(shape.keytype.is_some() && shape.ipo.is_none(), "{kind} sets the type alone");
+    }
+    assert_eq!(BKeyShape::from_value("keytype", "nonsense"), None);
 }

@@ -33,8 +33,9 @@
 
 use super::orbit::BTurntable;
 use super::orbit_around::{BOrbitAround, encode, pan_pivot, turn_pivot};
-use super::{pan_x_key, pan_y_key, pitch_key, pivot_key, yaw_key, zoom_key, zoom_step};
-use crate::state::{BPath, BState};
+use super::view_slot::BViewSlot;
+use super::zoom_step;
+use crate::state::{BPath, BState, View3dKey};
 use crate::view::prim::BAction;
 use glam::Vec3;
 
@@ -100,12 +101,12 @@ impl BNavBase {
             BAction::Set(at, value) if *at == key => value.parse::<f32>().ok(),
             _ => None,
         });
-        self.yaw = set(yaw_key()).unwrap_or(self.yaw);
-        self.pitch = set(pitch_key()).unwrap_or(self.pitch);
-        self.zoom = set(zoom_key()).unwrap_or(self.zoom);
-        self.pan = (set(pan_x_key()).unwrap_or(self.pan.0), set(pan_y_key()).unwrap_or(self.pan.1));
+        self.yaw = set(BViewSlot::key(View3dKey::Yaw)).unwrap_or(self.yaw);
+        self.pitch = set(BViewSlot::key(View3dKey::Pitch)).unwrap_or(self.pitch);
+        self.zoom = set(BViewSlot::key(View3dKey::Zoom)).unwrap_or(self.zoom);
+        self.pan = (set(BViewSlot::key(View3dKey::PanX)).unwrap_or(self.pan.0), set(BViewSlot::key(View3dKey::PanY)).unwrap_or(self.pan.1));
         let pivot = leave.iter().find_map(|a| match a {
-            BAction::Set(at, value) if *at == pivot_key() => Some(value.split(',').filter_map(|p| p.trim().parse::<f32>().ok()).collect::<Vec<_>>()),
+            BAction::Set(at, value) if *at == BViewSlot::key(View3dKey::Pivot) => Some(value.split(',').filter_map(|p| p.trim().parse::<f32>().ok()).collect::<Vec<_>>()),
             _ => None,
         });
         self.pivot = pivot.filter(|p| p.len() == 3).map_or(self.pivot, |p| Vec3::new(p[0], p[1], p[2]));
@@ -121,9 +122,9 @@ pub fn scroll_sets(nav: BScrollNav, base: BNavBase, acc: (f32, f32), width: f32)
         // the selection, the centre swings round it (`turn_pivot`).
         BScrollNav::Orbit => {
             let (yaw, pitch) = BTurntable::start(base.yaw, base.pitch).at(acc.0, acc.1);
-            let mut sets = vec![(yaw_key(), yaw.to_string()), (pitch_key(), pitch.to_string())];
+            let mut sets = vec![(BViewSlot::key(View3dKey::Yaw), yaw.to_string()), (BViewSlot::key(View3dKey::Pitch), pitch.to_string())];
             if let Some(about) = base.around {
-                sets.push((pivot_key(), encode(turn_pivot(base.pivot, about, (base.yaw, base.pitch), (yaw, pitch)))));
+                sets.push((BViewSlot::key(View3dKey::Pivot), encode(turn_pivot(base.pivot, about, (base.yaw, base.pitch), (yaw, pitch)))));
             }
             sets
         }
@@ -135,12 +136,12 @@ pub fn scroll_sets(nav: BScrollNav, base: BNavBase, acc: (f32, f32), width: f32)
             let w = width.max(1.0);
             let shift = (base.pan.0 + acc.0 / w, base.pan.1 + acc.1 / w);
             let pivot = pan_pivot(base.pivot, (base.yaw, base.pitch), base.zoom, shift);
-            vec![(pivot_key(), encode(pivot)), (pan_x_key(), "0".to_string()), (pan_y_key(), "0".to_string())]
+            vec![(BViewSlot::key(View3dKey::Pivot), encode(pivot)), (BViewSlot::key(View3dKey::PanX), "0".to_string()), (BViewSlot::key(View3dKey::PanY), "0".to_string())]
         }
         // A notch is one factor; a swipe steps fractionally, so it is smooth.
         BScrollNav::Zoom => {
             let factor = ZOOM_PER_LINE.powf(acc.1 / PX_PER_LINE);
-            vec![(zoom_key(), zoom_step(base.zoom, factor).to_string())]
+            vec![(BViewSlot::key(View3dKey::Zoom), zoom_step(base.zoom, factor).to_string())]
         }
     }
 }

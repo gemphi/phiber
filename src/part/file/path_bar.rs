@@ -175,6 +175,6 @@ fn sidebar_toggle(s: &BState) -> BView {
             .with_icon("settings")
             .with_tooltip("Toggle Region")
             .with_active(!hidden)
-            .with_action(BAction::Set(crate::view::size::k_sidebar_hidden(), (!hidden).to_string())),
+            .with_action(BAction::Set(crate::state::SidebarKey::Hidden.path(), (!hidden).to_string())),
     )
 }

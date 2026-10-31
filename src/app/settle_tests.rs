@@ -39,15 +39,15 @@ use super::*;
     fn loaded_clears_loading_and_error_sets_loaded_path() {
         let mut s = BState::new();
         // Pre-existing loading + error from a prior in-flight import.
-        s.set(&loading_key(), "true");
-        s.set(&error_key(), "old failure");
+        s.set(crate::state::SceneKey::Loading, "true");
+        s.set(crate::state::SceneKey::Error, "old failure");
 
         let returned = settle_import(&mut s, ImportOutcome::Loaded(model_at("/dir/model.blend")));
 
         // Loading absent, error absent, loaded_path set to the model's path.
-        assert_eq!(s.get(&loading_key()), None);
-        assert_eq!(s.get(&error_key()), None);
-        assert_eq!(s.get(&loaded_path_key()), Some("/dir/model.blend"));
+        assert_eq!(s.get(crate::state::SceneKey::Loading), None);
+        assert_eq!(s.get(crate::state::SceneKey::Error), None);
+        assert_eq!(s.get(crate::state::SceneKey::LoadedPath), Some("/dir/model.blend"));
         // The model is returned so the caller can cache it.
         let model = returned.expect("Loaded returns the model to cache");
         assert_eq!(model.source_path.as_deref(), Some("/dir/model.blend"));
@@ -56,8 +56,8 @@ use super::*;
     #[test]
     fn loaded_without_source_path_clears_loaded_path() {
         let mut s = BState::new();
-        s.set(&loaded_path_key(), "/prev/scene.blend");
-        s.set(&loading_key(), "true");
+        s.set(crate::state::SceneKey::LoadedPath, "/prev/scene.blend");
+        s.set(crate::state::SceneKey::Loading, "true");
 
         let model = SceneModel {
             objects: vec![],
@@ -66,9 +66,9 @@ use super::*;
         };
         let returned = settle_import(&mut s, ImportOutcome::Loaded(model));
 
-        assert_eq!(s.get(&loading_key()), None);
+        assert_eq!(s.get(crate::state::SceneKey::Loading), None);
         // No source path => the reflected path is cleared, not left stale.
-        assert_eq!(s.get(&loaded_path_key()), None);
+        assert_eq!(s.get(crate::state::SceneKey::LoadedPath), None);
         assert!(returned.is_some());
     }
 
@@ -76,8 +76,8 @@ use super::*;
     fn failed_clears_loading_sets_bounded_error_retains_loaded_path() {
         let mut s = BState::new();
         // A scene was already reflected before the failed import.
-        s.set(&loaded_path_key(), "/dir/prev.blend");
-        s.set(&loading_key(), "true");
+        s.set(crate::state::SceneKey::LoadedPath, "/dir/prev.blend");
+        s.set(crate::state::SceneKey::Loading, "true");
 
         let returned = settle_import(
             &mut s,
@@ -85,8 +85,8 @@ use super::*;
         );
 
         // Loading cleared; error set to a 1..=256 char message.
-        assert_eq!(s.get(&loading_key()), None);
-        let msg = s.get(&error_key()).expect("failure sets an error message");
+        assert_eq!(s.get(crate::state::SceneKey::Loading), None);
+        let msg = s.get(crate::state::SceneKey::Error).expect("failure sets an error message");
         assert!(
             (1..=256).contains(&char_len(msg)),
             "error len {} out of bounds",
@@ -97,7 +97,7 @@ use super::*;
             "message names the category: {msg}"
         );
         // Prior reflected path is preserved (retain prior scene, Requirement 3.4).
-        assert_eq!(s.get(&loaded_path_key()), Some("/dir/prev.blend"));
+        assert_eq!(s.get(crate::state::SceneKey::LoadedPath), Some("/dir/prev.blend"));
         // No model to cache on failure.
         assert!(returned.is_none());
     }
@@ -105,20 +105,20 @@ use super::*;
     #[test]
     fn timed_out_clears_loading_sets_bounded_error_retains_loaded_path() {
         let mut s = BState::new();
-        s.set(&loaded_path_key(), "/dir/prev.blend");
-        s.set(&loading_key(), "true");
+        s.set(crate::state::SceneKey::LoadedPath, "/dir/prev.blend");
+        s.set(crate::state::SceneKey::Loading, "true");
 
         let returned = settle_import(&mut s, ImportOutcome::TimedOut);
 
-        assert_eq!(s.get(&loading_key()), None);
-        let msg = s.get(&error_key()).expect("timeout sets an error message");
+        assert_eq!(s.get(crate::state::SceneKey::Loading), None);
+        let msg = s.get(crate::state::SceneKey::Error).expect("timeout sets an error message");
         assert!(
             (1..=256).contains(&char_len(msg)),
             "timeout msg len {} out of bounds",
             char_len(msg)
         );
         // Prior reflected path is preserved on timeout too.
-        assert_eq!(s.get(&loaded_path_key()), Some("/dir/prev.blend"));
+        assert_eq!(s.get(crate::state::SceneKey::LoadedPath), Some("/dir/prev.blend"));
         assert!(returned.is_none());
     }
 
@@ -130,13 +130,13 @@ use super::*;
             &mut s,
             ImportOutcome::Failed(SceneLoadError::Inaccessible("no file".to_string())),
         );
-        assert!(s.get(&error_key()).is_some());
+        assert!(s.get(crate::state::SceneKey::Error).is_some());
 
         // A subsequent success clears the error and records the path.
         settle_import(&mut s, ImportOutcome::Loaded(model_at("/dir/next.blend")));
-        assert_eq!(s.get(&error_key()), None);
-        assert_eq!(s.get(&loaded_path_key()), Some("/dir/next.blend"));
-        assert_eq!(s.get(&loading_key()), None);
+        assert_eq!(s.get(crate::state::SceneKey::Error), None);
+        assert_eq!(s.get(crate::state::SceneKey::LoadedPath), Some("/dir/next.blend"));
+        assert_eq!(s.get(crate::state::SceneKey::Loading), None);
     }
 
     #[test]
@@ -172,14 +172,14 @@ use super::*;
             ImportOutcome::TimedOut,
         ] {
             let mut s = BState::new();
-            s.set(&loading_key(), "true");
-            s.set(&load_stage_key(), "Reading file");
-            s.set(&load_progress_key(), "0.15");
+            s.set(crate::state::SceneKey::Loading, "true");
+            s.set(crate::state::SceneKey::LoadStage, "Reading file");
+            s.set(crate::state::SceneKey::LoadProgress, "0.15");
 
             settle_import(&mut s, outcome);
 
-            assert_eq!(s.get(&loading_key()), None);
-            assert_eq!(s.get(&load_stage_key()), None);
-            assert_eq!(s.get(&load_progress_key()), None);
+            assert_eq!(s.get(crate::state::SceneKey::Loading), None);
+            assert_eq!(s.get(crate::state::SceneKey::LoadStage), None);
+            assert_eq!(s.get(crate::state::SceneKey::LoadProgress), None);
         }
     }

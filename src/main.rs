@@ -25,6 +25,14 @@ fn main() {
         eprintln!("===========================");
     }));
 
+    // Development-only shader source: the shipping path stays baked in the
+    // binary. When PHIRAY_SHADERS explicitly names the WGSL directory,
+    // load it before any pipeline key/source is requested so Trace and
+    // Trace4 can be A/B profiled without relinking the whole application.
+    if phiray::hot::live() {
+        let _ = phiray::hot::reload();
+    }
+
     // The command line, as Blender takes it (`cli`). Everything the
     // app itself does is unchanged when no flag asks otherwise, so running
     // the binary with no arguments opens the window exactly as before.
@@ -79,6 +87,9 @@ fn render(cli: &BCli) -> i32 {
     };
     if !cli.quiet {
         println!("Read: {} objects, {} triangles in {:.1}s", model.objects.len(), model.report.tris, opened.elapsed().as_secs_f64());
+        for warning in &model.report.warnings {
+            println!("Warning: {warning}");
+        }
     }
     // The relative forms in `-f`, `-s` and `-e` are relative to the file's
     // own range, so the frames cannot be resolved until it is open.

@@ -92,8 +92,6 @@ mod tests {
     /// index column and nothing else, which is what Blender shows too.
     #[test]
     fn each_domain_lists_its_own_elements_and_the_columns_the_mesh_carries() {
-        use crate::host::BHostType;
-        use crate::state::BPath;
         let mut object = cube("Tri");
         // Two triangles over four vertices: 4 vertices, 2 faces, 6 corners.
         let mesh = SceneMesh {
@@ -126,7 +124,7 @@ mod tests {
                 })
                 .collect()
         };
-        let pick = |s: &mut BState, slug: &str| s.set(BPath::owned(vec![BHostType::Spreadsheet.slug(), "domain"]), slug.to_string());
+        let pick = |s: &mut BState, slug: &str| s.set(crate::state::SpreadsheetKey::Domain, slug.to_string());
 
         // Vertex: position and the UV layer.
         let vertex = rows_of(&s);

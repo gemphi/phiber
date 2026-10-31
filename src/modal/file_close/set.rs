@@ -60,7 +60,7 @@ pub fn buttons() -> [BCloseAnswer; 3] {
 
 /// The document's file name, or `Untitled.blend` for one never saved.
 pub fn file_name(s: &BState) -> String {
-    s.get(&crate::scene::loaded_path_key())
+    s.get(crate::state::SceneKey::LoadedPath)
         .filter(|p| !p.is_empty())
         .and_then(|p| p.rsplit(['/', '\\']).next())
         .map_or_else(|| "Untitled.blend".to_string(), str::to_string)
@@ -74,7 +74,7 @@ mod tests {
     fn the_dialog_names_the_file_and_offers_the_three_answers() {
         let mut s = BState::new();
         assert_eq!(file_name(&s), "Untitled.blend");
-        s.set(&crate::scene::loaded_path_key(), "C:\\work\\shot.blend");
+        s.set(crate::state::SceneKey::LoadedPath, "C:\\work\\shot.blend");
         assert_eq!(file_name(&s), "shot.blend");
         let labels: Vec<&str> = buttons().iter().map(|a| a.label()).collect();
         if cfg!(windows) {

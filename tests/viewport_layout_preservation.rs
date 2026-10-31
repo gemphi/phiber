@@ -28,11 +28,12 @@
 //! test binaries confirmed green by the checkpoint.
 
 use phiber::state::{BKey as _, ActivityKey, CtxKey};
+use phiber::scene::view_slot::BViewSlot;
 use phiber::scene::{
-    BShape, OBJECTS, ZOOM_MAX, ZOOM_MIN, view_yaw, view_zoom, yaw_key, zoom_key, zoom_step,
+    BShape, OBJECTS, ZOOM_MAX, ZOOM_MIN, view_yaw, view_zoom, zoom_step,
 };
 use phiber::state::{
-    BState, V_TRUE, apply_open, apply_toggle, MenuKey,
+    BState, V_TRUE, View3dKey, apply_open, apply_toggle, MenuKey,
 };
 use phiber::view::prim::BAction;
 use proptest::prelude::*;
@@ -49,14 +50,14 @@ use proptest::prelude::*;
 /// The exact zoom `Set` payload the gizmo/scroll emit for a given state+factor.
 fn zoom_payload(state: &BState, factor: f32) -> BAction {
     let next = zoom_step(view_zoom(state), factor);
-    BAction::Set(zoom_key(), format!("{next}"))
+    BAction::Set(BViewSlot::key(View3dKey::Zoom), format!("{next}"))
 }
 
 /// The exact yaw `Set` payload an orbit-nudge control emits (mirrors
 /// `gizmo::yaw_step`: `(view_yaw + delta).rem_euclid(360.0)`).
 fn yaw_payload(state: &BState, delta: f32) -> BAction {
     let next = (view_yaw(state) + delta).rem_euclid(360.0);
-    BAction::Set(yaw_key(), format!("{next}"))
+    BAction::Set(BViewSlot::key(View3dKey::Yaw), format!("{next}"))
 }
 
 proptest! {
@@ -70,7 +71,7 @@ proptest! {
         let mut state = BState::new();
         // A raw (possibly out-of-range / negative) write is always clamped on
         // read — the projection can never explode.
-        state.set(&zoom_key(), format!("{start}"));
+        state.set(&BViewSlot::key(View3dKey::Zoom), format!("{start}"));
         let z0 = view_zoom(&state);
         prop_assert!(z0 >= ZOOM_MIN - 1e-6 && z0 <= ZOOM_MAX + 1e-6,
             "read zoom {z0} escaped [{ZOOM_MIN}, {ZOOM_MAX}]");
@@ -93,14 +94,14 @@ proptest! {
         factor in 0.05f32..20.0f32,
     ) {
         let mut state = BState::new();
-        state.set(&zoom_key(), format!("{raw}"));
+        state.set(&BViewSlot::key(View3dKey::Zoom), format!("{raw}"));
 
         let a = zoom_payload(&state, factor);
         let b = zoom_payload(&state, factor);
         prop_assert_eq!(&a, &b, "zoom payload not deterministic for the same state");
 
         let expected = zoom_step(view_zoom(&state), factor);
-        prop_assert_eq!(a, BAction::Set(zoom_key(), format!("{expected}")));
+        prop_assert_eq!(a, BAction::Set(BViewSlot::key(View3dKey::Zoom), format!("{expected}")));
         prop_assert!(expected >= ZOOM_MIN - 1e-6 && expected <= ZOOM_MAX + 1e-6);
     }
 
@@ -113,14 +114,14 @@ proptest! {
         delta in -360.0f32..360.0f32,
     ) {
         let mut state = BState::new();
-        state.set(&yaw_key(), format!("{raw}"));
+        state.set(&BViewSlot::key(View3dKey::Yaw), format!("{raw}"));
 
         let a = yaw_payload(&state, delta);
         let b = yaw_payload(&state, delta);
         prop_assert_eq!(&a, &b, "yaw payload not deterministic for the same state");
 
         let BAction::Set(k, v) = a else { panic!("expected a Set action") };
-        prop_assert_eq!(k, yaw_key());
+        prop_assert_eq!(k, BViewSlot::key(View3dKey::Yaw));
         let wrapped: f32 = v.parse().unwrap();
         prop_assert!(wrapped >= 0.0 && wrapped < 360.0,
             "yaw payload {wrapped} not wrapped into [0, 360)");
@@ -137,9 +138,9 @@ fn compass_axis_click_payloads_are_fixed_angles() {
     // `BAction::Set(yaw_key, "<angle>")`. They do not depend on view state.
     let cases = [(90.0_f32), (270.0), (0.0), (180.0), (45.0), (225.0)];
     for angle in cases {
-        let act = BAction::Set(yaw_key(), format!("{angle}"));
+        let act = BAction::Set(BViewSlot::key(View3dKey::Yaw), format!("{angle}"));
         let BAction::Set(k, v) = act else { panic!() };
-        assert_eq!(k, yaw_key());
+        assert_eq!(k, BViewSlot::key(View3dKey::Yaw));
         let parsed: f32 = v.parse().unwrap();
         assert!((parsed - angle).abs() < 1e-6);
         assert!((0.0..360.0).contains(&parsed) || (parsed - 360.0).abs() < 1e-6);

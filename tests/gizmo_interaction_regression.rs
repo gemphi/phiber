@@ -15,9 +15,11 @@ use phiber::state::{CtxKey};
 use gpui::{Modifiers, TestAppContext, px, size};
 use phiber::app::BPhiberApp;
 use phiber::host::BHostType;
+use phiber::scene::view_slot::BViewSlot;
 use phiber::scene::{view_yaw, view_zoom};
 use phiber::space::BSpaceType;
 use phiber::state::BState;
+use phiber::state::View3dKey;
 
 fn select_view3d(state: &mut BState, space: BSpaceType) {
     state.set(CtxKey::Space, space.slug());
@@ -103,7 +105,7 @@ async fn the_compass_tips_with_pitch_not_just_yaw(cx: &mut TestAppContext) {
     app.update(cx, |app, cx| {
         app.state = BState::new();
         app.state.set(CtxKey::Space, BSpaceType::Layout.slug());
-        app.state.set(&phiber::scene::pitch_key(), "10");
+        app.state.set(&BViewSlot::key(View3dKey::Pitch), "10");
         cx.notify();
     });
     cx.run_until_parked();
@@ -111,7 +113,7 @@ async fn the_compass_tips_with_pitch_not_just_yaw(cx: &mut TestAppContext) {
 
     // Look down on the scene: +Z swings towards the middle of the compass.
     app.update(cx, |app, cx| {
-        app.state.set(&phiber::scene::pitch_key(), "80");
+        app.state.set(&BViewSlot::key(View3dKey::Pitch), "80");
         cx.notify();
     });
     cx.run_until_parked();

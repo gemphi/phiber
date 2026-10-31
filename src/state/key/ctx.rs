@@ -55,6 +55,12 @@ pub enum CtxKey {
     KeySelected,
     KeyGrab,
     KeyBox,
+    /// The keyframe copy buffer (Key ▸ Copy Keyframes): the copied columns'
+    /// channel values, each at its frame relative to the earliest copied
+    /// one (`scene::action::dope::set_copy`). Blender keeps this in a
+    /// runtime buffer rather than in the file, so it is a `ctx` key: it
+    /// never reaches a save and never travels to a collaborator.
+    KeyBuffer,
 }
 
 impl BKey for CtxKey {
@@ -86,6 +92,7 @@ impl BKey for CtxKey {
             Self::KeySelected => return BPath::owned(vec!["keys", "selected"]),
             Self::KeyGrab => return BPath::owned(vec!["keys", "grab"]),
             Self::KeyBox => return BPath::owned(vec!["keys", "box"]),
+            Self::KeyBuffer => return BPath::owned(vec!["keys", "buffer"]),
         };
         BPath::owned(vec![seg])
     }

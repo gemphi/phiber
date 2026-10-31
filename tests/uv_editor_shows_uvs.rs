@@ -51,7 +51,7 @@ async fn the_uv_editor_shows_and_edits_the_cubes_uvs(cx: &mut TestAppContext) {
     cx.simulate_resize(size(px(1600.0), px(900.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::scene::loaded_path_key(), key.clone());
+        app.state.set(phiber::state::SceneKey::LoadedPath, key.clone());
         app.scene_cache = Some((key, std::sync::Arc::new(model)));
         cx.notify();
     });

@@ -35,7 +35,6 @@ parts! {
     Switcher => super::BSwitcher,
     Search => crate::part::search::BSearch,
     Filter => crate::part::filter::BFilter,
-    Spacebar => super::BSpacebar,
     Toolbar => super::BToolbar,
     Sidebar => super::BSidebar,
     Panel => super::BPanel,

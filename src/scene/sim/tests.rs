@@ -33,7 +33,7 @@ fn run() -> u64 {
 fn the_solver_gets_object_space_triangles_and_the_raw_world() {
     let model = drop_scene();
     assert!(moves(&model), "an active box falls in the file's world");
-    let input = BSimInput::of(&model, &BWorldRows::file(model.physics.world.as_ref().unwrap())).expect("a world with bodies");
+    let input = BSimInput::of(&model, &BPhysicsRows::file(model.physics.world.as_ref().unwrap())).expect("a world with bodies");
     let cube = input.objects.iter().find(|o| o.name == "Cube").expect("the Cube's body");
     // The factory cube is ±1 in object space; its scale of 0.5 stays in
     // the matrix, for `from_blend` to take out once.
@@ -85,4 +85,62 @@ fn a_dropped_cube_falls_lands_and_scrubs_from_the_bake() {
     assert_eq!(run(), pinned);
     crate::state::rule::after_set(&mut s, &OpKey::RigidBake.path(), "free");
     assert!((cube_z(&model, &mut s, 10) - ten).abs() < 1e-6, "Delete Bake: the edit bakes again");
+}
+
+/// Properties ▸ Physics ▸ Rigid Body reaches the solver: the ACTIVE
+/// object's rows are taken over the file's body, every other body is the
+/// file's, and an edit re-keys the bake so the fall is computed again.
+///
+/// Before this the panel was display-only — `BSimInput::of` read
+/// `model.physics.bodies` (the file) and nothing else — so changing Mass or
+/// Bounciness changed nothing at all.
+#[test]
+fn the_physics_tab_s_rows_reach_the_solver_for_the_active_object() {
+    use crate::phiphx::blend::physics::BRigidShape;
+    use crate::state::{ButsKey, val::BValue};
+    let model = drop_scene();
+    crate::scene::source::set_loaded_scene(Some((*model).clone()));
+    let world = model.physics.world.as_ref().unwrap();
+    let mut s = BState::new();
+
+    // Nothing active: no override, and the bodies are the file's.
+    let plain = BPhysicsRows::read(&s, world);
+    assert!(plain.body.is_none(), "no active object, no override");
+
+    // The Cube active, no row touched: every field must come back as the
+    // FILE has it. This is the contract that makes the override safe — the
+    // panel's RNA defaults (mass 1, Convex Hull) must not leak in.
+    s.set(CtxKey::Object, "Cube");
+    let seeded = BPhysicsRows::read(&s, world);
+    let file_cube = model.physics.bodies.iter().find(|b| b.object == "Cube").expect("the Cube has a body");
+    let shown = seeded.body.as_ref().expect("the active object's rows");
+    assert_eq!(shown.object, "Cube", "the override names its own object");
+    assert_eq!(shown, &file_cube.clone(), "an untouched panel is the file's body, field for field");
+
+    // Now edit Mass and Bounciness, and change the Shape.
+    s.set(ButsKey::Value("rigid_body.mass"), BValue::Float(7.5).encode());
+    s.set(ButsKey::Value("rigid_body.restitution"), BValue::Float(0.9).encode());
+    s.set(ButsKey::Value("rigid_body.collision_shape"), BValue::Enum("SPHERE".into()).encode());
+    let edited = BPhysicsRows::read(&s, world);
+    let shown = edited.body.as_ref().expect("the active object's rows");
+    assert!((shown.mass - 7.5).abs() < 1e-5, "mass {} is the panel's", shown.mass);
+    assert!((shown.restitution - 0.9).abs() < 1e-5);
+    assert_eq!(shown.shape, BRigidShape::Sphere);
+
+    // The solver is handed them, and only for the Cube.
+    let input = BSimInput::of(&model, &edited).expect("a world with bodies");
+    let cube = input.objects.iter().find(|o| o.name == "Cube").expect("the Cube");
+    assert!((cube.body.mass - 7.5).abs() < 1e-5, "the panel's mass reaches phiray");
+    assert!((cube.body.restitution - 0.9).abs() < 1e-5);
+    assert_eq!(cube.body.shape, phiray::sim::BlendShape::Sphere, "and the panel's shape");
+    let ground = input.objects.iter().find(|o| o.name == "Ground").expect("the Ground");
+    let file_ground = model.physics.bodies.iter().find(|b| b.object == "Ground").expect("the Ground has a body");
+    assert!((ground.body.mass - file_ground.mass).abs() < 1e-5, "the other body is still the file's");
+
+    // And the edit re-keys the bake, so the fall is computed again rather
+    // than read from the cache of the old settings.
+    let bake_key = |rows: &BPhysicsRows| super::input::key(&model, rows);
+    assert_ne!(bake_key(&edited), bake_key(&seeded), "an edited row is another bake");
+    assert_eq!(bake_key(&seeded).1, bake_key(&edited).1, "but the same scene, so Bake still pins it");
+    crate::scene::source::set_loaded_scene(None);
 }

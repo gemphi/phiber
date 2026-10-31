@@ -6,8 +6,13 @@
 use super::BKeySelection;
 use crate::state::{BState, CtxKey, log};
 
+/// The playhead, as the Dope Sheet's operators read it (`ctx.frame`).
+pub(super) fn frame_now(s: &BState) -> f32 {
+    s.get(CtxKey::Frame).and_then(|v| v.parse::<f32>().ok()).unwrap_or(1.0)
+}
+
 pub(super) fn jump(s: &mut BState, picks: &BKeySelection) {
-    let current = s.get(CtxKey::Frame).and_then(|v| v.parse::<f32>().ok()).unwrap_or(1.0);
+    let current = frame_now(s);
     let Some(nearest) = picks
         .0
         .iter()

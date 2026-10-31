@@ -140,7 +140,7 @@ pub fn step(state: &mut BState, key: View3dKey, by: f32) {
     state.set(&BViewSlot::key(key), match key { View3dKey::Yaw => to.0, _ => to.1 }.to_string());
     if let Some(about) = BOrbitAround::centre(state) {
         let pivot = Vec3::from(super::camera::view_pivot(state));
-        state.set(&super::pivot_key(), encode(turn_pivot(pivot, about, from, to)));
+        state.set(&BViewSlot::key(View3dKey::Pivot), encode(turn_pivot(pivot, about, from, to)));
     }
 }
 

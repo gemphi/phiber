@@ -58,7 +58,7 @@ fn editing(app: &gpui::Entity<BPhiberApp>, cx: Cx) {
     cx.simulate_resize(size(px(1600.0), px(900.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::scene::loaded_path_key(), key.clone());
+        app.state.set(phiber::state::SceneKey::LoadedPath, key.clone());
         app.scene_cache = Some((key, std::sync::Arc::new(model)));
         cx.notify();
     });

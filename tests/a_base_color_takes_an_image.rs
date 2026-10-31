@@ -48,7 +48,7 @@ async fn the_base_color_opens_an_image_that_undo_takes_back_and_a_colour_unplugs
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
         app.state.set(CtxKey::Space, BSpaceType::Layout.slug());
-        app.state.set(&phiber::scene::loaded_path_key(), blend.to_string());
+        app.state.set(phiber::state::SceneKey::LoadedPath, blend.to_string());
         app.scene_cache = Some((blend.to_string(), std::sync::Arc::new(model)));
         cx.notify();
     });

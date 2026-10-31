@@ -35,6 +35,10 @@ const CURSOR_TIME_SHADE: f32 = -0.16;
 const CURSOR_ALPHA: f32 = 0.8;
 /// An unselected handle: its selected colour darkened (`handle_*` under `handle_sel_*`).
 const HANDLE_UNDER_SELECTED: f32 = -0.25;
+/// What a Keyframe Type draws as: its palette colour and Blender's size
+/// factor (`fills`, `of_keytype`, `keytype_scale`).
+mod keytype;
+use keytype::KEYTYPE_SELECT_LIFT;
 /// `time_marker_line` is black at 96/255 (the dashed stalk), `_selected` white at 160/255.
 const MARKER_LINE_ALPHA: f32 = 0.376;
 const MARKER_LINE_SELECTED_ALPHA: f32 = 0.627;
@@ -77,6 +81,13 @@ pub struct BAnimColors {
     pub key: BColor,
     pub key_select: BColor,
     pub key_border: BColor,
+    /// `TH_KEYTYPE_*` and their `_SELECT`s, indexed by
+    /// `eBezTriple_KeyframeType` — as `handle` below is indexed by
+    /// `eBezTriple_Handle`. Each is the palette token nearest Blender's
+    /// fixed hex, as `key` is the palette's text and not its `bfbfbf`;
+    /// which token, and the size each type draws at, is `keytype.rs`.
+    pub keytype: [BColor; 6],
+    pub keytype_select: [BColor; 6],
     /// `TH_VERTEX` / `TH_VERTEX_SELECT`: the Graph editor's key dots.
     pub vertex: BColor,
     pub vertex_select: BColor,
@@ -183,6 +194,8 @@ impl BResolvedUiStyle {
             key: colors.text,
             key_select: colors.brand_warm,
             key_border: colors.bg_app,
+            keytype: keytype::fills(self, colors),
+            keytype_select: keytype::fills(self, colors).map(|c| BAnimColors::lift(c, KEYTYPE_SELECT_LIFT)),
             vertex: colors.bg_app,
             vertex_select: colors.brand_warm,
             scale_text: colors.text,

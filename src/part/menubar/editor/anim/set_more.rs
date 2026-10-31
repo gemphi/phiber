@@ -22,13 +22,13 @@ pub static SELECT: &[BMenuItem] = &[
     SEP,
     op("Select Linked", "L"),
     SEP,
-    op("Columns on Selected Keys", "K"),
-    op("Column on Current Frame", "Ctrl K"),
-    op("Columns on Selected Markers", "Shift K"),
-    op("Between Selected Markers", "Alt K"),
+    fire("Columns on Selected Keys", "K", OpKey::Keys, "column:keys"),
+    fire("Column on Current Frame", "Ctrl K", OpKey::Keys, "column:cfra"),
+    fire("Columns on Selected Markers", "Shift K", OpKey::Keys, "column:markers"),
+    fire("Between Selected Markers", "Alt K", OpKey::Keys, "column:between"),
     SEP,
-    op("Before Current Frame", "["),
-    op("After Current Frame", "]"),
+    fire("Before Current Frame", "[", OpKey::Keys, "leftright:left"),
+    fire("After Current Frame", "]", OpKey::Keys, "leftright:right"),
 ];
 /// `DOPESHEET_MT_channel`.
 pub static CHANNEL: &[BMenuItem] = &[
@@ -45,8 +45,8 @@ pub static CHANNEL: &[BMenuItem] = &[
     op("Toggle Channel Editability", "Tab"),
     sub("Extrapolation Mode", EXTRAPOLATION),
     SEP,
-    op("Expand Channels", "Numpad +"),
-    op("Collapse Channels", "Numpad -"),
+    fire_host("Expand Channels", "Numpad +", OpKey::ChannelFold, ":expand"),
+    fire_host("Collapse Channels", "Numpad -", OpKey::ChannelFold, ":collapse"),
     SEP,
     sub("Move...", MOVE),
     SEP,
@@ -68,7 +68,16 @@ pub static MIRROR: &[BMenuItem] = &[
     op("By Values Over Zero Value", ""),
     fire("By Times Over First Selected Marker", "", OpKey::Keys, "mirror:marker"),
 ];
-pub static KEYFRAME_TYPE: &[BMenuItem] = &[op("Keyframe", ""), op("Breakdown", ""), op("Moving Hold", ""), op("Extreme", ""), op("Jitter", ""), op("Generated", "")];
+/// `DOPESHEET_MT_key_type` (`ACTION_OT_keyframe_type`): what the editors
+/// draw a key as. Order and labels are Blender's `rna_enum_beztriple_keyframe_type_items`.
+pub static KEYFRAME_TYPE: &[BMenuItem] = &[
+    fire("Keyframe", "", OpKey::Keys, "keytype:keyframe"),
+    fire("Breakdown", "", OpKey::Keys, "keytype:breakdown"),
+    fire("Moving Hold", "", OpKey::Keys, "keytype:movehold"),
+    fire("Extreme", "", OpKey::Keys, "keytype:extreme"),
+    fire("Jitter", "", OpKey::Keys, "keytype:jitter"),
+    fire("Generated", "", OpKey::Keys, "keytype:generated"),
+];
 /// `DOPESHEET_MT_key`.
 pub static KEY: &[BMenuItem] = &[
     sub("Transform", TRANSFORM),
@@ -80,8 +89,8 @@ pub static KEY: &[BMenuItem] = &[
     SEP,
     fire("Jump to Keyframes", "Ctrl G", OpKey::Keys, "jump"),
     SEP,
-    op("Copy Keyframes", "Ctrl C"),
-    op("Paste Keyframes", "Ctrl V"),
+    fire("Copy Keyframes", "Ctrl C", OpKey::Keys, "copy"),
+    fire("Paste Keyframes", "Ctrl V", OpKey::Keys, "paste"),
     op("Paste Flipped", "Shift Ctrl V"),
     fire("Duplicate", "Shift D", OpKey::Keys, "duplicate"),
     fire("Delete Keyframes", "X", OpKey::Keys, "delete"),

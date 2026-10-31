@@ -9,7 +9,6 @@
 
 use super::BPhiberApp;
 use super::import::should_import;
-use crate::scene::{loaded_path_key, selected_key};
 use crate::state::{BKey as _, CtxKey, action::apply_action};
 use crate::view::prim::BAction;
 use gpui::Context;
@@ -97,7 +96,7 @@ impl BPhiberApp {
         // rule can clear it; `.blend` opening is the only commit the old
         // path took, exports and imports are finished below.
         let commit = match action {
-            BAction::Set(path, file) if *path == selected_key() && !file.is_empty() => Some((file.clone(), super::op::purpose_of(&self.state))),
+            BAction::Set(path, file) if *path == crate::state::FileKey::Selected.path() && !file.is_empty() => Some((file.clone(), super::op::purpose_of(&self.state))),
             _ => None,
         };
         // 1. Apply the pure state transition and log what it changed; the
@@ -133,7 +132,7 @@ impl BPhiberApp {
                 if self.state.get(crate::state::ModalKey::Open) == Some(crate::state::val::V_MODAL_SPLASH) {
                     self.state.set(crate::state::ModalKey::Open, crate::state::val::V_EMPTY);
                 }
-                if should_import(self.state.get(&loaded_path_key()), Some(&file)) {
+                if should_import(self.state.get(crate::state::SceneKey::LoadedPath), Some(&file)) {
                     self.start_import(file, cx);
                 }
             }

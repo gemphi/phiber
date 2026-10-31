@@ -4,7 +4,8 @@
 use super::ctx::BRenderCtx;
 use super::flex::{BFill, BFlex, BLen, BRadius, BSpace};
 use super::walk;
-use super::resize::{BPanelEdge, handle, k_sidebar_width};
+use super::resize::{BPanelEdge, handle};
+use crate::state::{BKey as _, SidebarKey};
 use super::scroller::{scroll_id, scroller};
 use crate::view::BView;
 use gpui::prelude::*;
@@ -114,7 +115,7 @@ impl BSidebar<'_> {
         let outer = outer.child(scroller(inner, &id, ctx));
         match info {
             true => outer.into_any_element(),
-            false => outer.child(handle(k_sidebar_width(), width, edge, ctx)).into_any_element(),
+            false => outer.child(handle(SidebarKey::Width.path(), width, edge, ctx)).into_any_element(),
         }
     }
 }
@@ -123,7 +124,7 @@ impl BSidebar<'_> {
 /// click anywhere on it shows the sidebar again (Blender's region azone).
 fn restore(ctx: &BRenderCtx) -> AnyElement {
     use crate::view::prim::BAction;
-    let show = BAction::Set(crate::view::size::k_sidebar_hidden(), crate::state::val::V_FALSE.to_string());
+    let show = BAction::Set(SidebarKey::Hidden.path(), crate::state::val::V_FALSE.to_string());
     let handler = ctx.handler.clone();
     use super::flex::BAlign;
     BFlex::column()

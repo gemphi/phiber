@@ -32,7 +32,7 @@ fn resuming_restores_the_workspace_and_arms_the_reopen_with_load_ui_off() {
     assert_eq!(app.state.get(CtxKey::Space), Some("Shading"), "the workspace is restored");
     assert_eq!(app.state.get(FileKey::LoadUi), Some("false"), "the reopen is Load UI off");
     // The file is armed for a fresh read, not claimed already-loaded.
-    assert_eq!(app.state.get(&phiber::scene::loaded_path_key()), None);
+    assert_eq!(app.state.get(phiber::state::SceneKey::LoadedPath), None);
 }
 
 #[test]

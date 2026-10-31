@@ -124,8 +124,8 @@ pub static CHANNEL: &[BMenuItem] = &[
     op("Hide Unselected Curves", "Shift H"),
     op("Reveal Curves", "Alt H"),
     SEP,
-    op("Expand Channels", "Numpad +"),
-    op("Collapse Channels", "Numpad -"),
+    fire_host("Expand Channels", "Numpad +", OpKey::ChannelFold, ":expand"),
+    fire_host("Collapse Channels", "Numpad -", OpKey::ChannelFold, ":collapse"),
     SEP,
     sub("Move...", MOVE),
     SEP,
@@ -141,6 +141,10 @@ pub static CHANNEL: &[BMenuItem] = &[
     op("Frame Selected Channels", ""),
 ];
 /// `GRAPH_MT_channel`, Drivers mode: Delete Invalid Drivers after Delete.
+///
+/// Expand / Collapse Channels stay unwired here on purpose: the Drivers
+/// editor lists an object's drivers whatever its fold says
+/// (`driver::BDriverList::rows`), so folding one would change nothing.
 pub static DRIVERS_CHANNEL: &[BMenuItem] = &[
     op("Delete Channels", "X"),
     op("Delete Invalid Drivers", ""),

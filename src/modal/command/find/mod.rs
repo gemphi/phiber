@@ -130,7 +130,7 @@ fn panels() -> Vec<BFindHit> {
             }
         }
     }
-    let prefs = BPath::owned(vec![BHostType::Prefs.slug(), "navbar", "tab"]);
+    let prefs = crate::state::PrefsKey::NavbarTab.path();
     for tab in crate::modal::setting::NAV_TABS {
         out.push(BFindHit {
             kind: BFindKind::Panel,

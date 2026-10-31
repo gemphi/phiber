@@ -12,7 +12,7 @@ use std::time::Duration;
 use super::BPhiberApp;
 use super::import::{ImportOutcome, settle_import};
 use crate::phiphx::scene::{SceneLoadError, SceneModel};
-use crate::scene::{LoadStage, load_cancel_key, load_progress_key, load_stage_key, loaded_path_key, loading_key};
+use crate::scene::LoadStage;
 use gpui::{AppContext, Context};
 
 /// How often the UI thread drains reader progress into state. Blender's job
@@ -46,7 +46,7 @@ impl BPhiberApp {
             return;
         }
         self.state.set(crate::state::ModalKey::Open, crate::state::val::V_EMPTY);
-        self.state.set(&crate::scene::selected_key(), path.clone());
+        self.state.set(crate::state::FileKey::Selected, path.clone());
         self.start_import(path, cx);
     }
 
@@ -56,10 +56,10 @@ impl BPhiberApp {
         // here on the *reader* drives the bar: `phiphx` reports real
         // fractions (bytes indexed, objects read, scene built) through
         // an mpsc channel that the poll loop below forwards into state.
-        self.state.set(&loading_key(), "true");
-        self.state.set(&load_stage_key(), "Reading file");
-        self.state.set(&load_progress_key(), "0");
-        self.state.remove(&load_cancel_key());
+        self.state.set(crate::state::SceneKey::Loading, "true");
+        self.state.set(crate::state::SceneKey::LoadStage, "Reading file");
+        self.state.set(crate::state::SceneKey::LoadProgress, "0");
+        self.state.remove(crate::state::SceneKey::LoadCancel);
         // This read owns the file; one under way is cancelled (`owner`).
         let (generation, cancel) = self.take_load();
 
@@ -132,7 +132,7 @@ impl BPhiberApp {
                 let _ = this.update(cx, |this, cx| {
                     if let Some((f, stage)) = latest {
                         // Each stage once, with its time, in the journal.
-                        if this.state.get(&load_stage_key()) != Some(stage.as_str()) {
+                        if this.state.get(crate::state::SceneKey::LoadStage) != Some(stage.as_str()) {
                             super::journal::BJournal::note(format!("Reading: {stage}"));
                         }
                         // A phase line in the action log when the phase turns
@@ -144,11 +144,11 @@ impl BPhiberApp {
                             last_phase = Some(phase);
                         }
                         this.state
-                            .set(&load_progress_key(), format!("{:.3}", f.clamp(0.0, 1.0)));
-                        this.state.set(&load_stage_key(), stage);
+                            .set(crate::state::SceneKey::LoadProgress, format!("{:.3}", f.clamp(0.0, 1.0)));
+                        this.state.set(crate::state::SceneKey::LoadStage, stage);
                         cx.notify();
                     }
-                    if this.state.get(&load_cancel_key()) == Some("true") {
+                    if this.state.get(crate::state::SceneKey::LoadCancel) == Some("true") {
                         cancel_flag.store(true, Ordering::Relaxed);
                     }
                 });
@@ -183,7 +183,7 @@ impl BPhiberApp {
                     ));
                     let key = this
                         .state
-                        .get(&loaded_path_key())
+                        .get(crate::state::SceneKey::LoadedPath)
                         .map(str::to_string)
                         .or_else(|| model.source_path.clone())
                         .unwrap_or(path);
@@ -192,7 +192,7 @@ impl BPhiberApp {
                     // A startup file is untitled: no path, no recent entry.
                     if this.untitled {
                         this.untitled = false;
-                        this.state.remove(&loaded_path_key());
+                        this.state.remove(crate::state::SceneKey::LoadedPath);
                     }
                 }
                 cx.notify();

@@ -32,7 +32,7 @@ async fn the_panel_s_resolution_is_rendered_framed_and_saved(cx: &mut TestAppCon
     cx.simulate_resize(size(px(1280.0), px(800.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::scene::loaded_path_key(), blend.to_string_lossy().to_string());
+        app.state.set(phiber::state::SceneKey::LoadedPath, blend.to_string_lossy().to_string());
         phiber::app::seed::seed_output_props(&mut app.state, &model);
         app.scene_cache = Some((blend.to_string_lossy().to_string(), std::sync::Arc::new(model)));
         app.state.set(CtxKey::Object, "Cube");

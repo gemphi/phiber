@@ -5,6 +5,7 @@
 //! Z cap has to change the pitch, not the yaw, so the caps write the
 //! viewpoint's name and [`BViewpointRule`] turns it into both angles.
 
+use crate::scene::view_slot::BViewSlot;
 use crate::state::{BKey, BPath, BState, View3dKey, rule::BRule};
 
 /// The yaw and pitch of each named viewpoint, in Blender's convention:
@@ -32,8 +33,8 @@ impl BRule for BViewpointRule {
         let Some((yaw, pitch)) = view_angles(name) else {
             return;
         };
-        s.set(&super::yaw_key(), yaw.to_string());
-        s.set(&super::pitch_key(), pitch.to_string());
+        s.set(&BViewSlot::key(View3dKey::Yaw), yaw.to_string());
+        s.set(&BViewSlot::key(View3dKey::Pitch), pitch.to_string());
         s.remove(View3dKey::View);
     }
 }

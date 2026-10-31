@@ -111,16 +111,65 @@ pub fn elapsed() -> Duration {
     j.started.lock().ok().and_then(|started| started.map(|t| t.elapsed())).unwrap_or_default()
 }
 
-/// What is left of a render at the pace it has kept — Cycles'
-/// `Session::update_status_time`: `(1 − progress) · elapsed / progress`,
-/// which Blender prints as `Remaining:` while the render runs and drops
-/// once it is done. `None` before the first sample, and once finished.
-pub fn remaining(elapsed: Duration, taken: u32, target: u32, done: bool) -> Option<Duration> {
-    if done || taken == 0 || target == 0 || taken >= target {
+/// Note that a sample has landed. The first one lays the mark the pace is
+/// measured from ([`sampling`]); the rest cost nothing.
+pub fn mark_sample(taken: u32) {
+    if taken == 0 {
+        return;
+    }
+    if let Ok(mut at) = job().sampling.lock() {
+        at.get_or_insert_with(web_time::Instant::now);
+    }
+}
+
+/// How long the render has been *sampling* — since its first sample landed,
+/// not since it started. `None` before that.
+///
+/// The gap between this and [`elapsed`] is the render's one-time setup: the
+/// scene build, the BVH, the textures, the shader compile. It is the right
+/// window to measure a pace over because it is the only part that repeats.
+pub fn sampling() -> Option<Duration> {
+    job().sampling.lock().ok().and_then(|at| at.map(|t| t.elapsed()))
+}
+
+/// What is left of a render at the pace of its samples, which Blender
+/// prints as `Remaining:` and drops once the render is done.
+///
+/// `sampling` is the window since the first sample landed ([`sampling`]),
+/// and the pace is that window over the `taken − 1` samples that fit in it.
+/// `None` until two samples have landed, because one sample measures no
+/// pace at all once the setup before it is excluded.
+///
+/// # Why not `(1 − progress) · elapsed / progress`
+///
+/// That is Cycles' formula and this used to be a literal transcription of
+/// it, fed the total elapsed time. Cycles can do that because it has
+/// already synchronised the scene before its sample clock starts; here
+/// `elapsed` runs from the moment the render began, so at the first sample
+/// the measured "pace" *is* the setup, and the estimate multiplies it by
+/// every sample still to come. Measured on this machine:
+///
+/// | scene | samples | announced at sample 1 | actually took |
+/// |---|---|---|---|
+/// | `e4.blend` | 64 | `00:55.52` | `00:01.01` |
+/// | `principled_bsdf_default.blend` | 256 | `03:48.71` | `00:01.59` |
+///
+/// Fifty-five and a hundred and forty-four times over. On a 200 MB pose
+/// file at 2048 samples, where the setup is tens of seconds, the same
+/// arithmetic announces hours — which is what a render that was never slow
+/// looked like from the outside, and the reason this is not a cosmetic fix.
+///
+/// Dropping the first sample as well as the setup is the same rule
+/// `BSliceCut` already follows and says why: `Tracer::warm` compiles the
+/// other shading modes on another thread and holds the device's pipeline
+/// lock while it does, so sample one can be blocked on a lock rather than
+/// on the GPU and is not evidence of anything.
+pub fn remaining(sampling: Duration, taken: u32, target: u32, done: bool) -> Option<Duration> {
+    if done || target == 0 || taken >= target || taken < 2 {
         return None;
     }
-    let progress = taken as f64 / target as f64;
-    Some(Duration::from_secs_f64((1.0 - progress) * elapsed.as_secs_f64() / progress))
+    let pace = sampling.as_secs_f64() / f64::from(taken - 1);
+    Some(Duration::from_secs_f64(pace * f64::from(target - taken)))
 }
 
 /// `BLI_timecode_string_from_time_simple`: `MM:SS.CC`.
@@ -141,12 +190,38 @@ mod tests {
     }
 
     #[test]
-    fn remaining_is_cycles_pace_estimate_and_vanishes_when_done() {
+    fn remaining_paces_over_the_samples_and_vanishes_when_done() {
+        // 24 samples landed in the 10 s since the first: 416ms each, and
+        // 75 still to come.
         let ten = Duration::from_secs(10);
-        assert_eq!(remaining(ten, 25, 100, false), Some(Duration::from_secs(30)), "a quarter done in 10 s leaves 30 s");
-        assert_eq!(remaining(ten, 0, 100, false), None, "no pace yet");
-        assert_eq!(remaining(ten, 100, 100, false), None);
+        assert_eq!(remaining(ten, 25, 100, false), Some(Duration::from_secs_f64(10.0 / 24.0 * 75.0)));
+        assert_eq!(remaining(ten, 100, 100, false), None, "nothing left to do");
         assert_eq!(remaining(ten, 40, 100, true), None, "an adaptive render that settled early is done");
+    }
+
+    #[test]
+    fn one_sample_is_not_a_pace() {
+        // The window before the first sample is the setup, and the first
+        // sample itself can be blocked on the shader compile. Neither is
+        // evidence, so there is no estimate until a second one lands.
+        assert_eq!(remaining(Duration::from_secs(10), 0, 100, false), None, "nothing has landed");
+        assert_eq!(remaining(Duration::ZERO, 1, 100, false), None, "one sample measures no interval");
+    }
+
+    #[test]
+    fn the_estimate_no_longer_charges_every_sample_for_the_setup() {
+        // The measured case this rule exists for: a 256-sample frame whose
+        // first sample landed 0.89 s in (opening the file) and which then
+        // traced at about 1 ms a sample. The old rule read the 0.89 s as
+        // the price of one sample and announced nearly four minutes.
+        let old = |elapsed: Duration, taken: u32, target: u32| {
+            let progress = f64::from(taken) / f64::from(target);
+            Duration::from_secs_f64((1.0 - progress) * elapsed.as_secs_f64() / progress)
+        };
+        assert!(old(Duration::from_millis(890), 1, 256) > Duration::from_secs(200), "the old rule announced minutes");
+        // The same render, paced over its samples: two in, 1 ms apart.
+        let now = remaining(Duration::from_millis(1), 2, 256, false).expect("a pace from two samples");
+        assert!(now < Duration::from_secs(1), "paced over the samples it is under a second, not minutes: {now:?}");
     }
 
     #[test]

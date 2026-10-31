@@ -30,11 +30,12 @@ pub mod key;
 pub mod load_stage;
 #[cfg(test)]
 mod keys_tests;
+// The load / error keys are gone from here: they are `SceneKey` variants,
+// named at the call site (see the note in `key.rs`). What is left is the
+// readers that apply a documented default or clamp, and the maths.
 pub use key::{
-    LoadStage, ZOOM_MAX, ZOOM_MIN, error_key, is_blend_path, is_perspective, load_cancel_key, load_progress_key,
-    load_stage_key, loaded_path_key, loading_key, pan_x_key, pan_y_key, perspective_key,
-    pitch_key, pitch_step, pivot_key, lens_key, selected_key, view_load_progress, view_load_stage, view_pan,
-    view_pitch, view_yaw, view_zoom, yaw_key, zoom_key, zoom_step,
+    LoadStage, ZOOM_MAX, ZOOM_MIN, is_blend_path, is_perspective, pitch_step, view_load_progress,
+    view_load_stage, view_pan, view_pitch, view_yaw, view_zoom, zoom_step,
 };
 
 pub mod project;
@@ -57,6 +58,8 @@ pub mod render_save;
 pub use render_save::{BSaveKind, kind_of as save_kind, save as save_render, save_to as save_render_to, written_pass};
 pub mod render_edit;
 pub mod render_set;
+pub mod render_trace;
+pub use render_trace::{BPhase, BRenderTrace};
 pub mod render_adaptive;
 pub mod render_color;
 pub mod render_quality;

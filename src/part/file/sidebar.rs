@@ -162,8 +162,7 @@ pub fn view(s: &BState) -> BView {
 
 pub use super::asset_sidebar::LIBRARIES;
 pub use super::asset_sidebar::asset_view;
-pub use super::asset_sidebar::k_catalog;
-pub use super::asset_sidebar::k_library;
+
 
 /// The Tools region's content for either browser: the file browser's
 /// bookmarks panels, the asset browser's libraries and catalogs.

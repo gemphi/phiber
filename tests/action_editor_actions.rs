@@ -70,7 +70,7 @@ async fn the_action_editor_lists_assigns_makes_and_unlinks_actions(cx: &mut Test
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
         app.state.set(CtxKey::Space, BSpaceType::Animation.slug());
-        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
+        app.state.set(phiber::state::SceneKey::LoadedPath, path.clone());
         app.scene_cache = Some((path.clone(), std::sync::Arc::new(model)));
         cx.notify();
     });

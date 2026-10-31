@@ -86,6 +86,16 @@ pub struct BRenderSet {
     /// never held one (`scene::render_engine`). Workbench rasterizes; every
     /// other engine, `PHIRAY` among them, path-traces.
     pub engine: super::render_engine::BRenderEngine,
+    /// Bloom / Glare (EEVEE's `use_bloom` and the Glare compositor node):
+    /// the bright parts of the scene-linear image bleed into their
+    /// surroundings. `threshold` is the scene-linear luma a pixel must
+    /// exceed, `intensity` how strongly the glare is added back, `radius`
+    /// the blur reach in texels. Run on the settled frame
+    /// (`phiray::Tracer::glow`).
+    pub bloom: bool,
+    pub bloom_threshold: f32,
+    pub bloom_intensity: f32,
+    pub bloom_radius: f32,
 }
 
 impl Default for BRenderSet {
@@ -128,6 +138,13 @@ impl Default for BRenderSet {
             caustics_reflective: true,
             caustics_refractive: true,
             engine: Default::default(),
+            // EEVEE's Bloom defaults (`DNA_scene_defaults.h`'s SceneEEVEE:
+            // bloom_threshold 0.8, bloom_intensity 0.05, bloom_radius 6.5);
+            // off by default, as EEVEE's `use_bloom` is.
+            bloom: false,
+            bloom_threshold: 0.8,
+            bloom_intensity: 0.05,
+            bloom_radius: 6.5,
         }
     }
 }
@@ -208,6 +225,10 @@ pub fn render_set(s: &BState) -> BRenderSet {
         // The panel's row, and the file's engine only until the panel holds
         // one — which is how every other row in this struct reads.
         engine: engine_at(s),
+        bloom: bool_at(s, "eevee.use_bloom", d.bloom),
+        bloom_threshold: float_at(s, "eevee.bloom_threshold", d.bloom_threshold).max(0.0),
+        bloom_intensity: float_at(s, "eevee.bloom_intensity", d.bloom_intensity).max(0.0),
+        bloom_radius: float_at(s, "eevee.bloom_radius", d.bloom_radius).clamp(1.0, 100.0),
     }
 }
 

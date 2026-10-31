@@ -14,7 +14,7 @@ use phiber::{
         SceneLoadError, SceneMesh, SceneModel, SceneNormals, SceneObject,
     },
     app::import::{ImportOutcome, settle_import},
-    scene::{error_key, loaded_path_key, loading_key},
+
     state::BState,
 };
 use proptest::prelude::*;
@@ -100,13 +100,13 @@ fn make_state(
 ) -> BState {
     let mut s = BState::new();
     if has_loading {
-        s.set(&loading_key(), "true");
+        s.set(phiber::state::SceneKey::Loading, "true");
     }
     if let Some(p) = prior_path {
-        s.set(&loaded_path_key(), p);
+        s.set(phiber::state::SceneKey::LoadedPath, p);
     }
     if let Some(e) = prior_error {
-        s.set(&error_key(), e);
+        s.set(phiber::state::SceneKey::Error, e);
     }
     s
 }
@@ -141,7 +141,7 @@ proptest! {
         };
         settle_import(&mut s, outcome);
 
-        prop_assert_eq!(s.get(&loading_key()), None, "loading must be cleared");
+        prop_assert_eq!(s.get(phiber::state::SceneKey::Loading), None, "loading must be cleared");
     }
 
     /// Loaded outcome: error cleared, loaded_path set from model source_path.
@@ -161,9 +161,9 @@ proptest! {
         let returned = settle_import(&mut s, ImportOutcome::Loaded(model));
 
         prop_assert!(returned.is_some(), "Loaded must return the model");
-        prop_assert_eq!(s.get(&error_key()), None, "error must be cleared on success");
+        prop_assert_eq!(s.get(phiber::state::SceneKey::Error), None, "error must be cleared on success");
         prop_assert_eq!(
-            s.get(&loaded_path_key()),
+            s.get(phiber::state::SceneKey::LoadedPath),
             source_path.as_deref(),
             "loaded_path must match model source_path"
         );
@@ -182,7 +182,7 @@ proptest! {
         let returned = settle_import(&mut s, ImportOutcome::Failed(err));
 
         prop_assert!(returned.is_none(), "Failed must return None");
-        let msg = s.get(&error_key());
+        let msg = s.get(phiber::state::SceneKey::Error);
         prop_assert!(msg.is_some(), "Failed must set an error message");
         let len = char_len(msg.unwrap());
         prop_assert!(
@@ -190,7 +190,7 @@ proptest! {
             "error length {len} not in 1..=256"
         );
         prop_assert_eq!(
-            s.get(&loaded_path_key()),
+            s.get(phiber::state::SceneKey::LoadedPath),
             prior_ref,
             "loaded_path must be retained on failure"
         );
@@ -208,7 +208,7 @@ proptest! {
         let returned = settle_import(&mut s, ImportOutcome::TimedOut);
 
         prop_assert!(returned.is_none(), "TimedOut must return None");
-        let msg = s.get(&error_key());
+        let msg = s.get(phiber::state::SceneKey::Error);
         prop_assert!(msg.is_some(), "TimedOut must set an error message");
         let len = char_len(msg.unwrap());
         prop_assert!(
@@ -216,7 +216,7 @@ proptest! {
             "timeout error length {len} not in 1..=256"
         );
         prop_assert_eq!(
-            s.get(&loaded_path_key()),
+            s.get(phiber::state::SceneKey::LoadedPath),
             prior_ref,
             "loaded_path must be retained on timeout"
         );
@@ -228,32 +228,32 @@ proptest! {
 #[test]
 fn loaded_returns_model_and_sets_path() {
     let mut s = BState::new();
-    s.set(&loading_key(), "true");
-    s.set(&error_key(), "stale error");
+    s.set(phiber::state::SceneKey::Loading, "true");
+    s.set(phiber::state::SceneKey::Error, "stale error");
 
     let returned = settle_import(&mut s, ImportOutcome::Loaded(model_at("/dir/model.blend")));
 
-    assert_eq!(s.get(&loading_key()), None);
-    assert_eq!(s.get(&error_key()), None);
-    assert_eq!(s.get(&loaded_path_key()), Some("/dir/model.blend"));
+    assert_eq!(s.get(phiber::state::SceneKey::Loading), None);
+    assert_eq!(s.get(phiber::state::SceneKey::Error), None);
+    assert_eq!(s.get(phiber::state::SceneKey::LoadedPath), Some("/dir/model.blend"));
     assert!(returned.is_some());
 }
 
 #[test]
 fn failed_retains_prior_loaded_path() {
     let mut s = BState::new();
-    s.set(&loaded_path_key(), "/prior/scene.blend");
-    s.set(&loading_key(), "true");
+    s.set(phiber::state::SceneKey::LoadedPath, "/prior/scene.blend");
+    s.set(phiber::state::SceneKey::Loading, "true");
 
     let returned = settle_import(
         &mut s,
         ImportOutcome::Failed(SceneLoadError::Malformed("bad SDNA".to_string())),
     );
 
-    assert_eq!(s.get(&loading_key()), None);
-    assert_eq!(s.get(&loaded_path_key()), Some("/prior/scene.blend"));
+    assert_eq!(s.get(phiber::state::SceneKey::Loading), None);
+    assert_eq!(s.get(phiber::state::SceneKey::LoadedPath), Some("/prior/scene.blend"));
     assert!(returned.is_none());
-    let msg = s.get(&error_key()).unwrap();
+    let msg = s.get(phiber::state::SceneKey::Error).unwrap();
     assert!((1..=256).contains(&char_len(msg)));
     assert!(msg.contains("malformed"));
 }
@@ -261,14 +261,14 @@ fn failed_retains_prior_loaded_path() {
 #[test]
 fn timeout_retains_prior_path_and_sets_error() {
     let mut s = BState::new();
-    s.set(&loaded_path_key(), "/prior/scene.blend");
-    s.set(&loading_key(), "true");
+    s.set(phiber::state::SceneKey::LoadedPath, "/prior/scene.blend");
+    s.set(phiber::state::SceneKey::Loading, "true");
 
     settle_import(&mut s, ImportOutcome::TimedOut);
 
-    assert_eq!(s.get(&loading_key()), None);
-    assert_eq!(s.get(&loaded_path_key()), Some("/prior/scene.blend"));
-    let msg = s.get(&error_key()).unwrap();
+    assert_eq!(s.get(phiber::state::SceneKey::Loading), None);
+    assert_eq!(s.get(phiber::state::SceneKey::LoadedPath), Some("/prior/scene.blend"));
+    let msg = s.get(phiber::state::SceneKey::Error).unwrap();
     assert!((1..=256).contains(&char_len(msg)));
 }
 
@@ -279,9 +279,9 @@ fn success_after_failure_clears_error() {
         &mut s,
         ImportOutcome::Failed(SceneLoadError::Inaccessible("no file".to_string())),
     );
-    assert!(s.get(&error_key()).is_some());
+    assert!(s.get(phiber::state::SceneKey::Error).is_some());
 
     settle_import(&mut s, ImportOutcome::Loaded(model_at("/next.blend")));
-    assert_eq!(s.get(&error_key()), None);
-    assert_eq!(s.get(&loaded_path_key()), Some("/next.blend"));
+    assert_eq!(s.get(phiber::state::SceneKey::Error), None);
+    assert_eq!(s.get(phiber::state::SceneKey::LoadedPath), Some("/next.blend"));
 }

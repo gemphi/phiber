@@ -71,7 +71,7 @@ async fn i_keys_the_cube_where_it_stands_and_its_animation_then_drives_it(cx: &m
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
         app.state.set(CtxKey::Space, BSpaceType::Animation.slug());
-        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
+        app.state.set(phiber::state::SceneKey::LoadedPath, path.clone());
         app.scene_cache = Some((path.clone(), std::sync::Arc::new(model)));
         cx.notify();
     });

@@ -1,8 +1,11 @@
 //! State-key + view-accessor tests. Covers `yaw`/`zoom`/`pitch`/`pan` reads
-//! from `BState`, blend-path predicates, and canonical `_key()` segments.
-//! Split from `mod.rs` so all tests files stay under the 200-line cap.
+//! from `BState`, blend-path predicates, and the segments each domain key
+//! encodes to. Split from `mod.rs` so all tests files stay under the
+//! 200-line cap.
 
 use super::*;
+use crate::scene::view_slot::BViewSlot;
+use crate::state::{BKey as _, View3dKey};
 
 #[test]
 fn default_scene_has_three_objects() {
@@ -21,7 +24,7 @@ fn yaw_defaults_to_thirty() {
 #[test]
 fn yaw_round_trips_through_state() {
     let mut s = BState::new();
-    s.set(&yaw_key(), "90");
+    s.set(&BViewSlot::key(View3dKey::Yaw), "90");
     assert!((view_yaw(&s) - 90.0).abs() < 1e-6);
 }
 
@@ -34,9 +37,9 @@ fn zoom_defaults_to_one() {
 #[test]
 fn zoom_is_clamped_on_read() {
     let mut s = BState::new();
-    s.set(&zoom_key(), "999");
+    s.set(&BViewSlot::key(View3dKey::Zoom), "999");
     assert!((view_zoom(&s) - ZOOM_MAX).abs() < 1e-6);
-    s.set(&zoom_key(), "0.001");
+    s.set(&BViewSlot::key(View3dKey::Zoom), "0.001");
     assert!((view_zoom(&s) - ZOOM_MIN).abs() < 1e-6);
 }
 
@@ -71,10 +74,10 @@ fn mesh_type_maps_primitives() {
 
 #[test]
 fn state_keys_return_documented_segments() {
-    assert_eq!(selected_key().segs.as_ref(), &["file", "selected"]);
-    assert_eq!(loading_key().segs.as_ref(), &["scene", "loading"]);
-    assert_eq!(error_key().segs.as_ref(), &["scene", "error"]);
-    assert_eq!(loaded_path_key().segs.as_ref(), &["scene", "loaded_path"]);
+    assert_eq!(crate::state::FileKey::Selected.path().segs.as_ref(), &["file", "selected"]);
+    assert_eq!(crate::state::SceneKey::Loading.path().segs.as_ref(), &["scene", "loading"]);
+    assert_eq!(crate::state::SceneKey::Error.path().segs.as_ref(), &["scene", "error"]);
+    assert_eq!(crate::state::SceneKey::LoadedPath.path().segs.as_ref(), &["scene", "loaded_path"]);
 }
 
 #[test]

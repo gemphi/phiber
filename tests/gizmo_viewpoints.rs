@@ -63,7 +63,7 @@ fn every_compass_cap_names_a_viewpoint_the_follow_rule_knows() {
         );
     }
     assert!(
-        !axis.contains("yaw_key()"),
+        !axis.contains("BViewSlot::key(View3dKey::Yaw)"),
         "a cap must not write a bare yaw — the Z caps need a pitch"
     );
 }

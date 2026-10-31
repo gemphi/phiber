@@ -21,7 +21,6 @@ pub static SET: &[BPartSpec] = &[
     BPartSpec { kind: BPartType::Switcher },
     BPartSpec { kind: BPartType::Search },
     BPartSpec { kind: BPartType::Filter },
-    BPartSpec { kind: BPartType::Spacebar },
     BPartSpec { kind: BPartType::Toolbar },
     BPartSpec { kind: BPartType::Sidebar },
     BPartSpec { kind: BPartType::Panel },

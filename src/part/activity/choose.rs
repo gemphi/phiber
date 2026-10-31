@@ -53,7 +53,7 @@ impl BRule for BActivityPickRule {
                 }
             }
             BActivityOptions::Settings => {
-                s.set(&option::prefs_tab_key(), option.to_string());
+                s.set(crate::state::PrefsKey::NavbarTab, option.to_string());
                 s.set(ModalKey::Open, V_MODAL_SETTINGS);
             }
             // Home: a new file raises the splash, Open… the browser, a recent

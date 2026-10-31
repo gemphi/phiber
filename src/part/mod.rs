@@ -31,7 +31,6 @@ pub mod modebar;
 pub mod navbar;
 pub mod props;
 pub mod sidebar;
-pub mod spacebar;
 pub mod statusbar;
 pub mod statuslog;
 pub mod strip;
@@ -64,7 +63,6 @@ use self::modebar::BModebar;
 use self::navbar::BNavBar;
 use self::props::BPanel;
 use self::sidebar::BSidebar;
-use self::spacebar::BSpacebar;
 use self::statusbar::BStatusbar;
 use self::switcher::BSwitcher;
 use self::toolbar::BToolbar;
@@ -84,7 +82,6 @@ pub enum BPartType {
     Switcher,
     Search,
     Filter,
-    Spacebar,
     Toolbar,
     Sidebar,
     Panel,
@@ -165,7 +162,6 @@ impl BPartType {
         Self::Switcher,
         Self::Search,
         Self::Filter,
-        Self::Spacebar,
         Self::Toolbar,
         Self::Sidebar,
         Self::Panel,
@@ -215,7 +211,6 @@ impl BPartType {
             BPartType::Switcher => "Switcher",
             BPartType::Search => "Search",
             BPartType::Filter => "Filter",
-            BPartType::Spacebar => "Space Bar",
             BPartType::Toolbar => "Toolbar",
             BPartType::Sidebar => "Sidebar",
             BPartType::Panel => "Panel",
@@ -335,7 +330,6 @@ impl BPartItem {
             BPartType::Switcher => BSwitcher::new(h).build(s),
             BPartType::Search => crate::part::search::BSearch::new(h).build(s),
             BPartType::Filter => crate::part::filter::BFilter::new(h).build(s),
-            BPartType::Spacebar => BSpacebar::new(h).build(s),
             BPartType::Toolbar => BToolbar::new(h).build(s),
             BPartType::Sidebar => BSidebar::new(h).build(s),
             BPartType::Panel => BPanel::new(h).build(s),

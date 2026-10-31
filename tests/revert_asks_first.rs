@@ -22,7 +22,7 @@ async fn revert_asks_and_cancel_keeps_the_edits(cx: &mut TestAppContext) {
     cx.simulate_resize(size(px(1280.0), px(800.0)));
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
+        app.state.set(phiber::state::SceneKey::LoadedPath, path.clone());
         app.scene_cache = Some((path.clone(), std::sync::Arc::new(model)));
         app.state.set(CtxKey::Frame, "42");
         app.handle_action(&BAction::Set(OpKey::Revert.path(), String::new()), cx);

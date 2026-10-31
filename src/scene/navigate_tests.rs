@@ -8,7 +8,7 @@ fn value(sets: &[(BPath, String)], key: &BPath) -> f32 {
 }
 
 fn pivot(sets: &[(BPath, String)]) -> Option<Vec3> {
-    let raw = &sets.iter().find(|(k, _)| *k == pivot_key())?.1;
+    let raw = &sets.iter().find(|(k, _)| *k == BViewSlot::key(View3dKey::Pivot))?.1;
     let p: Vec<f32> = raw.split(',').map(|v| v.parse().unwrap()).collect();
     Some(Vec3::new(p[0], p[1], p[2]))
 }
@@ -19,8 +19,8 @@ fn on_screen(base: BNavBase, sets: &[(BPath, String)], p: Vec3) -> (f32, f32) {
     let centre = pivot(sets).unwrap_or(base.pivot);
     let ms = crate::scene::MESH_SCALE;
     let setup = crate::scene::camera::BViewSetup { perspective: true, pivot: (centre.x * ms, centre.z * ms, centre.y * ms), ..Default::default() };
-    let pan = (read(pan_x_key(), base.pan.0), read(pan_y_key(), base.pan.1));
-    BPickView { yaw: read(yaw_key(), base.yaw), pitch: read(pitch_key(), base.pitch), pan, zoom: read(zoom_key(), base.zoom), setup, aspect: 1.0 }
+    let pan = (read(BViewSlot::key(View3dKey::PanX), base.pan.0), read(BViewSlot::key(View3dKey::PanY), base.pan.1));
+    BPickView { yaw: read(BViewSlot::key(View3dKey::Yaw), base.yaw), pitch: read(BViewSlot::key(View3dKey::Pitch), base.pitch), pan, zoom: read(BViewSlot::key(View3dKey::Zoom), base.zoom), setup, aspect: 1.0 }
         .project(p)
         .unwrap()
 }
@@ -42,12 +42,12 @@ fn a_swipe_orbits_shift_pans_ctrl_zooms_and_the_wheel_always_zooms() {
 fn an_orbit_turns_with_the_drag_s_degrees_per_pixel() {
     // 40 px right: yaw turns 40 × 0.5°, as a pointer drag would; pitch holds.
     let sets = scroll_sets(BScrollNav::Orbit, BASE, (40.0, 0.0), 1000.0);
-    assert!((value(&sets, &yaw_key()) - (30.0 + 40.0 * BTurntable::DEG_PER_PX)).abs() < 1e-4);
-    assert!((value(&sets, &pitch_key()) - 30.0).abs() < 1e-4);
+    assert!((value(&sets, &BViewSlot::key(View3dKey::Yaw)) - (30.0 + 40.0 * BTurntable::DEG_PER_PX)).abs() < 1e-4);
+    assert!((value(&sets, &BViewSlot::key(View3dKey::Pitch)) - 30.0).abs() < 1e-4);
     assert_eq!(pivot(&sets), None, "nothing to orbit about: the centre stays");
     // 20 px down tips the pitch.
     let sets = scroll_sets(BScrollNav::Orbit, BASE, (0.0, 20.0), 1000.0);
-    assert!((value(&sets, &pitch_key()) - (30.0 + 20.0 * BTurntable::DEG_PER_PX)).abs() < 1e-4);
+    assert!((value(&sets, &BViewSlot::key(View3dKey::Pitch)) - (30.0 + 20.0 * BTurntable::DEG_PER_PX)).abs() < 1e-4);
 }
 
 #[test]
@@ -70,7 +70,7 @@ fn a_pan_slides_the_orbit_centre_one_pixel_for_one() {
     let sets = scroll_sets(BScrollNav::Pan, BASE, (100.0, 50.0), 1000.0);
     let (before, after) = (on_screen(BASE, &[], Vec3::ZERO), on_screen(BASE, &sets, Vec3::ZERO));
     assert!((after.0 - before.0 - 0.1).abs() < 1e-5 && (after.1 - before.1 - 0.05).abs() < 1e-5, "{before:?} → {after:?}");
-    assert_eq!((value(&sets, &pan_x_key()), value(&sets, &pan_y_key())), (0.0, 0.0), "no screen-space offset");
+    assert_eq!((value(&sets, &BViewSlot::key(View3dKey::PanX)), value(&sets, &BViewSlot::key(View3dKey::PanY))), (0.0, 0.0), "no screen-space offset");
     let centre = pivot(&sets).unwrap();
     let middle = on_screen(BASE, &sets, centre);
     assert!(middle.0.abs() < 1e-5 && middle.1.abs() < 1e-5, "the orbit centre is the middle of the view: {middle:?}");
@@ -93,24 +93,24 @@ fn a_drag_orbits_shift_drag_pans_ctrl_drag_zooms() {
     assert_eq!(drag_sets(Pan, BASE, (100.0, 50.0), 1000.0), scroll_sets(BScrollNav::Pan, BASE, (100.0, 50.0), 1000.0));
     // A zoom drag: the pointer moving UP (dy < 0) zooms IN, as Blender's does.
     let up = drag_sets(Zoom, BASE, (0.0, -PX_PER_LINE), 1000.0);
-    assert!((value(&up, &zoom_key()) - zoom_step(1.0, ZOOM_PER_LINE)).abs() < 1e-5, "up = in");
+    assert!((value(&up, &BViewSlot::key(View3dKey::Zoom)) - zoom_step(1.0, ZOOM_PER_LINE)).abs() < 1e-5, "up = in");
     let down = drag_sets(Zoom, BASE, (0.0, PX_PER_LINE), 1000.0);
-    assert!((value(&down, &zoom_key()) - zoom_step(1.0, 1.0 / ZOOM_PER_LINE)).abs() < 1e-5, "down = out");
+    assert!((value(&down, &BViewSlot::key(View3dKey::Zoom)) - zoom_step(1.0, 1.0 / ZOOM_PER_LINE)).abs() < 1e-5, "down = out");
     // Sideways travel does not zoom.
     let side = drag_sets(Zoom, BASE, (300.0, 0.0), 1000.0);
-    assert!((value(&side, &zoom_key()) - 1.0).abs() < 1e-6);
+    assert!((value(&side, &BViewSlot::key(View3dKey::Zoom)) - 1.0).abs() < 1e-6);
 }
 
 #[test]
 fn a_zoom_steps_one_factor_per_wheel_notch_and_smoothly_between() {
     // One notch (PX_PER_LINE) is the wheel's factor, either way.
     let in_ = scroll_sets(BScrollNav::Zoom, BASE, (0.0, PX_PER_LINE), 1000.0);
-    assert!((value(&in_, &zoom_key()) - zoom_step(1.0, ZOOM_PER_LINE)).abs() < 1e-5);
+    assert!((value(&in_, &BViewSlot::key(View3dKey::Zoom)) - zoom_step(1.0, ZOOM_PER_LINE)).abs() < 1e-5);
     let out = scroll_sets(BScrollNav::Zoom, BASE, (0.0, -PX_PER_LINE), 1000.0);
-    assert!((value(&out, &zoom_key()) - zoom_step(1.0, 1.0 / ZOOM_PER_LINE)).abs() < 1e-5);
+    assert!((value(&out, &BViewSlot::key(View3dKey::Zoom)) - zoom_step(1.0, 1.0 / ZOOM_PER_LINE)).abs() < 1e-5);
     // Half a notch is the square root of the factor — a swipe is continuous.
     let half = scroll_sets(BScrollNav::Zoom, BASE, (0.0, PX_PER_LINE / 2.0), 1000.0);
-    assert!((value(&half, &zoom_key()) - zoom_step(1.0, ZOOM_PER_LINE.sqrt())).abs() < 1e-5);
+    assert!((value(&half, &BViewSlot::key(View3dKey::Zoom)) - zoom_step(1.0, ZOOM_PER_LINE.sqrt())).abs() < 1e-5);
     // Zoom only ever sets the zoom key.
     assert_eq!(in_.len(), 1);
 }
@@ -118,12 +118,12 @@ fn a_zoom_steps_one_factor_per_wheel_notch_and_smoothly_between() {
 #[test]
 fn leaving_the_camera_view_hands_its_view_to_the_gesture() {
     let leave = vec![
-        BAction::Set(yaw_key(), "12.5".into()),
-        BAction::Set(pitch_key(), "-4".into()),
-        BAction::Set(zoom_key(), "2.5".into()),
-        BAction::Set(pivot_key(), "1,2,3".into()),
-        BAction::Set(pan_x_key(), "0".into()),
-        BAction::Set(pan_y_key(), "0".into()),
+        BAction::Set(BViewSlot::key(View3dKey::Yaw), "12.5".into()),
+        BAction::Set(BViewSlot::key(View3dKey::Pitch), "-4".into()),
+        BAction::Set(BViewSlot::key(View3dKey::Zoom), "2.5".into()),
+        BAction::Set(BViewSlot::key(View3dKey::Pivot), "1,2,3".into()),
+        BAction::Set(BViewSlot::key(View3dKey::PanX), "0".into()),
+        BAction::Set(BViewSlot::key(View3dKey::PanY), "0".into()),
     ];
     let base = BNavBase { pan: (0.4, 0.1), around: Some(Vec3::X), ..BASE }.after(&leave);
     assert_eq!((base.yaw, base.pitch, base.zoom, base.pan), (12.5, -4.0, 2.5, (0.0, 0.0)));

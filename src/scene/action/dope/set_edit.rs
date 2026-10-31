@@ -206,7 +206,7 @@ pub(super) fn edit(
         // Key ▸ Interpolation / Easing / Handle Type: set a shape property
         // on the selected keys (`reshape.rs`). The picks stay as they were,
         // so a run of changes acts on the same keys.
-        (field @ ("ipo" | "easing" | "handle"), Some(kind), _) => {
+        (field @ ("ipo" | "easing" | "handle" | "keytype"), Some(kind), _) => {
             let Some(shape) = super::super::reshape::BKeyShape::from_value(field, kind) else { return };
             if picks.0.is_empty() {
                 return log::push("No keyframes selected to reshape".to_string());

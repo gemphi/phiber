@@ -7,8 +7,8 @@
 use super::{BCameraFrame, BSensorFit};
 use crate::phiphx::scene::{SceneCamera, SceneView};
 use crate::scene::camera::zoom_for;
-use crate::scene::{pan_x_key, pan_y_key, perspective_key, pitch_key, yaw_key, zoom_key};
-use crate::state::BPath;
+use crate::scene::view_slot::BViewSlot;
+use crate::state::{BPath, View3dKey};
 use crate::view::prim::BAction;
 
 /// Where the pivot sits ahead of the eye, in Blender units. Any distance
@@ -68,14 +68,14 @@ impl BCameraView {
     pub fn leave(&self, key: &BPath) -> Vec<BAction> {
         let pivot = self.pivot;
         vec![
-            BAction::Set(yaw_key(), format!("{:.3}", self.yaw)),
-            BAction::Set(pitch_key(), format!("{:.3}", self.pitch.clamp(-90.0, 90.0))),
-            BAction::Set(zoom_key(), format!("{:.4}", self.zoom)),
-            BAction::Set(perspective_key(), self.perspective.to_string()),
-            BAction::Set(crate::scene::pivot_key(), format!("{:.5},{:.5},{:.5}", pivot[0], pivot[1], pivot[2])),
-            BAction::Set(crate::scene::lens_key(), format!("{:.3}", crate::scene::camera::lens_of_fov(self.fov))),
-            BAction::Set(pan_x_key(), "0".to_string()),
-            BAction::Set(pan_y_key(), "0".to_string()),
+            BAction::Set(BViewSlot::key(View3dKey::Yaw), format!("{:.3}", self.yaw)),
+            BAction::Set(BViewSlot::key(View3dKey::Pitch), format!("{:.3}", self.pitch.clamp(-90.0, 90.0))),
+            BAction::Set(BViewSlot::key(View3dKey::Zoom), format!("{:.4}", self.zoom)),
+            BAction::Set(BViewSlot::key(View3dKey::Perspective), self.perspective.to_string()),
+            BAction::Set(BViewSlot::key(View3dKey::Pivot), format!("{:.5},{:.5},{:.5}", pivot[0], pivot[1], pivot[2])),
+            BAction::Set(BViewSlot::key(View3dKey::Lens), format!("{:.3}", crate::scene::camera::lens_of_fov(self.fov))),
+            BAction::Set(BViewSlot::key(View3dKey::PanX), "0".to_string()),
+            BAction::Set(BViewSlot::key(View3dKey::PanY), "0".to_string()),
             BAction::Set(key.clone(), "false".to_string()),
         ]
     }

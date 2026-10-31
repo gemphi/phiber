@@ -26,6 +26,10 @@ phiplay = { path = "../phiplay" }
 # The Project Browser's asset database (`part::project::db`), on phikit's
 # own phiecs core, so phiber builds with no phinet folder beside it.
 phiecs = { path = "../phicore/phiecs" }
+# The session journal (`app::journal`): philog opens the file, formats the
+# lines, takes the `log` facade's records and notes a panic; phiber names the
+# file and feeds it the Info log.
+philog = { path = "../philog" }
 exr = "1.74"
 image = { workspace = true }
 # The 5.5 MB of `assets/` a browser build carries in the binary

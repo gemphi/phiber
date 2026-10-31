@@ -10,8 +10,8 @@
 //! a Sun under Lights. Current File lists what the open file marked as an
 //! asset, which phiber does not read yet, so it lists nothing.
 
-use super::asset_sidebar::{k_catalog, library};
-use crate::state::{BKey as _, BState, OpKey};
+use super::asset_sidebar::library;
+use crate::state::{AssetKey, BKey as _, BState, OpKey};
 use crate::view::BView;
 use crate::view::prim::{BAction, BCard, BColumn, BThumb};
 
@@ -55,7 +55,7 @@ pub fn catalogs(library: &str) -> Vec<&'static str> {
 /// The assets shown: the library's, narrowed to the catalog chosen — All,
 /// Unassigned (none of the built-ins), or one catalog.
 pub fn shown(s: &BState) -> Vec<BAsset> {
-    let catalog = s.get(&k_catalog()).unwrap_or("all");
+    let catalog = s.get(AssetKey::Catalog).unwrap_or("all");
     of_library(library(s))
         .iter()
         .filter(|asset| match catalog {
@@ -104,13 +104,13 @@ mod tests {
     #[test]
     fn essentials_offers_a_cube_a_sphere_and_a_sun_by_catalog() {
         let mut s = BState::new();
-        s.set(&super::super::asset_sidebar::k_library(), "Essentials");
+        s.set(AssetKey::Library, "Essentials");
         let names: Vec<&str> = shown(&s).iter().map(|a| a.name).collect();
         assert_eq!(names, ["Cube", "UV Sphere", "Sun"]);
         assert_eq!(catalogs("Essentials"), ["Primitives", "Lights"]);
-        s.set(&k_catalog(), "Lights");
+        s.set(AssetKey::Catalog, "Lights");
         assert_eq!(shown(&s).iter().map(|a| a.name).collect::<Vec<_>>(), ["Sun"]);
-        s.set(&super::super::asset_sidebar::k_library(), "Current File");
+        s.set(AssetKey::Library, "Current File");
         assert!(shown(&s).is_empty(), "the open file marks no assets");
     }
 

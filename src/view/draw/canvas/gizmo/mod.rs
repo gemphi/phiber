@@ -4,8 +4,9 @@ pub mod compass;
 
 use super::super::color::to_hsla;
 use super::super::ctx::BRenderCtx;
-use crate::scene::{pan_x_key, view_zoom, zoom_key, zoom_step};
-use crate::state::BKey as _;
+use crate::scene::view_slot::BViewSlot;
+use crate::scene::{view_zoom, zoom_step};
+use crate::state::{BKey as _, View3dKey};
 use crate::theme::BStyleRole;
 use crate::view::prim::BAction;
 use gpui::prelude::*;
@@ -109,7 +110,7 @@ impl BGizmo {
     }
 
     fn zoom_action(&self, ctx: &BRenderCtx, factor: f32) -> BAction {
-        BAction::Set(zoom_key(), format!("{}", zoom_step(view_zoom(ctx.state), factor)))
+        BAction::Set(BViewSlot::key(View3dKey::Zoom), format!("{}", zoom_step(view_zoom(ctx.state), factor)))
     }
 
     fn surface(&self, ctx: &BRenderCtx) -> gpui::Div {
@@ -192,10 +193,10 @@ impl BGizmo {
         pill.push(self.control("zoom_out", "Zoom Out", self.zoom_action(ctx, 1.0 / 1.2), ctx));
         // Recenter pan: click "grab" resets horizontal pan to 0. Vertical
         // follows Frame All. Data-driven single-click semantics.
-        pill.push(self.control("grab", "Recenter View", BAction::Reset(pan_x_key()), ctx));
+        pill.push(self.control("grab", "Recenter View", BAction::Reset(BViewSlot::key(View3dKey::PanX)), ctx));
         // Frame All: reset zoom to 1.0. Kept as a single-key reset so the
         // button dispatches a single BAction.
-        pill.push(self.control("home", "Frame All", BAction::Set(zoom_key(), "1".to_string()), ctx));
+        pill.push(self.control("home", "Frame All", BAction::Set(BViewSlot::key(View3dKey::Zoom), "1".to_string()), ctx));
         // The camera view, in and out (`VIEW3D_OT_view_camera`, Numpad 0),
         // for the area this gizmo sits in — only where there is one.
         if let Some(toggle) = camera.toggle() {
@@ -210,7 +211,7 @@ impl BGizmo {
         pill.push(self.control(
             if persp { "perspective" } else { "orthographic" },
             if persp { "Switch to Orthographic" } else { "Switch to Perspective" },
-            BAction::Set(crate::scene::perspective_key(), if persp { "false".to_string() } else { "true".to_string() }),
+            BAction::Set(BViewSlot::key(View3dKey::Perspective), if persp { "false".to_string() } else { "true".to_string() }),
             ctx,
         ));
         div()

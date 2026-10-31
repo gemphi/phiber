@@ -12,7 +12,7 @@
 //!   ([`BRenderQuality::ENGINE`]). A `.blend` saved by Blender names EEVEE
 //!   or Cycles, neither of which is ours to run, so the file's engine is a
 //!   preference here rather than an instruction.
-//! - **4096 samples is the default** ([`BRenderQuality::SAMPLE_FLOOR`]) when
+//! - **2048 samples is the default** ([`BRenderQuality::SAMPLE_FLOOR`]) when
 //!   `--samples` is not given, so the default is the quality render rather
 //!   than whatever the file was saved with. `--samples` is honoured as asked.
 //!
@@ -29,6 +29,25 @@ pub mod set;
 
 use frame::{BFrameError, BFrameLimit, BFrameSpec};
 use set::{BArgTake, BRenderQuality, spec_of};
+
+/// Whether this process is rendering without a window.
+///
+/// The render trace (`scene::render_trace`) goes to the session journal,
+/// which the Info editor shows — and a headless run has no Info editor, so
+/// it prints instead. This is the one bit that tells them apart, set by
+/// `BHeadlessRender::frames` — the single point both ways into a headless
+/// render pass through (`run_with` for the command line, `run_in` for a
+/// scene a session built).
+static HEADLESS: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Whether the render trace should print rather than only journal.
+pub fn headless() -> bool {
+    HEADLESS.load(std::sync::atomic::Ordering::Relaxed)
+}
+
+pub(crate) fn set_headless() {
+    HEADLESS.store(true, std::sync::atomic::Ordering::Relaxed);
+}
 
 /// What the command line asked for.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]

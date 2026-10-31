@@ -17,7 +17,7 @@ use super::input::BSimInput;
 use glam::Mat4;
 use std::collections::HashMap;
 use std::sync::mpsc::{Receiver, Sender, channel};
-use std::sync::{Arc, Condvar, Mutex, OnceLock};
+use std::sync::{Arc, Condvar, Mutex, MutexGuard, OnceLock, PoisonError};
 
 /// The object worlds of one frame, by object name.
 pub type BSimFrame = Arc<HashMap<String, Mat4>>;
@@ -76,6 +76,15 @@ struct BBakery {
     tx: Mutex<Sender<BJob>>,
 }
 
+impl BBakery {
+    /// The shelf, even after a panic poisoned its lock: what is on it is
+    /// whole frames either way (`appkit/gpu/assets/async_loader.rs` in the
+    /// reference code reads its queues the same way).
+    fn shelf(&self) -> MutexGuard<'_, BBaked> {
+        self.shelf.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+}
+
 fn bakery() -> &'static BBakery {
     static BAKERY: OnceLock<BBakery> = OnceLock::new();
     BAKERY.get_or_init(|| {
@@ -87,14 +96,14 @@ fn bakery() -> &'static BBakery {
 
 /// Read the shelf.
 pub fn with<R>(f: impl FnOnce(&BBaked) -> R) -> Option<R> {
-    bakery().shelf.lock().ok().map(|s| f(&s))
+    Some(f(&bakery().shelf()))
 }
 
 /// Make sure the shelf holds `key`'s bake (or a pinned one of `scene`):
 /// when it does not, start it from `input()`.
 pub fn ask(key: u64, scene: u64, input: impl FnOnce() -> Option<BSimInput>) {
     let b = bakery();
-    let Ok(mut shelf) = b.shelf.lock() else { return };
+    let mut shelf = b.shelf();
     if shelf.key == key || (shelf.baked && shelf.scene == scene) {
         return;
     }
@@ -102,48 +111,46 @@ pub fn ask(key: u64, scene: u64, input: impl FnOnce() -> Option<BSimInput>) {
     let run = shelf.run + 1;
     *shelf = BBaked { run, key, scene, start: input.start, end: input.end, ..BBaked::default() };
     b.put.notify_all();
-    let _ = b.tx.lock().map(|tx| tx.send(BJob { run, input }));
+    let _ = b.tx.lock().unwrap_or_else(PoisonError::into_inner).send(BJob { run, input });
 }
 
 /// Wait until `frame` of the bake on the shelf is in, or the shelf moves on.
 pub fn wait(frame: f32) {
     let b = bakery();
-    let Ok(mut shelf) = b.shelf.lock() else { return };
+    let mut shelf = b.shelf();
     let run = shelf.run;
     while shelf.run == run && !shelf.has(frame) {
-        let Ok(next) = b.put.wait(shelf) else { return };
-        shelf = next;
+        shelf = b.put.wait(shelf).unwrap_or_else(PoisonError::into_inner);
     }
 }
 
 /// Bake: pin what is on the shelf to its scene.
 pub fn pin() {
-    let _ = bakery().shelf.lock().map(|mut s| s.baked = true);
+    bakery().shelf().baked = true;
 }
 
 /// Delete Bake: the frames go; the next ask bakes again.
 pub fn free() {
     let b = bakery();
-    if let Ok(mut s) = b.shelf.lock() {
-        *s = BBaked { run: s.run + 1, ..BBaked::default() };
-        b.put.notify_all();
-    }
+    let mut s = b.shelf();
+    *s = BBaked { run: s.run + 1, ..BBaked::default() };
+    b.put.notify_all();
 }
 
 /// The thread: each job, frame by frame, until the shelf moves on.
 fn run(rx: &Receiver<BJob>) {
     while let Ok(job) = rx.recv() {
         let b = bakery();
-        if b.shelf.lock().map_or(true, |s| s.run != job.run) {
+        if b.shelf().run != job.run {
             continue;
         }
         let baked = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| bake(b, &job)));
         if baked.is_err() {
             log::error!("Rigid Body World: the solver stopped - the bake ends at the last frame it reached");
-            if let Ok(mut s) = b.shelf.lock() {
-                let ours = s.run == job.run;
-                s.failed |= ours;
-            }
+            let mut s = b.shelf();
+            let ours = s.run == job.run;
+            s.failed |= ours;
+            drop(s);
             b.put.notify_all();
         }
     }
@@ -162,7 +169,7 @@ fn bake(b: &BBakery, job: &BJob) {
             world.step(1.0 / input.fps);
         }
         let poses: HashMap<String, Mat4> = world.poses().map(|(i, m)| (input.objects[i].name.clone(), Mat4::from_cols_array_2d(&m))).collect();
-        let Ok(mut shelf) = b.shelf.lock() else { return };
+        let mut shelf = b.shelf();
         if shelf.run != job.run {
             return;
         }

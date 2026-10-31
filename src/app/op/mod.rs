@@ -143,7 +143,7 @@ impl BPhiberApp {
         crate::scene::source::set_loaded_shared(None);
         crate::scene::source::clear_scene_objects();
         forget_document(&mut self.state);
-        self.state.remove(&crate::scene::loaded_path_key());
+        self.state.remove(crate::state::SceneKey::LoadedPath);
         self.history.clear();
         if let Some(space) = crate::space::BSpaceType::from_slug(template) {
             crate::space::switch::switch_space(&mut self.state, space);

@@ -15,7 +15,8 @@
 use crate::phiphx::blend::{
     EASE_AUTO, EASE_IN, EASE_IN_OUT, EASE_OUT, HANDLE_ALIGN, HANDLE_AUTO, HANDLE_AUTO_ANIM, HANDLE_FREE, HANDLE_VECT,
     IPO_BACK, IPO_BEZ, IPO_BOUNCE, IPO_CIRC, IPO_CONST, IPO_CUBIC, IPO_ELASTIC, IPO_EXPO, IPO_LIN, IPO_QUAD, IPO_QUART,
-    IPO_QUINT, IPO_SINE,
+    IPO_QUINT, IPO_SINE, KEYTYPE_BREAKDOWN, KEYTYPE_EXTREME, KEYTYPE_GENERATED, KEYTYPE_JITTER, KEYTYPE_KEYFRAME,
+    KEYTYPE_MOVEHOLD,
 };
 use crate::phiphx::scene::SceneAction;
 
@@ -29,11 +30,15 @@ pub struct BKeyShape {
     pub easing: Option<u8>,
     /// Both handle types (`BezTriple.h1` and `.h2`).
     pub handle: Option<u8>,
+    /// Keyframe Type (`eBezTriple_KeyframeType`, kept in `BezTriple.hide`):
+    /// what the editors draw the key as — Keyframe, Breakdown, Moving Hold,
+    /// Extreme, Jitter, Generated. It changes no value.
+    pub keytype: Option<u8>,
 }
 
 impl BKeyShape {
     pub fn is_empty(self) -> bool {
-        self.ipo.is_none() && self.easing.is_none() && self.handle.is_none()
+        self.ipo.is_none() && self.easing.is_none() && self.handle.is_none() && self.keytype.is_none()
     }
 
     /// The interpolation a menu value names (`NODE_MT`'s `ACTION_OT_interpolation_type`).
@@ -77,13 +82,28 @@ impl BKeyShape {
         })
     }
 
+    /// Keyframe Type (`ACTION_OT_keyframe_type`).
+    pub fn keytype_of(kind: &str) -> Option<u8> {
+        Some(match kind {
+            "keyframe" => KEYTYPE_KEYFRAME,
+            "breakdown" => KEYTYPE_BREAKDOWN,
+            "movehold" => KEYTYPE_MOVEHOLD,
+            "extreme" => KEYTYPE_EXTREME,
+            "jitter" => KEYTYPE_JITTER,
+            "generated" => KEYTYPE_GENERATED,
+            _ => return None,
+        })
+    }
+
     /// The shape a `<field>:<kind>` menu value names: `ipo:lin`, `easing:in`,
-    /// `handle:vector`. `None` when the field or the kind is unknown.
+    /// `handle:vector`, `keytype:breakdown`. `None` when the field or the
+    /// kind is unknown.
     pub fn from_value(field: &str, kind: &str) -> Option<Self> {
         let shape = match field {
             "ipo" => Self { ipo: Some(Self::ipo_of(kind)?), ..Self::default() },
             "easing" => Self { easing: Some(Self::easing_of(kind)?), ..Self::default() },
             "handle" => Self { handle: Some(Self::handle_of(kind)?), ..Self::default() },
+            "keytype" => Self { keytype: Some(Self::keytype_of(kind)?), ..Self::default() },
             _ => return None,
         };
         Some(shape)
@@ -133,6 +153,9 @@ impl BKeyReshape {
                     key.h1_type = handle;
                     key.h2_type = handle;
                 }
+                if let Some(keytype) = self.shape.keytype {
+                    key.keytype = keytype;
+                }
                 touched = true;
             }
             // A handle-type change moves the handles it governs; `recalc` is
@@ -161,6 +184,10 @@ impl BKeyReshape {
             ipo: Self::opt(field.next()?),
             easing: Self::opt(field.next()?),
             handle: Self::opt(field.next()?),
+            // The fourth field arrived with Keyframe Type; a mark written
+            // before it has three, and reads as "leave the type alone"
+            // rather than failing to parse and losing the whole edit.
+            keytype: field.next().and_then(Self::opt),
         };
         Some(Self { action, slot, frames, shape })
     }
@@ -168,13 +195,14 @@ impl BKeyReshape {
     pub(super) fn encode(&self) -> String {
         let frames: Vec<String> = self.frames.iter().map(f32::to_string).collect();
         format!(
-            "{MARK}{}#{}#{}={},{},{}",
+            "{MARK}{}#{}#{}={},{},{},{}",
             self.action,
             self.slot,
             frames.join(","),
             Self::num(self.shape.ipo),
             Self::num(self.shape.easing),
             Self::num(self.shape.handle),
+            Self::num(self.shape.keytype),
         )
     }
 

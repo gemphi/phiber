@@ -25,7 +25,7 @@ use std::path::{Path, PathBuf};
 
 /// The file the document was read from: what a save writes through.
 pub fn source_path(state: &BState, model: &SceneModel) -> Option<PathBuf> {
-    let loaded = state.get(&super::loaded_path_key()).filter(|p| !p.is_empty()).map(PathBuf::from);
+    let loaded = state.get(crate::state::SceneKey::LoadedPath).filter(|p| !p.is_empty()).map(PathBuf::from);
     loaded.or_else(|| model.source_path.as_deref().map(PathBuf::from)).filter(|p| p.is_file())
 }
 

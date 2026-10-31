@@ -31,15 +31,36 @@ pub fn paint_rows(rows: &[BTimeRow], colors: &BAnimColors, at: Bounds<Pixels>, x
         if let Some(back) = back {
             window.paint_quad(fill(rect(0.0, top, width, top + height, at), hsla(back)));
         }
-        // The row's keys in three strokes — every border, the plain
-        // fills, the picked fills — not two paths a key: a rig's rows hold
-        // hundreds of keys, and each path is tessellated (Blender batches
-        // its diamonds in one instanced draw, `draw_keyframe_shape`).
-        let shown: Vec<(f32, bool)> = row.keys.iter().map(|&f| (x_of(f).round() + 0.5, picked(index, f))).filter(|(x, _)| *x > -ICON_SIZE && *x < width + ICON_SIZE).collect();
+        // The row's keys in one stroke per (Keyframe Type, picked) pair —
+        // a border path and a fill path each — not two paths a key: a rig's
+        // rows hold hundreds of keys and each path is tessellated (Blender
+        // batches its diamonds in one instanced draw, `draw_keyframe_shape`).
+        // Nearly every row is all plain keyframes, so this is the two
+        // strokes it has always been; a row that mixes types pays one pair
+        // per type it actually holds.
+        let shown: Vec<(f32, u8, bool)> = row
+            .keys
+            .iter()
+            .enumerate()
+            .map(|(i, &f)| (x_of(f).round() + 0.5, row.keytype_at(i), picked(index, f)))
+            .filter(|(x, _, _)| *x > -ICON_SIZE && *x < width + ICON_SIZE)
+            .collect();
         let half = ICON_SIZE / 2.0;
-        diamonds(shown.iter().map(|(x, _)| *x), center, half, colors.key_border, at, window);
-        diamonds(shown.iter().filter(|(_, p)| !p).map(|(x, _)| *x), center, half - 1.0, colors.key, at, window);
-        diamonds(shown.iter().filter(|(_, p)| *p).map(|(x, _)| *x), center, half - 1.0, colors.key_select, at, window);
+        // The pairs present, in the order they first appear.
+        let mut kinds: Vec<(u8, bool)> = Vec::new();
+        for &(_, keytype, pick) in &shown {
+            if !kinds.contains(&(keytype, pick)) {
+                kinds.push((keytype, pick));
+            }
+        }
+        for (keytype, pick) in kinds {
+            // `draw_keyframe_shape` scales the diamond by its type: an
+            // extreme is larger, a generated key smaller.
+            let r = half * BAnimColors::keytype_scale(keytype);
+            let xs = || shown.iter().filter(|(_, t, p)| *t == keytype && *p == pick).map(|(x, _, _)| *x);
+            diamonds(xs(), center, r, colors.key_border, at, window);
+            diamonds(xs(), center, r - 1.0, colors.of_keytype(keytype, pick), at, window);
+        }
     }
 }
 

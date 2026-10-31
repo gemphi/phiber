@@ -49,6 +49,16 @@ const MOVED: &[(&str, &str)] = &[
     ("markers", "ctx"),
     ("op", "op"),
     ("screen", "screen"),
+    // Four domains that had no key enum at all until now, so neither this
+    // test nor `key_alias_budget.rs` could see them. Each was reached only
+    // through a `fn () -> BPath`, and two were spelt more than once behind
+    // those functions: `prefs.navbar.tab` in `part/activity/option.rs` and
+    // `modal/command/find`, and `spreadsheet.domain` in three places
+    // (`dataset.rs`, `set.rs` via the host accessor, and a test in `mod.rs`).
+    ("sidebar", "sidebar"),
+    ("asset", "asset"),
+    ("spreadsheet", "spreadsheet"),
+    ("prefs", "prefs"),
 ];
 
 fn rust_files(dir: &Path, out: &mut Vec<PathBuf>) {

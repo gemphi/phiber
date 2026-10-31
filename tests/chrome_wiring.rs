@@ -53,8 +53,6 @@ fn a_grouping_entry_opens_its_secondary_strip_instead_of_a_dialog() {
 
 #[test]
 fn an_option_from_the_strip_does_what_it_names() {
-    use phiber::part::activity::option;
-    
     let mut s = BState::default();
     apply_action(&mut s, &BAction::Set(ActivityKey::Pick.path(), "Spaces:Shading".into()));
     assert_eq!(s.get(CtxKey::Space), Some(phiber::space::BSpaceType::Shading.slug()));
@@ -62,7 +60,7 @@ fn an_option_from_the_strip_does_what_it_names() {
 
     let mut s = BState::default();
     apply_action(&mut s, &BAction::Set(ActivityKey::Pick.path(), "Settings:Appearance".into()));
-    assert_eq!(s.get(&option::prefs_tab_key()), Some("Appearance"));
+    assert_eq!(s.get(phiber::state::PrefsKey::NavbarTab), Some("Appearance"));
     assert_eq!(s.get(ModalKey::Open), Some("settings"), "and raises the screen showing it");
 }
 

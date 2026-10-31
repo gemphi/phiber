@@ -1,7 +1,7 @@
 //! Focused tests for the import-progress staging vocabulary. Split out of
 //! `keys.rs` so that file stays under the 200-line cap.
 
-use super::key::{LoadStage, load_progress_key, load_stage_key, view_load_progress, view_load_stage};
+use super::key::{LoadStage, view_load_progress, view_load_stage};
 use crate::state::BState;
 
 #[test]
@@ -57,14 +57,14 @@ fn view_load_progress_reads_and_clamps() {
     assert_eq!(view_load_progress(&s), None);
     assert_eq!(view_load_stage(&s), None);
 
-    s.set(&load_progress_key(), LoadStage::Reading.progress().to_string());
-    s.set(&load_stage_key(), LoadStage::Reading.label());
+    s.set(crate::state::SceneKey::LoadProgress, LoadStage::Reading.progress().to_string());
+    s.set(crate::state::SceneKey::LoadStage, LoadStage::Reading.label());
     assert_eq!(view_load_progress(&s), Some(0.15));
     assert_eq!(view_load_stage(&s), Some("Reading file"));
 
     // A corrupt over-range value is clamped into 0..=1.
-    s.set(&load_progress_key(), "5.0");
+    s.set(crate::state::SceneKey::LoadProgress, "5.0");
     assert_eq!(view_load_progress(&s), Some(1.0));
-    s.set(&load_progress_key(), "-2.0");
+    s.set(crate::state::SceneKey::LoadProgress, "-2.0");
     assert_eq!(view_load_progress(&s), Some(0.0));
 }

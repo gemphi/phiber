@@ -395,7 +395,7 @@ async fn one_frame_reads_the_scene_once(cx: &mut TestAppContext) {
 
 #[gpui::test]
 async fn the_progress_bar_holds_its_place_as_the_stage_changes(cx: &mut TestAppContext) {
-    use phiber::scene::{load_progress_key, load_stage_key};
+
 
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());
     cx.simulate_resize(size(px(1280.0), px(800.0)));
@@ -411,8 +411,8 @@ async fn the_progress_bar_holds_its_place_as_the_stage_changes(cx: &mut TestAppC
         app.update(cx, |app, cx| {
             app.state = BState::new();
             app.state.set(CtxKey::Space, BSpaceType::Layout.slug());
-            app.state.set(&load_progress_key(), fraction);
-            app.state.set(&load_stage_key(), stage);
+            app.state.set(phiber::state::SceneKey::LoadProgress, fraction);
+            app.state.set(phiber::state::SceneKey::LoadStage, stage);
             cx.notify();
         });
         cx.run_until_parked();

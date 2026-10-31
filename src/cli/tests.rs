@@ -92,15 +92,15 @@ fn phiray_is_the_engine_unless_the_line_says_otherwise() {
 
 #[test]
 fn the_samples_asked_for_are_the_samples_taken() {
-    assert_eq!(set::BRenderQuality::SAMPLE_FLOOR, 4096);
+    assert_eq!(set::BRenderQuality::SAMPLE_FLOOR, 2048);
     // Silent: the default.
-    assert_eq!(parse("-b s.blend -f 1").expect("parses").sample_count(), 4096);
+    assert_eq!(parse("-b s.blend -f 1").expect("parses").sample_count(), 2048);
     // Asked for less or more: honoured, as Blender's `--samples` is.
     assert_eq!(parse("-b s.blend -f 1 --samples 64").expect("parses").sample_count(), 64);
     assert_eq!(parse("-b s.blend -f 1 --samples 4096").expect("parses").sample_count(), 4096);
     // `--draft` changes nothing about the count any more.
     assert_eq!(parse("-b s.blend -f 1 --samples 64 --draft").expect("parses").sample_count(), 64);
-    assert_eq!(parse("-b s.blend -f 1 --draft").expect("parses").sample_count(), 4096, "draft alone changes nothing");
+    assert_eq!(parse("-b s.blend -f 1 --draft").expect("parses").sample_count(), 2048, "draft alone changes nothing");
     assert_eq!(parse("-b s.blend -f 1 --samples 0").expect("parses").sample_count(), 1, "never zero");
 }
 

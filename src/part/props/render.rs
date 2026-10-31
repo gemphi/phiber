@@ -138,6 +138,18 @@ static PIXEL_FILTER_ROWS: &[BPropSpec] = &[
     // `filter_width` (`render.filter_size` is EEVEE's), in pixels.
     f("cycles.filter_width", "Width", BUnit::None).about(1.5),
 ];
+// `RENDER_PT_eevee_bloom` (`properties_render.py`): enabled from the header
+// (`eevee.use_bloom`), the bright-pass threshold, how strongly the glare is
+// added back, and its blur reach. phiray runs it on the path-traced frame
+// too (`scene::render_set` reads these, `Tracer::glow`), so it is a common
+// section rather than EEVEE-only.
+pub(crate) static BLOOM_HEADER: &[BPropSpec] = &[b("eevee.use_bloom", "Bloom")];
+static BLOOM: &[BPropSpec] = &[
+    f("eevee.bloom_threshold", "Threshold", BUnit::None).about(0.8),
+    f("eevee.bloom_intensity", "Intensity", BUnit::None).about(0.05),
+    f("eevee.bloom_radius", "Radius", BUnit::None).about(6.5),
+];
+
 static FILM_SUBS: &[BSectionSpec] = &[
     sec("Transparent", &[]).header(FILM_TRANSPARENT_HEADER),
     sec("Pixel Filter", PIXEL_FILTER_ROWS),
@@ -176,6 +188,7 @@ pub static SECTIONS: &[BSectionSpec] = &[
     sec("Light Paths", &[]).closed().subs(LIGHT_PATHS_SUBS),
     sec("Volumes", VOLUMES).closed(),
     sec("Motion Blur", MOTION_BLUR).closed().header(MOTION_BLUR_HEADER),
+    sec("Bloom", BLOOM).closed().header(BLOOM_HEADER),
     sec("Film", &[]).closed().subs(FILM_SUBS),
     sec("Performance", &[]).closed().subs(PERFORMANCE_SUBS),
     sec("Curves", CURVES).closed(),

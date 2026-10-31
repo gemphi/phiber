@@ -12,7 +12,7 @@ use gpui::{AnyElement, Context, IntoElement, Pixels, Point, Render, SharedString
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
-pub use crate::view::size::k_sidebar_width;
+
 
 /// Live drag of a panel edge: where it started and how wide the panel was.
 #[derive(Clone)]
@@ -69,7 +69,8 @@ impl BPanelEdge {
     /// A column left of what it resizes against: the trailing edge.
     pub fn trailing() -> Self {
         use crate::state::val::{V_EMPTY, V_TRUE};
-        Self { shut_key: crate::view::size::k_sidebar_hidden(), shut: V_TRUE, open: V_EMPTY, leading: false }
+        use crate::state::{BKey as _, SidebarKey};
+        Self { shut_key: SidebarKey::Hidden.path(), shut: V_TRUE, open: V_EMPTY, leading: false }
     }
 
     /// A host's sidebar region, left of its tab strip.

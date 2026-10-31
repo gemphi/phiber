@@ -106,7 +106,7 @@ async fn the_dope_sheet_picks_moves_and_deletes_keys_and_saves_them(cx: &mut Tes
         app.state.set(ModalKey::Open, "");
         app.state.set(CtxKey::Space, space.slug());
         app.state.set(&phiber::area::area_key(space, &area), BHostType::Action.slug());
-        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
+        app.state.set(phiber::state::SceneKey::LoadedPath, path.clone());
         app.state.set(CtxKey::Object, "Cube");
         app.state.set(CtxKey::FrameStart, "1");
         app.state.set(CtxKey::FrameEnd, "250");

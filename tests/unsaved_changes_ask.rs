@@ -36,7 +36,7 @@ async fn an_edit_marks_the_title_and_quit_new_and_open_ask_before_losing_it(cx: 
     assert_eq!(cx.window_title().as_deref(), Some("(Unsaved) - Phiber"), "nothing open yet");
     app.update(cx, |app, cx| {
         app.state.set(ModalKey::Open, "");
-        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
+        app.state.set(phiber::state::SceneKey::LoadedPath, path.clone());
         app.scene_cache = Some((path.clone(), std::sync::Arc::new(model)));
         cx.notify();
     });

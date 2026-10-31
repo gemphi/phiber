@@ -79,6 +79,70 @@ impl BRule for BKeyOpRule {
             // Jump moves the PLAYHEAD, not the keys — it writes `CtxKey::Frame`
             // and returns, so the picks never travel through `picks.write`.
             ("jump", ..) => return super::set_jump::jump(s, &picks),
+            // Select ▸ Columns on Selected Keys / Column on Current Frame /
+            // Columns on Selected Markers / Between Selected Markers
+            // (`ACTION_OT_select_column`, `action_select.cc`). Every mode
+            // ADDS: Blender's column select never clears what is picked.
+            // The first three name a list of columns; `between` is a range
+            // over the selected markers' extremes, widened half a frame
+            // each way (`markers_selectkeys_between`).
+            ("column", Some(mode), _) => {
+                let marks = || crate::scene::marker::BMarkerList::selected(s).into_iter().map(|f| f as f32);
+                let span = || {
+                    let (lo, hi) = marks().fold((f32::INFINITY, f32::NEG_INFINITY), |(lo, hi), f| (lo.min(f), hi.max(f)));
+                    lo.is_finite().then_some((lo - 0.5, hi + 0.5))
+                };
+                let range = match mode {
+                    "between" => match span() {
+                        Some(range) => Some(range),
+                        None => return log::push("No selected markers to select between".to_string()),
+                    },
+                    _ => None,
+                };
+                let columns: Vec<f32> = match mode {
+                    "keys" => picks.0.iter().map(|p| p.frame).collect(),
+                    "cfra" => vec![super::set_jump::frame_now(s)],
+                    "markers" => marks().collect(),
+                    "between" => Vec::new(),
+                    _ => return,
+                };
+                for name in &shown {
+                    for c in BKeyTarget::columns(&model.actions, name) {
+                        let hit = match range {
+                            Some((lo, hi)) => c >= lo && c <= hi,
+                            None => columns.iter().any(|f| (f - c).abs() < 5e-4),
+                        };
+                        if hit {
+                            picks.add(name, c);
+                        }
+                    }
+                }
+            }
+            // Select ▸ Before / After Current Frame
+            // (`ACTION_OT_select_leftright`): this one REPLACES, and the
+            // keys standing ON the playhead belong to both sides — Blender
+            // runs the range to `cfra ± 0.1`.
+            ("leftright", Some(side), _) => {
+                let now = super::set_jump::frame_now(s);
+                let (lo, hi) = match side {
+                    "left" => (f32::NEG_INFINITY, now + 0.1),
+                    "right" => (now - 0.1, f32::INFINITY),
+                    _ => return,
+                };
+                picks = BKeySelection::default();
+                for name in &shown {
+                    BKeyTarget::columns(&model.actions, name).into_iter().filter(|c| *c >= lo && *c <= hi).for_each(|c| picks.add(name, c));
+                }
+            }
+            // Copy / Paste go through the runtime buffer (`set_copy`), which
+            // owns whether anything is written: a copy changes no keys and
+            // leaves the selection alone, a paste selects what it landed.
+            (op @ ("copy" | "paste"), ..) => {
+                match super::set_copy::copy_paste(op, s, &model, picks) {
+                    Some(next) => picks = next,
+                    None => return,
+                }
+            }
             // Every remaining arm (clean / duplicate / snap / mirror / ipo /
             // easing / handle / grab:*) edits the keys. The helper owns its
             // own `picks` and writes them when it is done.

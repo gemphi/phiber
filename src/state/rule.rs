@@ -85,6 +85,7 @@ fn table() -> &'static [&'static dyn BRule] {
         &crate::modal::new_image::BNewImageRule,
         &crate::view::draw::canvas::time::view::op::BTimeViewRule,
         &crate::scene::action::channel::BChannelOpRule,
+        &crate::scene::action::channel_fold::BChannelFoldRule,
         &crate::view::draw::canvas::node::view::op::BNodeViewRule,
         &crate::view::draw::canvas::node::select::op::BNodeSelectRule,
         &crate::view::draw::canvas::node::remove::op::BNodeDeleteRule,

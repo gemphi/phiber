@@ -9,6 +9,7 @@
 
 use crate::scene::BObject3D;
 use crate::scene::camera::zoom_for;
+use crate::scene::view_slot::BViewSlot;
 use crate::state::{BKey as _, BPath, BState, OpKey, View3dKey, log, rule::BRule, val::{V_FALSE, V_TRUE}};
 use glam::{Mat4, Vec3};
 
@@ -64,10 +65,10 @@ fn world_vertices(object: &BObject3D) -> Vec<Vec3> {
 /// showing their widest side with room around it.
 fn frame(state: &mut BState, objects: &[&BObject3D]) -> bool {
     let Some((centre, extent)) = bounds_of(objects) else { return false };
-    state.set(&super::pivot_key(), format!("{},{},{}", centre.x, centre.y, centre.z));
-    state.set(&super::zoom_key(), zoom_for(extent * FRAME_MARGIN).to_string());
-    state.set(&super::pan_x_key(), "0");
-    state.set(&super::pan_y_key(), "0");
+    state.set(&BViewSlot::key(View3dKey::Pivot), format!("{},{},{}", centre.x, centre.y, centre.z));
+    state.set(&BViewSlot::key(View3dKey::Zoom), zoom_for(extent * FRAME_MARGIN).to_string());
+    state.set(&BViewSlot::key(View3dKey::PanX), "0");
+    state.set(&BViewSlot::key(View3dKey::PanY), "0");
     true
 }
 
@@ -86,7 +87,7 @@ impl BRule for BView3dOpRule {
         let turn = |state: &mut BState, key: View3dKey, by: f32| super::orbit_around::step(state, key, by);
         let zoom = |state: &mut BState, factor: f32| {
             let next = super::zoom_step(super::view_zoom(state), factor);
-            state.set(&super::zoom_key(), next.to_string());
+            state.set(&BViewSlot::key(View3dKey::Zoom), next.to_string());
         };
         let said = match op {
             "frame_all" => frame(state, &visible).then_some("Framed all"),
@@ -147,7 +148,7 @@ impl BRule for BView3dOpRule {
             }
             "persportho" => {
                 let persp = super::is_perspective(state);
-                state.set(&super::perspective_key(), if persp { V_FALSE } else { V_TRUE });
+                state.set(&BViewSlot::key(View3dKey::Perspective), if persp { V_FALSE } else { V_TRUE });
                 Some(if persp { "Orthographic view" } else { "Perspective view" })
             }
             // `view3d.view_axis`: the named viewpoint's two angles.
@@ -155,8 +156,8 @@ impl BRule for BView3dOpRule {
                 let name = &named["viewpoint:".len()..];
                 match super::viewpoint::view_angles(name) {
                     Some((yaw, pitch)) => {
-                        state.set(&super::yaw_key(), yaw.to_string());
-                        state.set(&super::pitch_key(), pitch.to_string());
+                        state.set(&BViewSlot::key(View3dKey::Yaw), yaw.to_string());
+                        state.set(&BViewSlot::key(View3dKey::Pitch), pitch.to_string());
                         log::push(format!("View: {}{}", name[..1].to_uppercase(), &name[1..]));
                     }
                     None => {}

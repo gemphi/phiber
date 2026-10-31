@@ -121,7 +121,7 @@ fn open<'a>(cx: &'a mut TestAppContext, dir: &std::path::Path) -> (gpui::Entity<
         app.state.set(ModalKey::Open, "");
         app.state.set(CtxKey::Space, space.slug());
         app.state.set(&phiber::area::area_key(space, &area), BHostType::Nla.slug());
-        app.state.set(&phiber::scene::loaded_path_key(), path.clone());
+        app.state.set(phiber::state::SceneKey::LoadedPath, path.clone());
         app.state.set(CtxKey::Object, "Cube");
         app.state.set(CtxKey::FrameStart, "1");
         app.state.set(CtxKey::FrameEnd, "250");

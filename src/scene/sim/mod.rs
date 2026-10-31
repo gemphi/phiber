@@ -24,11 +24,14 @@
 
 mod bake;
 mod input;
+/// The Physics tab's Rigid Body rows over the file's body
+/// (`BPhysicsRows::body`).
+mod input_body;
 #[cfg(test)]
 mod tests;
 
 pub use bake::BSimFrame;
-pub use input::{BSimInput, BWorldRows, moves};
+pub use input::{BSimInput, BPhysicsRows, moves};
 
 use crate::phiphx::scene::SceneModel;
 use crate::state::{BKey as _, BPath, BState, OpKey, rule::BRule};
@@ -45,7 +48,7 @@ thread_local! {
     static WAITING: Cell<bool> = const { Cell::new(false) };
     /// The keys of the model asked last, so a pass on the same model and
     /// rows does not hash its physics again.
-    static KEYS: RefCell<Option<(Weak<SceneModel>, BWorldRows, (u64, u64))>> = const { RefCell::new(None) };
+    static KEYS: RefCell<Option<(Weak<SceneModel>, BPhysicsRows, (u64, u64))>> = const { RefCell::new(None) };
     /// The bake whose hull fallback the Info log was told of.
     static NOTED: Cell<u64> = const { Cell::new(0) };
 }
@@ -55,7 +58,7 @@ thread_local! {
 /// the frame; otherwise the newest baked frame stands in for it.
 pub fn worlds(model: &Arc<SceneModel>, s: &BState, frame: Option<f32>, exact: bool) -> Option<BSimFrame> {
     let shown = frame.filter(|_| moves(model)).and_then(|frame| {
-        let rows = BWorldRows::read(s, model.physics.world.as_ref()?);
+        let rows = BPhysicsRows::read(s, model.physics.world.as_ref()?);
         let (key, scene) = keys(model, rows.clone());
         bake::ask(key, scene, || BSimInput::of(model, &rows));
         if exact {
@@ -86,7 +89,7 @@ pub fn waiting() -> bool {
     WAITING.with(Cell::get)
 }
 
-fn keys(model: &Arc<SceneModel>, rows: BWorldRows) -> (u64, u64) {
+fn keys(model: &Arc<SceneModel>, rows: BPhysicsRows) -> (u64, u64) {
     KEYS.with(|cell| {
         let mut memo = cell.borrow_mut();
         let hit = memo.as_ref().filter(|(m, r, _)| std::ptr::eq(m.as_ptr(), Arc::as_ptr(model)) && *r == rows).map(|(_, _, keys)| *keys);
@@ -132,7 +135,7 @@ impl BRule for BRigidBakeRule {
             "bake" => {
                 let Some(model) = crate::scene::source::loaded_shared() else { return };
                 let Some(world) = model.physics.world.as_ref() else { return };
-                let rows = BWorldRows::read(s, world);
+                let rows = BPhysicsRows::read(s, world);
                 let (key, scene) = keys(&model, rows.clone());
                 bake::ask(key, scene, || BSimInput::of(&model, &rows));
                 bake::pin();

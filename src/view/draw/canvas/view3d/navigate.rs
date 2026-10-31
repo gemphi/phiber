@@ -28,8 +28,9 @@
 //! invert here beyond the magnify itself.
 
 use crate::scene::orbit_around;
-use crate::scene::{pan_x_key, pan_y_key, pitch_key, pitch_step, pivot_key, view_pan, view_pitch, view_yaw, view_zoom, yaw_key, zoom_key, zoom_step};
-use crate::state::BState;
+use crate::scene::view_slot::BViewSlot;
+use crate::scene::{pitch_step, view_pan, view_pitch, view_yaw, view_zoom, zoom_step};
+use crate::state::{BState, View3dKey};
 use crate::view::prim::BAction;
 use gpui::{Modifiers, ScrollDelta, TouchPhase};
 
@@ -148,16 +149,16 @@ impl BViewWrite {
     ) {
         match move_to {
             BViewMove::Zoom { factor } => {
-                handler(&BAction::Set(zoom_key(), zoom_step(self.zoom, factor).to_string()), window, app);
+                handler(&BAction::Set(BViewSlot::key(View3dKey::Zoom), zoom_step(self.zoom, factor).to_string()), window, app);
             }
             // About the selection, the centre swings round it as it turns.
             BViewMove::Orbit { yaw, pitch } => {
                 let to = (self.yaw + yaw, pitch_step(self.pitch, pitch));
-                handler(&BAction::Set(yaw_key(), to.0.to_string()), window, app);
-                handler(&BAction::Set(pitch_key(), to.1.to_string()), window, app);
+                handler(&BAction::Set(BViewSlot::key(View3dKey::Yaw), to.0.to_string()), window, app);
+                handler(&BAction::Set(BViewSlot::key(View3dKey::Pitch), to.1.to_string()), window, app);
                 if let Some(about) = self.around {
                     let pivot = orbit_around::turn_pivot(self.pivot, about, (self.yaw, self.pitch), to);
-                    handler(&BAction::Set(pivot_key(), orbit_around::encode(pivot)), window, app);
+                    handler(&BAction::Set(BViewSlot::key(View3dKey::Pivot), orbit_around::encode(pivot)), window, app);
                 }
             }
             // `view3d.move` slides the orbit centre (`orbit_around::pan_pivot`),
@@ -165,9 +166,9 @@ impl BViewWrite {
             BViewMove::Pan { x, y } => {
                 let shift = (self.pan.0 + x, self.pan.1 + y);
                 let pivot = orbit_around::pan_pivot(self.pivot, (self.yaw, self.pitch), self.zoom, shift);
-                handler(&BAction::Set(pivot_key(), orbit_around::encode(pivot)), window, app);
-                handler(&BAction::Set(pan_x_key(), "0".to_string()), window, app);
-                handler(&BAction::Set(pan_y_key(), "0".to_string()), window, app);
+                handler(&BAction::Set(BViewSlot::key(View3dKey::Pivot), orbit_around::encode(pivot)), window, app);
+                handler(&BAction::Set(BViewSlot::key(View3dKey::PanX), "0".to_string()), window, app);
+                handler(&BAction::Set(BViewSlot::key(View3dKey::PanY), "0".to_string()), window, app);
             }
         }
     }

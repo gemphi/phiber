@@ -51,11 +51,17 @@ impl BDriverList {
         self.objects
             .iter()
             .flat_map(|drivers| {
-                let object = std::iter::once(BTimeRow { kind: BRowKind::Object { name: drivers.object.clone(), expanded: false }, keys: Vec::new() });
+                // Driver rows draw no key diamonds, so they carry no frames
+                // and no types (`BTimeRow::keytypes`' empty case).
+                let object = std::iter::once(BTimeRow { kind: BRowKind::Object { name: drivers.object.clone(), expanded: false }, keys: Vec::new(), keytypes: Vec::new() });
                 let curves: Vec<BTimeRow> = drivers
                     .curves
                     .iter()
-                    .map(|curve| BTimeRow { kind: BRowKind::Driver { name: BTimeRow::driver_name(curve), color: drawn.next().map_or([0.0; 3], |d| d.color) }, keys: Vec::new() })
+                    .map(|curve| BTimeRow {
+                        kind: BRowKind::Driver { name: BTimeRow::driver_name(curve), color: drawn.next().map_or([0.0; 3], |d| d.color) },
+                        keys: Vec::new(),
+                        keytypes: Vec::new(),
+                    })
                     .collect();
                 object.chain(curves)
             })

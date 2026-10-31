@@ -92,6 +92,9 @@ pub(super) struct BFramePalette {
     pub back: Hsla,
     /// `TH_VIEW_OVERLAY`: the dashed frame.
     pub overlay: Hsla,
+    /// The render region's dashed box: the theme's red (`axis_x`), where
+    /// Blender draws a fixed (1, 0.25, 0.25).
+    pub region_line: Hsla,
     /// The render region as fractions of the frame (`Scene.r.border`, y
     /// up), when Render Region is on — `drawrenderborder`'s dashed box.
     pub region: Option<[f32; 4]>,
@@ -123,18 +126,17 @@ pub(super) fn paint(bounds: Bounds<Pixels>, view: &BCameraView, palette: BFrameP
     window.paint_quad(outline(border, palette.overlay, BorderStyle::Dashed));
     // The render region's dashed box over the frame's own pixels.
     if let Some(region) = palette.region {
-        paint_region(rect(frame.left, frame.top, frame.right, frame.bottom), region, palette.back, window);
+        paint_region(rect(frame.left, frame.top, frame.right, frame.bottom), region, (palette.back, palette.region_line), window);
     }
 }
 
 /// `drawrenderborder`: a region `[xmin, xmax, ymin, ymax]` (fractions, y
-/// up) of `over` as its dashed box in Blender's fixed (1, 0.25, 0.25) on
-/// the solid line under it — the scene's over the camera frame, the
+/// up) of `over` as its dashed box in the theme's red (`line`) on the solid
+/// line under it (`back`) — the scene's over the camera frame, the
 /// viewport's own over the whole region (`scene::view_border`).
-pub(super) fn paint_region(over: Bounds<Pixels>, [xmin, xmax, ymin, ymax]: [f32; 4], back: Hsla, window: &mut Window) {
+pub(super) fn paint_region(over: Bounds<Pixels>, [xmin, xmax, ymin, ymax]: [f32; 4], (back, line): (Hsla, Hsla), window: &mut Window) {
     let (left, top, fw, fh) = (f32::from(over.origin.x), f32::from(over.origin.y), f32::from(over.size.width), f32::from(over.size.height));
     let region = Bounds::new(point(px(left + xmin * fw), px(top + (1.0 - ymax) * fh)), size(px(((xmax - xmin) * fw).max(0.0)), px(((ymax - ymin) * fh).max(0.0))));
     window.paint_quad(outline(region, back, BorderStyle::Solid));
-    let red: Hsla = gpui::Rgba { r: 1.0, g: 0.25, b: 0.25, a: 1.0 }.into();
-    window.paint_quad(outline(region, red, BorderStyle::Dashed));
+    window.paint_quad(outline(region, line, BorderStyle::Dashed));
 }

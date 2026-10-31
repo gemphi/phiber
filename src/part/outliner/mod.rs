@@ -245,6 +245,8 @@ impl BViewItem for BOutlinerItem {
 mod tests {
     use super::*;
     use crate::scene::OBJECTS;
+    use crate::scene::view_slot::BViewSlot;
+    use crate::state::View3dKey;
 
     fn rows(state: &BState) -> Vec<BView> {
         let BView::Column { list } = BOutlinerItem::new().build(state).shown().clone() else {
@@ -321,8 +323,8 @@ mod tests {
         };
         let mut state = BState::new();
         let first = shared(BOutlinerItem::new().build(&state));
-        state.set(&crate::scene::yaw_key(), "33");
-        state.set(&crate::scene::zoom_key(), "1.5");
+        state.set(&BViewSlot::key(View3dKey::Yaw), "33");
+        state.set(&BViewSlot::key(View3dKey::Zoom), "1.5");
         assert!(std::rc::Rc::ptr_eq(&first, &shared(BOutlinerItem::new().build(&state))), "an orbit: the same rows");
         state.set(CtxKey::Frame, "17");
         state.set(CtxKey::Playing, "true");

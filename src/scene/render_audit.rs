@@ -43,6 +43,12 @@ pub const APPLIED: &[&str] = &[
     // The card Phiray draws on (`part::pref::device`).
     "cycles.device",
     "render.film_transparent",
+    // Bloom / Glare, onto `Tracer::glow` through `BRenderPlan::glow`: the
+    // glare pass runs on the settled frame (`rendered/stepwise.rs`).
+    "eevee.use_bloom",
+    "eevee.bloom_threshold",
+    "eevee.bloom_intensity",
+    "eevee.bloom_radius",
     // `BColorManagement`.
     "view_settings.view_transform",
     "view_settings.look",

@@ -10,9 +10,8 @@
 
 use phiber::{
     app::import::should_import,
-    scene::selected_key,
-    state::{BState},
     state::action::apply_action,
+    state::{BKey as _, BState},
     view::prim::BAction,
 };
 
@@ -23,7 +22,7 @@ use phiber::{
 /// Dispatch a `Set("file", "selected", path)` action — mirrors what the File
 /// Browser row's on-click handler sends.
 fn select_file(state: &mut BState, path: &str) {
-    apply_action(state, &BAction::Set(selected_key(), path.to_string()));
+    apply_action(state, &BAction::Set(phiber::state::FileKey::Selected.path(), path.to_string()));
 }
 
 // --------------------------------------------------------------------------
@@ -31,11 +30,11 @@ fn select_file(state: &mut BState, path: &str) {
 // --------------------------------------------------------------------------
 
 #[test]
-fn blend_selection_writes_to_selected_key() {
+fn blend_selection_writes_to_the_file_selected_key() {
     let mut state = BState::new();
     select_file(&mut state, "/path/to/model.blend");
     assert_eq!(
-        state.get(&selected_key()),
+        state.get(phiber::state::FileKey::Selected),
         Some("/path/to/model.blend"),
         "file.selected must hold the selected .blend path"
     );
@@ -45,14 +44,14 @@ fn blend_selection_writes_to_selected_key() {
 fn blend_selection_uppercase_extension_writes_correctly() {
     let mut state = BState::new();
     select_file(&mut state, "/assets/Mesh.BLEND");
-    assert_eq!(state.get(&selected_key()), Some("/assets/Mesh.BLEND"));
+    assert_eq!(state.get(phiber::state::FileKey::Selected), Some("/assets/Mesh.BLEND"));
 }
 
 #[test]
 fn blend_selection_triggers_should_import() {
     let mut state = BState::new();
     select_file(&mut state, "/dir/model.blend");
-    let selected = state.get(&selected_key());
+    let selected = state.get(phiber::state::FileKey::Selected);
     assert!(
         should_import(None, selected),
         "should_import must be true for a new .blend selection"
@@ -68,7 +67,7 @@ fn non_blend_selection_writes_key() {
     let mut state = BState::new();
     select_file(&mut state, "/notes/readme.txt");
     assert_eq!(
-        state.get(&selected_key()),
+        state.get(phiber::state::FileKey::Selected),
         Some("/notes/readme.txt"),
         "file.selected is written even for non-.blend paths"
     );
@@ -78,7 +77,7 @@ fn non_blend_selection_writes_key() {
 fn non_blend_selection_does_not_trigger_should_import() {
     let mut state = BState::new();
     select_file(&mut state, "notes.txt");
-    let selected = state.get(&selected_key());
+    let selected = state.get(phiber::state::FileKey::Selected);
     assert!(
         !should_import(None, selected),
         "should_import must be false for a non-.blend path"
@@ -89,7 +88,7 @@ fn non_blend_selection_does_not_trigger_should_import() {
 fn empty_selection_does_not_trigger_should_import() {
     let mut state = BState::new();
     select_file(&mut state, "");
-    let selected = state.get(&selected_key());
+    let selected = state.get(phiber::state::FileKey::Selected);
     // An empty selection: the state key may be absent or empty; either way
     // should_import must be false.
     assert!(!should_import(None, selected));
@@ -103,11 +102,11 @@ fn empty_selection_does_not_trigger_should_import() {
 fn second_blend_replaces_first() {
     let mut state = BState::new();
     select_file(&mut state, "/first.blend");
-    assert_eq!(state.get(&selected_key()), Some("/first.blend"));
+    assert_eq!(state.get(phiber::state::FileKey::Selected), Some("/first.blend"));
 
     select_file(&mut state, "/second.blend");
     assert_eq!(
-        state.get(&selected_key()),
+        state.get(phiber::state::FileKey::Selected),
         Some("/second.blend"),
         "second selection must overwrite the first"
     );
@@ -118,11 +117,11 @@ fn non_blend_replaces_prior_blend() {
     let mut state = BState::new();
     select_file(&mut state, "/first.blend");
     select_file(&mut state, "image.png");
-    assert_eq!(state.get(&selected_key()), Some("image.png"));
+    assert_eq!(state.get(phiber::state::FileKey::Selected), Some("image.png"));
     // should_import is false now.
     assert!(!should_import(
         Some("/first.blend"),
-        state.get(&selected_key())
+        state.get(phiber::state::FileKey::Selected)
     ));
 }
 
@@ -131,7 +130,7 @@ fn blend_after_non_blend_triggers_import() {
     let mut state = BState::new();
     select_file(&mut state, "readme.txt");
     select_file(&mut state, "/new/model.blend");
-    let selected = state.get(&selected_key());
+    let selected = state.get(phiber::state::FileKey::Selected);
     assert!(
         should_import(None, selected),
         "blend after non-blend must trigger import"
@@ -148,7 +147,7 @@ fn same_blend_selection_does_not_retrigger_import() {
     select_file(&mut state, "/scene.blend");
     // Simulate that this blend is already loaded.
     let loaded_path = Some("/scene.blend");
-    let selected = state.get(&selected_key());
+    let selected = state.get(phiber::state::FileKey::Selected);
     assert!(
         !should_import(loaded_path, selected),
         "selecting the already-loaded .blend must not trigger re-import"

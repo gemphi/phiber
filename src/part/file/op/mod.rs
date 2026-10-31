@@ -187,7 +187,7 @@ impl BRule for BFileReturnRule {
 /// browser wherever it already was.
 fn seed_image_target(s: &mut BState) {
     let output = crate::scene::output_set(s);
-    let blend = s.get(&crate::scene::loaded_path_key()).unwrap_or_default().to_string();
+    let blend = s.get(crate::state::SceneKey::LoadedPath).unwrap_or_default().to_string();
     let folder = Path::new(&blend).parent().map(Path::to_path_buf).unwrap_or_default();
     let file = output.file_of(&folder);
     let Some(name) = file.file_name().map(|n| n.to_string_lossy().to_string()) else { return };
@@ -197,14 +197,14 @@ fn seed_image_target(s: &mut BState) {
 /// `sound.mixdown` opens beside the `.blend`, on its name with Blender's
 /// default container's extension (`sound_mixdown_check`: `.flac`).
 fn seed_mixdown_target(s: &mut BState) {
-    let blend = s.get(&crate::scene::loaded_path_key()).unwrap_or_default().to_string();
+    let blend = s.get(crate::state::SceneKey::LoadedPath).unwrap_or_default().to_string();
     seed_target(s, Path::new(&blend), crate::scene::mixdown::BMixdown::name_for(Path::new(&blend)));
 }
 
 /// `wm.save_as_mainfile` opens on the file that is open, named as it is,
 /// so Return saves over it and a changed name saves beside it.
 fn seed_blend_target(s: &mut BState) {
-    let blend = s.get(&crate::scene::loaded_path_key()).unwrap_or_default().to_string();
+    let blend = s.get(crate::state::SceneKey::LoadedPath).unwrap_or_default().to_string();
     let file = Path::new(&blend);
     let Some(name) = file.file_name().map(|n| n.to_string_lossy().to_string()).filter(|n| !n.is_empty()) else { return };
     seed_target(s, file, name);

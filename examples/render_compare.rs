@@ -24,6 +24,37 @@ fn main() {
     let (ia, ib) = (image::open(&pa).expect("open a"), image::open(&pb).expect("open b"));
     assert_eq!(ia.dimensions(), ib.dimensions(), "renders must be the same size");
     let (w, h) = ia.dimensions();
+
+    // Transparent renders need their silhouette judged as alpha, not as
+    // brightness. A black car panel and an empty transparent pixel can have
+    // the same luma; the previous comparator called neither a figure and
+    // silently omitted framing/coverage errors. IoU says how much of the
+    // foreground mask overlaps, precision/recall say on which side it misses,
+    // and premultiplied RMSE includes both colour and coverage without
+    // inventing a checkerboard colour.
+    let (mut inter, mut union, mut a_fg, mut b_fg) = (0u64, 0u64, 0u64, 0u64);
+    let (mut alpha_abs, mut premul_sq) = (0f64, 0f64);
+    for y in 0..h {
+        for x in 0..w {
+            let (a, b) = (ia.get_pixel(x, y), ib.get_pixel(x, y));
+            let (ma, mb) = (a[3] > 8, b[3] > 8);
+            a_fg += ma as u64;
+            b_fg += mb as u64;
+            inter += (ma && mb) as u64;
+            union += (ma || mb) as u64;
+            alpha_abs += (f64::from(a[3]) - f64::from(b[3])).abs();
+            let (aa, ab) = (f64::from(a[3]) / 255.0, f64::from(b[3]) / 255.0);
+            for k in 0..3 {
+                let d = f64::from(a[k]) * aa - f64::from(b[k]) * ab;
+                premul_sq += d * d;
+            }
+        }
+    }
+    let px_count = u64::from(w) * u64::from(h);
+    let ratio = |n: u64, d: u64| if d == 0 { 1.0 } else { n as f64 / d as f64 };
+    println!("alpha mask: IoU {:.4}  precision {:.4}  recall {:.4}  Blender {} px  Phiber {} px", ratio(inter, union), ratio(inter, b_fg), ratio(inter, a_fg), a_fg, b_fg);
+    println!("alpha mean |Δ|: {:.2} / 255   premultiplied RGB RMSE: {:.2} / 255", alpha_abs / px_count.max(1) as f64, (premul_sq / (px_count.max(1) * 3) as f64).sqrt());
+
     // Background = the top-left pixel of each image (both views leave the corner empty).
     let (bga, bgb) = (luma(ia.get_pixel(0, 0)), luma(ib.get_pixel(0, 0)));
     let figure = |img: &image::DynamicImage, bg: f32, x: u32, y: u32| (luma(img.get_pixel(x, y)) - bg).abs() > 12.0;

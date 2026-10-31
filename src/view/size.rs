@@ -8,8 +8,8 @@
 //! that, it shows again. Otherwise the size is clamped to the region's range
 //! (Blender clamps to `ED_area_max_regionsize`).
 
-use crate::state::{BPath, BState};
 use crate::state::val::V_TRUE;
+use crate::state::{BState, SidebarKey};
 
 /// Where a drag leaves a region.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -29,25 +29,15 @@ pub fn scale(start: f32, delta: f32, min: f32, max: f32, collapse: f32) -> BScal
     BScaled { size: raw.clamp(min, max.max(min)), hidden: false }
 }
 
-/// `ctx.sidebar.width` — the width every sidebar shares.
-pub fn k_sidebar_width() -> BPath {
-    BPath::owned(vec!["sidebar", "width"])
-}
-
 /// The width a sidebar column was dragged to, or `default` until it is —
 /// never under `least`. The file browser's source list and the strip over
 /// it read the same width, so the strip's columns land on the list's edge.
 pub fn sidebar_column_width(s: &BState, default: f32, least: f32) -> f32 {
-    s.get(&k_sidebar_width()).and_then(|w| w.parse::<f32>().ok()).unwrap_or(default).max(least)
-}
-
-/// `ctx.sidebar.hidden` — dragged shut (`RGN_FLAG_HIDDEN`).
-pub fn k_sidebar_hidden() -> BPath {
-    BPath::owned(vec!["sidebar", "hidden"])
+    s.get(SidebarKey::Width).and_then(|w| w.parse::<f32>().ok()).unwrap_or(default).max(least)
 }
 
 pub fn sidebar_hidden(s: &BState) -> bool {
-    s.get(&k_sidebar_hidden()) == Some(V_TRUE)
+    s.get(SidebarKey::Hidden) == Some(V_TRUE)
 }
 
 #[cfg(test)]

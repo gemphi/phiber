@@ -58,12 +58,7 @@ fn row(rows: &[BTimeRow], index: usize, row: &BTimeRow) -> BView {
         BRowKind::Curve { grouped: false, .. } => (1, "curve"),
         BRowKind::Driver { .. } => (1, "driver"),
     };
-    let fold = match &row.kind {
-        BRowKind::Object { name, expanded } => Some((name.clone(), *expanded)),
-        BRowKind::Slot { action, identifier, expanded, .. } => Some((BTimeRow::slot_key(action, identifier), *expanded)),
-        BRowKind::Group { object, name, expanded } => Some((BTimeRow::group_key(object, name), *expanded)),
-        _ => None,
-    };
+    let fold = row.fold();
     let toggle = fold.as_ref().map(|(key, open)| {
         BAction::Set(DopeKey::Expanded(crate::state::intern(key)).path(), (if *open { V_FALSE } else { V_TRUE }).to_string())
     });

@@ -4,7 +4,9 @@
 use phiber::state::BKey as _;
 use phiber::state::FileKey;
 use phiber::part::file::table;
+use phiber::scene::view_slot::BViewSlot;
 use phiber::state::BState;
+use phiber::state::View3dKey;
 use phiber::view::BView;
 use std::path::PathBuf;
 
@@ -68,7 +70,7 @@ fn open_restores_saved_workspace_and_view() {
     s.set(phiber::state::CtxKey::Space, "Shading");
     restore_ui(&mut s, &model);
     assert_eq!(s.get(phiber::state::CtxKey::Space), Some("Layout"));
-    assert!(s.get(&phiber::scene::yaw_key()).is_some());
+    assert!(s.get(&BViewSlot::key(View3dKey::Yaw)).is_some());
     let opt = phiber::part::file::option::panel(&phiber::state::BState::default());
     assert!(opt.is_some(), "Open shows the Load UI option");
 }

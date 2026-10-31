@@ -10,10 +10,7 @@
 //! (task 7.x) — this file deliberately contains only pure functions.
 
 use crate::phiphx::scene::{SceneLoadError, SceneModel};
-use crate::scene::{
-    error_key, is_blend_path, load_cancel_key, load_progress_key, load_stage_key,
-    loaded_path_key, loading_key,
-};
+use crate::scene::is_blend_path;
 use crate::state::BState;
 
 /// Decide whether a file selection should initiate a new blend import.
@@ -88,16 +85,16 @@ pub fn settle_import(state: &mut BState, outcome: ImportOutcome) -> Option<Scene
     // The loading flag and the staged-progress readout are cleared on every
     // settled outcome — the bar and stage label disappear once the import
     // resolves (success, failure, or timeout).
-    state.remove(&loading_key());
-    state.remove(&load_stage_key());
-    state.remove(&load_progress_key());
-    state.remove(&load_cancel_key());
+    state.remove(crate::state::SceneKey::Loading);
+    state.remove(crate::state::SceneKey::LoadStage);
+    state.remove(crate::state::SceneKey::LoadProgress);
+    state.remove(crate::state::SceneKey::LoadCancel);
 
     match outcome {
         ImportOutcome::Loaded(model) => {
             // Success clears any prior error (Requirement 3.6) and records the
             // path now reflected by the Scene_Source (Requirement 1.7).
-            state.remove(&error_key());
+            state.remove(crate::state::SceneKey::Error);
             super::seed::seed_view_layer(state, &model);
             super::seed::seed_render_props(state, &model);
             super::seed::seed_output_props(state, &model);
@@ -114,10 +111,10 @@ pub fn settle_import(state: &mut BState, outcome: ImportOutcome) -> Option<Scene
                 state.remove_encoded(super::session::resume_frame().as_str());
             }
             match &model.source_path {
-                Some(path) => state.set(&loaded_path_key(), path.clone()),
+                Some(path) => state.set(crate::state::SceneKey::LoadedPath, path.clone()),
                 // No source path recorded — clear the reflected path rather
                 // than leave a stale one.
-                None => state.remove(&loaded_path_key()),
+                None => state.remove(crate::state::SceneKey::LoadedPath),
             }
             Some(model)
         }
@@ -129,14 +126,14 @@ pub fn settle_import(state: &mut BState, outcome: ImportOutcome) -> Option<Scene
         ImportOutcome::Failed(e) => {
             // Retain the prior scene: touch neither loaded_path nor the cached
             // model (Requirement 3.4). Only surface the categorized message.
-            state.set(&error_key(), e.message());
-            let path = state.get(&crate::scene::selected_key()).map(str::to_string);
+            state.set(crate::state::SceneKey::Error, e.message());
+            let path = state.get(crate::state::FileKey::Selected).map(str::to_string);
             super::seed::report_failed(state, path.as_deref(), &e.message());
             None
         }
         ImportOutcome::TimedOut => {
             // Same retention rule as a failure; a short, bounded message.
-            state.set(&error_key(), TIMEOUT_MESSAGE.to_string());
+            state.set(crate::state::SceneKey::Error, TIMEOUT_MESSAGE.to_string());
             None
         }
     }

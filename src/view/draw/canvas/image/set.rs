@@ -162,7 +162,11 @@ impl BImageView {
         let status = self.status?;
         let elapsed = render_status::elapsed();
         let mut pairs = vec![("Frame", frame.to_string()), ("Time", render_status::timecode(elapsed))];
-        if let Some(left) = render_status::remaining(elapsed, status.taken, status.target, status.done) {
+        // `Time` is the whole render; `Remaining` is paced over the samples
+        // alone, so the setup is not charged to every sample still to come
+        // (`render_status::remaining`).
+        let since = render_status::sampling().unwrap_or_default();
+        if let Some(left) = render_status::remaining(since, status.taken, status.target, status.done) {
             pairs.push(("Remaining", render_status::timecode(left)));
         }
         pairs.push(("Mem", format!("{}M", status.megabytes())));

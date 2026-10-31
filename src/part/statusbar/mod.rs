@@ -12,9 +12,6 @@ pub mod set;
 use std::time::Duration;
 
 use crate::host::BHostType;
-use crate::scene::load_cancel_key;
-use crate::scene::loaded_path_key;
-use crate::scene::selected_key;
 use crate::scene::view_load_progress;
 use crate::scene::view_load_stage;
 use crate::state::BKey as _;
@@ -216,7 +213,7 @@ fn loading_panel(s: &BState, fraction: f32) -> BView {
         BView::Button(
             BControl::new()
                 .with_label("Cancel")
-                .with_action(BAction::Set(load_cancel_key(), V_TRUE.to_string())),
+                .with_action(BAction::Set(crate::state::SceneKey::LoadCancel.path(), V_TRUE.to_string())),
         ),
     ]);
 
@@ -234,9 +231,9 @@ fn loading_panel(s: &BState, fraction: f32) -> BView {
 /// read, else the path the scene is settling to).
 fn opening(s: &BState) -> String {
     let path = s
-        .get(&selected_key())
+        .get(crate::state::FileKey::Selected)
         .filter(|p| !p.is_empty())
-        .or_else(|| s.get(&loaded_path_key()))
+        .or_else(|| s.get(crate::state::SceneKey::LoadedPath))
         .unwrap_or("");
     path.rsplit(['/', '\\']).next().unwrap_or(path).to_string()
 }

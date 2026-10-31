@@ -59,7 +59,7 @@ impl BPhiberApp {
                 if self.save_to(&target) && purpose == BFilePurpose::SaveAs {
                     // `wm.save_as_mainfile`: the document is the new file now,
                     // and it is saved; a copy leaves the document as it was.
-                    self.state.set(&crate::scene::loaded_path_key(), target.to_string_lossy().to_string());
+                    self.state.set(crate::state::SceneKey::LoadedPath, target.to_string_lossy().to_string());
                     super::close::tag_saved(&mut self.state);
                 }
             }
@@ -111,7 +111,7 @@ impl BPhiberApp {
             self.report_no_source();
             return;
         };
-        if self.state.get(&crate::scene::loaded_path_key()).filter(|p| !p.is_empty()).is_none() {
+        if self.state.get(crate::state::SceneKey::LoadedPath).filter(|p| !p.is_empty()).is_none() {
             // `wm.save_mainfile` on an untitled file is `wm.save_as_mainfile`.
             crate::state::action::apply_action(&mut self.state, &crate::view::prim::BAction::Set(FileKey::Purpose.path(), BFilePurpose::SaveAs.slug().to_string()));
             return;
@@ -123,7 +123,7 @@ impl BPhiberApp {
         let target = if incremental { crate::scene::save::incremental_path(&source) } else { source };
         if self.save_to(&target) {
             if incremental {
-                self.state.set(&crate::scene::loaded_path_key(), target.to_string_lossy().to_string());
+                self.state.set(crate::state::SceneKey::LoadedPath, target.to_string_lossy().to_string());
             }
             super::close::tag_saved(&mut self.state);
         }

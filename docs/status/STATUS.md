@@ -16,35 +16,35 @@ Generated from the code by `manual::status`. Do not edit it by hand: after a cha
 
 | Component | Shown in | Entries or fields | Working | Not yet |
 |---|---|---:|---:|---:|
-| Top Bar menus | Layout, UV Lights, Texturing, Shading, Animation, Rendering, ECS Wand, Geometry Nodes, Scripting | 49 | 49 | 0 |
-| 3D Viewport menus | Layout, UV Lights, Texturing, Shading, Animation, Geometry Nodes, Scripting | 77 | 71 | 6 |
-| Outliner menus | Layout, UV Lights, Texturing, Shading, Animation, ECS Wand, Geometry Nodes, Scripting | 3 | 3 | 0 |
-| Inspector menus | Layout, UV Lights, Texturing, Shading, Animation, Rendering, ECS Wand, Geometry Nodes, Scripting | 3 | 3 | 0 |
-| Timeline menus | Layout, Animation, Rendering, ECS Wand, Geometry Nodes | 20 | 14 | 6 |
+| Top Bar menus | Layout, Modelling, Shading, PUV Lights, Texturing, Animation, Simulation, Rendering, ECS Wand, Geometry Nodes, Scripting | 51 | 51 | 0 |
+| 3D Viewport menus | Layout, Modelling, Shading, PUV Lights, Texturing, Animation, Simulation, Geometry Nodes, Scripting | 77 | 71 | 6 |
+| Outliner menus | Layout, Modelling, Shading, PUV Lights, Texturing, Animation, Simulation, ECS Wand, Geometry Nodes, Scripting | 3 | 3 | 0 |
+| Inspector menus | Layout, Modelling, Shading, PUV Lights, Texturing, Animation, Simulation, Rendering, ECS Wand, Geometry Nodes, Scripting | 3 | 3 | 0 |
+| Timeline menus | Layout, Animation, Simulation, Rendering, ECS Wand, Geometry Nodes | 20 | 14 | 6 |
 | File Browser menus | Layout, Shading | 10 | 1 | 9 |
-| Image Editor menus | UV Lights, Texturing, Shading, Rendering | 49 | 34 | 15 |
-| Dope Sheet menus | Layout, Animation, Rendering, ECS Wand, Geometry Nodes | 140 | 65 | 75 |
-| NLA menus | Layout, Animation, Rendering, ECS Wand, Geometry Nodes | 76 | 25 | 51 |
+| Image Editor menus | Shading, PUV Lights, Texturing, Rendering | 49 | 34 | 15 |
+| Dope Sheet menus | Layout, Animation, Simulation, Rendering, ECS Wand, Geometry Nodes | 140 | 81 | 59 |
+| NLA menus | Layout, Animation, Simulation, Rendering, ECS Wand, Geometry Nodes | 76 | 25 | 51 |
 | Node Editor menus | Shading | 13 | 8 | 5 |
-| UV Editor menus | UV Lights, Texturing, Shading | 70 | 39 | 31 |
+| UV Editor menus | Shading, PUV Lights, Texturing | 70 | 39 | 31 |
 | Compositor menus | Shading, ECS Wand | 13 | 8 | 5 |
 | Shader Editor menus | Shading | 9 | 8 | 1 |
 | Geometry Nodes menus | Shading, Geometry Nodes | 13 | 8 | 5 |
-| Drivers menus | Layout, Animation, Rendering, ECS Wand, Geometry Nodes | 146 | 44 | 102 |
+| Drivers menus | Layout, Animation, Simulation, Rendering, ECS Wand, Geometry Nodes | 146 | 44 | 102 |
 | Asset Browser menus | Layout, Shading | 15 | 4 | 11 |
-| Graph Editor menus | Layout, Animation, Rendering, ECS Wand, Geometry Nodes | 166 | 57 | 109 |
+| Graph Editor menus | Layout, Animation, Simulation, Rendering, ECS Wand, Geometry Nodes | 166 | 59 | 107 |
 | Preferences menus |  | 6 | 3 | 3 |
 | Properties ▸ Active Tool | | 22 | 16 | 6 |
-| Properties ▸ Render | | 41 | 28 | 13 |
+| Properties ▸ Render | | 45 | 32 | 13 |
 | Properties ▸ Output | | 41 | 16 | 25 |
 | Properties ▸ View Layer | | 34 | 14 | 20 |
-| Properties ▸ Scene | | 21 | 0 | 21 |
+| Properties ▸ Scene | | 25 | 5 | 20 |
 | Properties ▸ World | | 11 | 2 | 9 |
 | Properties ▸ Collection | | 6 | 0 | 6 |
-| Properties ▸ Object | | 32 | 7 | 25 |
+| Properties ▸ Object | | 32 | 6 | 26 |
 | Properties ▸ Modifiers | | 2 | 0 | 2 |
 | Properties ▸ Particles | | 21 | 3 | 18 |
-| Properties ▸ Physics | | 16 | 0 | 16 |
+| Properties ▸ Physics | | 166 | 16 | 150 |
 | Properties ▸ Constraints | | 2 | 0 | 2 |
 | Properties ▸ Data | | 12 | 0 | 12 |
 | Properties ▸ Material | | 20 | 7 | 13 |
@@ -54,7 +54,7 @@ Generated from the code by `manual::status`. Do not edit it by hand: after a cha
 
 ### Top Bar
 
-Shown in: Layout, UV Lights, Texturing, Shading, Animation, Rendering, ECS Wand, Geometry Nodes, Scripting.
+Shown in: Layout, Modelling, Shading, PUV Lights, Texturing, Animation, Simulation, Rendering, ECS Wand, Geometry Nodes, Scripting.
 
 | Menu entry | Shortcut | Status |
 |---|---|---|
@@ -63,9 +63,11 @@ Shown in: Layout, UV Lights, Texturing, Shading, Animation, Rendering, ECS Wand,
 | Phiber ▸ Load Factory Settings |  | Wired |
 | Phiber ▸ Quit | Ctrl Q | Wired |
 | File ▸ New ▸ General | Ctrl N | Wired |
+| File ▸ New ▸ Modelling |  | Wired |
 | File ▸ New ▸ Shading |  | Wired |
-| File ▸ New ▸ UV Lights |  | Wired |
+| File ▸ New ▸ PUV Lights |  | Wired |
 | File ▸ New ▸ Animation |  | Wired |
+| File ▸ New ▸ Simulation |  | Wired |
 | File ▸ New ▸ Rendering |  | Wired |
 | File ▸ New ▸ ECS Wand |  | Wired |
 | File ▸ New ▸ Geometry Nodes |  | Wired |
@@ -110,7 +112,7 @@ Shown in: Layout, UV Lights, Texturing, Shading, Animation, Rendering, ECS Wand,
 
 ### 3D Viewport
 
-Shown in: Layout, UV Lights, Texturing, Shading, Animation, Geometry Nodes, Scripting.
+Shown in: Layout, Modelling, Shading, PUV Lights, Texturing, Animation, Simulation, Geometry Nodes, Scripting.
 
 | Menu entry | Shortcut | Status |
 |---|---|---|
@@ -194,7 +196,7 @@ Shown in: Layout, UV Lights, Texturing, Shading, Animation, Geometry Nodes, Scri
 
 ### Outliner
 
-Shown in: Layout, UV Lights, Texturing, Shading, Animation, ECS Wand, Geometry Nodes, Scripting.
+Shown in: Layout, Modelling, Shading, PUV Lights, Texturing, Animation, Simulation, ECS Wand, Geometry Nodes, Scripting.
 
 | Menu entry | Shortcut | Status |
 |---|---|---|
@@ -204,7 +206,7 @@ Shown in: Layout, UV Lights, Texturing, Shading, Animation, ECS Wand, Geometry N
 
 ### Inspector
 
-Shown in: Layout, UV Lights, Texturing, Shading, Animation, Rendering, ECS Wand, Geometry Nodes, Scripting.
+Shown in: Layout, Modelling, Shading, PUV Lights, Texturing, Animation, Simulation, Rendering, ECS Wand, Geometry Nodes, Scripting.
 
 | Menu entry | Shortcut | Status |
 |---|---|---|
@@ -214,7 +216,7 @@ Shown in: Layout, UV Lights, Texturing, Shading, Animation, Rendering, ECS Wand,
 
 ### Timeline
 
-Shown in: Layout, Animation, Rendering, ECS Wand, Geometry Nodes.
+Shown in: Layout, Animation, Simulation, Rendering, ECS Wand, Geometry Nodes.
 
 | Menu entry | Shortcut | Status |
 |---|---|---|
@@ -258,7 +260,7 @@ Shown in: Layout, Shading.
 
 ### Image Editor
 
-Shown in: UV Lights, Texturing, Shading, Rendering.
+Shown in: Shading, PUV Lights, Texturing, Rendering.
 
 | Menu entry | Shortcut | Status |
 |---|---|---|
@@ -314,7 +316,7 @@ Shown in: UV Lights, Texturing, Shading, Rendering.
 
 ### Dope Sheet
 
-Shown in: Layout, Animation, Rendering, ECS Wand, Geometry Nodes.
+Shown in: Layout, Animation, Simulation, Rendering, ECS Wand, Geometry Nodes.
 
 | Menu entry | Shortcut | Status |
 |---|---|---|
@@ -365,12 +367,12 @@ Shown in: Layout, Animation, Rendering, ECS Wand, Geometry Nodes.
 | Select ▸ More | Ctrl Numpad + | Not available yet |
 | Select ▸ Less | Ctrl Numpad - | Not available yet |
 | Select ▸ Select Linked | L | Not available yet |
-| Select ▸ Columns on Selected Keys | K | Not available yet |
-| Select ▸ Column on Current Frame | Ctrl K | Not available yet |
-| Select ▸ Columns on Selected Markers | Shift K | Not available yet |
-| Select ▸ Between Selected Markers | Alt K | Not available yet |
-| Select ▸ Before Current Frame | [ | Not available yet |
-| Select ▸ After Current Frame | ] | Not available yet |
+| Select ▸ Columns on Selected Keys | K | Wired |
+| Select ▸ Column on Current Frame | Ctrl K | Wired |
+| Select ▸ Columns on Selected Markers | Shift K | Wired |
+| Select ▸ Between Selected Markers | Alt K | Wired |
+| Select ▸ Before Current Frame | [ | Wired |
+| Select ▸ After Current Frame | ] | Wired |
 | Marker ▸ Lock Markers |  | Wired |
 | Marker ▸ Jump to Previous Marker |  | Wired |
 | Marker ▸ Jump to Next Marker |  | Wired |
@@ -395,8 +397,8 @@ Shown in: Layout, Animation, Rendering, ECS Wand, Geometry Nodes.
 | Channel ▸ Extrapolation Mode ▸ Linear Extrapolation |  | Wired |
 | Channel ▸ Extrapolation Mode ▸ Make Cyclic (F-Modifier) |  | Not available yet |
 | Channel ▸ Extrapolation Mode ▸ Clear Cyclic (F-Modifier) |  | Not available yet |
-| Channel ▸ Expand Channels | Numpad + | Not available yet |
-| Channel ▸ Collapse Channels | Numpad - | Not available yet |
+| Channel ▸ Expand Channels | Numpad + | Wired |
+| Channel ▸ Collapse Channels | Numpad - | Wired |
 | Channel ▸ Move... ▸ To Top | Shift PageUp | Not available yet |
 | Channel ▸ Move... ▸ Up | PageUp | Not available yet |
 | Channel ▸ Move... ▸ Down | PageDown | Not available yet |
@@ -417,17 +419,17 @@ Shown in: Layout, Animation, Rendering, ECS Wand, Geometry Nodes.
 | Key ▸ Mirror ▸ By Times Over First Selected Marker |  | Wired |
 | Key ▸ Insert Keyframes | I | Wired |
 | Key ▸ Jump to Keyframes | Ctrl G | Wired |
-| Key ▸ Copy Keyframes | Ctrl C | Not available yet |
-| Key ▸ Paste Keyframes | Ctrl V | Not available yet |
+| Key ▸ Copy Keyframes | Ctrl C | Wired |
+| Key ▸ Paste Keyframes | Ctrl V | Wired |
 | Key ▸ Paste Flipped | Shift Ctrl V | Not available yet |
 | Key ▸ Duplicate | Shift D | Wired |
 | Key ▸ Delete Keyframes | X | Wired |
-| Key ▸ Keyframe Type ▸ Keyframe |  | Not available yet |
-| Key ▸ Keyframe Type ▸ Breakdown |  | Not available yet |
-| Key ▸ Keyframe Type ▸ Moving Hold |  | Not available yet |
-| Key ▸ Keyframe Type ▸ Extreme |  | Not available yet |
-| Key ▸ Keyframe Type ▸ Jitter |  | Not available yet |
-| Key ▸ Keyframe Type ▸ Generated |  | Not available yet |
+| Key ▸ Keyframe Type ▸ Keyframe |  | Wired |
+| Key ▸ Keyframe Type ▸ Breakdown |  | Wired |
+| Key ▸ Keyframe Type ▸ Moving Hold |  | Wired |
+| Key ▸ Keyframe Type ▸ Extreme |  | Wired |
+| Key ▸ Keyframe Type ▸ Jitter |  | Wired |
+| Key ▸ Keyframe Type ▸ Generated |  | Wired |
 | Key ▸ Handle Type ▸ Free |  | Wired |
 | Key ▸ Handle Type ▸ Aligned |  | Wired |
 | Key ▸ Handle Type ▸ Vector |  | Wired |
@@ -461,7 +463,7 @@ Shown in: Layout, Animation, Rendering, ECS Wand, Geometry Nodes.
 
 ### NLA
 
-Shown in: Layout, Animation, Rendering, ECS Wand, Geometry Nodes.
+Shown in: Layout, Animation, Simulation, Rendering, ECS Wand, Geometry Nodes.
 
 | Menu entry | Shortcut | Status |
 |---|---|---|
@@ -564,7 +566,7 @@ Shown in: Shading.
 
 ### UV Editor
 
-Shown in: UV Lights, Texturing, Shading.
+Shown in: Shading, PUV Lights, Texturing.
 
 | Menu entry | Shortcut | Status |
 |---|---|---|
@@ -697,7 +699,7 @@ Shown in: Shading, Geometry Nodes.
 
 ### Drivers
 
-Shown in: Layout, Animation, Rendering, ECS Wand, Geometry Nodes.
+Shown in: Layout, Animation, Simulation, Rendering, ECS Wand, Geometry Nodes.
 
 | Menu entry | Shortcut | Status |
 |---|---|---|
@@ -872,7 +874,7 @@ Shown in: Layout, Shading.
 
 ### Graph Editor
 
-Shown in: Layout, Animation, Rendering, ECS Wand, Geometry Nodes.
+Shown in: Layout, Animation, Simulation, Rendering, ECS Wand, Geometry Nodes.
 
 | Menu entry | Shortcut | Status |
 |---|---|---|
@@ -959,8 +961,8 @@ Shown in: Layout, Animation, Rendering, ECS Wand, Geometry Nodes.
 | Channel ▸ Hide Selected Curves | H | Not available yet |
 | Channel ▸ Hide Unselected Curves | Shift H | Not available yet |
 | Channel ▸ Reveal Curves | Alt H | Not available yet |
-| Channel ▸ Expand Channels | Numpad + | Not available yet |
-| Channel ▸ Collapse Channels | Numpad - | Not available yet |
+| Channel ▸ Expand Channels | Numpad + | Wired |
+| Channel ▸ Collapse Channels | Numpad - | Wired |
 | Channel ▸ Move... ▸ To Top | Shift PageUp | Not available yet |
 | Channel ▸ Move... ▸ Up | PageUp | Not available yet |
 | Channel ▸ Move... ▸ Down | PageDown | Not available yet |
@@ -1118,6 +1120,10 @@ Shown in: a space's switchable area only.
 | Motion Blur | `render.use_motion_blur` | Ignored | the renderer does not read it |
 | Position | `render.motion_blur_position` | Ignored | the renderer does not read it |
 | Shutter | `render.motion_blur_shutter` | Ignored | the renderer does not read it |
+| Bloom | `eevee.use_bloom` | Rendered |  |
+| Threshold | `eevee.bloom_threshold` | Rendered |  |
+| Intensity | `eevee.bloom_intensity` | Rendered |  |
+| Radius | `eevee.bloom_radius` | Rendered |  |
 | Transparent | `render.film_transparent` | Rendered |  |
 | Type | `cycles.pixel_filter_type` | Rendered |  |
 | Width | `cycles.filter_width` | Rendered |  |
@@ -1236,11 +1242,15 @@ Shown in: a space's switchable area only.
 | Distance Model | `audio_distance_model` | Shown only |  |
 | Speed | `audio_doppler_speed` | Shown only |  |
 | Doppler | `audio_doppler_factor` | Shown only |  |
+| Gravity | `use_gravity` | Shown only |  |
+| Gravity | `gravity` | Shown only |  |
+| Rigid Body World | `rigidbody_world.enabled` | Read by | `src/scene/sim/input.rs` |
 | Rigid Body World | `rigidbody_world` | Shown only |  |
-| Sub Steps | `rigidbody_world.substeps_per_frame` | Shown only |  |
-| Solver Iterations | `rigidbody_world.solver_iterations` | Shown only |  |
-| Speed | `rigidbody_world.time_scale` | Shown only |  |
+| Sub Steps | `rigidbody_world.substeps_per_frame` | Read by | `src/scene/sim/input.rs` |
+| Solver Iterations | `rigidbody_world.solver_iterations` | Read by | `src/scene/sim/input.rs` |
+| Speed | `rigidbody_world.time_scale` | Read by | `src/scene/sim/input.rs` |
 | Split Impulse | `rigidbody_world.use_split_impulse` | Shown only |  |
+| Cache | `rigidbody_world.point_cache` | Read by | `src/scene/sim/mod.rs` |
 
 ### World
 
@@ -1277,7 +1287,7 @@ Shown in: a space's switchable area only.
 | Rotation | `rotation_euler` | Applies |  |
 | Mode | `rotation_mode` | Shown only |  |
 | Scale | `scale` | Applies |  |
-| Dimensions | `dimensions` | Read by | `src/state/key/mod.rs` |
+| Dimensions | `dimensions` | Shown only |  |
 | Location | `delta_location` | Shown only |  |
 | Rotation | `delta_rotation_euler` | Shown only |  |
 | Scale | `delta_scale` | Shown only |  |
@@ -1344,21 +1354,171 @@ Shown in: a space's switchable area only.
 | Field | Key | Status | Evidence |
 |---|---|---|---|
 | Add Physics | `add_physics` | Shown only |  |
-| Type | `rigid_body.type` | Shown only |  |
-| Mass | `rigid_body.mass` | Shown only |  |
-| Friction | `rigid_body.friction` | Shown only |  |
-| Bounciness | `rigid_body.restitution` | Shown only |  |
-| Enable Deactivation | `rigid_body.use_deactivation` | Shown only |  |
-| Damping | `collision.damping` | Shown only |  |
-| Friction Factor | `collision.friction_factor` | Shown only |  |
+| Type | `field.type` | Shown only |  |
+| Shape | `field.shape` | Shown only |  |
+| Strength | `field.strength` | Shown only |  |
+| Flow | `field.flow` | Shown only |  |
+| Noise Amount | `field.noise` | Shown only |  |
+| Seed | `field.seed` | Shown only |  |
+| Power | `field.falloff_power` | Shown only |  |
+| Max Distance | `field.use_max_distance` | Shown only |  |
+| Distance | `field.distance_max` | Shown only |  |
+| Min Distance | `field.use_min_distance` | Shown only |  |
+| Distance | `field.distance_min` | Shown only |  |
+| Permeability | `collision.permeability` | Shown only |  |
 | Stickiness | `collision.stickiness` | Shown only |  |
 | Kill Particles | `collision.use_particle_kill` | Shown only |  |
+| Damping | `collision.damping_factor` | Shown only |  |
+| Randomize | `collision.damping_random` | Shown only |  |
+| Friction | `collision.friction_factor` | Shown only |  |
+| Randomize | `collision.friction_random` | Shown only |  |
+| Damping | `collision.damping` | Shown only |  |
+| Thickness Outer | `collision.thickness_outer` | Shown only |  |
+| Inner | `collision.thickness_inner` | Shown only |  |
+| Friction | `collision.cloth_friction` | Shown only |  |
+| Single Sided | `collision.use_culling` | Shown only |  |
+| Override Normals | `collision.use_normal` | Shown only |  |
 | Quality Steps | `cloth.settings.quality` | Shown only |  |
 | Vertex Mass | `cloth.settings.mass` | Shown only |  |
 | Air Viscosity | `cloth.settings.air_damping` | Shown only |  |
+| Bending Model | `cloth.settings.bending_model` | Shown only |  |
 | Tension | `cloth.settings.tension_stiffness` | Shown only |  |
 | Compression | `cloth.settings.compression_stiffness` | Shown only |  |
 | Shear | `cloth.settings.shear_stiffness` | Shown only |  |
+| Bending | `cloth.settings.bending_stiffness` | Shown only |  |
+| Tension | `cloth.settings.tension_damping` | Shown only |  |
+| Compression | `cloth.settings.compression_damping` | Shown only |  |
+| Shear | `cloth.settings.shear_damping` | Shown only |  |
+| Bending | `cloth.settings.bending_damping` | Shown only |  |
+| Pressure | `cloth.settings.use_pressure` | Shown only |  |
+| Pressure | `cloth.settings.uniform_pressure_force` | Shown only |  |
+| Custom Volume | `cloth.settings.use_pressure_volume` | Shown only |  |
+| Target Volume | `cloth.settings.target_volume` | Shown only |  |
+| Pressure Scale | `cloth.settings.pressure_factor` | Shown only |  |
+| Fluid Density | `cloth.settings.fluid_density` | Shown only |  |
+| Pin Group | `cloth.settings.vertex_group_mass` | Shown only |  |
+| Stiffness | `cloth.settings.pin_stiffness` | Shown only |  |
+| Sewing | `cloth.settings.use_sewing_springs` | Shown only |  |
+| Shrinking Factor | `cloth.settings.shrink_min` | Shown only |  |
+| Dynamic Mesh | `cloth.settings.use_dynamic_mesh` | Shown only |  |
+| Quality | `cloth.collision_settings.collision_quality` | Shown only |  |
+| Object Collisions | `cloth.collision_settings.use_collision` | Shown only |  |
+| Distance | `cloth.collision_settings.distance_min` | Shown only |  |
+| Impulse Clamping | `cloth.collision_settings.impulse_clamp` | Shown only |  |
+| Friction | `cloth.collision_settings.friction` | Shown only |  |
+| Collection | `cloth.collision_settings.collection` | Shown only |  |
+| Self Collisions | `cloth.collision_settings.use_self_collision` | Shown only |  |
+| Friction | `cloth.collision_settings.self_friction` | Shown only |  |
+| Distance | `cloth.collision_settings.self_distance_min` | Shown only |  |
+| Impulse Clamping | `cloth.collision_settings.self_impulse_clamp` | Shown only |  |
+| Vertex Group | `cloth.collision_settings.vertex_group_self_collisions` | Shown only |  |
+| Structural Group | `cloth.settings.vertex_group_structural_stiffness` | Shown only |  |
+| Shear Group | `cloth.settings.vertex_group_shear_stiffness` | Shown only |  |
+| Bending Group | `cloth.settings.vertex_group_bending` | Shown only |  |
+| Friction | `soft_body.friction` | Shown only |  |
+| Mass | `soft_body.mass` | Shown only |  |
+| Control Point | `soft_body.vertex_group_mass` | Shown only |  |
+| Speed | `soft_body.speed` | Shown only |  |
+| Goal | `soft_body.use_goal` | Shown only |  |
+| Vertex Group | `soft_body.vertex_group_goal` | Shown only |  |
+| Default | `soft_body.goal_default` | Shown only |  |
+| Min | `soft_body.goal_min` | Shown only |  |
+| Max | `soft_body.goal_max` | Shown only |  |
+| Stiffness | `soft_body.goal_spring` | Shown only |  |
+| Damping | `soft_body.goal_friction` | Shown only |  |
+| Edges | `soft_body.use_edges` | Shown only |  |
+| Springs | `soft_body.vertex_group_spring` | Shown only |  |
+| Pull | `soft_body.pull` | Shown only |  |
+| Push | `soft_body.push` | Shown only |  |
+| Damp | `soft_body.damping` | Shown only |  |
+| Plasticity | `soft_body.plastic` | Shown only |  |
+| Bending | `soft_body.bend` | Shown only |  |
+| Length | `soft_body.spring_length` | Shown only |  |
+| Edge | `soft_body.use_edge_collision` | Shown only |  |
+| Face | `soft_body.use_face_collision` | Shown only |  |
+| Stiffness | `soft_body.use_stiff_quads` | Shown only |  |
+| Shear | `soft_body.shear` | Shown only |  |
+| Self Collision | `soft_body.use_self_collision` | Shown only |  |
+| Calculation Type | `soft_body.collision_type` | Shown only |  |
+| Ball Size | `soft_body.ball_size` | Shown only |  |
+| Stiffness | `soft_body.ball_stiff` | Shown only |  |
+| Dampening | `soft_body.ball_damp` | Shown only |  |
+| Step Size Min | `soft_body.step_min` | Shown only |  |
+| Max | `soft_body.step_max` | Shown only |  |
+| Auto-Step | `soft_body.use_auto_step` | Shown only |  |
+| Error Limit | `soft_body.error_threshold` | Shown only |  |
+| Choke | `soft_body.choke` | Shown only |  |
+| Fuzzy | `soft_body.fuzzy` | Shown only |  |
+| Type | `rigid_body.type` | Read by | `src/scene/sim/input_body.rs` |
+| Mass | `rigid_body.mass` | Read by | `src/scene/sim/input_body.rs` |
+| Dynamic | `rigid_body.enabled` | Read by | `src/scene/sim/input_body.rs` |
+| Animated | `rigid_body.kinematic` | Read by | `src/scene/sim/input_body.rs` |
+| Shape | `rigid_body.collision_shape` | Read by | `src/scene/sim/input_body.rs` |
+| Source | `rigid_body.mesh_source` | Shown only |  |
+| Deforming | `rigid_body.use_deform` | Shown only |  |
+| Friction | `rigid_body.friction` | Read by | `src/scene/sim/input_body.rs` |
+| Bounciness | `rigid_body.restitution` | Read by | `src/scene/sim/input_body.rs` |
+| Collision Margin | `rigid_body.use_margin` | Read by | `src/scene/sim/input_body.rs` |
+| Margin | `rigid_body.collision_margin` | Read by | `src/scene/sim/input_body.rs` |
+| Collections | `rigid_body.collision_collections` | Read by | `src/scene/sim/input_body.rs` |
+| Damping Translation | `rigid_body.linear_damping` | Read by | `src/scene/sim/input_body.rs` |
+| Rotation | `rigid_body.angular_damping` | Read by | `src/scene/sim/input_body.rs` |
+| Deactivation | `rigid_body.use_deactivation` | Read by | `src/scene/sim/input_body.rs` |
+| Start Deactivated | `rigid_body.use_start_deactivated` | Read by | `src/scene/sim/input_body.rs` |
+| Velocity Linear | `rigid_body.deactivate_linear_velocity` | Read by | `src/scene/sim/input_body.rs` |
+| Angular | `rigid_body.deactivate_angular_velocity` | Read by | `src/scene/sim/input_body.rs` |
+| Type | `rigid_body_constraint.type` | Shown only |  |
+| Enabled | `rigid_body_constraint.enabled` | Shown only |  |
+| Disable Collisions | `rigid_body_constraint.disable_collisions` | Shown only |  |
+| Breakable | `rigid_body_constraint.use_breaking` | Shown only |  |
+| Threshold | `rigid_body_constraint.breaking_threshold` | Shown only |  |
+| First | `rigid_body_constraint.object1` | Shown only |  |
+| Second | `rigid_body_constraint.object2` | Shown only |  |
+| Override Iterations | `rigid_body_constraint.use_override_solver_iterations` | Shown only |  |
+| Iterations | `rigid_body_constraint.solver_iterations` | Shown only |  |
+| X Axis | `rigid_body_constraint.use_limit_lin_x` | Shown only |  |
+| X Lower | `rigid_body_constraint.limit_lin_x_lower` | Shown only |  |
+| Upper | `rigid_body_constraint.limit_lin_x_upper` | Shown only |  |
+| Y Axis | `rigid_body_constraint.use_limit_lin_y` | Shown only |  |
+| Y Lower | `rigid_body_constraint.limit_lin_y_lower` | Shown only |  |
+| Upper | `rigid_body_constraint.limit_lin_y_upper` | Shown only |  |
+| Z Axis | `rigid_body_constraint.use_limit_lin_z` | Shown only |  |
+| Z Lower | `rigid_body_constraint.limit_lin_z_lower` | Shown only |  |
+| Upper | `rigid_body_constraint.limit_lin_z_upper` | Shown only |  |
+| X Angle | `rigid_body_constraint.use_limit_ang_x` | Shown only |  |
+| X Lower | `rigid_body_constraint.limit_ang_x_lower` | Shown only |  |
+| Upper | `rigid_body_constraint.limit_ang_x_upper` | Shown only |  |
+| Y Angle | `rigid_body_constraint.use_limit_ang_y` | Shown only |  |
+| Y Lower | `rigid_body_constraint.limit_ang_y_lower` | Shown only |  |
+| Upper | `rigid_body_constraint.limit_ang_y_upper` | Shown only |  |
+| Z Angle | `rigid_body_constraint.use_limit_ang_z` | Shown only |  |
+| Z Lower | `rigid_body_constraint.limit_ang_z_lower` | Shown only |  |
+| Upper | `rigid_body_constraint.limit_ang_z_upper` | Shown only |  |
+| Angular | `rigid_body_constraint.use_motor_ang` | Shown only |  |
+| Target Velocity | `rigid_body_constraint.motor_ang_target_velocity` | Shown only |  |
+| Max Impulse | `rigid_body_constraint.motor_ang_max_impulse` | Shown only |  |
+| Linear | `rigid_body_constraint.use_motor_lin` | Shown only |  |
+| Target Velocity | `rigid_body_constraint.motor_lin_target_velocity` | Shown only |  |
+| Max Impulse | `rigid_body_constraint.motor_lin_max_impulse` | Shown only |  |
+| Type | `rigid_body_constraint.spring_type` | Shown only |  |
+| X Angle | `rigid_body_constraint.use_spring_ang_x` | Shown only |  |
+| X Stiffness | `rigid_body_constraint.spring_stiffness_ang_x` | Shown only |  |
+| Damping | `rigid_body_constraint.spring_damping_ang_x` | Shown only |  |
+| Y Angle | `rigid_body_constraint.use_spring_ang_y` | Shown only |  |
+| Y Stiffness | `rigid_body_constraint.spring_stiffness_ang_y` | Shown only |  |
+| Damping | `rigid_body_constraint.spring_damping_ang_y` | Shown only |  |
+| Z Angle | `rigid_body_constraint.use_spring_ang_z` | Shown only |  |
+| Z Stiffness | `rigid_body_constraint.spring_stiffness_ang_z` | Shown only |  |
+| Damping | `rigid_body_constraint.spring_damping_ang_z` | Shown only |  |
+| X Axis | `rigid_body_constraint.use_spring_x` | Shown only |  |
+| X Stiffness | `rigid_body_constraint.spring_stiffness_x` | Shown only |  |
+| Damping | `rigid_body_constraint.spring_damping_x` | Shown only |  |
+| Y Axis | `rigid_body_constraint.use_spring_y` | Shown only |  |
+| Y Stiffness | `rigid_body_constraint.spring_stiffness_y` | Shown only |  |
+| Damping | `rigid_body_constraint.spring_damping_y` | Shown only |  |
+| Z Axis | `rigid_body_constraint.use_spring_z` | Shown only |  |
+| Z Stiffness | `rigid_body_constraint.spring_stiffness_z` | Shown only |  |
+| Damping | `rigid_body_constraint.spring_damping_z` | Shown only |  |
 
 ### Constraints
 

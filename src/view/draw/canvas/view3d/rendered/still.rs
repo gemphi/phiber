@@ -65,6 +65,9 @@ pub fn still(
     h: u32,
     samples: u32,
     denoise: bool,
+    // Bloom / Glare on the settled frame (`BRenderPlan::glow`); `None` for
+    // no glare.
+    glow: Option<[f32; 3]>,
     // Adaptive Sampling and the Time Limit as the plan resolved them
     // (`BRenderPlan::adapt`, `time_limit`). This used to pass `[0.0; 4]`
     // — adaptive off, always — so a headless render never had the
@@ -77,7 +80,7 @@ pub fn still(
     mut on_sample: impl FnMut(u32),
 ) -> Option<(Vec<u8>, u32)> {
     let mut image: Option<Vec<u8>> = None;
-    let taken = still_stepwise(objects, look, cam, w, h, samples, denoise, adapt, time_limit, super::region::BStillRegion::default(), None, |taken, at| {
+    let taken = still_stepwise(objects, look, cam, w, h, samples, denoise, glow, adapt, time_limit, super::region::BStillRegion::default(), None, |taken, at| {
         on_sample(taken);
         if let Some(settled) = at.image() {
             image = Some(settled.rgba);
