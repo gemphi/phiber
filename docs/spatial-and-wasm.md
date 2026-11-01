@@ -117,9 +117,9 @@ much closer than this said.**
 
 What is actually in the tree:
 
-* **`crates/phigpu/gpui_web`** — 2,816 lines: a web platform for gpui, with
+* **`crates/appkit/gpu/gpui_web`** — 2,816 lines: a web platform for gpui, with
   its own dispatcher, display, events, keyboard, window and http client.
-* **`crates/phigpu/gpui_wgpu`** — gpui rendered through **wgpu**, with
+* **`crates/appkit/gpu/gpui_wgpu`** — gpui rendered through **wgpu**, with
   `[target.'cfg(target_family = "wasm")'.dependencies]` already declaring
   `web-sys = { version = "0.3", features = ["HtmlCanvasElement"] }`,
   `wasm-bindgen`, `wasm-bindgen-futures` and `js-sys`.

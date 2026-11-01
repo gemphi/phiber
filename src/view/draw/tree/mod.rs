@@ -126,10 +126,12 @@ impl BFlexed for BTreePart {
                 .justify(BJustify::Center)
                 .radius(BRadius::Role(BStyleRole::Button))
                 .fill(BFill::IconTileRest),
+            // Its pad keeps a name off the icon's tile.
             Self::Main => BFlex::row()
                 .fills()
                 .min_width(BLen::Zero)
                 .align(BAlign::Center)
+                .pad_left(BSpace::GapXs)
                 .gap(BSpace::GapXs)
                 .overflow(BOverflow::Clip),
             Self::Trail => {

@@ -19,6 +19,7 @@ mod outline;
 mod orbit;
 mod render_border;
 mod shown;
+pub mod stage;
 mod xform;
 pub mod rendered;
 pub use self::rendered::views_posted;
@@ -56,6 +57,10 @@ impl BView3d<'_> {
         // This viewport's own keys (`scene::view_slot`): the wheel zooms it,
         // and the pointer over it is what the view keys and menus act on.
         let slot = crate::scene::view_slot::BViewSlot::current();
+        // In glass the centre view paints on the stage, behind every pane, and
+        // this element is the hole it shows through (`stage`).
+        let staged = self::stage::claim();
+        let ground = super::super::color::resolved_gradient(ctx.style.viewport_gradient());
         let element = div()
             .id(SharedString::from("view3d-canvas"))
             .debug_selector(|| "view3d-canvas".to_string())
@@ -64,7 +69,7 @@ impl BView3d<'_> {
             .size_full()
             .relative()
             .overflow_hidden()
-            .bg(super::super::color::resolved_gradient(ctx.style.viewport_gradient()))
+            .when(!staged, |element| element.bg(ground))
             .on_mouse_move(move |_, _, _| slot.into_iter().for_each(|slot| slot.hover()));
         let mut element = navigate::BViewWrite::now(ctx.state).attach(element, ctx.handler.clone());
 
@@ -163,41 +168,47 @@ impl BView3d<'_> {
             region_line: to_hsla(ctx.style.colors.axis_x),
             region: region.on.then_some(region.rect),
         };
-        let corners = super::surface::corners(ctx);
+        // The stage runs edge to edge: the panes over it own the corners.
+        let corners = match staged {
+            true => super::surface::corners(&ctx.with_corners(crate::view::draw::surface::BCorners::NONE)),
+            false => super::surface::corners(ctx),
+        };
         let seen = Rc::clone(&bounds);
         let gestures = self::gesture::BGestureInk::now(ctx.state, to_hsla(ctx.style.viewport_surface()), frame_palette.overlay, crate::scene::pick::BPickView { yaw, pitch, pan, zoom, setup, aspect: setup.aspect });
         // The Solid/Wireframe rasteriser oversamples by the Viewport AA preference.
         let supersample = crate::scene::viewport_aa::BViewportAa::supersample(ctx.state);
-        element = element.child(
-            canvas(
-                |_, _, _| {},
-                move |bounds, _, window, _| {
-                    seen.set(Some(bounds));
-                    let (w, h) = (f32::from(bounds.size.width), f32::from(bounds.size.height));
-                    if crate::scene::camera::note_size(slot, w, h) {
-                        window.refresh();
-                    }
-                    // The tracer paints the surface and its own grid; with
-                    // nothing yet, the floor and the shaded meshes stand in.
-                    let traced = ray && self::rendered::paint(bounds, ray_view, corners, window);
-                    if !traced {
-                        guide.paint_floor(bounds, window);
-                    }
-                    let shown = if traced || cpu_draws || !can_fall_back { Rc::clone(&meshes) } else { fall_back() };
-                    BMesh::paint(bounds, &shown, outline_width, wire, yaw, pitch, corners, !traced, supersample, window);
-                    guide.paint_over(bounds, outline_width * 0.5, window);
-                    if let Some(view) = &through {
-                        self::frame::paint(bounds, view, frame_palette, window);
-                    } else if let Some(own) = own_border {
-                        self::frame::paint_region(bounds, own.rect, (frame_palette.back, frame_palette.region_line), window);
-                    }
-                    gestures.paint(bounds, window);
-                },
-            )
-            .absolute()
-            .inset_0()
-            .size_full(),
-        );
+        let framed = through.clone();
+        let paint = move |bounds: Bounds<Pixels>, window: &mut gpui::Window| {
+            seen.set(Some(bounds));
+            let (w, h) = (f32::from(bounds.size.width), f32::from(bounds.size.height));
+            if crate::scene::camera::note_size(slot, w, h) {
+                window.refresh();
+            }
+            // The tracer paints the surface and its own grid; with
+            // nothing yet, the floor and the shaded meshes stand in.
+            let traced = ray && self::rendered::paint(bounds, ray_view, corners, window);
+            if !traced {
+                guide.paint_floor(bounds, window);
+            }
+            let shown = if traced || cpu_draws || !can_fall_back { Rc::clone(&meshes) } else { fall_back() };
+            BMesh::paint(bounds, &shown, outline_width, wire, yaw, pitch, corners, !traced, supersample, window);
+            guide.paint_over(bounds, outline_width * 0.5, window);
+            if let Some(view) = &framed {
+                self::frame::paint(bounds, view, frame_palette, window);
+            } else if let Some(own) = own_border {
+                self::frame::paint_region(bounds, own.rect, (frame_palette.back, frame_palette.region_line), window);
+            }
+            gestures.paint(bounds, window);
+        };
+        match staged {
+            true => self::stage::hand(Box::new(move |bounds, window| {
+                window.paint_quad(gpui::fill(bounds, ground));
+                paint(bounds, window);
+            })),
+            false => {
+                element = element.child(canvas(|_, _, _| {}, move |bounds, _, window, _| paint(bounds, window)).absolute().inset_0().size_full());
+            }
+        }
         // The canvas is the opaque surface that reaches the host's corners, so
         // it paints them itself. GPUI's clip is a rectangle, not a rounded
         // one, so `overflow_hidden` cannot round a child for us — the blue

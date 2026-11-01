@@ -2,8 +2,7 @@
 //!
 //! A mark is an icon on a tile, as every icon in a row is: the row's glyph
 //! tile (`BDim::GlyphTile`), on the resting tile shade while off, filled with
-//! the theme's accent while on (`BFill::IconTileOn`); in the glass mode both
-//! are tiles of glass. So a tick in a property panel, a menu, a
+//! the theme's accent while on (`BFill::IconTileOn`). So a tick in a property panel, a menu, a
 //! preference and the outliner is one thing, sits on its row's centre line
 //! as any icon does, and says "on" in the one colour the theme says it in.
 //! Every renderer that draws a control with a mark comes here (`button`,

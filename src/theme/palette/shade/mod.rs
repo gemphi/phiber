@@ -60,6 +60,14 @@ pub const fn hsl_of(rgb: [f32; 3]) -> (f32, f32, f32) {
 }
 
 impl BShadeLadder {
+    /// This ladder with its hue taken out: the same lightness at every step,
+    /// in grey.
+    pub fn neutral(self) -> Self {
+        let (_, _, lightness) = hsl_of(self.seed.map(|channel| channel as f32 / 255.0));
+        let grey = (lightness * 2.55).round() as u8;
+        Self { seed: [grey; 3], light: self.light }
+    }
+
     /// Shade `step` (1 ..= 18) as `[r, g, b]` in 0 ..= 1, made as the table
     /// makes it: the seed over black up to 10, white over the seed past it —
     /// read from the white end for a light ladder.

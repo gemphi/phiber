@@ -134,10 +134,4 @@ impl BFill {
             }
         }
     }
-
-    /// Whether this fill is an icon tile, which the glass mode turns to
-    /// glass (`paint::glazed`).
-    pub(in crate::view::draw) const fn is_tile(self) -> bool {
-        matches!(self, Self::IconTileRest | Self::IconTileOn)
-    }
 }

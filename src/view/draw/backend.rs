@@ -117,7 +117,7 @@ mod tests {
         state.set(AppKey::ReduceTransparency, "true");
         let solid = resolved_style(&state);
         assert_eq!((solid.colors.bg_panel.3, solid.colors.bg_app.3, solid.colors.bg_top.3), (1.0, 1.0, 1.0));
-        assert!(solid.effects.glass.is_some(), "the rims stay");
+        assert!(solid.effects.glass.is_some(), "still the glass mode");
         assert!(!crate::theme::style::glass::backdrop(&state), "and the blur goes");
     }
 }

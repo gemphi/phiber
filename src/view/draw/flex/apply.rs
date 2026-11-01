@@ -3,7 +3,7 @@
 //! this is the mechanics.
 
 use super::element::BFlex;
-use super::paint::{cast, glazed, shadowed};
+use super::paint::{cast, frosted, shadowed};
 use super::token::{BAlign, BBasis, BEdge, BJustify, BLen, BSelf};
 use super::super::color::to_hsla;
 use super::super::ctx::BRenderCtx;
@@ -189,7 +189,7 @@ impl BFlex {
         element = self.edged(element, ctx);
         element = shadowed(element, ctx.style.shadow_for(self.elevation));
         if let Some(fill) = self.fill {
-            element = glazed(element, fill, ctx.style);
+            element = frosted(element, fill, ctx);
         }
         if let Some(offset) = self.cast {
             element = cast(element, offset, ctx.style.colors.accent);

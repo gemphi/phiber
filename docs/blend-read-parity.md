@@ -325,7 +325,7 @@ Next: per-object streaming for scenes beyond 4× the limit, lower peak memory wh
 | `crates/phiphx` | the reader; entry point `src/phx.rs` (the `src/phx/` folder is gone, tests in `src/phx_tests.rs`) |
 | `crates/phiray` | the renderer |
 | `crates/phical`, `crates/apple*` | unchanged, outside the workspace graph |
-| `crates/phigpu/` | the 29 vendored UI crates phiber is built on — `gpui*`, `ui*`, `theme`, `menu`, `util*`, `collections`, `z*` and the rest (see `crates/phigpu/README.md`) |
+| `crates/appkit/gpu/` | the 29 vendored UI crates phiber is built on — `gpui*`, `ui*`, `theme`, `menu`, `util*`, `collections`, `z*` and the rest (see `crates/appkit/gpu/README.md`) |
 
 Paths live in the root `Cargo.toml` only (`members` and `[workspace.dependencies]`),
 so moving a crate is two edits there. Assets moved from `phi/crates/phiphx/assets`
@@ -356,7 +356,7 @@ workspace (`_unused/`). What is left of the vendored tree, and why:
 
 | Folder | Crates | Why it stays |
 |---|---|---|
-| `crates/phigpu` | `gpui*` (10) | the window, input and GPU drawing; phiber depends on `gpui` and `gpui_platform` directly |
+| `crates/appkit/gpu` | `gpui*` (10) | the window, input and GPU drawing; phiber depends on `gpui` and `gpui_platform` directly |
 | `crates/phiui` | `theme`, `syntax_theme` | gpui's theme globals; reached only through `theme::vendor::install` |
 | `crates/phicore` | `collections`, `sum_tree`, `util`, `path`, `util_macros`, `http_client`, `scheduler`, `media`, `refineable`, `zlog`, `ztracing*` | listed inside gpui's and theme's own Cargo.toml — not ours to remove without forking gpui |
 

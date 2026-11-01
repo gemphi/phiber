@@ -17,7 +17,7 @@ mkdir -p "$HOME/mnt/phiace/_to_delete/src-sync"
 cd "$HOME/mnt/phiace"
 tar -czf "$HOME/mnt/phiace/_to_delete/src-sync/t_root.tgz" \
     Cargo.toml Cargo.lock rust-toolchain.toml clippy.toml rustfmt.toml patches
-for c in phiray phiphx phicore phiui phigpu; do
+for c in phiray phiphx phicore phiui appkit; do
   tar -czf "$HOME/mnt/phiace/_to_delete/src-sync/t_$c.tgz" \
       --exclude=target --exclude=assets "crates/$c"
 done

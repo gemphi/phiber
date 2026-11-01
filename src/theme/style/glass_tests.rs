@@ -56,37 +56,54 @@ fn glazing_touches_surfaces_and_leaves_canvas_text_and_meanings() {
         ] {
             assert_eq!(slot.3, alpha, "{name:?}");
         }
-        assert_eq!(glazed.colors.bg_panel.2, dark.colors.bg_panel.2, "{name:?}: a pane keeps its shade");
+        assert!((glazed.colors.bg_panel.2 - dark.colors.bg_panel.2).abs() < 0.5, "{name:?}: a pane keeps its shade");
+        assert!(glazed.colors.bg_panel.1 < 1.0, "{name:?}: glass has no colour of its own");
         assert_eq!(glazed.viewport_surface().3, 1.0, "{name:?}: the canvas is content");
         assert_eq!((glazed.colors.text, glazed.colors.accent), (dark.colors.text, dark.colors.accent), "{name:?}");
         assert_eq!(glazed.colors.bg_modal_dim, dark.colors.bg_modal_dim, "{name:?}");
     }
 }
 
+/// Every window as it is drawn: what is behind it, frosted (thicker the
+/// brighter it is, `glass.hlsl`), then its fill. Body text must hold WCAG AA
+/// (4.5 : 1) in every theme, over the canvas, the brightest render it can show,
+/// and a white desktop seen through the window's ground.
 #[test]
 fn text_reads_over_a_white_desktop() {
-    // The worst backdrop the blur can bring: pure white. The ground dims it
-    // first, as Apple dims behind Clear glass, then the pane; body text on
-    // the result must hold WCAG AA (4.5 : 1), in every theme.
-    let white = [1.0; 3];
+    let thick = |luma: f32| {
+        let t = ((luma - 0.35) / 0.6).clamp(0.0, 1.0);
+        (super::THICKEST * t * t * (3.0 - 2.0 * t)).max(LIQUID_GLASS.frost.tint)
+    };
     for name in BPaletteName::ALL.iter().copied() {
         let style = glass(name, false);
-        let ground = over(style.colors.bg_app, white);
-        for (what, surface) in [("pane", style.colors.bg_panel), ("top bar", style.colors.bg_top), ("header", style.surface(crate::theme::BSurfaceTone::Header).bottom)] {
-            let ratio = contrast(rgb(style.colors.text), over(surface, ground));
-            assert!(ratio >= 4.5, "{name:?} {what}: text at {ratio:.2} : 1 over a white desktop");
-        }
-        // Floating chrome over the canvas: no blur there, so it must read
-        // over the canvas's own shade.
+        let ground = style.colors.bg_app;
         let floating = style.step(style.colors.bg_panel, 1);
         let floating = (floating.0, floating.1, floating.2, style.effects.floating_alpha);
-        let ratio = contrast(rgb(style.colors.text), over(floating, rgb(style.viewport_surface())));
-        assert!(ratio >= 4.5, "{name:?}: floating text at {ratio:.2} : 1 over the canvas");
+        let windows = [
+            ("pane", style.colors.bg_panel),
+            ("top bar", style.colors.bg_top),
+            ("header", style.surface(crate::theme::BSurfaceTone::Header).bottom),
+            ("floating chrome", floating),
+        ];
+        let behind = [
+            ("canvas", rgb(style.viewport_surface())),
+            ("bright render", [0.75; 3]),
+            ("white render", [1.0; 3]),
+            ("white desktop", over(ground, [1.0; 3])),
+        ];
+        for (what, fill) in windows {
+            for (under, canvas) in behind {
+                let luma = 0.2126 * canvas[0] + 0.7152 * canvas[1] + 0.0722 * canvas[2];
+                let frost = (ground.0, ground.1, ground.2, thick(luma));
+                let ratio = contrast(rgb(style.colors.text), over(fill, over(frost, canvas)));
+                assert!(ratio >= 4.5, "{name:?} {what}: text at {ratio:.2} : 1 over the {under}");
+            }
+        }
     }
 }
 
 #[test]
-fn reduce_transparency_is_solid_and_keeps_the_rims() {
+fn reduce_transparency_is_solid() {
     for name in BPaletteName::ALL.iter().copied() {
         let style = glass(name, true);
         let c = style.colors;
@@ -95,23 +112,22 @@ fn reduce_transparency_is_solid_and_keeps_the_rims() {
         }
         let glass = style.effects.glass.expect("still glass");
         assert!(!glass.blurs(), "{name:?}: no backdrop");
-        assert_eq!(glass.rim, LIQUID_GLASS.rim, "{name:?}: the rims stay");
         assert_eq!(style.effects.floating_alpha, ui_style_defaults_in(name, BThemeMode::Dark).effects.floating_alpha);
     }
 }
 
+/// Glass is the normal look with its windows made of glass: nothing a person
+/// presses is glass, and the theme's radii stand.
 #[test]
-fn tiles_are_frosted_and_the_lit_one_is_tinted() {
-    let style = glass(BPaletteName::DEFAULT, false);
-    let rest = style.icon_tile_rest(crate::host::BHostType::File);
-    assert_eq!(rest.3, LIQUID_GLASS.tile, "a resting tile is mostly what is behind it");
-    assert!(rest.2 > 90.0, "and frosted white");
-    let on = style.icon_tile_on();
-    assert_eq!((on.0, on.1, on.2), (style.colors.accent.0, style.colors.accent.1, style.colors.accent.2));
-    assert!(on.3 < 1.0, "the accent as tinted glass");
-    let dark = crate::theme::resolve_ui_style(ui_style_defaults_in(BPaletteName::DEFAULT, BThemeMode::Dark), &BState::new());
-    assert_eq!(dark.icon_tile_on(), dark.colors.accent, "outside glass the lit tile is the accent");
-    assert!(style.icon_ink(false).2 > dark.icon_ink(false).2, "a glass icon is a step brighter");
+fn only_the_windows_are_glass() {
+    for name in BPaletteName::ALL.iter().copied() {
+        let glazed = glass(name, false);
+        let dark = crate::theme::resolve_ui_style(ui_style_defaults_in(name, BThemeMode::Dark), &BState::new());
+        assert_eq!(glazed.icon_tile_on(), dark.icon_tile_on(), "{name:?}: the lit tile");
+        assert_eq!(glazed.colors.bg_control.3, 1.0, "{name:?}: the control is not glass");
+        assert_eq!(glazed.radii, dark.radii, "{name:?}: the theme's radii");
+        assert!(glazed.colors.bg_panel.3 < 1.0, "{name:?}: the window is");
+    }
 }
 
 #[test]

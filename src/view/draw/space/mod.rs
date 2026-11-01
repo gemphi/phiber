@@ -109,6 +109,10 @@ pub fn view(list: &[BView], ctx: &BRenderCtx) -> AnyElement {
             .and_then(BSpaceType::from_slug)
             .unwrap_or(BSpaceType::Layout);
     let mut root = BSpacePart::Root.flex(ctx).div(ctx);
+    let staged = super::canvas::view3d::stage::wanted(ctx);
+    if staged {
+        root = root.child(super::canvas::view3d::stage::element(ctx));
+    }
     for child in top {
         root = root.child(walk(child, ctx));
     }
@@ -140,7 +144,10 @@ pub fn view(list: &[BView], ctx: &BRenderCtx) -> AnyElement {
                 }
                 _ => None,
             };
-            let child = walk(child, ctx);
+            let child = match (staged, kind) {
+                (true, BZoneType::Center | BZoneType::Full) => super::canvas::view3d::stage::open_for(|| walk(child, ctx)),
+                _ => walk(child, ctx),
+            };
             // Every boundary keeps the gutter (`BSpacePart::Centre`,
             // `BMeasure`). Whether it can be *dragged* is a different
             // question: a zone holding only a fixed strip has no width to

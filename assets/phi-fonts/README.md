@@ -53,4 +53,4 @@ Rerun it with other numbers to tune the openness: the width scale, the extra spa
 ## Notes
 
 - **The browser build** has no disk to read this folder from. It carries one face compiled into the binary, Phiber Light (`font::UI_FACES`). A desktop build whose folder is missing falls back to the same face.
-- **Windows:** our vendored DirectWrite backend (`phigpu/gpui_windows`, `typographic_collection`) groups added fonts by typographic family. Without that, the two widths of a folder would merge into one family and the Condensed faces could never be reached.
+- **Windows:** our vendored DirectWrite backend (`appkit/gpu/gpui_windows`, `typographic_collection`) groups added fonts by typographic family. Without that, the two widths of a folder would merge into one family and the Condensed faces could never be reached.

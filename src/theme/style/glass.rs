@@ -13,15 +13,15 @@
 //!   compositor (`WindowBackgroundAppearance::Blurred`: acrylic on Windows,
 //!   a visual-effect view on macOS, KWin blur on Wayland). The window's
 //!   ground is translucent so that blur shows through every surface.
-//! * **Inside the window nothing is blurred.** gpui has no backdrop filter
-//!   and no way to sample what it drew underneath, so chrome floating over
-//!   the canvas is translucent without being frosted. Apple's Clear variant
-//!   (see-through, dimmed underneath) is the closest match. The canvas is
-//!   content and stays opaque (`viewport_surface`).
-//! * **Rim, glow and halo** are inset and drop shadows on a tile
-//!   (`view/draw/flex/paint::glazed`). Light can't bend at the edges
-//!   without a backdrop to bend, so the rim highlight stands in for the
-//!   lensing.
+//! * **Inside the window it is real too.** The windows are backdrops
+//!   (`gpui::BackdropStyle`, appkit's glass stages on the GPU): every pane's
+//!   card and the chrome floating over the canvas blur, tint and light what is
+//!   under them (`view/draw/flex/paint::frosted`). The 3D view runs behind them
+//!   (`view3d::stage`), so there is something to see.
+//! * **Only the windows are glass.** A button, a tile and an icon are what
+//!   they are in the dark mode, in the theme's own radii and colours, so glass
+//!   is the normal look with its windows made of glass. No surface gains
+//!   colour, either: what shows through brings its own.
 //!
 //! Text stays solid. The ground dims what is behind it before any pane does,
 //! as Apple dims behind Clear glass, so text keeps its contrast over a white
@@ -33,6 +33,27 @@ use super::{BEffects, BResolvedColors, BResolvedUiStyle, BShadowStyle};
 use crate::state::{AppKey, BState, val::V_TRUE};
 use crate::theme::BColor;
 
+/// The most the frost thickens over what is brightest (`glass.hlsl`).
+pub const THICKEST: f32 = 0.88;
+
+/// How one kind of glass treats what is behind it: appkit's
+/// `NSGlassEffectView.Style`.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct BFrost {
+    /// How far the blur reaches, in px.
+    pub blur: f32,
+    /// The lift on what shows through.
+    pub saturation: f32,
+    /// How far what shows through moves toward the ground's colour at the
+    /// least. Over what is bright the shader thickens it (`glass.hlsl`), up to
+    /// `THICKEST`, so text holds without dimming a dark scene.
+    pub tint: f32,
+    /// How far the rim pulls its sample inward, in px.
+    pub lens: f32,
+    /// How much light the rim catches.
+    pub edge: f32,
+}
+
 /// The material: how much of each layer shows what is behind it.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct BGlass {
@@ -42,48 +63,30 @@ pub struct BGlass {
     pub chrome: f32,
     /// An editor's panes, headers and cards.
     pub pane: f32,
-    /// A control's fill on a pane: a fill on glass, never glass on glass.
+    /// A control's fill: opaque, since controls are not glass.
     pub control: f32,
     /// Chrome floating over the canvas: the toolbar, the sidebar, gizmos.
     pub floating: f32,
-    /// An icon tile at rest: white over the pane at this alpha.
-    pub tile: f32,
-    /// A lit tile (a mark that is on): the accent at this alpha. Glass
-    /// tinted for the one thing that is chosen.
-    pub tint: f32,
-    /// The rim's highlight: a hairline of white inside the edge.
-    pub rim: f32,
-    /// The glow from inside the tile, and how far it spreads in px.
-    pub glow: f32,
-    pub glow_blur: f32,
-    /// The halo the tile casts: what makes its icon glow faintly.
-    pub halo: f32,
-    pub halo_blur: f32,
+    /// What a window does to what is behind it.
+    pub frost: BFrost,
 }
 
 /// Liquid Glass as phiber wears it.
 pub const LIQUID_GLASS: BGlass = BGlass {
     ground: 0.72,
-    chrome: 0.80,
-    pane: 0.86,
-    control: 0.72,
-    floating: 0.80,
-    tile: 0.14,
-    tint: 0.78,
-    rim: 0.42,
-    glow: 0.20,
-    glow_blur: 6.0,
-    halo: 0.12,
-    halo_blur: 8.0,
+    chrome: 0.30,
+    pane: 0.30,
+    control: 1.0,
+    // The frost carries the rest of the contrast (`frost.tint`).
+    floating: 0.30,
+    frost: BFrost { blur: 24.0, saturation: 1.2, tint: 0.35, lens: 26.0, edge: 0.35 },
 };
 
 impl BGlass {
     /// This glass with Reduce Transparency on: every surface solid and the
-    /// floating chrome back to the theme's own weight. The rims stay, since
-    /// they add an edge rather than take contrast away (Increase Contrast
-    /// adds a border for the same reason).
+    /// floating chrome back to the theme's own weight.
     pub const fn solid(self, floating: f32) -> Self {
-        Self { ground: 1.0, chrome: 1.0, pane: 1.0, control: 1.0, floating, tile: 0.2, tint: 1.0, ..self }
+        Self { ground: 1.0, chrome: 1.0, pane: 1.0, control: 1.0, floating, ..self }
     }
 
     /// Whether the window should be blurred behind: it is when the ground
@@ -98,11 +101,17 @@ impl BGlass {
         BEffects { glass: Some(self), surface_shadow: base.surface_shadow.at_least(BShadowStyle::Large), ..base }
     }
 
-    /// The colours glazed. Each surface slot keeps its shade and takes its
-    /// layer's alpha. The canvas, text, the accent and the meanings are
-    /// untouched.
+    /// The colours glazed: Apple's glass has no colour of its own, so the
+    /// ladder goes grey, and what shows through brings the colour. Each surface
+    /// keeps its step and takes its layer's alpha. Text, the accent and the
+    /// meanings are untouched.
     pub fn glaze(self, c: &mut BResolvedColors) {
+        let hued = c.ladder;
+        c.ladder = hued.neutral();
+        let grey = c.ladder;
+        let viewport = c.bg_viewport.3;
         for (slot, alpha) in [
+            (&mut c.bg_viewport, viewport),
             (&mut c.bg_app, self.ground),
             (&mut c.sep, self.ground),
             (&mut c.bg_activity, self.chrome),
@@ -115,21 +124,13 @@ impl BGlass {
             (&mut c.bg_control, self.control),
             (&mut c.bg_hover, self.control),
             (&mut c.bg_active, self.control),
-            (&mut c.row_alt, self.control),
+            (&mut c.row_alt, self.pane),
         ] {
-            slot.3 = alpha;
+            *slot = match hued.step_of(*slot) {
+                Some(step) => grey.at(step, alpha),
+                None => (slot.0, 0.0, slot.2, alpha),
+            };
         }
-    }
-
-    /// An icon tile at rest on `ground`: frosted white, its hue the
-    /// ground's.
-    pub fn tile_on(self, ground: BColor) -> BColor {
-        (ground.0, ground.1, 96.0, self.tile)
-    }
-
-    /// The lit tile: the accent, tinted glass.
-    pub fn tinted(self, accent: BColor) -> BColor {
-        (accent.0, accent.1, accent.2, accent.3 * self.tint)
     }
 }
 
@@ -146,6 +147,12 @@ pub fn backdrop(state: &BState) -> bool {
 }
 
 impl BResolvedUiStyle {
+    /// The light a window's rim catches: the ladder's lightest shade, so it is
+    /// the theme's own white.
+    pub fn glass_light(&self) -> BColor {
+        self.colors.ladder.color(crate::theme::palette::set::SHADE_TEXT_HI)
+    }
+
     /// This style glazed, when its mode is glass, and solid again when
     /// `reduced`. The one place a glass theme becomes translucent.
     pub fn glazed(mut self, reduced: bool) -> Self {
@@ -157,6 +164,8 @@ impl BResolvedUiStyle {
         glass.glaze(&mut self.colors);
         self.effects.glass = Some(glass);
         self.effects.floating_alpha = glass.floating;
+        // On glass, half a control's shade would fade into the window.
+        self.effects.control_rest_alpha = 1.0;
         self
     }
 }

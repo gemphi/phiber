@@ -28,7 +28,11 @@ fn child_host(v: &BView) -> BHostType {
 /// a canvas paints over its fill wall to wall, Properties stacks its own
 /// cards on it, and the window shade shows only in the seams between cards.
 fn card(kind: BAreaType, flex: BFlex, ctx: &BRenderCtx) -> BFlex {
-    let flex = flex.fill(BFill::HostBody);
+    // A hole onto the stage has no card to paint (`view3d::stage`).
+    let flex = match super::canvas::view3d::stage::holds(ctx) {
+        true => flex,
+        false => flex.fill(BFill::HostBody),
+    };
     if kind == BAreaType::Top {
         // The top strip is the window's title bar: it meets the window's top
         // edge flush, with no rounded corners up there, and rounds only where
