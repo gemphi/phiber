@@ -146,9 +146,18 @@ fn build_with(scene: &[BObject3D], palette: &BMeshPalette, images: bool) -> Scen
                     if i.iter().any(|&k| k >= count) {
                         continue;
                     }
+                    // A baked image's Mapping lands here, on the UVs the faces
+                    // read: a pattern tiled 116 times across a floor tiles on
+                    // the mesh. Slots with different Mappings part a vertex
+                    // they share (`BSurface::textured` is the same for a Tri).
+                    let affine = o.triangle_slot(face).and_then(|m| m.uv_affine);
+                    let part = affine.map_or(0, |a| a.iter().flatten().fold(0u32, |h, v| h.rotate_left(5) ^ v.to_bits()));
                     let vid = [0, 1, 2].map(|k| {
                         let (nid, n) = n_of(face * 3 + k, i[k]);
-                        verts.id(t[k], nid, || out.vertex(mesh.vertices[i[k]], n, uvs.get(i[k]).copied().unwrap_or_default()))
+                        verts.id(t[k], nid.wrapping_add(part), || {
+                            let uv = uvs.get(i[k]).copied().unwrap_or_default();
+                            out.vertex(mesh.vertices[i[k]], n, affine.map_or(uv, |a| crate::phiphx::blend::shade::bake::apply(a, uv)))
+                        })
                     });
                     // The colour attribute at the corners (Color ▸ Attribute);
                     // a vertex shared by corners of two colours takes the last.

@@ -93,7 +93,9 @@ impl BSurface<'_> {
             // A baked texture carries the whole base colour; the folded
             // tint is only for an image folded to white.
             let tint = if m.baked { [1.0; 4] } else { m.base_color };
-            tri.color = [tint[0], tint[1], tint[2], tri.color[3]];
+            // An alpha baked into the texture replaces the folded one.
+            let cut = m.baked && m.bake.as_ref().is_some_and(|b| b.alpha.is_some());
+            tri.color = [tint[0], tint[1], tint[2], if cut { 1.0 } else { tri.color[3] }];
             tri = tri.with_texture(add(tex), uvs);
         }
         let images = m.maps.images();
