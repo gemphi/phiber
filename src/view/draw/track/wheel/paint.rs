@@ -59,6 +59,12 @@ pub fn view(wheel: &BWheel, ctx: &BRenderCtx) -> gpui::AnyElement {
 }
 
 /// The colour as gpui paints it: the RGB the swatch shows, opaque.
+/// An RGB colour (0..1) as the theme's colour type, for `chrome::ink_on_color`.
+fn theme_color(c: [f32; 3]) -> crate::theme::BColor {
+    let (h, s, l) = crate::theme::palette::shade::hsl_of(c);
+    (h, s, l, 1.0)
+}
+
 fn rgb(c: [f32; 3]) -> gpui::Hsla {
     gpui::Rgba { r: c[0].clamp(0.0, 1.0), g: c[1].clamp(0.0, 1.0), b: c[2].clamp(0.0, 1.0), a: 1.0 }.into()
 }
@@ -67,6 +73,8 @@ fn disc(wheel: &BWheel, ctx: &BRenderCtx) -> gpui::AnyElement {
     let id = gpui::SharedString::from(format!("wheel-{}", wheel.key.encode()));
     let painted: Rc<Cell<Option<Bounds<Pixels>>>> = Rc::new(Cell::new(None));
     let outline = to_hsla(ctx.style.colors.border);
+    // The cursor's ring: the theme's ink on the colour under it.
+    let cursor_ink = to_hsla(crate::view::draw::chrome::ink_on_color(theme_color(wheel.shown()), ctx.style));
     let paint = {
         let (wheel, painted) = (wheel.clone(), painted.clone());
         move |bounds: Bounds<Pixels>, _: (), window: &mut Window, _: &mut App| {
@@ -96,13 +104,13 @@ fn disc(wheel: &BWheel, ctx: &BRenderCtx) -> gpui::AnyElement {
             // The rim, over the grid's stepped edge.
             let ring = Bounds { origin, size: size(px(side), px(side)) };
             window.paint_quad(gpui::quad(ring, px(side / 2.0), gpui::transparent_black(), px(RING), outline, Default::default()));
-            // The cursor: the colour itself in a white ring — `hsv_cursor`.
+            // The cursor: the colour itself in a ring of the theme's ink — `hsv_cursor`.
             let (across, down) = wheel.marker();
             let r = 6.0;
             let centre = point(origin.x + px(across * side - r), origin.y + px(down * side - r));
             let across_ring = r + r;
             let cursor = Bounds { origin: centre, size: size(px(across_ring), px(across_ring)) };
-            window.paint_quad(gpui::quad(cursor, px(r), rgb(wheel.shown()), px(RING), gpui::white(), Default::default()));
+            window.paint_quad(gpui::quad(cursor, px(r), rgb(wheel.shown()), px(RING), cursor_ink, Default::default()));
         }
     };
     let element = BFlex::cell()
@@ -143,6 +151,8 @@ fn bar(wheel: &BWheel, ctx: &BRenderCtx) -> gpui::AnyElement {
     let id = gpui::SharedString::from(format!("wheel-value-{}", wheel.key.encode()));
     let painted: Rc<Cell<Option<Bounds<Pixels>>>> = Rc::new(Cell::new(None));
     let outline = to_hsla(ctx.style.colors.border);
+    // The value marker: the theme's ink on the colour at that value.
+    let ink = to_hsla(crate::view::draw::chrome::ink_on_color(theme_color(hsv_to_rgb(wheel.hsv)), ctx.style));
     let paint = {
         let (wheel, painted) = (wheel.clone(), painted.clone());
         move |bounds: Bounds<Pixels>, _: (), window: &mut Window, _: &mut App| {
@@ -159,7 +169,6 @@ fn bar(wheel: &BWheel, ctx: &BRenderCtx) -> gpui::AnyElement {
             // The marker: a bar across at the value, in the colour's contrast.
             let v = wheel.hsv[2].clamp(0.0, 1.0);
             let y = bounds.origin.y + px((1.0 - v) * h - MARK / 2.0);
-            let ink = if v > 0.5 { gpui::black() } else { gpui::white() };
             window.paint_quad(fill(Bounds { origin: point(bounds.origin.x, y), size: size(px(w), px(MARK)) }, ink));
         }
     };

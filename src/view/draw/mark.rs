@@ -17,16 +17,19 @@ use crate::view::prim::BMark;
 use gpui::prelude::*;
 use gpui::AnyElement;
 
-/// The ink on an accent tile: white, as the switch's knob is.
-const ON_INK: [f32; 4] = [1.0, 1.0, 1.0, 0.95];
-/// The same white as a theme colour, for the icon atom.
-const ON_COLOR: crate::theme::BColor = (0.0, 0.0, 100.0, 0.95);
+
+/// The ink on a lit tile: whichever of the theme's text and panel ground
+/// stands out from the tile (`chrome::ink_on_color`), never a colour of its
+/// own.
+fn on_ink(ctx: &BRenderCtx) -> crate::theme::BColor {
+    super::chrome::ink_on_color(ctx.style.icon_tile_on(), ctx.style)
+}
 
 /// One mark, drawn.
 pub fn view(mark: BMark, ctx: &BRenderCtx) -> AnyElement {
     let tile = BMarkPart::Tile(mark).flex(ctx).div(ctx);
     match mark {
-        BMark::Check(true) => tile.child(icon_in("check", ON_COLOR, ctx)),
+        BMark::Check(true) => tile.child(icon_in("check", on_ink(ctx), ctx)),
         BMark::Check(false) => tile.child(icon_in("square", ctx.style.colors.text_dim, ctx)),
         BMark::Radio(true) => tile.child(BMarkPart::Dot.flex(ctx).div(ctx)),
         BMark::Radio(false) => tile.child(icon_in("radio", ctx.style.colors.text_dim, ctx)),
@@ -64,7 +67,7 @@ impl BFlexed for BMarkPart {
             }
             Self::Dot => {
                 let dot = BLen::Measured((ctx.style.dimensions.icon_size / 2.5).round());
-                BFlex::cell().width(dot).height(dot).keeps_size().radius(BRadius::Pill).fill(BFill::Swatch(ON_INK))
+                BFlex::cell().width(dot).height(dot).keeps_size().radius(BRadius::Pill).fill(BFill::SwatchHsl(on_ink(ctx)))
             }
         }
     }

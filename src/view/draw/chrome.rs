@@ -89,24 +89,32 @@ pub fn paint_state(element: Stateful<Div>, active: bool, muted: bool, ctx: &BRen
 
 /// The fill an active control takes outside a strip ([`paint_state`]).
 pub fn active_fill(ctx: &BRenderCtx) -> gpui::Hsla {
-    ctx.style.control_fill(BControlState::Active, ctx.floating).map(to_hsla).unwrap_or_else(|| to_hsla(ctx.style.colors.accent))
+    to_hsla(active_fill_color(ctx))
+}
+
+/// [`active_fill`] as the theme's colour.
+pub fn active_fill_color(ctx: &BRenderCtx) -> crate::theme::BColor {
+    ctx.style.control_fill(BControlState::Active, ctx.floating).unwrap_or(ctx.style.colors.accent)
 }
 
 /// Ink that reads on `fill`, as Blender draws a selected widget's text in its
-/// own `text_sel` rather than the resting text: the theme's `text` when it
-/// already stands apart from the fill, else the fill's own hue taken nearly
-/// to black on a light fill, or white on a dark one. A dark theme's light
-/// text on its light accent (a dialog's Save) read as nothing.
-pub fn ink_on(fill: gpui::Hsla, text: gpui::Hsla) -> gpui::Hsla {
-    match (fill.l > LIGHT_FILL, text.l > LIGHT_FILL) {
-        (true, true) => gpui::Hsla { h: fill.h, s: fill.s * 0.6, l: 0.12, a: text.a },
-        (false, false) => gpui::Hsla { a: text.a, ..gpui::white() },
-        _ => text,
+/// own `text_sel`: of the theme's two opposite poles, its `text` and its
+/// panel ground (`bg_panel`), the one further from the fill in lightness. A
+/// dark theme's light text on its light accent (a dialog's Save) reads in
+/// the panel's dark instead. Both are the theme's colours; no colour is
+/// written here.
+pub fn ink_on_color(fill: crate::theme::BColor, style: &crate::theme::style::BResolvedUiStyle) -> crate::theme::BColor {
+    let (text, ground) = (style.colors.text, style.colors.bg_panel);
+    match (text.2 - fill.2).abs() >= (ground.2 - fill.2).abs() {
+        true => text,
+        false => (ground.0, ground.1, ground.2, text.3),
     }
 }
 
-/// Where a fill counts as light, for the ink on it.
-const LIGHT_FILL: f32 = 0.55;
+/// [`ink_on_color`] for an element's fill.
+pub fn ink_on(fill: crate::theme::BColor, ctx: &BRenderCtx) -> gpui::Hsla {
+    to_hsla(ink_on_color(fill, ctx.style))
+}
 
 /// Every icon tile not lit, in every host, rests on the one tile shade
 /// (`BFill::IconTileRest`), half way to the lit fill, so a row of tiles reads

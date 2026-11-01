@@ -50,7 +50,7 @@ pub fn view(ctl: &BControl, ctx: &BRenderCtx) -> AnyElement {
     let ink = match (ctl.muted, ctl.active && !chrome::in_strip(ctx) && !ctx.listed) {
         (true, _) => gpui::Hsla { a: ink.a * ctx.style.effects.control_muted_alpha, ..ink },
         // On the active fill, an ink that reads on it.
-        (false, true) => chrome::ink_on(chrome::active_fill(ctx), ink),
+        (false, true) => chrome::ink_on(chrome::active_fill_color(ctx), ctx),
         (false, false) => ink,
     };
     let mut row = div()

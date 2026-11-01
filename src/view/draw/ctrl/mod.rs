@@ -33,7 +33,8 @@ enum BCtrlPart {
     /// The pill track, `true` while on: accent-filled with the knob at the
     /// end, else the card tone with the knob at the start.
     Track(bool),
-    /// The knob: a white disc with a hairline, so it reads on either fill.
+    /// The knob: a disc in the theme's ink on its accent, with a hairline, so it
+    /// reads on either fill.
     Knob,
     /// A checkbox alone in a property row's value column: the mark on the
     /// row's centre line, a control's height.
@@ -73,7 +74,9 @@ impl BFlexed for BCtrlPart {
                 .height(BLen::Measured(SWITCH_KNOB))
                 .keeps_size()
                 .radius(BRadius::All(SWITCH_KNOB / 2.0))
-                .fill(BFill::Swatch([1.0, 1.0, 1.0, 0.95]))
+                // The theme's ink on its accent (`chrome::ink_on_color`), so
+                // the knob reads on the lit track in every theme.
+                .fill(BFill::SwatchHsl(super::chrome::ink_on_color(_c.style.colors.accent, _c.style)))
                 .border(BEdge::All),
             Self::Swatch(value) => BFlex::cell()
                 .width(BLen::Dim(super::flex::BDim::ButtonHeight))
