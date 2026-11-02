@@ -40,8 +40,8 @@ pub(in crate::view::draw) fn cast<E: Styled>(element: E, offset: f32, accent: cr
 const SHADE_DEPTH: f32 = 0.618;
 
 /// `element` with real glass behind it, when the glass mode is in force: every
-/// pane's card, chrome floating over the canvas, and the strips of a 3D view,
-/// which stand directly on the stage. Only windows are glass: strips inside a
+/// pane's card, chrome floating over the canvas, and the strips and panels of
+/// a 3D view, which stand directly on the stage. Only windows are glass: strips inside a
 /// pane are already on its glass, and a button or a tile is what it is in the
 /// dark mode. With Reduce Transparency on, nothing shows through, so nothing
 /// is frosted.
@@ -54,6 +54,7 @@ pub(in crate::view::draw) fn frosted<E: Styled>(element: E, fill: super::fill::B
     match fill {
         BFill::Floating | BFill::HostBody => {}
         BFill::HostHeader | BFill::HostStrip | BFill::HostRail | BFill::TabGround if on_stage => {}
+        BFill::Tone(crate::theme::BSurfaceTone::Card) if on_stage => {}
         _ => return element,
     }
     let ground = style.colors.bg_app;

@@ -4,7 +4,7 @@
 //! the content. It blurs and bends what is behind it, catches a specular
 //! highlight along its rim, glows from inside when touched, and turns
 //! frosted when Reduce Transparency is on. Glass here is a whole theme mode
-//! (`BThemeMode::Glass`): every palette read from its dark ladder, with the
+//! (`BThemeMode::Glass`, or `GlassLight` on the light ladder), with the
 //! surfaces glazed by the one material below. Nothing is glazed per host.
 //!
 //! What is real and what is not:
@@ -33,7 +33,7 @@ use super::{BEffects, BResolvedColors, BResolvedUiStyle, BShadowStyle};
 use crate::state::{AppKey, BState, val::V_TRUE};
 use crate::theme::BColor;
 
-/// The most the frost thickens over what is brightest (`glass.hlsl`).
+/// The most the frost thickens over what stands furthest from it (`glass.hlsl`).
 pub const THICKEST: f32 = 0.88;
 
 /// How one kind of glass treats what is behind it: appkit's
@@ -45,8 +45,9 @@ pub struct BFrost {
     /// The lift on what shows through.
     pub saturation: f32,
     /// How far what shows through moves toward the ground's colour at the
-    /// least. Over what is bright the shader thickens it (`glass.hlsl`), up to
-    /// `THICKEST`, so text holds without dimming a dark scene.
+    /// least. The further what is behind stands from that colour, the more the
+    /// shader thickens it (`glass.hlsl`), up to `THICKEST`, so text holds
+    /// without veiling what already suits it.
     pub tint: f32,
     /// How far the rim pulls its sample inward, in px.
     pub lens: f32,
@@ -139,11 +140,11 @@ pub fn reduced(state: &BState) -> bool {
     state.get(AppKey::ReduceTransparency) == Some(V_TRUE)
 }
 
-/// Whether the window wears the blurred backdrop: Glass is in force and
+/// Whether the window wears the blurred backdrop: a glass mode is in force and
 /// Reduce Transparency is off.
 pub fn backdrop(state: &BState) -> bool {
     let (_, mode) = crate::theme::theme_in_force(state);
-    mode == crate::theme::BThemeMode::Glass && !reduced(state)
+    mode.is_glass() && !reduced(state)
 }
 
 impl BResolvedUiStyle {

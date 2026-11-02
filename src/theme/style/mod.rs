@@ -147,7 +147,7 @@ use super::palette::theme::set as palette;
 
 /// One row per theme: its dark, light and glass defaults, and the radius
 /// scale, effects and seam gap every mode shares. Dark and light change
-/// colours; glass is the dark palette in the glass material (`glass`).
+/// colours; glass is either palette in the glass material (`glass`).
 macro_rules! themes {
     ($($name:ident : $dark:ident / $light:ident / $glass:ident = ($palette:ident, $palette_light:ident, $radii:ident, $effects:ident, $gap:expr);)+) => {
         $(
@@ -162,6 +162,11 @@ macro_rules! themes {
                     (BPaletteName::$name, BThemeMode::Dark) => &$dark,
                     (BPaletteName::$name, BThemeMode::Light) => &$light,
                     (BPaletteName::$name, BThemeMode::Glass) => &$glass,
+                    (BPaletteName::$name, BThemeMode::GlassLight) => {
+                        static GLASS_LIGHT: BUiStyleDefaults =
+                            defaults(&palette::$palette_light, $radii, LIQUID_GLASS.wear($effects), $gap);
+                        &GLASS_LIGHT
+                    }
                 )+
             }
         }

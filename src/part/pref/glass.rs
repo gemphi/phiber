@@ -1,4 +1,4 @@
-//! Preferences ▸ Themes ▸ Glass: Reduce Transparency, shown while the glass
+//! Preferences ▸ Themes ▸ Glass: Reduce Transparency, shown while a glass
 //! mode is in force (`theme/style/glass`). Apple's switch of the same name
 //! turns its glass frosted; this one makes every surface solid and takes the
 //! window off the blurred backdrop, so text reads on any desktop.
@@ -7,7 +7,6 @@ use crate::host::BHostType;
 use crate::part::props::BPanelItem;
 use crate::state::val::{BValue, V_FALSE};
 use crate::state::{AppKey, BKey as _, BState};
-use crate::theme::BThemeMode;
 use crate::view::BView;
 use crate::view::prim::{BCard, BCtrl, BCtrlKind};
 
@@ -20,7 +19,7 @@ impl BGlassPanel {
     /// The panel, or nothing outside the glass mode.
     pub fn view(state: &BState) -> Option<BView> {
         let (_, mode) = crate::theme::theme_in_force(state);
-        if mode != BThemeMode::Glass {
+        if !mode.is_glass() {
             return None;
         }
         let key = BPanelItem::expand_key(BHostType::Prefs, "Appearance", Self::TITLE);
@@ -48,5 +47,7 @@ mod tests {
         let BView::Ctrl(ctrl) = &card.body[0] else { panic!("{:?}", card.body) };
         assert_eq!(ctrl.key, AppKey::ReduceTransparency.path());
         assert!(matches!(ctrl.value, BValue::Bool(false)), "off until set");
+        s.set(AppKey::ThemeMode, "glass_light");
+        assert!(BGlassPanel::view(&s).is_some(), "Glass Light is glass too");
     }
 }

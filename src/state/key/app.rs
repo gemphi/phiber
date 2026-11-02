@@ -15,7 +15,7 @@ pub enum AppKey {
     WindowHeight,
     /// The theme's slug.
     Theme,
-    /// The theme's mode: `dark`, `light` or `glass` (`BThemeMode`).
+    /// The theme's mode: `dark`, `light`, `glass` or `glass_light` (`BThemeMode`).
     ThemeMode,
     /// Reduce Transparency (Preferences ▸ Themes ▸ Glass): `true` makes the
     /// glass mode's surfaces solid (`theme/style/glass`).

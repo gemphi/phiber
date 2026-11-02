@@ -13,11 +13,12 @@ pub fn palette_for(name: BPaletteName) -> &'static BPalette {
     palette_in(name, BThemeMode::Dark)
 }
 
-/// A theme's palette in `mode`. Glass reads the dark ladder; its glaze is
-/// alpha, laid on when the style is resolved (`style::glass`).
+/// A theme's palette in `mode`. Glass reads the dark ladder and Glass Light the
+/// light one; their glaze is laid on when the style is resolved (`style::glass`).
 pub fn palette_in(name: BPaletteName, mode: BThemeMode) -> &'static BPalette {
     match (name, mode) {
         (name, BThemeMode::Glass) => palette_in(name, BThemeMode::Dark),
+        (name, BThemeMode::GlassLight) => palette_in(name, BThemeMode::Light),
         (BPaletteName::Sphere, BThemeMode::Dark) => &set::SPHERE,
         (BPaletteName::Sphere, BThemeMode::Light) => &set::SPHERE_LIGHT,
         (BPaletteName::Graphite, BThemeMode::Dark) => &set::GRAPHITE,

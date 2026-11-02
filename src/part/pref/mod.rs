@@ -93,7 +93,7 @@ fn palette_card(state: &BState) -> BView {
     let (active, mode) = crate::theme::theme_in_force(state);
     let key = BPanelItem::expand_key(BHostType::Prefs, "Appearance", "Theme");
     let open = state.get(&key) != Some(V_FALSE);
-    // The mode switch — Dark / Light / Glass, one setting over every theme — sits in
+    // The mode switch — Dark / Light / Glass / Glass Light, one setting over every theme — sits in
     // the section's heading, where Blender's panel headers hold their
     // controls (`draw_header_preset`).
     let switch: Vec<BView> = crate::theme::BThemeMode::ALL

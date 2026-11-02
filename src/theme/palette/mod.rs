@@ -42,17 +42,18 @@ pub enum BPaletteName {
 /// A theme's mode: the ladder read from black (dark) or from white (light)
 /// — Blender's theme presets have a light and a dark; here every theme has
 /// both, and the switch is one setting over all of them. Glass is the dark
-/// ladder glazed: translucent surfaces over the blurred desktop, tiles of
-/// frosted glass (`theme/style/glass`).
+/// ladder glazed, and Glass Light the light one: windows of real glass
+/// (`theme/style/glass`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum BThemeMode {
     Dark,
     Light,
     Glass,
+    GlassLight,
 }
 
 impl BThemeMode {
-    pub const ALL: [BThemeMode; 3] = [BThemeMode::Dark, BThemeMode::Light, BThemeMode::Glass];
+    pub const ALL: [BThemeMode; 4] = [BThemeMode::Dark, BThemeMode::Light, BThemeMode::Glass, BThemeMode::GlassLight];
 
     /// The mode in force until one is chosen.
     ///
@@ -68,6 +69,7 @@ impl BThemeMode {
             BThemeMode::Dark => "Dark",
             BThemeMode::Light => "Light",
             BThemeMode::Glass => "Glass",
+            BThemeMode::GlassLight => "Glass Light",
         }
     }
     pub fn slug(self) -> &'static str {
@@ -75,7 +77,12 @@ impl BThemeMode {
             BThemeMode::Dark => "dark",
             BThemeMode::Light => "light",
             BThemeMode::Glass => "glass",
+            BThemeMode::GlassLight => "glass_light",
         }
+    }
+    /// Whether this mode's windows are glass.
+    pub const fn is_glass(self) -> bool {
+        matches!(self, BThemeMode::Glass | BThemeMode::GlassLight)
     }
     pub fn from_slug(slug: &str) -> Option<Self> {
         Self::ALL.into_iter().find(|mode| mode.slug() == slug)
