@@ -11,7 +11,7 @@
 //! for.
 
 use crate::app::seed::{seed_output_props, seed_render_props, seed_view_layer};
-use crate::scene::{BObject3D, plan_at, render_set, source::{loaded_shared, set_loaded_at, set_loaded_exact}};
+use crate::scene::{BObject3D, plan_at, render_job::plan_through, render_set, source::{loaded_shared, set_loaded_at, set_loaded_exact}};
 use crate::state::{BState, CtxKey};
 use crate::view::draw::canvas::view3d::rendered::{BMatStand, BRayLook, environment, still, view_words};
 
@@ -33,7 +33,9 @@ pub struct BHeadlessRender {
     pub draft: bool,
     /// `--camera`: render through this camera object instead of the
     /// scene's active one (there is no Blender flag for this; it saves a
-    /// headless probe from having to edit the file).
+    /// headless probe from having to edit the file). A comma-separated list
+    /// renders every frame through each of them from the one open scene, the
+    /// file read once, each written as `<out><camera>_<frame>.png`.
     pub camera: Option<String>,
     pub look: BLookOverride,
 }
@@ -119,8 +121,8 @@ impl BHeadlessRender {
     /// `model` with the measurement switches ([`BLookOverride`]) and
     /// `--camera` in.
     fn overridden(&self, mut model: crate::phiphx::scene::SceneModel) -> crate::phiphx::scene::SceneModel {
-        if let Some(camera) = &self.camera {
-            model.render.camera = camera.clone();
+        if let Some(camera) = self.views().first() {
+            model.render.camera = camera.to_string();
         }
         if let Some(albedo) = self.look.material {
             BMatStand::set(Some(BMatStand::grey(albedo)));
@@ -135,6 +137,11 @@ impl BHeadlessRender {
             model.render.view_transform = view.clone();
         }
         model
+    }
+
+    /// The cameras `--camera` names, in order; empty for the scene's own.
+    fn views(&self) -> Vec<&str> {
+        self.camera.as_deref().map_or(Vec::new(), |c| c.split(',').map(str::trim).filter(|c| !c.is_empty()).collect())
     }
 
     /// Every frame of `model` as `state` has the scene, one PNG each.
@@ -176,7 +183,8 @@ impl BHeadlessRender {
             // bodies at this frame of their bake.
             set_loaded_exact(Some(model.clone()), &state);
             let scene = loaded_shared().unwrap_or_else(|| model.clone());
-            if let Some(camera) = self.camera.as_ref().filter(|c| !scene.cameras.iter().any(|k| &k.name == *c)) {
+            let views = self.views();
+            if let Some(camera) = views.iter().find(|c| !scene.cameras.iter().any(|k| k.name == **c)) {
                 return Err(format!("--camera: no camera object named {camera:?} in the scene"));
             }
             // The render's own restrictions — the camera toggle and excluded
@@ -213,68 +221,86 @@ impl BHeadlessRender {
                 set,
                 studio: false,
             };
-            let mut plan = plan_at(&scene, set, &look, plain, Some(frame)).ok_or("the scene names no camera")?;
-            if let Some(denoise) = self.look.denoise {
-                plan.denoise = denoise;
-            }
-            plan.w = (plan.w / scale).max(1);
-            plan.h = (plan.h / scale).max(1);
-            let shot = web_time::Instant::now();
-            // Blender's `-b` prints a line a sample — `Fra:1 | Time:00:12.34 |
-            // Remaining:01:02.00 | Sample 3/256` — so a long render shows its
-            // pace and what is left; this printed nothing until the end.
-            let target = plan.samples;
-            // `still` reports the samples taken so far — already a count,
-            // and the last one twice (the final sample, then the settled
-            // frame) — so the line is printed once a count.
-            let mut last = 0;
-            let report = |done: u32| {
-                if done == last {
-                    return;
+            // Through each camera asked for, from this one posed scene.
+            let one = [None];
+            let many: Vec<Option<&str>> = views.iter().map(|c| Some(*c)).collect();
+            for view in match many.is_empty() {
+                true => one.iter(),
+                false => many.iter(),
+            } {
+                let through = crate::scene::motion::cameras_at(&scene, Some(frame)).into_iter().find(|c| Some(c.name.as_str()) == *view);
+                let mut plan = match &through {
+                    Some(camera) => plan_through(&scene, set, &look, plain, Some(frame), camera),
+                    None => plan_at(&scene, set, &look, plain, Some(frame)),
                 }
-                last = done;
-                let elapsed = shot.elapsed();
-                // `Time:` is the whole render, setup included — that is
-                // what Blender shows. `Remaining:` is paced over the
-                // samples alone, which is a different window and why the
-                // two are not computed from the same number
-                // (`render_status::remaining`).
-                crate::scene::render_status::mark_sample(done);
-                let since = crate::scene::render_status::sampling().unwrap_or_default();
-                let left = crate::scene::render_status::remaining(since, done, target, false)
-                    .map_or(String::new(), |left| format!(" | Remaining:{}", crate::scene::render_status::timecode(left)));
-                println!("Fra:{frame} | Time:{}{left} | Sample {done}/{target}", crate::scene::render_status::timecode(elapsed));
-            };
-            let (pixel, taken) = still(&objects, plan.look, plan.camera, plan.w, plan.h, plan.samples, plan.denoise, plan.glow, plan.adapt, plan.time_limit, report)
-                // The tracer's own reason (`render_job::note_failure`), not a
-                // guess: headless has no Info editor and no journal, so the
-                // 2048-sample run of pose 26 ended after 30 minutes having
-                // printed nothing at all.
-                .ok_or_else(|| {
-                    crate::scene::render_job::failure()
-                        .unwrap_or_else(|| "no gpu adapter, or a scene that does not fit".to_string())
-                })?;
-            let drew = shot.elapsed();
-            // Which device drew it, as Blender's `-b` names its Cycles
-            // device: a time means nothing without it (a laptop can hand an
-            // unlisted exe to its integrated GPU).
-            if cost.is_empty()
-                && let Some(device) = phiray::Gpu::in_use()
-            {
-                println!("Device: {} | {} | {} {}", device.name, device.kind_label(), device.backend_label(), device.driver);
+                .ok_or("the scene names no camera")?;
+                if let Some(denoise) = self.look.denoise {
+                    plan.denoise = denoise;
+                }
+                plan.w = (plan.w / scale).max(1);
+                plan.h = (plan.h / scale).max(1);
+                let shot = web_time::Instant::now();
+                // Blender's `-b` prints a line a sample — `Fra:1 | Time:00:12.34 |
+                // Remaining:01:02.00 | Sample 3/256` — so a long render shows its
+                // pace and what is left; this printed nothing until the end.
+                let target = plan.samples;
+                // `still` reports the samples taken so far — already a count,
+                // and the last one twice (the final sample, then the settled
+                // frame) — so the line is printed once a count.
+                let mut last = 0;
+                let report = |done: u32| {
+                    if done == last {
+                        return;
+                    }
+                    last = done;
+                    let elapsed = shot.elapsed();
+                    // `Time:` is the whole render, setup included — that is
+                    // what Blender shows. `Remaining:` is paced over the
+                    // samples alone, which is a different window and why the
+                    // two are not computed from the same number
+                    // (`render_status::remaining`).
+                    crate::scene::render_status::mark_sample(done);
+                    let since = crate::scene::render_status::sampling().unwrap_or_default();
+                    let left = crate::scene::render_status::remaining(since, done, target, false)
+                        .map_or(String::new(), |left| format!(" | Remaining:{}", crate::scene::render_status::timecode(left)));
+                    println!("Fra:{frame} | Time:{}{left} | Sample {done}/{target}", crate::scene::render_status::timecode(elapsed));
+                };
+                let (pixel, taken) = still(&objects, plan.look, plan.camera, plan.w, plan.h, plan.samples, plan.denoise, plan.glow, plan.adapt, plan.time_limit, report)
+                    // The tracer's own reason (`render_job::note_failure`), not a
+                    // guess: headless has no Info editor and no journal, so the
+                    // 2048-sample run of pose 26 ended after 30 minutes having
+                    // printed nothing at all.
+                    .ok_or_else(|| {
+                        crate::scene::render_job::failure()
+                            .unwrap_or_else(|| "no gpu adapter, or a scene that does not fit".to_string())
+                    })?;
+                let drew = shot.elapsed();
+                // Which device drew it, as Blender's `-b` names its Cycles
+                // device: a time means nothing without it (a laptop can hand an
+                // unlisted exe to its integrated GPU).
+                if cost.is_empty()
+                    && let Some(device) = phiray::Gpu::in_use()
+                {
+                    println!("Device: {} | {} | {} {}", device.name, device.kind_label(), device.backend_label(), device.driver);
+                }
+                // Many cameras, one name each; one camera keeps the name asked for.
+                let out = match (views.len() > 1, view) {
+                    (true, Some(camera)) => format!("{}{camera}_", self.out),
+                    _ => self.out.clone(),
+                };
+                let (_, path) = Self::frame_path(&out, frame as i64);
+                image::RgbaImage::from_raw(plan.w, plan.h, pixel)
+                    .ok_or("the pixels do not fill the frame")?
+                    .save(&path)
+                    .map_err(|e| format!("save {}: {e}", path.display()))?;
+                println!("Saved: {}", path.display());
+                cost.push(BFrameCost {
+                    frame,
+                    posed_ms: posed.as_secs_f64() * 1000.0,
+                    drew_ms: drew.as_secs_f64() * 1000.0,
+                    samples: taken,
+                });
             }
-            let (_, path) = Self::frame_path(&self.out, frame as i64);
-            image::RgbaImage::from_raw(plan.w, plan.h, pixel)
-                .ok_or("the pixels do not fill the frame")?
-                .save(&path)
-                .map_err(|e| format!("save {}: {e}", path.display()))?;
-            println!("Saved: {}", path.display());
-            cost.push(BFrameCost {
-                frame,
-                posed_ms: posed.as_secs_f64() * 1000.0,
-                drew_ms: drew.as_secs_f64() * 1000.0,
-                samples: taken,
-            });
         }
         let times: String = cost.iter().map(BFrameCost::line).collect();
         std::fs::write(outdir.join("times.txt"), times).map_err(|e| format!("times: {e}"))?;
