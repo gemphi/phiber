@@ -23,6 +23,8 @@ fn slot(mode: Mode) -> usize {
 
 /// A slice's intended length.
 const SLICE_MS: f64 = 25.0;
+/// The most a sample is cut into.
+const MOST_SLICES: u32 = 16;
 
 impl BSlicer {
     pub fn new() -> Self {
@@ -36,10 +38,15 @@ impl BSlicer {
         (per > 0.0).then(|| per * (w as f64 * h as f64) / 1e6)
     }
 
+    /// A first full-size sample has no time to go by, so it takes the most
+    /// slices: as one dispatch it can outrun the platform's GPU watchdog (two
+    /// seconds on Windows), which resets the driver and loses the device. The
+    /// final render learned this on pose 26 (`stepwise`).
     pub fn slices(&self, mode: Mode, w: u32, h: u32, coarse: BCoarse) -> u32 {
-        match self.predicted_ms(mode, w, h) {
-            Some(ms) if coarse.full() => ((ms / SLICE_MS).ceil() as u32).clamp(1, 16),
-            _ => 1,
+        match (coarse.full(), self.predicted_ms(mode, w, h)) {
+            (false, _) => 1,
+            (true, Some(ms)) => ((ms / SLICE_MS).ceil() as u32).clamp(1, MOST_SLICES),
+            (true, None) => MOST_SLICES,
         }
     }
 
