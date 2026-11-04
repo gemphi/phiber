@@ -230,7 +230,7 @@ impl BHeadlessRender {
             } {
                 let through = crate::scene::motion::cameras_at(&scene, Some(frame)).into_iter().find(|c| Some(c.name.as_str()) == *view);
                 let mut plan = match &through {
-                    Some(camera) => plan_through(&scene, set, &look, plain, Some(frame), camera),
+                    Some(camera) => plan_through(&scene, set, &look, plain, camera),
                     None => plan_at(&scene, set, &look, plain, Some(frame)),
                 }
                 .ok_or("the scene names no camera")?;

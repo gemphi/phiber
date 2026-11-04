@@ -185,12 +185,12 @@ pub fn plan(model: &SceneModel, set: BRenderSet, look: &BRayLook, plain: gpui::H
 /// (Blender renders `cfra`; a still scene stands the same at every frame).
 pub fn plan_at(model: &SceneModel, set: BRenderSet, look: &BRayLook, plain: gpui::Hsla, frame: Option<f32>) -> Option<BRenderPlan> {
     let cam = super::motion::active_camera_at(model, frame)?;
-    plan_through(model, set, look, plain, frame, &cam)
+    plan_through(model, set, look, plain, &cam)
 }
 
 /// [`plan_at`] through a camera of the caller's choosing, so one open scene can
 /// be rendered from many cameras without a second read of the file.
-pub fn plan_through(model: &SceneModel, set: BRenderSet, look: &BRayLook, plain: gpui::Hsla, frame: Option<f32>, cam: &SceneCamera) -> Option<BRenderPlan> {
+pub fn plan_through(model: &SceneModel, set: BRenderSet, look: &BRayLook, plain: gpui::Hsla, cam: &SceneCamera) -> Option<BRenderPlan> {
     let (w, h) = set.resolution.pixels(model);
     let mut camera = camera_of(cam, w, h);
     let focus = focus_on(model, cam);
