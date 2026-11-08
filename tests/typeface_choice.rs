@@ -1,6 +1,7 @@
 //! The typeface is a Preferences choice — *Typography ▸ Family* and *Weight*.
-//! The families are every one found in `assets/phi-fonts` (Phiber, Phi-Soft
-//! Light opened up for the interface, is the default), then the system's, two
+//! The families are every one found in `assets/phi-fonts` (Phi-Pill Open,
+//! Phi-Pill Light with the space inside each letter wider, is the default),
+//! then the system's, two
 //! Mac faces, Inter, and VS Code's four code faces — resolved like every other
 //! style value and applied once at the root.
 
@@ -29,8 +30,9 @@ fn the_folder_families_then_the_systems_each_with_a_stack_and_a_slug_that_round_
             "{family:?} ends on the generic {generic}"
         );
     }
-    assert_eq!(BFontFamily::DEFAULT.label(), "Phiber", "Phi-Soft Light opened up for the interface, which ships in the app");
-    assert!(bundled.contains(&"Phiber"), "and is one of the folder's families: {bundled:?}");
+    assert_eq!(BFontFamily::DEFAULT.label(), "Phi-Pill Open", "Phi-Pill Light opened up inside, which ships in the app");
+    assert!(bundled.contains(&"Phi-Pill Open"), "and is one of the folder's families: {bundled:?}");
+    assert!(bundled.contains(&"Phiber"), "the old default stays a choice: {bundled:?}");
     assert_eq!(BFontFamily::from_slug("comic_sans"), None);
 }
 
@@ -47,7 +49,7 @@ fn the_family_is_a_typography_choice_that_resolves_from_state() {
 
     let defaults = ui_style_defaults(BPaletteName::Sphere);
     let mut state = BState::new();
-    assert_eq!(resolve_ui_style(defaults, &state).typography.family, BFontFamily::DEFAULT, "Phiber until another is chosen");
+    assert_eq!(resolve_ui_style(defaults, &state).typography.family, BFontFamily::DEFAULT, "Phi-Pill Open until another is chosen");
     state.set(&key::TYPOGRAPHY_FAMILY, "menlo");
     assert_eq!(resolve_ui_style(defaults, &state).typography.family, BFontFamily::Menlo);
     state.set(&key::TYPOGRAPHY_FAMILY, "phi_sans");
@@ -55,7 +57,7 @@ fn the_family_is_a_typography_choice_that_resolves_from_state() {
     state.set(&key::TYPOGRAPHY_FAMILY, "papyrus");
     assert_eq!(resolve_ui_style(defaults, &state).typography.family, BFontFamily::DEFAULT, "an unknown face is ignored");
     for palette in BPaletteName::ALL.iter().copied() {
-        assert_eq!(ui_style_defaults(palette).typography.family, BFontFamily::DEFAULT, "{palette:?}: every theme starts on Phiber");
+        assert_eq!(ui_style_defaults(palette).typography.family, BFontFamily::DEFAULT, "{palette:?}: every theme starts on Phi-Pill Open");
     }
 }
 
