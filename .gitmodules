@@ -1,0 +1,3 @@
+[submodule "reference/blender"]
+	path = reference/blender
+	url = https://projects.blender.org/blender/blender.git
