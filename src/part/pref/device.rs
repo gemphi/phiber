@@ -12,7 +12,7 @@ use crate::state::val::V_FALSE;
 use crate::state::{AppKey, BKey as _, BPath, BState, log, rule::BRule};
 use crate::view::BView;
 use crate::view::prim::{BAction, BCard, BControl};
-use phiray::{Gpu, GpuAdapter, GpuAdapters};
+use phiray::{Gpu, GpuAdapter, GpuAdapterList};
 
 /// The Render Devices panel.
 pub struct BRenderDevices;
@@ -34,7 +34,7 @@ impl BRenderDevices {
     fn status() -> String {
         match Gpu::in_use() {
             Some(a) => format!("Drawing on {} - {}, {}, {} MB per binding", a.name, a.kind_label(), a.backend_label(), a.binding >> 20),
-            None if GpuAdapters::all().is_empty() => "No GPU found: the viewport draws on the CPU".to_string(),
+            None if GpuAdapterList::all().is_empty() => "No GPU found: the viewport draws on the CPU".to_string(),
             None => "Opening the device…".to_string(),
         }
     }
@@ -45,7 +45,7 @@ impl BRenderDevices {
     /// over `ctx.gpu`. The file's Cycles setting is not what draws.
     pub fn control(open: BPath, s: &BState) -> crate::view::prim::BCtrl {
         use crate::view::prim::{BCtrl, BCtrlKind, BOption};
-        let found = GpuAdapter::distinct(GpuAdapters::all());
+        let found = GpuAdapter::distinct(GpuAdapterList::all());
         let auto = Gpu::in_use().filter(|_| s.get(AppKey::Gpu).unwrap_or("").is_empty()).or_else(|| GpuAdapter::pick(&found, None).cloned());
         let option = |key: &str, label: String| BOption { key: key.to_string(), label, icon: String::new() };
         let mut options = vec![option("", auto.map_or("Auto".to_string(), |a| format!("Auto - {}", a.name)))];
@@ -60,7 +60,7 @@ impl BRenderDevices {
             return BCard::panel(Self::TITLE).fold(key, false).into();
         }
         let chosen = state.get(AppKey::Gpu).unwrap_or("");
-        let found = GpuAdapter::distinct(GpuAdapters::all());
+        let found = GpuAdapter::distinct(GpuAdapterList::all());
         let best = GpuAdapter::pick(&found, None).map_or(String::new(), |a| format!(" ({})", a.name));
         let mut rows = vec![Self::row(format!("Auto{best}"), chosen.is_empty(), "")];
         rows.extend(found.iter().map(|a| Self::row(format!("{} - {}, {}", a.name, a.kind_label(), a.backend_label()), chosen == a.name, &a.name)));
@@ -81,9 +81,9 @@ impl BRule for BRenderDeviceRule {
         let preferred = (!value.is_empty()).then(|| value.to_string());
         log::push(format!("Render device: {}", preferred.as_deref().unwrap_or("Auto")));
         // Already drawing on the card it would pick: nothing to reopen.
-        let pick = GpuAdapter::pick(GpuAdapters::all(), preferred.as_deref()).cloned();
+        let pick = GpuAdapter::pick(GpuAdapterList::all(), preferred.as_deref()).cloned();
         if pick.is_some() && pick == Gpu::in_use() {
-            return GpuAdapters::prefer(preferred);
+            return GpuAdapterList::prefer(preferred);
         }
         crate::app::offload::offload("phiray.switch", move || {
             Gpu::switch(preferred);
@@ -128,6 +128,6 @@ mod tests {
         let mut shown = Vec::new();
         texts(&BRenderDevices::view(&state), &mut shown);
         assert_eq!(shown[1], "[Use]", "Auto no longer the choice");
-        GpuAdapters::prefer(None);
+        GpuAdapterList::prefer(None);
     }
 }

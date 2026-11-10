@@ -8,7 +8,7 @@
 //! will not fit.
 
 use crate::phiphx::phx::{Phx, SKIN_MIN, SkinJob, Skinner};
-use phiray::kernels::{Pair, Skin, SkinParams};
+use phiray::kernel::{Pair, Skin, SkinParam};
 use phiray::{Gpu, GpuArray, Pass};
 use std::sync::{Arc, Mutex};
 
@@ -142,7 +142,7 @@ impl Skinner for RaySkin {
             let bones = GpuArray::from(gpu, &b.bones);
             let out = GpuArray::from(gpu, &vec![[0.0f32; 4]; count]);
             pass.clear();
-            let params = SkinParams { min: SKIN_MIN, ..Default::default() };
+            let params = SkinParam { min: SKIN_MIN, ..Default::default() };
             let bufs = [rest.buffer(), offsets.buffer(), pairs.buffer(), bones.buffer(), out.buffer()];
             pass.add::<Skin>(gpu, count as u32, params, &bufs);
             pass.run(gpu);

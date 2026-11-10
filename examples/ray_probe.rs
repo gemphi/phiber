@@ -16,7 +16,7 @@
 
 use glam::Mat4;
 use phiphx::scene::{SceneCamera, SceneCollection, SceneModel};
-use phiray::{AREA_DISK, AREA_ELLIPSE, AREA_RECT, AREA_SQUARE, Camera, LIGHTS, Light, Mat, Mode, Ray, Scene, Tracer, Tri};
+use phiray::{AREA_DISK, AREA_ELLIPSE, AREA_RECT, AREA_SQUARE, Camera, MAX_LIGHT, Light, Mat, Mode, Ray, Scene, Tracer, Tri};
 use std::collections::HashSet;
 
 fn camera_of(cam: &SceneCamera, w: u32, h: u32) -> Camera {
@@ -109,7 +109,7 @@ fn lamps(model: &SceneModel) -> Vec<Light> {
             }
         })
         .filter(|l| l.color.iter().any(|c| *c > 0.0))
-        .take(LIGHTS)
+        .take(MAX_LIGHT)
         .collect()
 }
 

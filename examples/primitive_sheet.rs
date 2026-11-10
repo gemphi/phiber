@@ -5,7 +5,7 @@
 //!   cargo run --release -p phiber --example primitive_sheet -- OUT.png [samples]
 
 use phiphx::spatial::{PhiQuiMeshType, SpatialObject3D};
-use phiray::{Camera, LIGHTS, Light, Mat, Mode, Ray, Scene, Tracer, Tri};
+use phiray::{Camera, MAX_LIGHT, Light, Mat, Mode, Ray, Scene, Tracer, Tri};
 
 const W: u32 = 1200;
 const H: u32 = 580;
@@ -105,7 +105,7 @@ fn main() {
     // is drawn at the same size and nothing is foreshortened.
     let pitch = 10f32.to_radians();
     let (sp, cp) = pitch.sin_cos();
-    let mut lights = [Light::default(); LIGHTS];
+    let mut lights = [Light::default(); MAX_LIGHT];
     lights[0] = Light { pos: [6.0, 9.0, 8.0], kind: 1, color: [900.0, 880.0, 840.0], size: 2.0, ..Default::default() };
     lights[1] = Light { pos: [-9.0, 5.0, 4.0], kind: 1, color: [300.0, 330.0, 420.0], size: 3.0, ..Default::default() };
     let cam = Camera {

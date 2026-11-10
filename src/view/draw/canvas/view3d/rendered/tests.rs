@@ -69,7 +69,7 @@ fn fixture_renders_through_phiray() {
         cam.film[0] = 1;
         let t = web_time::Instant::now();
         let mut px = tracer.render(&gpu, cam, w, h).0;
-        for _ in 1..phiray::Tracer::SAMPLES {
+        for _ in 1..phiray::Tracer::SAMPLE_COUNT {
             px = tracer.render(&gpu, cam, w, h).0;
         }
         eprintln!("{name}: {count} tris, {vert} verts, frame {:?}", t.elapsed());
