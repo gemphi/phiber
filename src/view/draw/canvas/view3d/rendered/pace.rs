@@ -4,6 +4,7 @@
 
 use super::coarse::BCoarse;
 use phiray::Mode;
+use phiray::gpu::Time;
 use std::time::Duration;
 use web_time::Instant;
 
@@ -64,6 +65,8 @@ pub(super) struct BTally {
     samples: u32,
     pub abandoned: u32,
     traced: Duration,
+    /// Recording and submitting, apart from the GPU's time in 	raced.
+    submit: Duration,
     read: Duration,
     slowest: Duration,
     full: u32,
@@ -73,23 +76,28 @@ impl BTally {
     const EVERY: u32 = 64;
 
     pub fn new() -> Self {
-        Self { since: Instant::now(), samples: 0, abandoned: 0, traced: Duration::ZERO, read: Duration::ZERO, slowest: Duration::ZERO, full: 0 }
+        Self { since: Instant::now(), samples: 0, abandoned: 0, traced: Duration::ZERO, submit: Duration::ZERO, read: Duration::ZERO, slowest: Duration::ZERO, full: 0 }
     }
 
-    pub fn sample(&mut self, traced: Duration, read: Duration, full: bool, w: u32, h: u32, mode: Mode) {
+    /// One sample: its GPU and submit times (`Tracer::time`) and the copy
+    /// that read it back, which is only the copy now the sample is waited for.
+    pub fn sample(&mut self, time: Time, read: Duration, full: bool, w: u32, h: u32, mode: Mode) {
+        let traced = time.gpu;
         self.samples += 1;
         self.traced += traced;
+        self.submit += time.submit;
         self.read += read;
         self.slowest = self.slowest.max(traced);
         self.full += u32::from(full);
         if self.samples >= Self::EVERY {
             let ms = |d: Duration| d.as_secs_f64() * 1000.0;
             crate::app::journal::BJournal::note(format!(
-                "Tracer: {} samples in {:.1}s ({mode:?}, {w}×{h} at full size, {} of them full) — trace {:.0}ms average, slowest {:.0}ms, readback {:.0}ms average, {} abandoned for a newer view",
+                "Tracer: {} samples in {:.1}s ({mode:?}, {w}×{h} at full size, {} of them full) — GPU {:.0}ms average (submit {:.1}ms), slowest {:.0}ms, readback {:.0}ms average, {} abandoned for a newer view",
                 self.samples,
                 self.since.elapsed().as_secs_f64(),
                 self.full,
                 ms(self.traced) / f64::from(self.samples),
+                ms(self.submit) / f64::from(self.samples),
                 ms(self.slowest),
                 ms(self.read) / f64::from(self.samples),
                 self.abandoned
