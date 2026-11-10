@@ -134,7 +134,7 @@ pub(super) fn run(gpu: Gpu, rx: Receiver<BRayJob>, out: Arc<Mutex<Option<BRayFra
         if !posted.newer_than(key, scene_key) {
             coarse.next();
         }
-        // Read back early samples, then every 4th (readback is the slow part).
+        // Read back early samples, then every 4th (a shown frame costs a copy, a CPU swap and an upload).
         if skip {
             tally.sample(time, Duration::ZERO, coarse.full(), full_w, full_h, mode);
             continue;
