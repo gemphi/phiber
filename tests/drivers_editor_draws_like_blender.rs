@@ -6,7 +6,7 @@
 //! of the time editors' furniture: no frame range, no playhead.
 
 use gpui::{TestAppContext, px, size};
-use phiber::phiphx::blend::BFCurve;
+use phiber::phiphx::device::blend::BFCurve;
 use phiber::phiphx::scene::{SceneDriverList, SceneModel};
 use phiber::app::BPhiberApp;
 use phiber::host::BHostType;

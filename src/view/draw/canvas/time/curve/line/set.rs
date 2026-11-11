@@ -5,7 +5,7 @@
 use super::super::super::BTimeView;
 use super::super::BDrawnCurve;
 use super::BCurveLine;
-use crate::phiphx::blend::FLAG_PROTECTED;
+use crate::phiphx::device::blend::FLAG_PROTECTED;
 use crate::theme::BAnimColors;
 use gpui::{Bounds, PathBuilder, Pixels, Window, point, px};
 

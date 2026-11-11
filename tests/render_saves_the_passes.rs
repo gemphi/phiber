@@ -7,7 +7,7 @@
 
 use phiber::scene::render_job::BRenderShot;
 use phiber::scene::render_save::{BSaveKind, kind_of, save_to, written_pass};
-use phiphx::blend::{BPassKind, BlendImageFormat, BlendOutput, BlendPassSet};
+use phiphx::device::blend::{BPassKind, BlendImageFormat, BlendOutput, BlendPassSet};
 use std::collections::BTreeSet;
 
 /// A 2 × 2 render with every pass the tracer can produce.

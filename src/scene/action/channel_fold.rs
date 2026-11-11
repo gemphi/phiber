@@ -62,7 +62,7 @@ impl BRule for BChannelFoldRule {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::blend::{BFCurve, BKey, IPO_BEZ};
+    use crate::phiphx::device::blend::{BFCurve, BKey, IPO_BEZ};
     use crate::phiphx::scene::{SceneAction, SceneModel};
     use crate::state::CtxKey;
     use crate::state::action::apply_action;

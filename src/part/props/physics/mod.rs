@@ -23,7 +23,7 @@ mod soft;
 use super::prop::*;
 use super::set::BSectionSpec;
 use super::set::sec;
-use crate::phiphx::blend::physics::BlendPhysics;
+use crate::phiphx::device::blend::physics::BlendPhysics;
 use crate::state::{BState, ButsKey, val::BValue};
 
 static ADD: &[BPropSpec] = &[e(

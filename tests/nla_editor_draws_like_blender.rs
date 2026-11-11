@@ -5,7 +5,7 @@
 //! boxes from `strip.start` to `strip.end`.
 
 use gpui::{TestAppContext, px, size};
-use phiber::phiphx::blend::{BNlaStrip, BNlaTrack, BlendNla, EXTEND_HOLD, STRIP_MUTED, STRIP_SELECT};
+use phiber::phiphx::device::blend::{BNlaStrip, BNlaTrack, BlendNla, EXTEND_HOLD, STRIP_MUTED, STRIP_SELECT};
 use phiber::phiphx::scene::{SceneAction, SceneModel};
 use phiber::app::BPhiberApp;
 use phiber::host::BHostType;

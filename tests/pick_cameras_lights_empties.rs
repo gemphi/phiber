@@ -4,7 +4,7 @@
 //! origin selects it. Over the factory scene (`make_parented.py`).
 
 use gpui::{Modifiers, MouseButton, MouseDownEvent, MouseUpEvent, Point, TestAppContext, point, px, size};
-use phiber::phiphx::blend::BlendFile;
+use phiber::phiphx::device::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
 use phiber::app::BPhiberApp;
 use phiber::scene::camera::setup_from_state;

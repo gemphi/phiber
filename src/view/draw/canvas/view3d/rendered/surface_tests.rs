@@ -1,7 +1,7 @@
 //! `surface.rs`'s tests: a Mix Shader as two materials, and the procedural
 //! textures landing in the tracer's slots.
 
-use crate::phiphx::blend::shade::surface::BlendMix;
+use crate::phiphx::device::blend::shade::surface::BlendMix;
 use crate::phiphx::scene::{SceneBsdf, SceneCornerList, SceneMaterial, SceneMesh, SceneNormalList};
 use crate::scene::{BObject3D, BShading};
 use gpui::white;
@@ -56,7 +56,7 @@ fn a_mix_shader_is_two_materials_and_a_weight() {
 /// the ramp one 256 × 1 image in the atlas; Workbench reads none.
 #[test]
 fn procedural_textures_land_in_the_lobes_slots() {
-    use crate::phiphx::blend::shade::procedural::{BlendBump, BlendProc, BlendProcCoord, BlendProcKind, BlendProcedural};
+    use crate::phiphx::device::blend::shade::procedural::{BlendBump, BlendProc, BlendProcCoord, BlendProcKind, BlendProcedural};
     let noise = BlendProc { kind: BlendProcKind::NoiseFac, coords: BlendProcCoord::Object, location: [0.1, 0.2, 0.0], scale3: [2.0, 2.0, 1.0], scale: 8.0, detail: 3.0, roughness: 0.6, lacunarity: 2.5, distortion: 0.0, normalize: true, variant: 1, ramp: Some(vec![200; 256 * 4]), ..Default::default() };
     let voronoi = BlendProc { kind: BlendProcKind::VoronoiDistance, coords: BlendProcCoord::Generated, scale: 12.0, distortion: 0.7, normalize: false, ramp: None, ..noise };
     let fac = BlendProc { ramp: None, ..noise };
@@ -100,7 +100,7 @@ fn procedural_textures_land_in_the_lobes_slots() {
 /// them: the kind, the colours, the mortar, the offset and squash.
 #[test]
 fn a_bricks_settings_reach_its_slot() {
-    use crate::phiphx::blend::shade::procedural::{BlendProc, BlendProcKind};
+    use crate::phiphx::device::blend::shade::procedural::{BlendProc, BlendProcKind};
     let brick = BlendProc { kind: BlendProcKind::BrickColor, scale: 5.0, scale3: [1.0; 3], colors: [[0.8; 3], [0.2; 3], [0.1, 0.0, 0.0]], smoothness: 0.05, exponent: 0.1, width: 0.5, height: 0.25, offset: 0.3, direction: 3, gain: 0.8, rings: 4, ..Default::default() };
     let mut material = SceneMaterial::neutral();
     material.procedural.base = Some(brick);

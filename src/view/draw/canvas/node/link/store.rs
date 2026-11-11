@@ -8,7 +8,7 @@
 //! Blender's link operator does: it commits its whole `nldrag.links` at once.
 
 use super::BLinkEnd;
-use crate::phiphx::blend::shade::graph::BlendNodeLink;
+use crate::phiphx::device::blend::shade::graph::BlendNodeLink;
 
 /// The links added and removed on top of the file's own, for one host.
 #[derive(Clone, Debug, Default, PartialEq)]

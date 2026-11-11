@@ -9,7 +9,7 @@
 //! background render takes (`cli::open`).
 
 use super::play::{convert, demo};
-use crate::phiphx::blend::AREA_ENERGY_SCALE;
+use crate::phiphx::device::blend::AREA_ENERGY_SCALE;
 use crate::phiphx::scene::{SceneCollection, SceneLight, SceneModel};
 use glam::{Mat3, Mat4, Quat, Vec2, Vec3};
 use phiplay::build::footwear::pair;

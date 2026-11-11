@@ -172,7 +172,7 @@ mod tests {
     #[test]
     fn home_frames_the_keys_shown() {
         let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../phiphx/tests/fixtures/actions.blend");
-        let scene = crate::phiphx::blend::BlendFile::parse_bytes(&std::fs::read(&path).unwrap()).unwrap().extract_scene().unwrap();
+        let scene = crate::phiphx::device::blend::BlendFile::parse_bytes(&std::fs::read(&path).unwrap()).unwrap().extract_scene().unwrap();
         crate::scene::source::set_loaded_scene(Some(crate::phiphx::scene::SceneModel::from_blend_owned(scene, &path.to_string_lossy())));
         let mut s = BState::default();
         BTimeCur::note_width(BHostType::Action, 1000.0);

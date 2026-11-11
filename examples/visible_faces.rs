@@ -5,8 +5,8 @@ use phiber::state::BState;
 fn main() {
     let path = std::env::args().nth(1).expect("path");
     let bytes = std::fs::read(&path).expect("read");
-    let file = phiphx::blend::BlendFile::parse_bytes(&bytes).expect("parse");
-    let blend: phiphx::blend::BlendScene = file.extract_scene().expect("scene");
+    let file = phiphx::device::blend::BlendFile::parse_bytes(&bytes).expect("parse");
+    let blend: phiphx::device::blend::BlendScene = file.extract_scene().expect("scene");
     let model = phiphx::scene::SceneModel::from_blend_owned(blend, &path);
     let mut s = BState::new();
     phiber::app::seed::seed_view_layer(&mut s, &model);

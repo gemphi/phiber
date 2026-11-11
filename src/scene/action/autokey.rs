@@ -22,7 +22,7 @@ use super::BSceneActions;
 use super::keying::BKeyNow;
 use super::keys::{BKeyInsert, BKeyed};
 use super::retime::BKeyStep;
-use crate::phiphx::blend::BFCurve;
+use crate::phiphx::device::blend::BFCurve;
 use crate::scene::edit::BSceneEdit;
 use crate::scene::transform::BTransforms;
 use crate::scene::xform::BTransformMode;

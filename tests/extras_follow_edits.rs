@@ -6,7 +6,7 @@
 //! Hand to Arm (`tests/fixtures/make_parented.py`).
 
 use glam::Vec3;
-use phiber::phiphx::blend::BlendFile;
+use phiber::phiphx::device::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
 use phiber::scene::camera::BViewSetup;
 use phiber::scene::extra::{BExtraKind, scene_extras_now};

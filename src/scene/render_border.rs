@@ -9,7 +9,7 @@
 //! the file (`ctx.scene.render_border`, `xmin,xmax,ymin,ymax`), stepped by
 //! Undo with the other scene edits and written back on save.
 
-use crate::phiphx::blend::BlendRenderBorder;
+use crate::phiphx::device::blend::BlendRenderBorder;
 use crate::state::{BKey as _, BPath, BState, ButsKey, ImageKey, OpKey, SceneKey, View3dKey, log, rule::BRule, val::{BValue, BValueKind, V_TRUE}};
 
 /// What the state holds over the file's region.

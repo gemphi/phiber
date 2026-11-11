@@ -49,7 +49,7 @@ pub mod view;
 pub mod wire;
 
 use super::super::ctx::BRenderCtx;
-use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph};
+use crate::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeGraph};
 use crate::state::CtxKey;
 use crate::theme::palette::BColor;
 use gpui::AnyElement;

@@ -23,7 +23,7 @@ pub mod duplicate;
 pub mod rule;
 pub mod store;
 
-use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeLink};
+use crate::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeLink};
 pub use catalog::{BAddCategory, BAddSocket, BNodeDecl, BShaderNode, CATALOG, find, search, search_offering};
 pub use store::{additions_of, decode, encode, pending_of};
 

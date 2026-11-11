@@ -6,7 +6,7 @@
 //! so the viewport draws it following.
 
 use gpui::{TestAppContext, px, size};
-use phiber::phiphx::blend::BlendFile;
+use phiber::phiphx::device::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
 use phiber::app::BPhiberApp;
 use phiber::scene::{BObject3D, scene_objects};

@@ -54,5 +54,5 @@ async fn the_magnet_snaps_a_scrub_to_a_marker_and_ctrl_flips_it(cx: &mut TestApp
 
     // What a save writes.
     let saved = app.read_with(cx, |a, _| settings::now(&a.state));
-    assert!(saved.snap_playhead && saved.snap_to & phiber::phiphx::blend::SCE_SNAP_TO_MARKERS != 0);
+    assert!(saved.snap_playhead && saved.snap_to & phiber::phiphx::device::blend::SCE_SNAP_TO_MARKERS != 0);
 }

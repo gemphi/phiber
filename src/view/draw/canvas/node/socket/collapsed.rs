@@ -13,8 +13,8 @@
 //! exclusion for a collapsed node exactly as Blender does).
 
 use super::{BSocketRow, BSocketSide, HALF};
-use crate::phiphx::blend::shade::graph::BlendNode;
-use crate::phiphx::blend::shade::socket::BlendSocket;
+use crate::phiphx::device::blend::shade::graph::BlendNode;
+use crate::phiphx::device::blend::shade::socket::BlendSocket;
 
 /// `BASIS_RAD` — `0.2 * widget_unit`, the card's corner radius, which is also
 /// the padding a collapsed node's pill carries above and below its sockets.
@@ -100,7 +100,7 @@ pub fn collapsed_rows(node: &BlendNode) -> Vec<BSocketRow> {
 mod tests {
     use super::super::rows;
     use super::*;
-    use crate::phiphx::blend::shade::socket::BlendSocket;
+    use crate::phiphx::device::blend::shade::socket::BlendSocket;
 
     fn sock(identifier: &str, kind: i32, flag: i32) -> BlendSocket {
         BlendSocket { identifier: identifier.into(), name: identifier.into(), kind, flag, ..Default::default() }
@@ -121,7 +121,7 @@ mod tests {
         BlendNode {
             inputs,
             outputs,
-            flag: crate::phiphx::blend::shade::graph::NODE_COLLAPSED,
+            flag: crate::phiphx::device::blend::shade::graph::NODE_COLLAPSED,
             ..Default::default()
         }
     }
@@ -188,7 +188,7 @@ mod tests {
     fn a_hidden_socket_takes_no_room_in_a_pill_either() {
         // `socket->is_visible()` gates the count in `node_update_collapsed` exactly
         // as it gates the walk in `node_update_basis`.
-        use crate::phiphx::blend::shade::socket::{SOCK_HIDDEN, SOCK_UNAVAIL};
+        use crate::phiphx::device::blend::shade::socket::{SOCK_HIDDEN, SOCK_UNAVAIL};
         let mut outputs = socks(4);
         outputs[1].flag = SOCK_HIDDEN;
         outputs[2].flag = SOCK_UNAVAIL;

@@ -4,7 +4,7 @@
 //! why they sit apart from the click rules in `mod.rs`.
 
 use super::BNodeSelection;
-use crate::phiphx::blend::shade::graph::BlendNode;
+use crate::phiphx::device::blend::shade::graph::BlendNode;
 
 /// Whether two rectangles touch — `BLI_rctf_isect`.
 ///

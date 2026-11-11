@@ -15,7 +15,7 @@ use std::path::PathBuf;
 fn model() -> Option<SceneModel> {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../phiphx/tests/fixtures/DEPTH-OF-FIELD.blend");
     let bytes = std::fs::read(&path).ok()?;
-    let blend = phiber::phiphx::blend::BlendFile::parse_bytes(&bytes).ok()?.extract_scene().ok()?;
+    let blend = phiber::phiphx::device::blend::BlendFile::parse_bytes(&bytes).ok()?.extract_scene().ok()?;
     Some(SceneModel::from_blend_owned(blend, &path.to_string_lossy()))
 }
 

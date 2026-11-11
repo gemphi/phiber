@@ -22,7 +22,7 @@
 //! it, which is the whole point of the constant and is lost on anyone who
 //! substitutes 0.5.
 
-use crate::phiphx::blend::shade::socket::{
+use crate::phiphx::device::blend::shade::socket::{
     SOCK_DISPLAY_SHAPE_CIRCLE, SOCK_DISPLAY_SHAPE_CIRCLE_DOT, SOCK_DISPLAY_SHAPE_DIAMOND,
     SOCK_DISPLAY_SHAPE_DIAMOND_DOT, SOCK_DISPLAY_SHAPE_LINE, SOCK_DISPLAY_SHAPE_LIST,
     SOCK_DISPLAY_SHAPE_SQUARE, SOCK_DISPLAY_SHAPE_SQUARE_DOT, SOCK_DISPLAY_SHAPE_VOLUME_GRID,

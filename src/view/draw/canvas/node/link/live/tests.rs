@@ -2,8 +2,8 @@
 //! read budget (`level_structure`), the way `canvas/time/row/` is.
 
 use super::*;
-use crate::phiphx::blend::shade::graph::BlendNode;
-use crate::phiphx::blend::shade::socket::BlendSocket;
+use crate::phiphx::device::blend::shade::graph::BlendNode;
+use crate::phiphx::device::blend::shade::socket::BlendSocket;
 
 fn input(identifier: &str) -> BlendSocket {
     BlendSocket { identifier: identifier.into(), name: identifier.into(), limit: 1, ..Default::default() }

@@ -16,7 +16,7 @@ use super::super::plan::BCardSize;
 use super::super::view::node_bounds;
 use super::super::{frame, link, select, socket};
 use super::set::BSolidSpec;
-use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
+use crate::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
 use crate::theme::{BNodeClass, class_of};
 
 /// One node's footprint and height.

@@ -5,7 +5,7 @@
 
 pub mod set;
 
-use crate::phiphx::blend::{BNlaStrip, BNlaTrack, EXTEND_HOLD, EXTEND_HOLD_FORWARD, STRIP_CLIP};
+use crate::phiphx::device::blend::{BNlaStrip, BNlaTrack, EXTEND_HOLD, EXTEND_HOLD_FORWARD, STRIP_CLIP};
 
 /// `nla_draw_strip`: the faint backdrop before the first strip and the
 /// less faint one after each strip, when it holds.
@@ -74,7 +74,7 @@ impl<'a> BTrackStrips<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::blend::EXTEND_NOTHING;
+    use crate::phiphx::device::blend::EXTEND_NOTHING;
 
     fn strip(start: f32, end: f32, repeat: f32, extend: u32) -> BNlaStrip {
         BNlaStrip { name: "Walk".into(), start, end, actstart: 1.0, actend: 49.0, repeat, scale: 1.0, kind: STRIP_CLIP, extend, ..Default::default() }

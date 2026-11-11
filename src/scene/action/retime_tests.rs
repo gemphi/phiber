@@ -1,6 +1,6 @@
 use super::*;
 use super::super::keys::BKeyed;
-use crate::phiphx::blend::{BFCurve, BlendActionSlot};
+use crate::phiphx::device::blend::{BFCurve, BlendActionSlot};
 
 fn action() -> SceneAction {
     // Two slots: the Cube's two curves keyed at 1, 10, 20; the Camera's

@@ -11,7 +11,7 @@
 //! whole (`nla.rs`), so Undo steps them and a save writes them.
 
 use super::BSceneActions;
-use crate::phiphx::blend::{BNlaPick, BNlaStackList, BlendNla};
+use crate::phiphx::device::blend::{BNlaPick, BNlaStackList, BlendNla};
 use crate::phiphx::scene::SceneModel;
 use crate::state::{BKey as _, BPath, BState, CtxKey, OpKey, log, rule::BRule};
 

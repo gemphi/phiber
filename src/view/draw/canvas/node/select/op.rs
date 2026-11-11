@@ -64,7 +64,7 @@ fn all_of(names: &[&str], cur: &BNodeSelection) -> BNodeSelection {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph};
+    use crate::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeGraph};
     use crate::phiphx::scene::{SceneCornerList, SceneMaterial, SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::state::CtxKey;
 

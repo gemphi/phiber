@@ -9,7 +9,7 @@
 //! (`settings::key`) and go to `ToolSettings` on save.
 
 use super::settings::{BPlayToggle, key};
-use crate::phiphx::blend::{BlendPlayback, SCE_SNAP_TO_FRAME, SCE_SNAP_TO_KEYS, SCE_SNAP_TO_MARKERS, SCE_SNAP_TO_SECOND, SCE_SNAP_TO_STRIPS};
+use crate::phiphx::device::blend::{BlendPlayback, SCE_SNAP_TO_FRAME, SCE_SNAP_TO_KEYS, SCE_SNAP_TO_MARKERS, SCE_SNAP_TO_SECOND, SCE_SNAP_TO_STRIPS};
 use crate::state::key::{float_or, int_or};
 use crate::state::{BState, CtxKey, val::{BValue, BValueKind}};
 

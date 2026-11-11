@@ -2,7 +2,7 @@
 //! 240-line read cap (`tests/level_structure.rs`).
 
 use super::*;
-use crate::phiphx::blend::{BFCurve, BKey, BlendActionSlot};
+use crate::phiphx::device::blend::{BFCurve, BKey, BlendActionSlot};
 use crate::phiphx::scene::SceneAction;
 
 fn curve_at(frames: &[f32]) -> BFCurve {
@@ -65,7 +65,7 @@ fn a_menu_value_names_its_shape() {
 /// no value and no interpolation — the type only picks how a key is drawn.
 #[test]
 fn keyframe_type_is_set_only_on_the_named_keys_and_changes_nothing_else() {
-    use crate::phiphx::blend::{KEYTYPE_BREAKDOWN, KEYTYPE_KEYFRAME};
+    use crate::phiphx::device::blend::{KEYTYPE_BREAKDOWN, KEYTYPE_KEYFRAME};
     let mut actions = action_with(&[1.0, 5.0, 9.0]);
     let before: Vec<[f32; 2]> = actions[0].curves[0].keys.iter().map(|k| k.co).collect();
     reshape(vec![5.0], BKeyShape { keytype: Some(KEYTYPE_BREAKDOWN), ..Default::default() }).apply(&mut actions);
@@ -82,7 +82,7 @@ fn keyframe_type_is_set_only_on_the_named_keys_and_changes_nothing_else() {
 /// existed (three fields) still reads — it just leaves the type alone.
 #[test]
 fn the_mark_round_trips_the_keyframe_type_and_tolerates_a_three_field_one() {
-    use crate::phiphx::blend::KEYTYPE_JITTER;
+    use crate::phiphx::device::blend::KEYTYPE_JITTER;
     let shape = BKeyShape { ipo: Some(IPO_LIN), keytype: Some(KEYTYPE_JITTER), ..Default::default() };
     let mark = reshape(vec![1.0, 5.0], shape);
     assert_eq!(BKeyReshape::parse(&mark.encode()), Some(mark.clone()));

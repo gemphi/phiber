@@ -9,7 +9,7 @@
 //! when it is not there: "File '…' not found".
 
 use super::render_job::BRenderShot;
-use crate::phiphx::blend::BlendOutput;
+use crate::phiphx::device::blend::BlendOutput;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 

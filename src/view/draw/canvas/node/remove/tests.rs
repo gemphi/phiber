@@ -1,5 +1,5 @@
 use super::*;
-use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeLink};
+use crate::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeLink};
 
 fn node(name: &str) -> BlendNode {
     BlendNode { name: name.to_string(), width: 140.0, ..Default::default() }

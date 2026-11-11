@@ -14,7 +14,7 @@
 //! ladder of `if let`s guessing at the default's shape.
 
 use super::BSocketSide;
-use crate::phiphx::blend::shade::socket::BSocketDefault;
+use crate::phiphx::device::blend::shade::socket::BSocketDefault;
 
 /// Whether this socket draws a value widget: an INPUT, not linked, with a stored
 /// default. Blender draws the default only on unconnected inputs.

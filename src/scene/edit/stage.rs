@@ -15,7 +15,7 @@
 //! It is not a file: nothing is read, and Save still asks for one.
 
 use super::BSceneEdit;
-use crate::phiphx::blend::{BlendMotion, ObjectTransformRaw};
+use crate::phiphx::device::blend::{BlendMotion, ObjectTransformRaw};
 use crate::phiphx::scene::{IDENTITY_M4, SceneCollection, SceneModel, SceneObject, SceneUvMap};
 use crate::scene::{MESH_SCALE, OBJECTS};
 use crate::state::BState;

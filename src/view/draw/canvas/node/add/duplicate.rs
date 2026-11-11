@@ -97,8 +97,8 @@ fn stem(name: &str) -> &str {
 mod tests {
     use super::*;
     use super::super::super::{edit, remove, select};
-    use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph};
-    use crate::phiphx::blend::shade::socket::BSocketDefault;
+    use crate::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeGraph};
+    use crate::phiphx::device::blend::shade::socket::BSocketDefault;
     use crate::phiphx::scene::{SceneCornerList, SceneMaterial, SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::state::CtxKey;
 

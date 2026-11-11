@@ -1,6 +1,6 @@
 //! What a channel row is.
 
-use crate::phiphx::blend::BNlaTrack;
+use crate::phiphx::device::blend::BNlaTrack;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum BRowKind {

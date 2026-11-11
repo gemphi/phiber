@@ -7,8 +7,8 @@ use super::layout::BSpatialLayout;
 use super::super::plan::{BCardSize, plan};
 use super::super::select::BNodeSelection;
 use super::super::view::BNodeView;
-use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
-use crate::phiphx::blend::shade::socket::BlendSocket;
+use crate::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
+use crate::phiphx::device::blend::shade::socket::BlendSocket;
 
 fn sock(identifier: &str) -> BlendSocket {
     BlendSocket { identifier: identifier.into(), name: identifier.into(), kind: 0, ..Default::default() }
@@ -31,7 +31,7 @@ fn node(name: &str, idname: &str, x: f32, y: f32, inputs: &[&str], outputs: &[&s
 /// the output, which is the smallest graph that has every kind of solid.
 fn graph() -> BlendNodeGraph {
     let mut output = node("Material Output", "ShaderNodeOutputMaterial", 400.0, 100.0, &["Surface"], &[]);
-    output.flag |= crate::phiphx::blend::shade::graph::NODE_DO_OUTPUT;
+    output.flag |= crate::phiphx::device::blend::shade::graph::NODE_DO_OUTPUT;
     BlendNodeGraph {
         nodes: vec![
             node("Image Texture", "ShaderNodeTexImage", -200.0, 140.0, &["Vector"], &["Color", "Alpha"]),

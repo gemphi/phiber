@@ -30,7 +30,7 @@ pub mod modifier;
 pub mod rig;
 pub mod set;
 
-use crate::phiphx::blend::BFCurve;
+use crate::phiphx::device::blend::BFCurve;
 
 /// An identifier whose UI name depends on **which** struct carries it, and
 /// the path fragment that says which.

@@ -5,8 +5,8 @@
 //!
 //! The scene's frames count from 1; the tape's from 0.
 
-use crate::phiphx::blend::rig::{BRig, BRigState};
-use crate::phiphx::blend::{BPlay, ObjectTransformRaw};
+use crate::phiphx::device::blend::rig::{BRig, BRigState};
+use crate::phiphx::device::blend::{BPlay, ObjectTransformRaw};
 use glam::{Quat, Vec3};
 use phiplay::build::board::BSlot;
 use phiplay::play::BTape;

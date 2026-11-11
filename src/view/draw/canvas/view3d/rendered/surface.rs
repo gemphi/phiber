@@ -86,8 +86,8 @@ impl BSurface<'_> {
         let Some(m) = self.slot else { return tri };
         // A baked single image's Mapping lands on the UVs here, so a
         // pattern tiled across a floor tiles on the mesh too
-        // (`phiphx::blend::shade::bake`).
-        let uvs = m.uv_affine.map_or(self.uvs, |a| self.uvs.map(|uv| crate::phiphx::blend::shade::bake::apply(a, uv)));
+        // (`phiphx::device::blend::shade::bake`).
+        let uvs = m.uv_affine.map_or(self.uvs, |a| self.uvs.map(|uv| crate::phiphx::device::blend::shade::bake::apply(a, uv)));
         let mut add = |t: &SceneTexture| *ids.entry(std::sync::Arc::as_ptr(&t.rgba)).or_insert_with(|| out.atlas.add_bounded(t.width, t.height, &t.rgba, TEXTURE_LIMIT));
         if let (Some(tex), true) = (m.texture.as_ref(), self.has_base_image()) {
             // A baked texture carries the whole base colour; the folded
@@ -142,7 +142,7 @@ impl BSurface<'_> {
     /// The Mix Shader's factor onto the first lobe. One slot holds the
     /// colour texture: the same texture on both drives both; two different
     /// ones leave the weight at its folded constant.
-    fn mixed(&self, mix: &crate::phiphx::blend::shade::surface::BlendMix, tri: Tri, out: &mut Scene, ids: &mut BAtlasIds) -> Tri {
+    fn mixed(&self, mix: &crate::phiphx::device::blend::shade::surface::BlendMix, tri: Tri, out: &mut Scene, ids: &mut BAtlasIds) -> Tri {
         let Some(m) = self.shaded() else { return tri };
         let Some(fac) = m.procedural.mix.as_ref() else { return tri };
         let target = match (&m.procedural.base, mix.principled) {

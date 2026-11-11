@@ -114,7 +114,7 @@ mod tests {
     fn a_file_opens_with_its_view_s_overlays() {
         // `truth/blender_overlays.py` set each switch away from its default.
         let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../phiphx/tests/fixtures/overlays.blend");
-        let scene = crate::phiphx::blend::BlendFile::parse_bytes(&std::fs::read(&path).unwrap()).unwrap().extract_scene().unwrap();
+        let scene = crate::phiphx::device::blend::BlendFile::parse_bytes(&std::fs::read(&path).unwrap()).unwrap().extract_scene().unwrap();
         let model = SceneModel::from_blend_owned(scene, &path.to_string_lossy());
         let mut s = BState::default();
         apply_view(&mut s, model.ui.view.as_ref().expect("the Layout view"));

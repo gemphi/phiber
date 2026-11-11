@@ -85,7 +85,7 @@ fn hsv_and_rgb_round_trip() {
 
 #[test]
 fn a_node_socket_colour_is_written_into_the_editors_value_overlay() {
-    use crate::phiphx::blend::shade::socket::BSocketDefault;
+    use crate::phiphx::device::blend::shade::socket::BSocketDefault;
     use crate::view::draw::canvas::node::edit::{BValueEdits, decode};
     // An overlay already holding another socket's edit keeps it.
     let mut edits = BValueEdits::default();

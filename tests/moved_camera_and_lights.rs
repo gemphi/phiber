@@ -6,7 +6,7 @@
 //! Light parented to the Cube (`tests/fixtures/make_parented.py`).
 
 use gpui::{TestAppContext, px, size};
-use phiber::phiphx::blend::BlendFile;
+use phiber::phiphx::device::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
 use phiber::app::BPhiberApp;
 use phiber::scene::motion::{active_camera_at, scoped_frame};

@@ -6,7 +6,7 @@
 
 use std::path::PathBuf;
 
-use phiber::phiphx::blend::BlendFile;
+use phiber::phiphx::device::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
 use phiber::part::outliner::tree::{BRowKind, flatten};
 use phiber::scene::source::set_loaded_scene;

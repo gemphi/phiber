@@ -11,7 +11,7 @@
 //! `blender_opens_saves` has Blender read such a stack back.
 
 use gpui::{Modifiers, TestAppContext, px, size};
-use phiber::phiphx::blend::{BlendFile, STRIP_ACTIVE, STRIP_MUTED, STRIP_SELECT, TRACK_ACTIVE, TRACK_SELECTED};
+use phiber::phiphx::device::blend::{BlendFile, STRIP_ACTIVE, STRIP_MUTED, STRIP_SELECT, TRACK_ACTIVE, TRACK_SELECTED};
 use phiber::phiphx::scene::{SceneModel, SceneNla};
 use phiber::app::BPhiberApp;
 use phiber::host::BHostType;

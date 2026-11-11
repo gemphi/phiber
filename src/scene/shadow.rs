@@ -8,7 +8,7 @@
 //! (`BlendShadowCast::casts_in`) and a save writes both bits back.
 
 use super::BObject3D;
-use crate::phiphx::blend::BlendShadowCast;
+use crate::phiphx::device::blend::BlendShadowCast;
 use crate::state::{BKey as _, BPath, BState, ButsKey, CtxKey, SceneKey, rule::BRule, val::{BValue, BValueKind}};
 
 /// The panel's two checkboxes, and the keys they are drawn from:

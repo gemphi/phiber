@@ -92,7 +92,7 @@ fn lamps(model: &SceneModel) -> Vec<Light> {
                 (_, true) => (m.x_axis.truncate().normalize_or_zero().to_array(), l.size, 0.0),
                 _ => ([0.0; 3], l.size, 0.0),
             };
-            let energy = if area { l.energy / phiphx::blend::AREA_ENERGY_SCALE } else { l.energy };
+            let energy = if area { l.energy / phiphx::device::blend::AREA_ENERGY_SCALE } else { l.energy };
             let shape = match l.shape.as_str() { "RECTANGLE" => AREA_RECT, "DISK" => AREA_DISK, "ELLIPSE" => AREA_ELLIPSE, _ => AREA_SQUARE };
             Light {
                 pos: m.w_axis.truncate().to_array(),

@@ -24,7 +24,7 @@
 //! over changed curves cleans what those curves then hold, as Blender's
 //! would.
 
-use crate::phiphx::blend::{BFCurve, BKey};
+use crate::phiphx::device::blend::{BFCurve, BKey};
 use crate::phiphx::scene::SceneAction;
 
 /// A clean's head mark: `%action#slot#frames=threshold,channels`.

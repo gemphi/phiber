@@ -97,7 +97,7 @@ fn save_as_opens_where_output_points_and_writes_that_format() {
     let mut state = a_state_pointing_at(&folder, "OPEN_EXR");
 
     // The panel round-trips: what the state holds reads back as an EXR.
-    assert_eq!(output_set(&state).format, phiphx::blend::BlendImageFormat::OpenExr);
+    assert_eq!(output_set(&state).format, phiphx::device::blend::BlendImageFormat::OpenExr);
     assert_eq!(output_set(&state).depth, 32);
 
     // Image → Save As sets the purpose, which raises the browser at the

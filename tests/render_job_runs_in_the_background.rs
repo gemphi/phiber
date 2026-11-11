@@ -181,7 +181,7 @@ fn a_workbench_file_plans_a_solid_render_from_the_displays_shading() {
     // words — focused where the camera says, the sensor the frame's width.
     model.render.display.solid_fx.dof = true;
     assert_eq!(render_plan(&model, set, &look, plain).unwrap().camera.dof, [0.0; 4], "the camera's depth of field off");
-    model.cameras[0].dof = phiber::phiphx::blend::BlendDof { on: true, fstop: 2.0, focus_distance: 5.0, ..Default::default() };
+    model.cameras[0].dof = phiber::phiphx::device::blend::BlendDof { on: true, fstop: 2.0, focus_distance: 5.0, ..Default::default() };
     let dof = render_plan(&model, set, &look, plain).unwrap().camera.dof;
     assert!((dof[0] - 0.0125 * (0.05 / 4.95)).abs() < 1e-7 && dof[1] == -5.0 && (dof[2] - 1.0 / 0.036).abs() < 1e-3 && dof[3] == -100.0, "{dof:?}");
     assert_eq!(cycles.camera.dof, [0.0; 4], "the path tracer blurs with its own aperture");

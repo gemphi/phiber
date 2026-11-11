@@ -18,8 +18,8 @@ use super::super::plan::BCardSize;
 use super::super::socket::value::BSocketWidget;
 use super::super::socket::{self, BSocketSide, DOT};
 use super::super::view::BNodeView;
-use crate::phiphx::blend::shade::graph::BlendNode;
-use crate::phiphx::blend::shade::socket::BSocketDefault;
+use crate::phiphx::device::blend::shade::graph::BlendNode;
+use crate::phiphx::device::blend::shade::socket::BSocketDefault;
 
 /// A float socket steps by a tenth, an int by one. A simplification: Blender
 /// takes the step from the socket's own `step` and subtype, which phiber does

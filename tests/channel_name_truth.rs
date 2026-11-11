@@ -23,7 +23,7 @@
 //! to be exactly what phiber prints and exactly what Blender showed for one
 //! of the owners. There is no third outcome and nothing is skipped.
 
-use phiber::phiphx::blend::BFCurve;
+use phiber::phiphx::device::blend::BFCurve;
 use phiber::view::draw::canvas::time::row::name::{AMBIGUOUS, OWNED, fcurve_name};
 use std::collections::BTreeSet;
 use std::path::PathBuf;

@@ -19,7 +19,7 @@
 //! are separate functions rather than one with a flag.
 
 use crate::scene::render_job::BRenderShot;
-use phiphx::blend::{BPassKind, BlendImageFormat, BlendOutput, BlendPassSet};
+use phiphx::device::blend::{BPassKind, BlendImageFormat, BlendOutput, BlendPassSet};
 use std::path::{Path, PathBuf};
 
 /// Which write a `BlendOutput` asks for, once its format and depth are read

@@ -11,7 +11,7 @@
 //! own corners — so the click points here are the cube's UVs, not (0, 0).
 
 use gpui::{Modifiers, MouseButton, MouseDownEvent, MouseUpEvent, TestAppContext, px, size};
-use phiber::phiphx::blend::BlendFile;
+use phiber::phiphx::device::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
 use phiber::app::BPhiberApp;
 use phiber::host::BHostType;

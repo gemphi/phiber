@@ -1,7 +1,7 @@
 //! The match's staging: the lamps as lights, the broadcast camera, the
 //! players' colours, the read report — and the demo the figure comes from.
 
-use crate::phiphx::blend::AREA_ENERGY_SCALE;
+use crate::phiphx::device::blend::AREA_ENERGY_SCALE;
 use crate::phiphx::scene::{SceneCamera, SceneLight, SceneMaterial, SceneModel};
 use glam::{Mat4, Quat, Vec3};
 use phiplay::BChoice;

@@ -33,8 +33,8 @@
 //! next socket at all. So a node whose last input is followed by a disabled one
 //! is a tenth of a unit taller than it looks — but it is what Blender draws.
 
-use crate::phiphx::blend::shade::graph::BlendNode;
-use crate::phiphx::blend::shade::socket::{BSocketDefault, BlendSocket};
+use crate::phiphx::device::blend::shade::graph::BlendNode;
+use crate::phiphx::device::blend::shade::socket::{BSocketDefault, BlendSocket};
 
 /// `NODE_DY` — one socket's row.
 pub const ROW: f32 = 1.0;

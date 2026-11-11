@@ -2,14 +2,14 @@
 //! budget (`level_structure`).
 
 use super::*;
-use crate::phiphx::blend::BNlaTrack;
+use crate::phiphx::device::blend::BNlaTrack;
 
 /// The band the tests measure past — Blender's own number, so these stay
 /// readable while the live view takes its height from the theme.
 const SCRUB: f32 = super::super::SCRUB_HEIGHT;
 
 fn action(user: &str, keys: &[f32]) -> SceneAction {
-    let mut curve = crate::phiphx::blend::BFCurve::keyed("location", 0);
+    let mut curve = crate::phiphx::device::blend::BFCurve::keyed("location", 0);
     keys.iter().for_each(|f| curve.insert(*f, 0.0));
     SceneAction { name: format!("{user}Action"), keys: keys.to_vec(), users: vec![user.into()], curves: vec![curve], ..Default::default() }
 }
@@ -43,7 +43,7 @@ fn the_timeline_lists_the_collapsed_summary_alone() {
 
 #[test]
 fn the_nla_lists_the_object_its_action_line_and_its_tracks_last_first() {
-    use crate::phiphx::blend::{BNlaStrip, BlendNla};
+    use crate::phiphx::device::blend::{BNlaStrip, BlendNla};
     let track = |name: &str| BNlaTrack { name: name.into(), flag: 0, strips: vec![BNlaStrip { name: "Walk".into(), start: 1.0, end: 49.0, ..Default::default() }], address: 0 };
     let nla = BlendNla { object: "Cube".into(), action: Some("Idle".into()), extend: 0, flag: 0, tracks: vec![track("Base Layer"), track("Overlay")], ..Default::default() };
     let idle = SceneAction { name: "Idle".into(), keys: vec![10.0, 30.0], users: vec!["Cube".into()], ..Default::default() };
@@ -58,7 +58,7 @@ fn the_nla_lists_the_object_its_action_line_and_its_tracks_last_first() {
     assert_eq!(BTimeRow::nla(&bare, &[])[1].name(), "<No Action>");
 }
 
-use crate::phiphx::blend::BFCurve;
+use crate::phiphx::device::blend::BFCurve;
 
 /// One object with two curves on it.
 fn rig() -> Vec<SceneAction> {
@@ -144,8 +144,8 @@ fn an_open_object_lists_its_groups_and_an_open_group_its_curves() {
     use crate::state::{DopeKey, intern, val::V_TRUE};
     // `animfilter_act_group`: Blender nests a rig's curves under one group a
     // bone (and `Object Transforms`), each summarising its curves' keys.
-    let key = |frame: f32| crate::phiphx::blend::BKey::new([frame, 0.0], [frame, 0.0], [frame, 0.0], 2);
-    let grouped = |path: &str, group: Option<&str>, frames: &[f32]| crate::phiphx::blend::BFCurve {
+    let key = |frame: f32| crate::phiphx::device::blend::BKey::new([frame, 0.0], [frame, 0.0], [frame, 0.0], 2);
+    let grouped = |path: &str, group: Option<&str>, frames: &[f32]| crate::phiphx::device::blend::BFCurve {
         group: group.map(str::to_string),
         ..BFCurve::new(path, 0, frames.iter().map(|&f| key(f)).collect())
     };
@@ -175,12 +175,12 @@ fn an_open_object_lists_its_groups_and_an_open_group_its_curves() {
 /// One action keying a camera object and its camera data through two
 /// slots, the object bound to the first.
 fn camera_action() -> SceneAction {
-    let key = |frame: f32| crate::phiphx::blend::BKey::new([frame, 0.0], [frame, 0.0], [frame, 0.0], 2);
-    let curve = |path: &str, group: &str, frames: &[f32]| crate::phiphx::blend::BFCurve {
+    let key = |frame: f32| crate::phiphx::device::blend::BKey::new([frame, 0.0], [frame, 0.0], [frame, 0.0], 2);
+    let curve = |path: &str, group: &str, frames: &[f32]| crate::phiphx::device::blend::BFCurve {
         group: Some(group.to_string()),
         ..BFCurve::new(path, 0, frames.iter().map(|&f| key(f)).collect())
     };
-    let slot = |handle: i32, identifier: &str, curves: std::ops::Range<usize>| crate::phiphx::blend::BlendActionSlot { handle, identifier: identifier.into(), curves };
+    let slot = |handle: i32, identifier: &str, curves: std::ops::Range<usize>| crate::phiphx::device::blend::BlendActionSlot { handle, identifier: identifier.into(), curves };
     SceneAction {
         name: "CameraAction".into(),
         users: vec!["Camera".into()],

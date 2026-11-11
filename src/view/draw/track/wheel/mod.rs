@@ -97,7 +97,7 @@ impl BWheel {
             BPickSpace::Socket { node, socket, edits } => {
                 let [r, g, b] = hsv_to_rgb(hsv);
                 let mut edits = edits.clone();
-                edits.set(node, socket, crate::phiphx::blend::shade::socket::BSocketDefault::Color([r, g, b, self.alpha]));
+                edits.set(node, socket, crate::phiphx::device::blend::shade::socket::BSocketDefault::Color([r, g, b, self.alpha]));
                 crate::view::draw::canvas::node::edit::encode(&edits)
             }
         }

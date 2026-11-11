@@ -12,7 +12,7 @@
 //! on, the way `NODE_OT_view_all` is one framing among many in Blender.
 
 use super::{BNodeView, frame};
-use crate::phiphx::blend::shade::graph::BlendNode;
+use crate::phiphx::device::blend::shade::graph::BlendNode;
 use crate::host::BHostType;
 use crate::state::{BKey as _, BState, NodeKey};
 use std::cell::RefCell;

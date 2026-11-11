@@ -6,7 +6,7 @@ use super::{clear, put};
 use crate::part::props::prop::*;
 use crate::part::props::set::BSectionSpec;
 use crate::part::props::set::sec;
-use crate::phiphx::blend::physics::BCloth;
+use crate::phiphx::device::blend::physics::BCloth;
 use crate::state::{BState, val::BValue};
 
 static BENDING: &[BEnumItem] = &[en("ANGULAR", "Angular"), en("LINEAR", "Linear")];

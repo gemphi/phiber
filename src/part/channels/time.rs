@@ -73,7 +73,7 @@ fn row(rows: &[BTimeRow], index: usize, row: &BTimeRow) -> BView {
         None => BView::label(row.name()),
     };
     let shade = match &row.kind {
-        BRowKind::Track(track) if track.flag & crate::phiphx::blend::TRACK_SELECTED != 0 => BRowShade::Selected,
+        BRowKind::Track(track) if track.flag & crate::phiphx::device::blend::TRACK_SELECTED != 0 => BRowShade::Selected,
         _ => BRowShade::Flat,
     };
     // A curve's or a driver's colour, as a swatch before its icon

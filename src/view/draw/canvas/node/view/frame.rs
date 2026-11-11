@@ -11,7 +11,7 @@
 
 use super::BNodeView;
 use super::super::socket;
-use crate::phiphx::blend::shade::graph::BlendNode;
+use crate::phiphx::device::blend::shade::graph::BlendNode;
 
 /// `BLI_rctf_scale(&cur_new, 1.1f)` — the padding "view all" leaves.
 pub(super) const VIEW_ALL_PADDING: f32 = 1.1;

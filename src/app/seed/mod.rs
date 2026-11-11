@@ -39,7 +39,7 @@ fn seed_collections(state: &mut BState, c: &SceneCollection, path: &str) {
 }
 
 /// The monitor, arrow and camera of one row, as the file has them.
-fn seed_visibility(state: &mut BState, id: &str, v: crate::phiphx::blend::BlendVisibility) {
+fn seed_visibility(state: &mut BState, id: &str, v: crate::phiphx::device::blend::BlendVisibility) {
     for (on, field) in [(v.hide_viewport, "hide_viewport"), (v.hide_select, "hide_select"), (v.hide_render, "hide_render")] {
         if on {
             state.set(&k_restrict(id, field), V_TRUE);

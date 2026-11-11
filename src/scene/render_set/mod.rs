@@ -71,7 +71,7 @@ pub struct BRenderSet {
     pub film_transparent: bool,
     /// Output ▸ Format's Render Region and Crop to Render Region with the
     /// rectangle set (`scene::render_border`).
-    pub border: crate::phiphx::blend::BlendRenderBorder,
+    pub border: crate::phiphx::device::blend::BlendRenderBorder,
     /// Film ▸ Pixel Filter: `cycles.pixel_filter_type` and
     /// `cycles.filter_width` in pixels (`phiray::Camera::integrator`) —
     /// Box always one pixel, as `blender/sync.cpp` sets it.

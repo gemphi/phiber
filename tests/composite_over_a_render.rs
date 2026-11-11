@@ -10,8 +10,8 @@
 //! The tree is built by hand rather than read, because the point here is
 //! the plumbing and a hand-built tree says exactly what it is.
 
-use phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
-use phiphx::blend::shade::socket::{BSocketDefault, BlendSocket};
+use phiphx::device::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
+use phiphx::device::blend::shade::socket::{BSocketDefault, BlendSocket};
 use phiphx::comp::BCompTree;
 use phiber::scene::composite::BComposite;
 

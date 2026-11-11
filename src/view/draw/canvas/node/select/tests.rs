@@ -2,7 +2,7 @@
 //! budget (`level_structure`), the way `canvas/time/row/` is.
 
 use super::*;
-use crate::phiphx::blend::shade::graph::{BlendNode, NODE_ACTIVE, NODE_SELECT};
+use crate::phiphx::device::blend::shade::graph::{BlendNode, NODE_ACTIVE, NODE_SELECT};
 
 fn node(name: &str, flag: i32) -> BlendNode {
     BlendNode { name: name.into(), flag, ..Default::default() }

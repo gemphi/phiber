@@ -10,7 +10,7 @@
 //! name nor an identifier uses either.
 
 use super::{BValueEdit, BValueEdits};
-use crate::phiphx::blend::shade::socket::BSocketDefault;
+use crate::phiphx::device::blend::shade::socket::BSocketDefault;
 
 const FIELD: char = '/';
 const NEXT: char = ';';

@@ -10,7 +10,7 @@
 
 mod avi;
 
-use crate::phiphx::blend::{BlendMovie, BlendOutput};
+use crate::phiphx::device::blend::{BlendMovie, BlendOutput};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 

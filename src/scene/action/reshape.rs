@@ -12,7 +12,7 @@
 //! (`BezTriple.h1 / h2`). Only the keys standing at those frames on the
 //! slot's curves change; the rest of the curve is left as it was.
 
-use crate::phiphx::blend::{
+use crate::phiphx::device::blend::{
     EASE_AUTO, EASE_IN, EASE_IN_OUT, EASE_OUT, HANDLE_ALIGN, HANDLE_AUTO, HANDLE_AUTO_ANIM, HANDLE_FREE, HANDLE_VECT,
     IPO_BACK, IPO_BEZ, IPO_BOUNCE, IPO_CIRC, IPO_CONST, IPO_CUBIC, IPO_ELASTIC, IPO_EXPO, IPO_LIN, IPO_QUAD, IPO_QUART,
     IPO_QUINT, IPO_SINE, KEYTYPE_BREAKDOWN, KEYTYPE_EXTREME, KEYTYPE_GENERATED, KEYTYPE_JITTER, KEYTYPE_KEYFRAME,

@@ -23,7 +23,7 @@ mod stage;
 pub use stage::{demo, open};
 use stage::{broadcast, light, report, tint};
 
-use crate::phiphx::blend::BPlayRef;
+use crate::phiphx::device::blend::BPlayRef;
 use crate::phiphx::scene::build::BSkinnedMesh;
 use crate::phiphx::scene::SceneCollection;
 use crate::phiphx::scene::SceneModel;

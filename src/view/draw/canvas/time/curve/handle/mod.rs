@@ -9,7 +9,7 @@
 
 pub mod set;
 
-use crate::phiphx::blend::{BFCurve, BKey, IPO_BEZ};
+use crate::phiphx::device::blend::{BFCurve, BKey, IPO_BEZ};
 
 /// One handle line, from the handle's end to its key.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -94,7 +94,7 @@ impl BCurveHandles {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::blend::{HANDLE_ALIGN, HANDLE_FREE, HANDLE_VECT};
+    use crate::phiphx::device::blend::{HANDLE_ALIGN, HANDLE_FREE, HANDLE_VECT};
 
     fn key(frame: f32, ipo: u8) -> BKey {
         BKey::new([frame - 2.0, 0.0], [frame, 0.0], [frame + 2.0, 0.0], ipo)

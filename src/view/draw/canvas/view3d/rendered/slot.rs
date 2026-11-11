@@ -6,7 +6,7 @@
 //! so this is where they meet.
 
 use super::surface::BAtlasIds;
-use crate::phiphx::blend::shade::procedural::{BlendProc, BlendProcCoord, BlendProcKind};
+use crate::phiphx::device::blend::shade::procedural::{BlendProc, BlendProcCoord, BlendProcKind};
 use phiray::proc::*;
 use phiray::{NO_TEX, Proc, Scene};
 

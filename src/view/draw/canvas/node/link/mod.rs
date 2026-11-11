@@ -41,8 +41,8 @@
 //! inventing a rule. Cycles are not checked at this point either; Blender tags
 //! the tree and resolves them in `ntreeUpdateTree`.
 
-use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
-use crate::phiphx::blend::shade::socket::BlendSocket;
+use crate::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
+use crate::phiphx::device::blend::shade::socket::BlendSocket;
 
 /// One end of a link, by the names a link is resolved with.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

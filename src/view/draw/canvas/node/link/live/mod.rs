@@ -29,7 +29,7 @@
 //! > can be lost by a drag that goes wrong.
 
 use super::{BLinkEdits, BLinkEnd, allowed, links_to_remove};
-use crate::phiphx::blend::shade::graph::{BlendNodeGraph, BlendNodeLink};
+use crate::phiphx::device::blend::shade::graph::{BlendNodeGraph, BlendNodeLink};
 use crate::view::draw::canvas::node::socket::BSocketSide;
 
 /// The drag between the press and the release.

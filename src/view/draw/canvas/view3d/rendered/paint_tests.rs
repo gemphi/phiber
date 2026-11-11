@@ -60,7 +60,7 @@ fn solid_uploads_the_base_image_under_texture_alone() {
 /// ▸ Shadow (`OB_HIDE_SHADOW`) instead.
 #[test]
 fn an_objects_shadow_toggles_follow_the_mode() {
-    use crate::phiphx::blend::BlendShadowCast;
+    use crate::phiphx::device::blend::BlendShadowCast;
     use crate::phiphx::scene::{SceneCornerList, SceneMesh, SceneNormalList};
     use crate::scene::BObject3D;
     let grey = white();

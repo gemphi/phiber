@@ -18,7 +18,7 @@ pub mod op;
 #[cfg(test)]
 mod tests;
 
-use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeLink};
+use crate::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeLink};
 use crate::host::BHostType;
 use crate::state::{BKey as _, BState, NodeKey};
 

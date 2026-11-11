@@ -9,7 +9,7 @@
 //! data: no undo step, nothing written back; a file's view seeds it with
 //! the rest of Load UI (`app/load_ui.rs`).
 
-use crate::phiphx::blend::BlendViewBorder;
+use crate::phiphx::device::blend::BlendViewBorder;
 use crate::state::{BState, View3dKey, val::{V_FALSE, V_TRUE}};
 
 /// What the state holds of the view's region.

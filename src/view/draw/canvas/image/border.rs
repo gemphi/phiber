@@ -7,7 +7,7 @@
 //! the region off, as Blender's does.
 
 use super::BImageView;
-use crate::phiphx::blend::BlendRenderBorder;
+use crate::phiphx::device::blend::BlendRenderBorder;
 use crate::state::{BKey as _, BState, ImageKey, OpKey, val::V_TRUE};
 use crate::view::draw::ctx::BRenderCtx;
 use crate::view::prim::BAction;

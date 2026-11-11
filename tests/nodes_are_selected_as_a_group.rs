@@ -13,7 +13,7 @@
 //! written as an action comes back out as a selection, that the active mark
 //! survives the round trip, and that two node editors do not share either.
 
-use phiber::phiphx::blend::shade::graph::{BlendNode, NODE_ACTIVE, NODE_SELECT};
+use phiber::phiphx::device::blend::shade::graph::{BlendNode, NODE_ACTIVE, NODE_SELECT};
 use phiber::host::BHostType;
 use phiber::state::action::apply_action;
 use phiber::state::{BKey as _, BState, NodeKey};

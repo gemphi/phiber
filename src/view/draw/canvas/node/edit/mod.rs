@@ -19,8 +19,8 @@ pub mod store;
 #[cfg(test)]
 mod tests;
 
-use crate::phiphx::blend::shade::graph::BlendNode;
-use crate::phiphx::blend::shade::socket::BSocketDefault;
+use crate::phiphx::device::blend::shade::graph::BlendNode;
+use crate::phiphx::device::blend::shade::socket::BSocketDefault;
 
 pub use store::{decode, edits_of, encode};
 

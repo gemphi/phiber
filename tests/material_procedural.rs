@@ -4,7 +4,7 @@
 //! (`rendered/surface.rs`), the ramp baked, the Bump with its numbers.
 
 use phiber::phiphx::Phx;
-use phiber::phiphx::blend::shade::procedural::{BlendProcCoord, BlendProcKind};
+use phiber::phiphx::device::blend::shade::procedural::{BlendProcCoord, BlendProcKind};
 use phiber::scene::{BObject3D, current_scene};
 use phiber::state::BState;
 

@@ -1,7 +1,7 @@
 //! `clean_fcurve` (`animation/keyframes_general.cc`), rule for rule.
 
 use super::*;
-use crate::phiphx::blend::BFCurve;
+use crate::phiphx::device::blend::BFCurve;
 use crate::phiphx::scene::SceneAction;
 
 /// A curve of `(frame, value)` keys, keyed as `BFCurve::insert` makes them —
@@ -19,7 +19,7 @@ fn frames_of(c: &BFCurve) -> Vec<f32> {
 }
 
 fn clean(curves: Vec<BFCurve>, step: BKeyClean) -> SceneAction {
-    let slot = crate::phiphx::blend::BlendActionSlot { handle: 3, identifier: "OBCube".into(), curves: 0..curves.len() };
+    let slot = crate::phiphx::device::blend::BlendActionSlot { handle: 3, identifier: "OBCube".into(), curves: 0..curves.len() };
     let mut actions = vec![SceneAction { name: "CubeAction".into(), slots: vec![slot], curves, ..Default::default() }];
     step.apply(&mut actions);
     actions.remove(0)

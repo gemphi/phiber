@@ -4,7 +4,7 @@
 //! Cancel stays, Don't Save goes on, Save writes the file and goes on.
 
 use gpui::{TestAppContext, px, size};
-use phiber::phiphx::blend::BlendFile;
+use phiber::phiphx::device::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
 use phiber::app::BPhiberApp;
 use phiber::state::{BKey as _, CtxKey, FileKey, ModalKey, OpKey};

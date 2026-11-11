@@ -54,7 +54,7 @@ fn with_nothing_selected_the_file_decides_what_is_raised() {
     // `NODE_SELECT` out of the file is what the editor opens on, so it is
     // what raises a node until the user has clicked anything.
     let mut nodes = vec![node("a", 0.0, 0.0), node("b", 1.0, 1.0)];
-    nodes[0].flag = crate::phiphx::blend::shade::graph::NODE_SELECT;
+    nodes[0].flag = crate::phiphx::device::blend::shade::graph::NODE_SELECT;
     let order: Vec<&str> = draw_order(&nodes, &select::BNodeSelection::default())
         .iter()
         .map(|n| n.name.as_str())
@@ -85,7 +85,7 @@ fn a_muted_nodes_header_dims_toward_the_background_keeping_a_little_hue() {
 
 #[test]
 fn the_mute_flag_is_read_off_the_node() {
-    use crate::phiphx::blend::shade::graph::NODE_MUTED;
+    use crate::phiphx::device::blend::shade::graph::NODE_MUTED;
     let mut n = node("n", 0.0, 0.0);
     assert!(!n.muted());
     n.flag = NODE_MUTED;

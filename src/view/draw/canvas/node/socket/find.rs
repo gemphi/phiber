@@ -8,7 +8,7 @@
 //! spatial layout.
 
 use super::{BSocketRow, rows};
-use crate::phiphx::blend::shade::graph::BlendNode;
+use crate::phiphx::device::blend::shade::graph::BlendNode;
 
 /// Where one named socket of `node` sits, if it has one.
 ///

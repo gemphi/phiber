@@ -3,7 +3,7 @@
 //! saved at frame 12 with Child selected and active).
 
 use super::*;
-use crate::phiphx::blend::BlendFile;
+use crate::phiphx::device::blend::BlendFile;
 use crate::scene::camera::BViewSetup;
 use crate::scene::pick::BPickView;
 use crate::state::action::apply_action;

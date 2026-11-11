@@ -81,7 +81,7 @@ impl BNodeOverlay for add::BNodeAdditions {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::blend::shade::socket::BSocketDefault;
+    use crate::phiphx::device::blend::shade::socket::BSocketDefault;
     use crate::state::action::apply_action;
 
     /// For any overlay: the action `write` produces, applied to a fresh store,

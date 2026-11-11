@@ -109,7 +109,7 @@ impl BTimeRow {
         let mut out = vec![
             Self { kind: BRowKind::Object { name: nla.object.clone(), expanded: false }, keys: Vec::new(), keytypes: Vec::new() },
             // `SceneAction::keys` is frames alone: plain keyframes.
-            Self { kind: BRowKind::Action { name: nla.action.clone(), tweaking: nla.flag & crate::phiphx::blend::ADT_EDIT_ON != 0 }, keys, keytypes: Vec::new() },
+            Self { kind: BRowKind::Action { name: nla.action.clone(), tweaking: nla.flag & crate::phiphx::device::blend::ADT_EDIT_ON != 0 }, keys, keytypes: Vec::new() },
         ];
         out.extend(nla.tracks.iter().rev().map(|track| Self { kind: BRowKind::Track(track.clone()), keys: Vec::new(), keytypes: Vec::new() }));
         out
@@ -130,7 +130,7 @@ impl BTimeRow {
     /// Column `i`'s Keyframe Type; a plain keyframe when the row carries
     /// frames alone (see `keytypes`).
     pub fn keytype_at(&self, i: usize) -> u8 {
-        self.keytypes.get(i).copied().unwrap_or(crate::phiphx::blend::KEYTYPE_KEYFRAME)
+        self.keytypes.get(i).copied().unwrap_or(crate::phiphx::device::blend::KEYTYPE_KEYFRAME)
     }
 
     /// The F-curve rows of every action `name` uses, in the file's own order,
@@ -149,7 +149,7 @@ impl BTimeRow {
 
     /// `curves` as group rows (folds keyed under `owner`) and the
     /// ungrouped curves after them.
-    fn grouped(s: &BState, name: &str, curves: Vec<&crate::phiphx::blend::BFCurve>) -> Vec<Self> {
+    fn grouped(s: &BState, name: &str, curves: Vec<&crate::phiphx::device::blend::BFCurve>) -> Vec<Self> {
         let mut groups: Vec<&str> = Vec::new();
         for group in curves.iter().filter_map(|c| c.group.as_deref()) {
             if !groups.contains(&group) {
@@ -158,7 +158,7 @@ impl BTimeRow {
         }
         let mut out = Vec::new();
         for group in groups {
-            let members: Vec<&&crate::phiphx::blend::BFCurve> = curves.iter().filter(|c| c.group.as_deref() == Some(group)).collect();
+            let members: Vec<&&crate::phiphx::device::blend::BFCurve> = curves.iter().filter(|c| c.group.as_deref() == Some(group)).collect();
             let (keys, keytypes) = crate::scene::action::dope::fold_columns(
                 members.iter().flat_map(|c| c.keys.iter().map(|k| (k.co[0], k.keytype))).collect::<Vec<_>>(),
             );
@@ -175,14 +175,14 @@ impl BTimeRow {
     /// The curves `name` is animated by: in each action it uses, the slot
     /// it is bound to — else, unbound, every curve (as `BKeyTarget::of`
     /// reads its columns), so a curve row and its object's columns agree.
-    fn object_curves<'a>(name: &'a str, actions: &'a [SceneAction]) -> impl Iterator<Item = &'a crate::phiphx::blend::BFCurve> + 'a {
+    fn object_curves<'a>(name: &'a str, actions: &'a [SceneAction]) -> impl Iterator<Item = &'a crate::phiphx::device::blend::BFCurve> + 'a {
         actions.iter().filter(move |action| action.used_by(name)).flat_map(move |action| match action.slot_of(name) {
             Some(slot) => action.curves.get(slot.curves.clone()).unwrap_or(&[]).iter(),
             None => action.curves.iter(),
         })
     }
 
-    fn curve(curve: &crate::phiphx::blend::BFCurve, grouped: bool) -> Self {
+    fn curve(curve: &crate::phiphx::device::blend::BFCurve, grouped: bool) -> Self {
         Self {
             kind: BRowKind::Curve { name: name::fcurve_name(curve), color: curve.color, grouped },
             // `BezTriple.co` is (frame, value); the frame is the x.

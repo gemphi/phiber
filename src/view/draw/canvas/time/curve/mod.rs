@@ -7,7 +7,7 @@ pub mod handle;
 pub mod line;
 pub mod set;
 
-use crate::phiphx::blend::{BFCurve, COLOR_AUTO_RGB, COLOR_AUTO_YRGB, COLOR_CUSTOM, FLAG_ACTIVE, FLAG_MUTED};
+use crate::phiphx::device::blend::{BFCurve, COLOR_AUTO_RGB, COLOR_AUTO_YRGB, COLOR_CUSTOM, FLAG_ACTIVE, FLAG_MUTED};
 use crate::state::{BState, CtxKey};
 use crate::theme::BAnimColors;
 
@@ -165,7 +165,7 @@ fn hsv_to_rgb(h: f32, s: f32, v: f32) -> [f32; 3] {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::blend::{BKey, COLOR_AUTO_RAINBOW, FLAG_SELECTED};
+    use crate::phiphx::device::blend::{BKey, COLOR_AUTO_RAINBOW, FLAG_SELECTED};
 
     fn key(frame: f32, value: f32) -> BKey {
         BKey::new([frame - 1.0, value], [frame, value], [frame + 1.0, value], 1)

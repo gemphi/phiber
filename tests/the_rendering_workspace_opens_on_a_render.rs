@@ -12,7 +12,7 @@ use phiber::state::{BKey as _, CtxKey};
 /// New / Open (`BPhiberApp::render_on_entry`); another workspace does not.
 #[gpui::test]
 async fn opening_the_rendering_workspace_renders_the_scene(cx: &mut TestAppContext) {
-    use phiber::phiphx::blend::BlendFile;
+    use phiber::phiphx::device::blend::BlendFile;
     use phiber::phiphx::scene::SceneModel;
     let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/parented.blend");
     let scene = BlendFile::parse_bytes(&std::fs::read(&path).unwrap()).unwrap().extract_scene().unwrap();

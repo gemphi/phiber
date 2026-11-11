@@ -15,7 +15,7 @@
 
 use super::BSceneEdit;
 use super::kind::{self, BAddKind};
-use crate::phiphx::blend::{BlendMotion, ObjectTransformRaw};
+use crate::phiphx::device::blend::{BlendMotion, ObjectTransformRaw};
 use crate::phiphx::scene::{IDENTITY_M4, SceneModel, SceneObject, SceneUvMap};
 use crate::state::BState;
 use std::cell::RefCell;

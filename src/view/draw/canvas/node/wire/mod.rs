@@ -19,7 +19,7 @@ use super::select;
 use super::pick;
 use super::socket::BSocketSide;
 use super::super::super::ctx::{BActionHandler, BRenderCtx};
-use crate::phiphx::blend::shade::graph::{BlendNodeGraph, BlendNodeLink};
+use crate::phiphx::device::blend::shade::graph::{BlendNodeGraph, BlendNodeLink};
 use crate::host::BHostType;
 use crate::state::{BKey as _, NodeKey};
 use crate::view::prim::BAction;

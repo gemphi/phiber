@@ -8,7 +8,7 @@
 use super::super::set::{hsla, rect};
 use super::super::BTimeView;
 use super::BDrawnCurve;
-use crate::phiphx::blend::FLAG_PROTECTED;
+use crate::phiphx::device::blend::FLAG_PROTECTED;
 use crate::theme::BAnimColors;
 use gpui::{Bounds, Corners, Pixels, Window, fill, px};
 
@@ -91,7 +91,7 @@ impl BTimeView {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::blend::{BFCurve, FLAG_MUTED, FLAG_SELECTED};
+    use crate::phiphx::device::blend::{BFCurve, FLAG_MUTED, FLAG_SELECTED};
 
     fn drawn(flag: u32, alpha: f32) -> BDrawnCurve {
         let mut curve = BFCurve::new("location", 0, vec![]);

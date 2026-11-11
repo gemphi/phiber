@@ -5,7 +5,7 @@
 //! hand is looking at, and a file's view opens with its own.
 
 use gpui::{TestAppContext, px, size};
-use phiber::phiphx::blend::{BlendRenderBorder, BlendViewBorder};
+use phiber::phiphx::device::blend::{BlendRenderBorder, BlendViewBorder};
 use phiber::app::BPhiberApp;
 use phiber::scene::render_border::BRenderBorder;
 use phiber::scene::view_border::BViewBorder;

@@ -13,7 +13,7 @@
 //! `anim.change_frame` keeps a scrub inside the range while "Limit to
 //! Frame Range" is on ([`BFrameLockRule`]).
 
-use crate::phiphx::blend::BlendLoopMode;
+use crate::phiphx::device::blend::BlendLoopMode;
 use crate::part::playback::settings;
 use crate::state::key::int_or;
 use crate::state::val::{V_FALSE, V_REVERSE, V_TRUE};

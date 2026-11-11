@@ -21,7 +21,7 @@ use super::plan::BCardSize;
 use super::view::BNodeView;
 use super::{drag, socket};
 
-use crate::phiphx::blend::shade::graph::BlendNode;
+use crate::phiphx::device::blend::shade::graph::BlendNode;
 use crate::state::{BKey as _, NodeKey};
 use crate::view::draw::flex::{BEdge, BFlex, BInk, BPlace, BRadius};
 use crate::view::prim::BAction;

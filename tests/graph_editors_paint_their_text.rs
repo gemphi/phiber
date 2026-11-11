@@ -21,9 +21,9 @@ use gpui::{
 };
 use phiber::app::BPhiberApp;
 use phiber::host::BHostType;
-use phiber::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
-use phiber::phiphx::blend::shade::socket::BlendSocket;
-use phiber::phiphx::blend::{BFCurve, BKey, BNlaStrip, BNlaTrack, BlendMarker, BlendNla, EXTEND_HOLD};
+use phiber::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
+use phiber::phiphx::device::blend::shade::socket::BlendSocket;
+use phiber::phiphx::device::blend::{BFCurve, BKey, BNlaStrip, BNlaTrack, BlendMarker, BlendNla, EXTEND_HOLD};
 use phiber::phiphx::scene::{SceneAction, SceneMaterial, SceneMesh, SceneModel, SceneNormalList, SceneObject};
 use phiber::space::BSpaceType;
 use phiber::state::{BState, CtxKey, ModalKey};

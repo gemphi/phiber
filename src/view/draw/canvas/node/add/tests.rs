@@ -2,7 +2,7 @@
 //! with the sockets their type gives them, and leave the file untouched.
 
 use super::*;
-use crate::phiphx::blend::shade::graph::BlendNode;
+use crate::phiphx::device::blend::shade::graph::BlendNode;
 
 fn file() -> Vec<BlendNode> {
     vec![

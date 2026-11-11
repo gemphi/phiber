@@ -70,8 +70,8 @@ pub struct BAddSocket {
 
 impl BAddSocket {
     /// The file-shaped socket this becomes on an added node.
-    pub fn to_socket(&self) -> crate::phiphx::blend::shade::socket::BlendSocket {
-        crate::phiphx::blend::shade::socket::BlendSocket {
+    pub fn to_socket(&self) -> crate::phiphx::device::blend::shade::socket::BlendSocket {
+        crate::phiphx::device::blend::shade::socket::BlendSocket {
             identifier: self.identifier.into(),
             name: self.name.into(),
             kind: self.kind,

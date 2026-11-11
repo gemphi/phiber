@@ -13,7 +13,7 @@ use crate::view::prim::BAction;
 
 fn model() -> SceneModel {
     let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../phiphx/tests/fixtures/actions.blend");
-    let scene = crate::phiphx::blend::BlendFile::parse_bytes(&std::fs::read(&path).unwrap()).unwrap().extract_scene().unwrap();
+    let scene = crate::phiphx::device::blend::BlendFile::parse_bytes(&std::fs::read(&path).unwrap()).unwrap().extract_scene().unwrap();
     SceneModel::from_blend_owned(scene, &path.to_string_lossy())
 }
 

@@ -19,7 +19,7 @@ use super::{BNode, add, drag, draw_order, edit, frame, header_color, link, paint
 use super::plan::{BCardFraction, BCardSize, positions};
 use super::view::store as view_store;
 
-use crate::phiphx::blend::shade::graph::BlendNode;
+use crate::phiphx::device::blend::shade::graph::BlendNode;
 use crate::theme::BStyleRole;
 use crate::view::prim::BAction;
 

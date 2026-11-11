@@ -134,7 +134,7 @@ pub(super) fn paint(bounds: Bounds<Pixels>, lines: &[BProjectedLine], width: f32
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::blend::BlendFile;
+    use crate::phiphx::device::blend::BlendFile;
     use crate::phiphx::scene::SceneModel;
     use crate::state::{BKey as _, CtxKey};
 

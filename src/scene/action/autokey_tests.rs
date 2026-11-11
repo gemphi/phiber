@@ -2,7 +2,7 @@
 //! `transform.translate / rotate / resize` at frame 10): see the module.
 
 use super::*;
-use crate::phiphx::blend::BlendFile;
+use crate::phiphx::device::blend::BlendFile;
 use crate::phiphx::scene::SceneModel;
 use crate::scene::action::retime::BKeyStep;
 use crate::state::CtxKey;

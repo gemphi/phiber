@@ -6,7 +6,7 @@
 //! saves.rs`). They used to be seeded from the file and never written back.
 
 use gpui::{TestAppContext, px, size};
-use phiber::phiphx::blend::{BlendFile, BlendImageFormat};
+use phiber::phiphx::device::blend::{BlendFile, BlendImageFormat};
 use phiber::phiphx::scene::SceneModel;
 use phiber::app::BPhiberApp;
 use phiber::state::val::BValue;

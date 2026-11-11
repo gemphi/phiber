@@ -15,7 +15,7 @@
 
 use super::BSceneActions;
 use super::keys::{BKeyInsert, BKeyed};
-use crate::phiphx::blend::ObjectTransformRaw;
+use crate::phiphx::device::blend::ObjectTransformRaw;
 use crate::phiphx::scene::SceneModel;
 use crate::scene::edit::BSceneEdit;
 use crate::scene::transform::BTransforms;
@@ -114,7 +114,7 @@ impl BSceneActions {
                     let Some(found) = self.action(&action, now.model) else { continue };
                     let Some(run) = found.slots.iter().find(|s| s.identifier == slot).map(|s| s.curves.clone()) else { continue };
                     let values = BKeyNow::transforms(&raw);
-                    let value = |path: &str, index: u32, curve: &crate::phiphx::blend::BFCurve| {
+                    let value = |path: &str, index: u32, curve: &crate::phiphx::device::blend::BFCurve| {
                         values.iter().find(|v| v.path == path && v.index == index).map_or_else(|| curve.evaluate(now.frame), |v| v.value)
                     };
                     let channels = found.curves[run].iter().map(|c| BKeyed { path: c.path.clone(), index: c.index, value: value(&c.path, c.index, c) }).collect();

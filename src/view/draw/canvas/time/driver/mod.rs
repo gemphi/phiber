@@ -8,7 +8,7 @@ pub mod set;
 
 use super::curve::{BAxisColors, BCurveSet, BDrawnCurve};
 use super::row::{BRowKind, BTimeRow};
-use crate::phiphx::blend::BFCurve;
+use crate::phiphx::device::blend::BFCurve;
 use crate::phiphx::scene::SceneDriverList;
 use crate::state::{BState, CtxKey};
 

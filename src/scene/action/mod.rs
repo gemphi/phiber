@@ -188,8 +188,8 @@ impl BSceneActions {
     /// The writer's edits over the file's `model`, added to `edits`
     /// (`save::gather`): each slot the keys touched, with every curve that
     /// differs from the action before them, and the curves they emptied.
-    pub fn edits(&self, model: &SceneModel, edits: crate::phiphx::blend::write::BlendEditList) -> crate::phiphx::blend::write::BlendEditList {
-        use crate::phiphx::blend::write::{BlendActionAssign, BlendActionRange, BlendKeyInsert};
+    pub fn edits(&self, model: &SceneModel, edits: crate::phiphx::device::blend::write::BlendEditList) -> crate::phiphx::device::blend::write::BlendEditList {
+        use crate::phiphx::device::blend::write::{BlendActionAssign, BlendActionRange, BlendKeyInsert};
         let actions = self.keyed_actions(model);
         let mut keys: Vec<BlendKeyInsert> = Vec::new();
         for step in &self.keyed {
@@ -202,13 +202,13 @@ impl BSceneActions {
             };
             let before = self.action(step.action(), model).as_ref().and_then(run).unwrap_or_default();
             let now = actions.iter().find(|a| a.name == step.action()).and_then(run).unwrap_or_default();
-            let same = |a: &crate::phiphx::blend::BFCurve, b: &crate::phiphx::blend::BFCurve| a.path == b.path && a.index == b.index;
+            let same = |a: &crate::phiphx::device::blend::BFCurve, b: &crate::phiphx::device::blend::BFCurve| a.path == b.path && a.index == b.index;
             let curves = now.iter().filter(|c| !before.iter().any(|b| b == *c)).cloned().collect();
             let removed = before.iter().filter(|b| !now.iter().any(|c| same(b, c))).map(|b| (b.path.clone(), b.index)).collect();
             keys.push(BlendKeyInsert { action: step.action().to_string(), slot: step.slot().to_string(), curves, group: "Object Transforms".into(), removed });
         }
         let some = |s: &str| (!s.is_empty()).then(|| s.to_string());
-        crate::phiphx::blend::write::BlendEditList {
+        crate::phiphx::device::blend::write::BlendEditList {
             actions: self.made.clone(),
             assigned: self.assigned.iter().map(|p| BlendActionAssign { object: p.object.clone(), action: some(&p.action), slot: some(&p.slot) }).collect(),
             ranges: self.ranges.iter().map(|r| BlendActionRange { action: r.action.clone(), range: r.range, cyclic: r.cyclic }).collect(),

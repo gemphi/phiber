@@ -5,7 +5,7 @@
 //! (`phiphx/tests/blender_opens_saves.rs` checks the writer in Blender).
 
 use gpui::{Modifiers, MouseButton, TestAppContext, px, size};
-use phiber::phiphx::blend::BlendFile;
+use phiber::phiphx::device::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
 use phiber::app::BPhiberApp;
 use phiber::part::outliner::tree::{BRowKind, flatten};

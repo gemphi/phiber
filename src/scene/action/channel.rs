@@ -17,7 +17,7 @@
 //! channel-selection gesture lands.
 
 use super::dope::BKeyTarget;
-use crate::phiphx::blend::{FLAG_MUTED, FLAG_PROTECTED};
+use crate::phiphx::device::blend::{FLAG_MUTED, FLAG_PROTECTED};
 use crate::phiphx::scene::{SceneAction, SceneModel};
 use crate::state::BState;
 
@@ -68,7 +68,7 @@ pub struct BChannelEdit {
 
 impl BChannelEdit {
     /// The curve `id` names on `actions`, if it is there.
-    fn curve_mut<'a>(id: &BChannelId, actions: &'a mut [SceneAction]) -> Option<&'a mut crate::phiphx::blend::BFCurve> {
+    fn curve_mut<'a>(id: &BChannelId, actions: &'a mut [SceneAction]) -> Option<&'a mut crate::phiphx::device::blend::BFCurve> {
         let action = actions.iter_mut().find(|a| a.name == id.action)?;
         let run = match id.slot.is_empty() {
             true => 0..action.curves.len(),
@@ -82,7 +82,7 @@ impl BChannelEdit {
         if let Some(extend) = self.extend {
             curve.extend = extend;
         }
-        let flag = |curve: &mut crate::phiphx::blend::BFCurve, bit: u32, on: bool| {
+        let flag = |curve: &mut crate::phiphx::device::blend::BFCurve, bit: u32, on: bool| {
             if on {
                 curve.flag |= bit;
             } else {
@@ -158,7 +158,7 @@ impl crate::state::rule::BRule for BChannelOpRule {
     }
 
     fn after(&self, _: &crate::state::BPath, op: &str, s: &mut BState) {
-        use crate::phiphx::blend::{EXTRAPOLATE_CONSTANT, EXTRAPOLATE_LINEAR};
+        use crate::phiphx::device::blend::{EXTRAPOLATE_CONSTANT, EXTRAPOLATE_LINEAR};
         let Some(model) = crate::scene::source::loaded_shared() else { return };
         let shown = BChannelId::shown(s, &model);
         if shown.is_empty() {
@@ -201,7 +201,7 @@ fn resolve(mode: &str, current: bool) -> bool {
 
 impl BChannelEdit {
     /// The curve `id` names, read-only — for a toggle to see the current flag.
-    fn curve_now<'a>(id: &BChannelId, actions: &'a [SceneAction]) -> Option<&'a crate::phiphx::blend::BFCurve> {
+    fn curve_now<'a>(id: &BChannelId, actions: &'a [SceneAction]) -> Option<&'a crate::phiphx::device::blend::BFCurve> {
         let action = actions.iter().find(|a| a.name == id.action)?;
         let run = match id.slot.is_empty() {
             true => 0..action.curves.len(),

@@ -85,7 +85,7 @@ fn switching_the_active_object_refills_the_object_and_material_tabs() {
 /// `visibility_flag`); the other object keeps the file's.
 #[test]
 fn the_shadow_checkboxes_switch_the_active_object() {
-    use phiber::phiphx::blend::BlendShadowCast;
+    use phiber::phiphx::device::blend::BlendShadowCast;
     use phiber::scene::{BObject3D, scene_source};
     let mut shy = object("Shy", [0.0; 3], [1.0; 3], [0.8; 4], 0.5);
     shy.shadow = BlendShadowCast { display: false, ray: true };

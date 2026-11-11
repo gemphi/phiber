@@ -12,7 +12,7 @@
 //! filter) are strings, which the writer does not add yet; the device is
 //! phiber's own (`pref/device.rs`), not the file's.
 
-use crate::phiphx::blend::{BIdValue, BlendOutput};
+use crate::phiphx::device::blend::{BIdValue, BlendOutput};
 use crate::phiphx::scene::SceneModel;
 use crate::part::props::prop::{BDefault, BPropKind, BPropSpec};
 use crate::state::key::ButsKey;
@@ -51,13 +51,13 @@ pub struct BRenderEdits {
     pub cycles: Vec<(String, BIdValue)>,
     pub output: Option<BlendOutput>,
     /// The render region, when it differs from the file's.
-    pub border: Option<crate::phiphx::blend::BlendRenderBorder>,
+    pub border: Option<crate::phiphx::device::blend::BlendRenderBorder>,
 }
 
 impl BRenderEdits {
     /// `edits` with these three fields set from here.
-    pub fn over(self, edits: crate::phiphx::blend::write::BlendEditList) -> crate::phiphx::blend::write::BlendEditList {
-        crate::phiphx::blend::write::BlendEditList { engine: self.engine, film_transparent: self.film_transparent, cycles: self.cycles, output: self.output, border: self.border, ..edits }
+    pub fn over(self, edits: crate::phiphx::device::blend::write::BlendEditList) -> crate::phiphx::device::blend::write::BlendEditList {
+        crate::phiphx::device::blend::write::BlendEditList { engine: self.engine, film_transparent: self.film_transparent, cycles: self.cycles, output: self.output, border: self.border, ..edits }
     }
 
     /// The panel's values that differ from `model`'s file.
@@ -158,7 +158,7 @@ mod tests {
 
     fn model() -> SceneModel {
         let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("assets/blend/startup-5.blend");
-        let scene = crate::phiphx::blend::BlendFile::parse_bytes(&std::fs::read(&path).unwrap()).unwrap().extract_scene().unwrap();
+        let scene = crate::phiphx::device::blend::BlendFile::parse_bytes(&std::fs::read(&path).unwrap()).unwrap().extract_scene().unwrap();
         SceneModel::from_blend_owned(scene, &path.to_string_lossy())
     }
 

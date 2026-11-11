@@ -11,7 +11,7 @@
 //! `part::props::physics::body`'s, and the seed that puts the file into them
 //! is that module's `seed`.
 
-use crate::phiphx::blend::physics::{BRigidBody, BRigidKind, BRigidShape};
+use crate::phiphx::device::blend::physics::{BRigidBody, BRigidKind, BRigidShape};
 use crate::state::{BState, ButsKey, val::{BValue, BValueKind}};
 
 /// What the state **holds** for `key`, or `None`.

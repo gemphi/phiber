@@ -27,7 +27,7 @@ use super::super::plan::{BCardSize, plan};
 use super::super::view::{BNodeView, store as view_store};
 use super::super::{link, socket};
 use super::{BNodeCard, BNodeInk, paint_links, paint_sockets};
-use crate::phiphx::blend::shade::graph::{BlendNodeGraph, BlendNodeLink};
+use crate::phiphx::device::blend::shade::graph::{BlendNodeGraph, BlendNodeLink};
 use gpui::{Bounds, Pixels, canvas};
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;

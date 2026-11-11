@@ -8,7 +8,7 @@
 
 use phiber::scene::render_job::BRenderShot;
 use phiber::scene::render_save::{BSaveKind, kind_of, save_to};
-use phiphx::blend::{BlendImageFormat, BlendOutput, BlendPassSet};
+use phiphx::device::blend::{BlendImageFormat, BlendOutput, BlendPassSet};
 
 /// A 2 × 2 render: a dark pixel, a mid one, a bright one, and one well over
 /// 1.0 — the last is the one that separates a deep format from a shallow one,

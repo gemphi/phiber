@@ -1,5 +1,5 @@
 //! Saving — `wm.save_mainfile` / `wm.save_as_mainfile`: the opened `.blend`
-//! written back with the session's edits through it (`phiphx::blend::write`).
+//! written back with the session's edits through it (`phiphx::device::blend::write`).
 //!
 //! What goes in is what the state holds over the file: the frame and the
 //! range, every object's toggles, eye, selection, name and transform, the
@@ -14,8 +14,8 @@
 //! file the session did not open — the default scene, a new file — has
 //! nothing to write through, and says so.
 
-use crate::phiphx::blend::write::{BlendCollectionEdit, BlendCompression, BlendDuplicate, BlendEditList, BlendNewMesh, BlendNewObject, BlendObjectEdit, BlendSaveReport};
-use crate::phiphx::blend::{BlendFile, BlendVisibility};
+use crate::phiphx::device::blend::write::{BlendCollectionEdit, BlendCompression, BlendDuplicate, BlendEditList, BlendNewMesh, BlendNewObject, BlendObjectEdit, BlendSaveReport};
+use crate::phiphx::device::blend::{BlendFile, BlendVisibility};
 use crate::phiphx::scene::{SceneCollection, SceneModel};
 use crate::part::outliner::key::{is_hidden, is_render_hidden, is_unselectable, k_restrict};
 use crate::part::outliner::layer::collection_id;

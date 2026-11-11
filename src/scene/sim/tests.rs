@@ -3,7 +3,7 @@
 //! the bake, and a settings edit that bakes again.
 
 use super::*;
-use crate::phiphx::blend::BlendFile;
+use crate::phiphx::device::blend::BlendFile;
 use crate::state::CtxKey;
 
 fn drop_scene() -> Arc<SceneModel> {
@@ -96,7 +96,7 @@ fn a_dropped_cube_falls_lands_and_scrubs_from_the_bake() {
 /// Bounciness changed nothing at all.
 #[test]
 fn the_physics_tab_s_rows_reach_the_solver_for_the_active_object() {
-    use crate::phiphx::blend::physics::BRigidShape;
+    use crate::phiphx::device::blend::physics::BRigidShape;
     use crate::state::{ButsKey, val::BValue};
     let model = drop_scene();
     crate::scene::source::set_loaded_scene(Some((*model).clone()));

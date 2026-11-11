@@ -16,7 +16,7 @@ impl BTimeRow {
         let Some(action) = edits.of(object, model).and_then(|(name, _)| edits.action(&name, model)) else { return Vec::new() };
         let mut out = Vec::new();
         for slot in &action.slots {
-            let curves: Vec<&crate::phiphx::blend::BFCurve> = action.curves.get(slot.curves.clone()).unwrap_or(&[]).iter().collect();
+            let curves: Vec<&crate::phiphx::device::blend::BFCurve> = action.curves.get(slot.curves.clone()).unwrap_or(&[]).iter().collect();
             let (keys, keytypes) = crate::scene::action::dope::fold_columns(
                 curves.iter().flat_map(|c| c.keys.iter().map(|k| (k.co[0], k.keytype))).collect::<Vec<_>>(),
             );

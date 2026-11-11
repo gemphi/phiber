@@ -10,7 +10,7 @@
 //! `blender_opens_saves` has Blender read the same writes).
 
 use gpui::{Modifiers, TestAppContext, px, size};
-use phiber::phiphx::blend::{BlendFile, STASH_TRACK, STRIP_ACTIVE, STRIP_SELECT, TRACK_MUTED, TRACK_PROTECTED};
+use phiber::phiphx::device::blend::{BlendFile, STASH_TRACK, STRIP_ACTIVE, STRIP_SELECT, TRACK_MUTED, TRACK_PROTECTED};
 use phiber::phiphx::scene::{SceneModel, SceneNla};
 use phiber::app::BPhiberApp;
 use phiber::host::BHostType;

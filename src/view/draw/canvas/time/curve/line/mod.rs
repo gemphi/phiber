@@ -10,7 +10,7 @@
 
 pub mod set;
 
-use crate::phiphx::blend::{BFCurve, BKey};
+use crate::phiphx::device::blend::{BFCurve, BKey};
 
 /// `calculate_bezt_draw_resolution`: a quarter point per pixel of extent.
 pub const POINTS_PER_PIXEL: f32 = 0.25;

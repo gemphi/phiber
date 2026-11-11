@@ -15,8 +15,8 @@
 //! at the bottom. Either way the action is unassigned.
 
 use super::BSceneActions;
-use crate::phiphx::blend::write::BlendNlaStack;
-use crate::phiphx::blend::{ADT_SOLO_TRACK, BMotionClip, BMotionTrack, BNlaStrip, STRIP_CLIP};
+use crate::phiphx::device::blend::write::BlendNlaStack;
+use crate::phiphx::device::blend::{ADT_SOLO_TRACK, BMotionClip, BMotionTrack, BNlaStrip, STRIP_CLIP};
 use crate::phiphx::scene::{SceneAction, SceneModel, SceneNla};
 
 impl BSceneActions {
@@ -142,7 +142,7 @@ impl BSceneActions {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::blend::{BNlaTrack, STASH_TRACK};
+    use crate::phiphx::device::blend::{BNlaTrack, STASH_TRACK};
 
     #[test]
     fn the_stacks_round_trip_through_their_key_and_push_down_and_stash_lay_on_them() {

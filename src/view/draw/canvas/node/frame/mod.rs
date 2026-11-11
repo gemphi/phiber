@@ -28,7 +28,7 @@ use super::super::super::ctx::BRenderCtx;
 use super::plan::BCardSize;
 use super::view::{BNodeView, node_bounds};
 use super::drag;
-use crate::phiphx::blend::shade::graph::BlendNode;
+use crate::phiphx::device::blend::shade::graph::BlendNode;
 use crate::state::{BKey as _, NodeKey};
 use crate::theme::BStyleRole;
 use crate::view::draw::flex::{BEdge, BFill, BFlex, BPlace, BRadius, BSpace, BType};

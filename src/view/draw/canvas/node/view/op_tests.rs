@@ -39,7 +39,7 @@ fn home_frames_the_graph_of_the_loaded_material() {
     // would all pass if `after` did nothing at all. This is the one that
     // fails if the operator is a no-op, which is what the rest of the
     // feature was missing — the framing existed and nothing invoked it.
-    use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph};
+    use crate::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeGraph};
     use crate::phiphx::scene::{SceneCornerList, SceneMaterial, SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::state::CtxKey;
 
@@ -90,7 +90,7 @@ fn home_frames_the_graph_of_the_loaded_material() {
 fn view_selected_frames_the_selected_nodes_alone() {
     // `NODE_OT_view_selected`: the framing follows the selection, so the
     // selected node lands inside and the unselected one need not.
-    use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph};
+    use crate::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeGraph};
     use crate::phiphx::scene::{SceneCornerList, SceneMaterial, SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::state::{CtxKey, NodeKey};
     use crate::view::draw::canvas::node::select;
@@ -136,7 +136,7 @@ fn view_selected_frames_the_selected_nodes_alone() {
 #[test]
 fn view_selected_with_nothing_selected_leaves_the_view_alone() {
     // Blender reports "No nodes to view" rather than moving.
-    use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph};
+    use crate::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeGraph};
     use crate::phiphx::scene::{SceneCornerList, SceneMaterial, SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::state::{CtxKey, NodeKey};
 

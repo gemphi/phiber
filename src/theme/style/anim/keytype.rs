@@ -7,7 +7,7 @@
 //! chosen to be is here.
 
 use super::{BAnimColors, BResolvedUiStyle};
-use crate::phiphx::blend::{KEYTYPE_BREAKDOWN, KEYTYPE_EXTREME, KEYTYPE_GENERATED, KEYTYPE_JITTER, KEYTYPE_MOVEHOLD};
+use crate::phiphx::device::blend::{KEYTYPE_BREAKDOWN, KEYTYPE_EXTREME, KEYTYPE_GENERATED, KEYTYPE_JITTER, KEYTYPE_MOVEHOLD};
 use crate::theme::palette::BColor;
 use crate::theme::style::color::BResolvedColors;
 

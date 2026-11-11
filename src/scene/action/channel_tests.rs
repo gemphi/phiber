@@ -2,7 +2,7 @@
 //! 240-line read cap (`tests/level_structure.rs`).
 
 use super::*;
-use crate::phiphx::blend::{BFCurve, BKey, BlendActionSlot, EXTRAPOLATE_CONSTANT, EXTRAPOLATE_LINEAR, IPO_BEZ};
+use crate::phiphx::device::blend::{BFCurve, BKey, BlendActionSlot, EXTRAPOLATE_CONSTANT, EXTRAPOLATE_LINEAR, IPO_BEZ};
 use crate::phiphx::scene::SceneAction;
 
 fn curve(path: &str) -> BFCurve {

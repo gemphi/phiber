@@ -10,7 +10,7 @@
 //! (`phiphx/tests/fixtures/make_collections.py`).
 
 use gpui::{Modifiers, MouseButton, TestAppContext, px, size};
-use phiber::phiphx::blend::{BlendCollection, BlendFile};
+use phiber::phiphx::device::blend::{BlendCollection, BlendFile};
 use phiber::phiphx::scene::SceneModel;
 use phiber::app::BPhiberApp;
 use phiber::part::outliner::key::{BHidden, k_restrict};

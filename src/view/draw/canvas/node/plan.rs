@@ -13,7 +13,7 @@
 
 use super::view::BNodeView;
 use super::{link, paint, socket};
-use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
+use crate::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
 
 /// A card's size in view units — the theme's pixels, read as node space.
 ///

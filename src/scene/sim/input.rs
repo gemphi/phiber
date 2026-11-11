@@ -10,7 +10,7 @@
 //! - `BlendObject::tris` is a borrow, so the buffers live in [`BSimInput`]
 //!   for as long as the world is built from them.
 
-use crate::phiphx::blend::physics::{BRigidBody, BRigidKind, BRigidShape, BRigidWorld};
+use crate::phiphx::device::blend::physics::{BRigidBody, BRigidKind, BRigidShape, BRigidWorld};
 use crate::phiphx::scene::SceneModel;
 use crate::state::BState;
 use phiray::sim::{BlendBody, BlendObject, BlendShape, BlendWorld, World};

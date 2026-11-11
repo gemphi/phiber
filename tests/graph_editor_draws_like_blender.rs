@@ -73,7 +73,7 @@ async fn the_graph_editor_is_the_animation_window_on_its_own_view(cx: &mut TestA
 /// round.
 #[gpui::test]
 async fn loaded_keys_are_painted_as_vertices_on_the_value_axis(cx: &mut TestAppContext) {
-    use phiber::phiphx::blend::{BFCurve, BKey, FLAG_ACTIVE, FLAG_SELECTED};
+    use phiber::phiphx::device::blend::{BFCurve, BKey, FLAG_ACTIVE, FLAG_SELECTED};
     use phiber::phiphx::scene::{SceneAction, SceneModel};
     let key = |frame: f32, value: f32, selected: bool| BKey { selected, ..BKey::new([frame - 5.0, value], [frame, value], [frame + 5.0, value], 2) };
     let mut selected = BFCurve::new("location", 0, vec![key(50.0, 0.0, true), key(200.0, 5.0, true)]);

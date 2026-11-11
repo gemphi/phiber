@@ -69,7 +69,7 @@ fn a_cycles_file_opens_on_the_engine_that_renders_it() {
 /// opening is believed.
 #[test]
 fn a_file_opens_at_its_own_counts_and_a_typed_count_is_believed() {
-    use phiber::phiphx::blend::{BIdGroup, BIdValue};
+    use phiber::phiphx::device::blend::{BIdGroup, BIdValue};
     use phiber::phiphx::scene::SceneModel;
     use phiber::scene::render_quality::BRenderQuality;
     use phiber::scene::render_set;

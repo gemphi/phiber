@@ -5,7 +5,7 @@
 //! its shape in a different quantity, so this is where the two
 //! vocabularies meet.
 
-use crate::phiphx::blend::AREA_ENERGY_SCALE;
+use crate::phiphx::device::blend::AREA_ENERGY_SCALE;
 use crate::phiphx::scene::SceneLight;
 use glam::Mat4;
 use phiray::{AREA_DISK, AREA_ELLIPSE, AREA_RECT, AREA_SQUARE, Light};

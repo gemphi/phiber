@@ -7,7 +7,7 @@
 use std::path::PathBuf;
 
 use gpui::{Modifiers, MouseButton, TestAppContext, px, size};
-use phiber::phiphx::blend::BlendFile;
+use phiber::phiphx::device::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
 use phiber::app::BPhiberApp;
 use phiber::host::BHostType;

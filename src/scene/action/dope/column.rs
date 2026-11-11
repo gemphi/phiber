@@ -3,7 +3,7 @@
 //! Split from `mod.rs` so each file sits under the 240-line read cap
 //! (`tests/level_structure.rs`).
 
-use crate::phiphx::blend::KEYTYPE_KEYFRAME;
+use crate::phiphx::device::blend::KEYTYPE_KEYFRAME;
 
 /// Keys at the same frame folded into one column, with the Keyframe Type
 /// the column takes — Blender's `nupdate_ak_bezt`

@@ -75,7 +75,7 @@ pub fn seed_edited(state: &mut BState, t: &crate::scene::transform::BTransform) 
 }
 
 /// The object's two Shadow switches (`show_shadows`, `visible_shadow`).
-pub fn seed_shadow(state: &mut BState, shadow: crate::phiphx::blend::BlendShadowCast) {
+pub fn seed_shadow(state: &mut BState, shadow: crate::phiphx::device::blend::BlendShadowCast) {
     write(state, crate::scene::shadow::DISPLAY_FIELD, BValue::Bool(shadow.display));
     write(state, crate::scene::shadow::RAY_FIELD, BValue::Bool(shadow.ray));
 }

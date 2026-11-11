@@ -6,7 +6,7 @@
 //! writes the curves they made (phiphx `write/keys.rs`, checked in Blender
 //! by `blender_opens_saves`). `keying.rs` is the operator that makes them.
 
-use crate::phiphx::blend::{BFCurve, BlendActionSlot};
+use crate::phiphx::device::blend::{BFCurve, BlendActionSlot};
 use crate::phiphx::scene::SceneAction;
 
 const SEP: char = '|';

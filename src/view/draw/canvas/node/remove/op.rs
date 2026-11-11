@@ -43,7 +43,7 @@ impl BRule for BNodeDeleteRule {
 mod tests {
     use super::*;
     use super::super::removed_of;
-    use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph};
+    use crate::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeGraph};
     use crate::phiphx::scene::{SceneCornerList, SceneMaterial, SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::state::CtxKey;
     use crate::view::draw::canvas::node::select;

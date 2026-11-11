@@ -4,7 +4,7 @@
 //! mesh.
 
 use gpui::{TestAppContext, px, size};
-use phiber::phiphx::blend::BlendFile;
+use phiber::phiphx::device::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
 use phiber::app::BPhiberApp;
 use phiber::part::file::purpose::BFilePurpose;
@@ -19,7 +19,7 @@ fn fixture_copy(dir: &std::path::Path) -> PathBuf {
     copy
 }
 
-fn read_scene(path: &std::path::Path) -> phiber::phiphx::blend::BlendScene {
+fn read_scene(path: &std::path::Path) -> phiber::phiphx::device::blend::BlendScene {
     BlendFile::parse_bytes(&std::fs::read(path).unwrap()).unwrap().extract_scene().unwrap()
 }
 

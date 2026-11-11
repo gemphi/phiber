@@ -3,7 +3,7 @@
 //! it at `ctx.frame` — and its child, its light and its camera with it —
 //! while a still scene is built once and never again as the playhead runs.
 
-use phiber::phiphx::blend::{BFCurve, BKey, BlendMotion, BlendMotionList, ObjectTransformRaw};
+use phiber::phiphx::device::blend::{BFCurve, BKey, BlendMotion, BlendMotionList, ObjectTransformRaw};
 use phiber::phiphx::scene::{
     IDENTITY_M4, SceneCamera, SceneLight, SceneMesh, SceneModel, SceneMotion, SceneNormalList, SceneObject,
 };

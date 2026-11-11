@@ -192,7 +192,7 @@ pub enum BObject3D {
         color: [f32; 4],
         /// Whether it casts a shadow, per mode (`SceneObject::shadow`:
         /// Viewport Display ▸ Shadow, Visibility ▸ Ray ▸ Shadow).
-        shadow: crate::phiphx::blend::BlendShadowCast,
+        shadow: crate::phiphx::device::blend::BlendShadowCast,
     },
 }
 

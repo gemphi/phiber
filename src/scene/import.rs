@@ -6,7 +6,7 @@
 //! to a model made for them when nothing is loaded — under the Scene
 //! Collection, with a still motion each so playback leaves them be.
 
-use crate::phiphx::blend::{BlendMotion, ObjectTransformRaw};
+use crate::phiphx::device::blend::{BlendMotion, ObjectTransformRaw};
 use crate::phiphx::scene::{SceneCollection, SceneMesh, SceneModel, SceneNormalList, SceneObject};
 use std::path::Path;
 
@@ -21,7 +21,7 @@ pub fn read(path: &str) -> Result<Vec<SceneObject>, String> {
     let ext = Path::new(path).extension().and_then(|e| e.to_str()).map(str::to_ascii_lowercase).unwrap_or_default();
     let (meshes, y_up) = match ext.as_str() {
         "obj" => (crate::phiphx::import::ObjImporter::import_file_as_mesh(path).map_err(|e| e.to_string())?, true),
-        "usd" | "usda" | "usdc" => (crate::phiphx::import::usd::UsdImporter::import_file_as_mesh(path).map_err(|e| e.to_string())?, false),
+        "usd" | "usda" | "usdc" => (crate::phiphx::device::usd::read::mesh::UsdImporter::import_file_as_mesh(path).map_err(|e| e.to_string())?, false),
         #[cfg(feature = "gltf-import")]
         "gltf" | "glb" => (crate::phiphx::import::gltf::GltfImporter::import_meshes(path).map_err(|e| e.to_string())?, true),
         other => return Err(format!(".{other}: not a format phiber reads yet")),

@@ -4,8 +4,8 @@
 //! (`seed`), written back when it saves (`now` → `BlendEditList.playback`).
 //! The popover's layout is `panel.rs`.
 
-use crate::phiphx::blend::{BlendLoopMode, BlendPlayback, BlendSyncMode};
-use crate::phiphx::blend::{TIME_ALL_3D_WIN, TIME_ALL_ANIM_WIN, TIME_ALL_BUTS_WIN, TIME_ALL_IMAGE_WIN, TIME_CLIPS, TIME_NODES, TIME_REGION, TIME_SEQ, TIME_SPREADSHEETS};
+use crate::phiphx::device::blend::{BlendLoopMode, BlendPlayback, BlendSyncMode};
+use crate::phiphx::device::blend::{TIME_ALL_3D_WIN, TIME_ALL_ANIM_WIN, TIME_ALL_BUTS_WIN, TIME_ALL_IMAGE_WIN, TIME_CLIPS, TIME_NODES, TIME_REGION, TIME_SEQ, TIME_SPREADSHEETS};
 use crate::state::{BKey as _, BPath, BState, ButsKey, val::BValue};
 
 /// `Scene.sync_mode`'s items, as RNA names them.

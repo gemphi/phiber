@@ -10,7 +10,7 @@ use super::super::row::{BRowKind, BTimeRow, ROW_SKIP, set::diamond};
 use super::super::set::{hsla, rect, shape, text_at};
 use super::super::BTimeView;
 use super::{BTrackStrips, HOLD_AFTER_ALPHA, HOLD_BEFORE_ALPHA, MUTED_ALPHA, REPEAT_INSET, TEXT_MARGIN};
-use crate::phiphx::blend::{STRIP_ACTIVE, STRIP_MUTED, STRIP_SELECT, TRACK_MUTED};
+use crate::phiphx::device::blend::{STRIP_ACTIVE, STRIP_MUTED, STRIP_SELECT, TRACK_MUTED};
 use crate::theme::{BAnimColors, BColor};
 use gpui::{App, BorderStyle, Bounds, Corners, Edges, Pixels, Window, fill, px, quad};
 

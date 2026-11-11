@@ -1,6 +1,6 @@
 //! Object-type → outliner icon table (Blender `tree_element_get_icon`,
 //! `OB_*` → `ICON_OUTLINER_OB_*`). Static data only; keyed by the type
-//! names `phiphx::blend::ObjectKind::name` produces.
+//! names `phiphx::device::blend::ObjectKind::name` produces.
 
 pub struct BOutlineIcon;
 

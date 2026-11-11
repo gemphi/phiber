@@ -18,7 +18,7 @@ use crate::state::{BState, ButsKey, val::BValue};
 /// file used: an add-on may store a flag as an integer, and a checkbox parses
 /// `true` / `false`.
 pub fn seed_render_props(state: &mut BState, model: &SceneModel) {
-    use crate::phiphx::blend::BIdValue;
+    use crate::phiphx::device::blend::BIdValue;
     use crate::part::props::prop::BPropKind;
     use crate::part::props::render::spec_of;
     // The Engine row opens on the engine phiber will actually use, not the

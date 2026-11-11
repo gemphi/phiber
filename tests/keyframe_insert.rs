@@ -10,7 +10,7 @@
 //! writes). Over the factory scene, whose Cube has no animation.
 
 use gpui::{Modifiers, TestAppContext, px, size};
-use phiber::phiphx::blend::BlendFile;
+use phiber::phiphx::device::blend::BlendFile;
 use phiber::phiphx::scene::{SceneAction, SceneModel};
 use phiber::app::BPhiberApp;
 use phiber::scene::action::BSceneActions;

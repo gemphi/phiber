@@ -5,7 +5,7 @@
 //! with the Arm parented to the Cube (`make_parented.py`).
 
 use gpui::{Modifiers, TestAppContext, point, px, size};
-use phiber::phiphx::blend::BlendFile;
+use phiber::phiphx::device::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
 use phiber::app::BPhiberApp;
 use phiber::scene::transform::BTransforms;

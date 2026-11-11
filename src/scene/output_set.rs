@@ -10,7 +10,7 @@
 //! panel and then saves must get an EXR, not the PNG the file was saved with.
 
 use crate::state::{BState, ButsKey};
-use phiphx::blend::{BPassKind, BlendImageFormat, BlendOutput, BlendPassSet};
+use phiphx::device::blend::{BPassKind, BlendImageFormat, BlendOutput, BlendPassSet};
 
 /// The RNA identifiers the panel's File Format enum offers
 /// (`part/props/output.rs`), back to the imtype they stand for.
@@ -52,7 +52,7 @@ pub fn as_still(output: &BlendOutput) -> BlendOutput {
 /// Output ▸ Encoding as the panel has it, over the file's `movie` for what
 /// the panel leaves unsaid — Blender's RNA identifiers to the DNA values
 /// (`rna_scene.cc`'s `ffmpeg_format_items`, `ffmpeg_codec_items`, …).
-pub fn movie_set(state: &BState, file: crate::phiphx::blend::BlendMovie) -> crate::phiphx::blend::BlendMovie {
+pub fn movie_set(state: &BState, file: crate::phiphx::device::blend::BlendMovie) -> crate::phiphx::device::blend::BlendMovie {
     let text = |key: &'static str| state.get(ButsKey::Value(key)).filter(|v| !v.is_empty());
     let int = |key: &'static str, or: i32| text(key).and_then(|v| v.parse::<f64>().ok()).map_or(or, |v| v as i32);
     let container = match text("ffmpeg.format") {
@@ -75,7 +75,7 @@ pub fn movie_set(state: &BState, file: crate::phiphx::blend::BlendMovie) -> crat
         Some("GOOD") => 10, Some("BEST") => 11, Some("REALTIME") => 12,
         _ => file.preset,
     };
-    crate::phiphx::blend::BlendMovie { container, codec, crf, preset, gop: int("ffmpeg.gop_size", file.gop), bitrate: int("ffmpeg.video_bitrate", file.bitrate), ..file }
+    crate::phiphx::device::blend::BlendMovie { container, codec, crf, preset, gop: int("ffmpeg.gop_size", file.gop), bitrate: int("ffmpeg.video_bitrate", file.bitrate), ..file }
 }
 
 pub fn output_set(state: &BState) -> BlendOutput {
@@ -142,7 +142,7 @@ pub fn pass_state(set: BlendPassSet) -> Vec<(&'static str, &'static str)> {
 #[cfg(test)]
 mod movie_tests {
     use super::*;
-    use crate::phiphx::blend::{BlendImageFormat, BlendMovie};
+    use crate::phiphx::device::blend::{BlendImageFormat, BlendMovie};
 
     #[test]
     fn the_encoding_panel_overrides_the_file_and_ffmpeg_video_is_a_movie() {

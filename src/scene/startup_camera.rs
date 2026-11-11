@@ -7,7 +7,7 @@
 //! have something to render before a file is opened.
 
 use super::{BObject3D, view_op::bounds_of};
-use crate::phiphx::blend::BlendDof;
+use crate::phiphx::device::blend::BlendDof;
 use crate::phiphx::scene::{SceneCamera, SceneModel};
 use glam::Vec3;
 

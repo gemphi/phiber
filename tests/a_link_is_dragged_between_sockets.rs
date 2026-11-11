@@ -19,8 +19,8 @@
 //! file is never touched, which is why a graph edit cannot lose anything — and
 //! why these edits do not outlive the session.
 
-use phiber::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
-use phiber::phiphx::blend::shade::socket::BlendSocket;
+use phiber::phiphx::device::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
+use phiber::phiphx::device::blend::shade::socket::BlendSocket;
 use phiber::host::BHostType;
 use phiber::state::action::apply_action;
 use phiber::state::{BKey as _, BState, NodeKey};

@@ -12,7 +12,7 @@ use crate::view::prim::BAction;
 
 fn model() -> SceneModel {
     let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../phiphx/tests/fixtures/actions.blend");
-    let scene = crate::phiphx::blend::BlendFile::parse_bytes(&std::fs::read(&path).unwrap()).unwrap().extract_scene().unwrap();
+    let scene = crate::phiphx::device::blend::BlendFile::parse_bytes(&std::fs::read(&path).unwrap()).unwrap().extract_scene().unwrap();
     SceneModel::from_blend_owned(scene, &path.to_string_lossy())
 }
 
@@ -112,7 +112,7 @@ fn the_copy_buffer_round_trips() {
 /// jitters share its frame. Failing that, the first key's type stands.
 #[test]
 fn a_column_takes_a_proper_keyframe_over_any_other_type() {
-    use crate::phiphx::blend::{KEYTYPE_BREAKDOWN, KEYTYPE_GENERATED, KEYTYPE_JITTER, KEYTYPE_KEYFRAME};
+    use crate::phiphx::device::blend::{KEYTYPE_BREAKDOWN, KEYTYPE_GENERATED, KEYTYPE_JITTER, KEYTYPE_KEYFRAME};
     use crate::scene::action::dope::fold_columns;
 
     // Out of order, with two curves keyed on frame 5 — one a breakdown, one
@@ -149,7 +149,7 @@ fn a_column_takes_a_proper_keyframe_over_any_other_type() {
 /// index for index with its frames.
 #[test]
 fn the_row_carries_the_keyframe_type_it_was_given() {
-    use crate::phiphx::blend::{KEYTYPE_BREAKDOWN, KEYTYPE_KEYFRAME};
+    use crate::phiphx::device::blend::{KEYTYPE_BREAKDOWN, KEYTYPE_KEYFRAME};
     use crate::view::draw::canvas::time::row::BTimeRow;
     let model = model();
     crate::scene::source::set_loaded_scene(Some(model.clone()));

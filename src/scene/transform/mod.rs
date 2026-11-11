@@ -122,12 +122,12 @@ impl BTransforms {
 
     /// The edits a save writes for objects the session made (added or
     /// duplicated — the file's own carry theirs in their object edit).
-    pub fn session_edits(&self, edit: &BSceneEdit) -> Vec<crate::phiphx::blend::write::BlendObjectEdit> {
+    pub fn session_edits(&self, edit: &BSceneEdit) -> Vec<crate::phiphx::device::blend::write::BlendObjectEdit> {
         let made = |name: &str| edit.added.iter().any(|(n, _)| n == name) || edit.copied.iter().any(|(n, _)| n == name);
         self.list
             .iter()
             .filter(|(name, _)| made(name))
-            .map(|(name, t)| crate::phiphx::blend::write::BlendObjectEdit { name: name.clone(), transform: Some(t.to_blend()), ..Default::default() })
+            .map(|(name, t)| crate::phiphx::device::blend::write::BlendObjectEdit { name: name.clone(), transform: Some(t.to_blend()), ..Default::default() })
             .collect()
     }
 

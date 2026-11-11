@@ -1,6 +1,6 @@
 use super::*;
-use crate::phiphx::blend::shade::graph::BlendNode;
-use crate::phiphx::blend::shade::socket::BlendSocket;
+use crate::phiphx::device::blend::shade::graph::BlendNode;
+use crate::phiphx::device::blend::shade::socket::BlendSocket;
 
 fn input(id: &str, default: BSocketDefault) -> BlendSocket {
     BlendSocket { identifier: id.into(), name: id.into(), default: Some(default), ..Default::default() }
@@ -69,8 +69,8 @@ fn vsize() -> super::super::plan::BCardSize {
 fn vview() -> super::super::view::BNodeView {
     super::super::view::BNodeView { xmin: 0.0, ymin: 0.0, xmax: 1000.0, ymax: 1000.0 }
 }
-fn vinput(id: &str, default: BSocketDefault) -> crate::phiphx::blend::shade::socket::BlendSocket {
-    crate::phiphx::blend::shade::socket::BlendSocket { identifier: id.into(), name: id.into(), default: Some(default), ..Default::default() }
+fn vinput(id: &str, default: BSocketDefault) -> crate::phiphx::device::blend::shade::socket::BlendSocket {
+    crate::phiphx::device::blend::shade::socket::BlendSocket { identifier: id.into(), name: id.into(), default: Some(default), ..Default::default() }
 }
 
 #[test]

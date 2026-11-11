@@ -49,7 +49,7 @@ fn consecutive_sockets_are_a_row_and_a_gap_apart() {
 
 #[test]
 fn an_unavailable_socket_takes_no_room() {
-    use crate::phiphx::blend::shade::socket::SOCK_UNAVAIL;
+    use crate::phiphx::device::blend::shade::socket::SOCK_UNAVAIL;
     // A Math node in single-operand mode: the second operand is switched
     // off, and the card is a whole row shorter for it.
     let both = node(vec![sock("A", 0, 0), sock("B", 0, 0)], Vec::new());
@@ -65,7 +65,7 @@ fn an_unavailable_socket_takes_no_room() {
 
 #[test]
 fn blenders_asymmetric_gap_is_ported_not_tidied() {
-    use crate::phiphx::blend::shade::socket::SOCK_UNAVAIL;
+    use crate::phiphx::device::blend::shade::socket::SOCK_UNAVAIL;
     // Outputs space only before an AVAILABLE next socket; inputs space
     // before any next socket. Two lines apart in Blender, and the reason a
     // node whose last input is followed by a disabled one is a tenth of a
@@ -129,7 +129,7 @@ fn an_input_reads_as_linked_only_when_its_identifier_is_in_the_set() {
 
 #[test]
 fn an_unconnected_vector_input_is_taller_and_collapses_when_linked() {
-    use crate::phiphx::blend::shade::socket::BSocketDefault;
+    use crate::phiphx::device::blend::shade::socket::BSocketDefault;
     // `std_node_socket_draw` draws an unconnected vector as a name row above a
     // field per component — a taller socket — and a connected one as a plain
     // row. So the node is taller exactly when the vector input is unlinked.

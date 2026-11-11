@@ -91,7 +91,7 @@ fn build_with(scene: &[BObject3D], palette: &BMeshPalette, images: bool) -> Scen
         // The object's own colour and its name's hash: Solid's Color ▸
         // Object and ▸ Random (`workbench::Material(Object &, random)`).
         let (name, color, shadow) = match o {
-            BObject3D::Primitive { name, .. } => (name.as_str(), [1.0; 3], crate::phiphx::blend::BlendShadowCast::default()),
+            BObject3D::Primitive { name, .. } => (name.as_str(), [1.0; 3], crate::phiphx::device::blend::BlendShadowCast::default()),
             BObject3D::Loaded { name, color, shadow, .. } => (name.as_str(), [color[0], color[1], color[2]], *shadow),
         };
         let hash = phiray::trace::hash::ObjectHash::of(name);
@@ -156,7 +156,7 @@ fn build_with(scene: &[BObject3D], palette: &BMeshPalette, images: bool) -> Scen
                         let (nid, n) = n_of(face * 3 + k, i[k]);
                         verts.id(t[k], nid.wrapping_add(part), || {
                             let uv = uvs.get(i[k]).copied().unwrap_or_default();
-                            out.vertex(mesh.vertices[i[k]], n, affine.map_or(uv, |a| crate::phiphx::blend::shade::bake::apply(a, uv)))
+                            out.vertex(mesh.vertices[i[k]], n, affine.map_or(uv, |a| crate::phiphx::device::blend::shade::bake::apply(a, uv)))
                         })
                     });
                     // The colour attribute at the corners (Color ▸ Attribute);

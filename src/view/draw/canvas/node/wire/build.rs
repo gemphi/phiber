@@ -7,7 +7,7 @@
 
 use super::{BLinking, BWire, link, select};
 use super::super::super::super::ctx::BRenderCtx;
-use crate::phiphx::blend::shade::graph::{BlendNodeGraph, BlendNodeLink};
+use crate::phiphx::device::blend::shade::graph::{BlendNodeGraph, BlendNodeLink};
 use crate::state::{BKey as _, NodeKey};
 use gpui::{Bounds, Pixels};
 use std::cell::Cell;
@@ -83,8 +83,8 @@ pub fn for_frame(frame: BFrame<'_>, ctx: &BRenderCtx) -> (Rc<BWire>, Vec<crate::
 /// chain is what carries a node inside a frame inside a selected frame; the
 /// guard stops a malformed self-parent from looping.
 pub(crate) fn moves_with(
-    node: &crate::phiphx::blend::shade::graph::BlendNode,
-    nodes: &[crate::phiphx::blend::shade::graph::BlendNode],
+    node: &crate::phiphx::device::blend::shade::graph::BlendNode,
+    nodes: &[crate::phiphx::device::blend::shade::graph::BlendNode],
     selection: &select::BNodeSelection,
 ) -> bool {
     if select::rank_of_name(&node.name, selection, nodes) > 0 {
@@ -110,7 +110,7 @@ pub(crate) fn moves_with(
 mod tests {
     use super::moves_with;
     use super::select::BNodeSelection;
-    use crate::phiphx::blend::shade::graph::BlendNode;
+    use crate::phiphx::device::blend::shade::graph::BlendNode;
 
     fn frame(address: u64) -> BlendNode {
         BlendNode { name: format!("f{address}"), idname: "NodeFrame".into(), address, ..Default::default() }

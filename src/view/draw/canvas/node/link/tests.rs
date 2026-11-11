@@ -2,7 +2,7 @@
 //! budget (`level_structure`), the way `canvas/time/row/` is.
 
 use super::*;
-use crate::phiphx::blend::shade::socket::SOCK_MULTI_INPUT;
+use crate::phiphx::device::blend::shade::socket::SOCK_MULTI_INPUT;
 
 /// An input socket as Blender creates one: `limit = 1`.
 fn input(identifier: &str) -> BlendSocket {
@@ -72,7 +72,7 @@ fn the_same_pair_of_sockets_cannot_be_linked_twice() {
 #[test]
 fn a_link_to_a_socket_that_is_not_drawn_is_not_allowed() {
     // A link nobody can see is a link nobody can break, so it is not offered.
-    use crate::phiphx::blend::shade::socket::SOCK_UNAVAIL;
+    use crate::phiphx::device::blend::shade::socket::SOCK_UNAVAIL;
     let mut g = graph();
     g.nodes[1].inputs[0].flag = SOCK_UNAVAIL;
     assert!(!allowed(

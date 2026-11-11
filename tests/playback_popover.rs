@@ -5,7 +5,7 @@
 //! it on save.
 
 use gpui::{Modifiers, MouseButton, TestAppContext, px, size};
-use phiber::phiphx::blend::{BlendFile, BlendPlayback, BlendSyncMode, TIME_ALL_3D_WIN};
+use phiber::phiphx::device::blend::{BlendFile, BlendPlayback, BlendSyncMode, TIME_ALL_3D_WIN};
 use phiber::phiphx::scene::SceneModel;
 use phiber::app::BPhiberApp;
 use phiber::part::playback::settings;

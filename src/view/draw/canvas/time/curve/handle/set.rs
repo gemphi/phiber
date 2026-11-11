@@ -61,7 +61,7 @@ impl BTimeView {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::blend::{HANDLE_AUTO, HANDLE_AUTO_ANIM, HANDLE_FREE};
+    use crate::phiphx::device::blend::{HANDLE_AUTO, HANDLE_AUTO_ANIM, HANDLE_FREE};
 
     #[test]
     fn handle_colours_index_blenders_theme_slots() {

@@ -209,7 +209,7 @@ mod tests {
     fn every_startup_file_is_blenders_own_factory_scene_in_its_versions_layout() {
         for template in BTemplate::ALL {
             let path = template.startup_path().expect("written");
-            let file = crate::phiphx::blend::BlendFile::parse_bytes(&std::fs::read(&path).unwrap()).unwrap();
+            let file = crate::phiphx::device::blend::BlendFile::parse_bytes(&std::fs::read(&path).unwrap()).unwrap();
             assert_eq!(BTemplate::for_version(&file.header.version_label()), Some(template), "{}: {}", template.file_name(), file.header.version_label());
             let scene = file.extract_scene().unwrap();
             let mut names: Vec<&str> = scene.objects.iter().map(|o| o.name.as_str()).collect();

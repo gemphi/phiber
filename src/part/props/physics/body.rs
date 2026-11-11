@@ -6,7 +6,7 @@ use super::{clear, put};
 use crate::part::props::prop::*;
 use crate::part::props::set::BSectionSpec;
 use crate::part::props::set::sec;
-use crate::phiphx::blend::physics::{BMeshSource, BRigidBody};
+use crate::phiphx::device::blend::physics::{BMeshSource, BRigidBody};
 use crate::state::{BState, val::BValue};
 
 static KIND: &[BEnumItem] = &[en("ACTIVE", "Active"), en("PASSIVE", "Passive")];

@@ -8,7 +8,7 @@ use super::cursor::{BCursorInk, BCursorMark};
 use super::origin::{BOriginDot, BOriginInk};
 use super::super::extra::{BExtraPalette, BProjectedLine, project};
 use super::super::floor::{BFloorPalette, lines};
-use crate::phiphx::blend::BlendFile;
+use crate::phiphx::device::blend::BlendFile;
 use crate::phiphx::scene::SceneModel;
 use crate::scene::camera::BViewSetup;
 use crate::scene::pick::extra::BPickExtra;

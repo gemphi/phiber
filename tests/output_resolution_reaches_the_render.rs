@@ -4,7 +4,7 @@
 //! file's whatever the panel said.
 
 use gpui::{TestAppContext, px, size};
-use phiber::phiphx::blend::BlendFile;
+use phiber::phiphx::device::blend::BlendFile;
 use phiber::phiphx::scene::SceneModel;
 use phiber::app::BPhiberApp;
 use phiber::scene::render_set::BResolution;
