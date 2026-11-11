@@ -58,7 +58,7 @@ impl BViewList for BSpreadsheetList {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::scene::{SceneMesh, SceneModel, SceneNormals, SceneObject};
+    use crate::phiphx::scene::{SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::scene::{clear_loaded_scene, set_loaded_scene};
     use crate::state::CtxKey;
 
@@ -68,7 +68,7 @@ mod tests {
             mesh: SceneMesh {
                 vertices: vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.5, 0.0]],
                 indices: vec![0, 1, 2],
-                normals: SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]]),
+                normals: SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]]),
                 corners: Default::default(),
             }
             .into(),
@@ -97,8 +97,8 @@ mod tests {
         let mesh = SceneMesh {
             vertices: vec![[0.0; 3], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [0.0, 1.0, 0.0]],
             indices: vec![0, 1, 2, 0, 2, 3],
-            normals: SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]; 2]),
-            corners: crate::phiphx::scene::SceneCorners { ids: vec![0; 6], normals: Vec::new(), colors: vec![[1.0, 0.5, 0.0]; 6] },
+            normals: SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]; 2]),
+            corners: crate::phiphx::scene::SceneCornerList { ids: vec![0; 6], normals: Vec::new(), colors: vec![[1.0, 0.5, 0.0]; 6] },
         };
         object.mesh = mesh.into();
         object.uvs = std::sync::Arc::new(vec![[0.25, 0.75], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]]);

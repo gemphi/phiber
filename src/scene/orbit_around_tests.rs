@@ -102,15 +102,15 @@ fn the_centre_is_the_mean_of_the_selected_boxes_and_needs_the_preference() {
 
 #[test]
 fn a_mesh_s_centre_is_its_own_box_through_its_matrix() {
-    use crate::phiphx::scene::SceneNormals;
+    use crate::phiphx::scene::SceneNormalList;
     let vertices = vec![[0.0, 0.0, 0.0], [4.0, 0.0, 0.0], [4.0, 2.0, 0.0], [0.0, 2.0, 1.0]];
-    let mesh = Arc::new(SceneMesh { vertices, indices: vec![0, 1, 2, 0, 2, 3], normals: SceneNormals::PerFace(Vec::new()), corners: Default::default() });
+    let mesh = Arc::new(SceneMesh { vertices, indices: vec![0, 1, 2, 0, 2, 3], normals: SceneNormalList::PerFace(Vec::new()), corners: Default::default() });
     // A quarter turn about Z, then moved to (10, 0, 5): (2, 1, 0.5) lands at (9, 2, 5.5).
     let m = [[0.0, 1.0, 0.0, 0.0], [-1.0, 0.0, 0.0, 0.0], [0.0, 0.0, 1.0, 0.0], [10.0, 0.0, 5.0, 1.0]];
     let local = (*BOXES.of(&mesh, local_box)).unwrap();
     let world = Mat4::from_cols_array_2d(&m).transform_point3((local.0 + local.1) * 0.5);
     assert!((world - Vec3::new(9.0, 2.0, 5.5)).length() < 1e-5, "{world}");
-    let empty = Arc::new(SceneMesh { vertices: Vec::new(), indices: Vec::new(), normals: SceneNormals::PerFace(Vec::new()), corners: Default::default() });
+    let empty = Arc::new(SceneMesh { vertices: Vec::new(), indices: Vec::new(), normals: SceneNormalList::PerFace(Vec::new()), corners: Default::default() });
     assert_eq!(*BOXES.of(&empty, local_box), None, "no vertices: the origin stands in");
 }
 

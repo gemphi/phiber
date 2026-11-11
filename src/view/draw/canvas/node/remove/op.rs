@@ -44,7 +44,7 @@ mod tests {
     use super::*;
     use super::super::removed_of;
     use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph};
-    use crate::phiphx::scene::{SceneCorners, SceneMaterial, SceneMesh, SceneModel, SceneNormals, SceneObject};
+    use crate::phiphx::scene::{SceneCornerList, SceneMaterial, SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::state::CtxKey;
     use crate::view::draw::canvas::node::select;
 
@@ -59,8 +59,8 @@ mod tests {
         let mesh = SceneMesh {
             vertices: vec![[0.0; 3]],
             indices: Vec::new(),
-            normals: SceneNormals::PerFace(Vec::new()),
-            corners: SceneCorners::default(),
+            normals: SceneNormalList::PerFace(Vec::new()),
+            corners: SceneCornerList::default(),
         };
         let mut object = SceneObject::identity("Cube", mesh);
         object.materials = vec![material];

@@ -267,7 +267,7 @@ pub fn scene_actions() -> Vec<SceneAction> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::scene::{SceneMesh, SceneModel, SceneNormals, SceneObject};
+    use crate::phiphx::scene::{SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::scene::OBJECTS;
 
     fn loaded_object(name: &str) -> SceneObject {
@@ -276,7 +276,7 @@ mod tests {
             mesh: SceneMesh {
                 vertices: vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
                 indices: vec![0, 1, 2],
-                normals: SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]]),
+                normals: SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]]),
                 corners: Default::default(),
             }.into(),
             location: [0.0, 0.0, 0.0],
@@ -356,14 +356,14 @@ mod tests {
 #[cfg(test)]
 mod memo_tests {
     use super::*;
-    use crate::phiphx::scene::{SceneMesh, SceneNormals, SceneObject};
+    use crate::phiphx::scene::{SceneMesh, SceneNormalList, SceneObject};
     use crate::scene::OBJECTS;
 
     fn model(objects: usize) -> SceneModel {
         let mesh = SceneMesh {
             vertices: vec![[0.0, 0.0, 0.0]; 3],
             indices: vec![0, 1, 2],
-            normals: SceneNormals::PerVertex(vec![[0.0, 0.0, 1.0]; 3]),
+            normals: SceneNormalList::PerVertex(vec![[0.0, 0.0, 1.0]; 3]),
             corners: Default::default(),
         };
         SceneModel {

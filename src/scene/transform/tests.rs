@@ -20,15 +20,15 @@ fn the_panel_values_make_blenders_matrix() {
 
 #[test]
 fn clear_sends_a_channel_back_to_identity_keeping_the_others() {
-    use crate::phiphx::scene::{SceneCorners, SceneMesh, SceneModel, SceneNormals, SceneObject};
+    use crate::phiphx::scene::{SceneCornerList, SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::state::action::apply_action;
     use crate::view::prim::BAction;
 
     let mesh = SceneMesh {
         vertices: vec![[0.0; 3]],
         indices: Vec::new(),
-        normals: SceneNormals::PerFace(Vec::new()),
-        corners: SceneCorners::default(),
+        normals: SceneNormalList::PerFace(Vec::new()),
+        corners: SceneCornerList::default(),
     };
     let mut model = SceneModel { objects: vec![SceneObject::identity("Cube", mesh)], ..Default::default() };
     model.selection.selected = vec!["Cube".into()];

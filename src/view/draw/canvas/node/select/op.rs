@@ -65,7 +65,7 @@ fn all_of(names: &[&str], cur: &BNodeSelection) -> BNodeSelection {
 mod tests {
     use super::*;
     use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph};
-    use crate::phiphx::scene::{SceneCorners, SceneMaterial, SceneMesh, SceneModel, SceneNormals, SceneObject};
+    use crate::phiphx::scene::{SceneCornerList, SceneMaterial, SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::state::CtxKey;
 
     /// A loaded Cube whose one material has `names` as its node graph.
@@ -80,8 +80,8 @@ mod tests {
         let mesh = SceneMesh {
             vertices: vec![[0.0; 3]],
             indices: Vec::new(),
-            normals: SceneNormals::PerFace(Vec::new()),
-            corners: SceneCorners::default(),
+            normals: SceneNormalList::PerFace(Vec::new()),
+            corners: SceneCornerList::default(),
         };
         let mut object = SceneObject::identity("Cube", mesh);
         object.materials = vec![material];

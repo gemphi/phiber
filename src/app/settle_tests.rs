@@ -3,7 +3,7 @@ use super::*;
 
     // ---- settle_import ------------------------------------------------------
 
-    use crate::phiphx::scene::{SceneMesh, SceneNormals, SceneObject};
+    use crate::phiphx::scene::{SceneMesh, SceneNormalList, SceneObject};
 
     /// A minimal model carrying a `source_path`, for the success path.
     fn model_at(path: &str) -> SceneModel {
@@ -13,7 +13,7 @@ use super::*;
                 mesh: SceneMesh {
                     vertices: vec![[0.0, 0.0, 0.0]],
                     indices: vec![],
-                    normals: SceneNormals::PerVertex(vec![[0.0, 0.0, 1.0]]),
+                    normals: SceneNormalList::PerVertex(vec![[0.0, 0.0, 1.0]]),
                     corners: Default::default(),
                 }.into(),
                 location: [0.0, 0.0, 0.0],

@@ -5,7 +5,7 @@
 //! stay two uploads.
 
 use super::scene;
-use crate::phiphx::scene::{SceneCorners, SceneMesh, SceneNormals};
+use crate::phiphx::scene::{SceneCornerList, SceneMesh, SceneNormalList};
 use crate::scene::{BObject3D, BShading};
 use gpui::white;
 use std::sync::Arc;
@@ -19,8 +19,8 @@ fn triangle() -> Arc<SceneMesh> {
     Arc::new(SceneMesh {
         vertices: vec![[0.0; 3], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
         indices: vec![0, 1, 2],
-        normals: SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]]),
-        corners: SceneCorners::default(),
+        normals: SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]]),
+        corners: SceneCornerList::default(),
     })
 }
 

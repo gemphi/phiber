@@ -18,7 +18,7 @@
 use std::path::{Path, PathBuf};
 
 use phiber::phiphx::Phx;
-use phiber::phiphx::scene::{SceneModel, SceneNormals};
+use phiber::phiphx::scene::{SceneModel, SceneNormalList};
 
 /// Root of Blender's upstream test files inside REFS (relative to the phiber
 /// crate manifest dir). Optional — tests skip when it is absent.
@@ -55,14 +55,14 @@ fn assert_scene_invariants(model: &SceneModel, label: &str) {
             );
         }
         match &obj.mesh.normals {
-            SceneNormals::PerVertex(ns) => assert_eq!(
+            SceneNormalList::PerVertex(ns) => assert_eq!(
                 ns.len(),
                 verts,
                 "{label} / object `{}`: per-vertex normals ({}) != vertices ({verts})",
                 obj.name,
                 ns.len()
             ),
-            SceneNormals::PerFace(ns) => assert_eq!(
+            SceneNormalList::PerFace(ns) => assert_eq!(
                 ns.len(),
                 idx.len() / 3,
                 "{label} / object `{}`: per-face normals ({}) != triangles ({})",

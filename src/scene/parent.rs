@@ -63,7 +63,7 @@ impl BRule for BObjectParentRule {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::scene::{SceneCorners, SceneMesh, SceneModel, SceneNormals, SceneObject};
+    use crate::phiphx::scene::{SceneCornerList, SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::state::SceneKey;
     use crate::state::action::apply_action;
     use crate::view::prim::BAction;
@@ -72,8 +72,8 @@ mod tests {
         SceneMesh {
             vertices: vec![[0.0; 3]],
             indices: Vec::new(),
-            normals: SceneNormals::PerFace(Vec::new()),
-            corners: SceneCorners::default(),
+            normals: SceneNormalList::PerFace(Vec::new()),
+            corners: SceneCornerList::default(),
         }
     }
 

@@ -120,7 +120,7 @@ mod tests {
         let mesh = crate::phiphx::scene::SceneMesh {
             vertices: vec![[0.0; 3]; 4],
             indices: vec![0, 1, 2, 0, 2, 3],
-            normals: crate::phiphx::scene::SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]; 2]),
+            normals: crate::phiphx::scene::SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]; 2]),
             corners: Default::default(),
         };
         let count = |d: BSpreadsheetDomain| d.count(&mesh);

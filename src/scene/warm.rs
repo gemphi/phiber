@@ -70,7 +70,7 @@ impl BWarm {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::scene::{SceneNormals, SceneObject};
+    use crate::phiphx::scene::{SceneNormalList, SceneObject};
 
     fn sheet(n: usize) -> SceneMesh {
         let mut v = Vec::new();
@@ -86,7 +86,7 @@ mod tests {
                 i.extend([p, p + 1, p + row, p + 1, p + row + 1, p + row]);
             }
         }
-        SceneMesh { vertices: v, indices: i, normals: SceneNormals::PerFace(Vec::new()), corners: Default::default() }
+        SceneMesh { vertices: v, indices: i, normals: SceneNormalList::PerFace(Vec::new()), corners: Default::default() }
     }
 
     #[test]

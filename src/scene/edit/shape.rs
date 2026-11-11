@@ -5,7 +5,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use crate::phiphx::scene::{SceneMesh, SceneNormals};
+use crate::phiphx::scene::{SceneMesh, SceneNormalList};
 use crate::phiphx::spatial::{PhiQuiMeshType, SpatialObject3D};
 
 /// The primitives `Add ▸ Mesh` offers, as Blender lists them.
@@ -40,7 +40,7 @@ pub fn mesh_of(kind: PhiQuiMeshType) -> SceneMesh {
     SceneMesh {
         vertices: vertices.iter().map(|v| [v.0, v.2, v.1]).collect(),
         indices,
-        normals: SceneNormals::PerVertex(normals.iter().map(|n| [n.0, n.2, n.1]).collect()),
+        normals: SceneNormalList::PerVertex(normals.iter().map(|n| [n.0, n.2, n.1]).collect()),
         corners: Default::default(),
     }
 }

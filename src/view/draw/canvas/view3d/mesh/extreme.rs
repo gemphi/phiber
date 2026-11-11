@@ -105,7 +105,7 @@ mod tests {
 
     #[test]
     fn a_mesh_s_points_are_found_once() {
-        let mesh = Arc::new(SceneMesh { vertices: sphere(1000), indices: Vec::new(), normals: crate::phiphx::scene::SceneNormals::PerFace(Vec::new()), corners: Default::default() });
+        let mesh = Arc::new(SceneMesh { vertices: sphere(1000), indices: Vec::new(), normals: crate::phiphx::scene::SceneNormalList::PerFace(Vec::new()), corners: Default::default() });
         let (a, b) = (of(&mesh), of(&mesh));
         assert!(Arc::ptr_eq(&a, &b));
     }

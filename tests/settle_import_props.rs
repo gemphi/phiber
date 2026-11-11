@@ -11,7 +11,7 @@
 
 use phiber::{
     phiphx::scene::{
-        SceneLoadError, SceneMesh, SceneModel, SceneNormals, SceneObject,
+        SceneLoadError, SceneMesh, SceneModel, SceneNormalList, SceneObject,
     },
     app::import::{ImportOutcome, settle_import},
 
@@ -29,7 +29,7 @@ fn scene_obj(name: &str) -> SceneObject {
         mesh: SceneMesh {
             vertices: vec![[0.0, 0.0, 0.0]],
             indices: vec![],
-            normals: SceneNormals::PerVertex(vec![[0.0, 0.0, 1.0]]),
+            normals: SceneNormalList::PerVertex(vec![[0.0, 0.0, 1.0]]),
             corners: Default::default(),
         }.into(),
         location: [0.0, 0.0, 0.0],

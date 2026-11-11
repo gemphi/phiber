@@ -2,7 +2,7 @@
 //! textures landing in the tracer's slots.
 
 use crate::phiphx::blend::shade::surface::BlendMix;
-use crate::phiphx::scene::{SceneBsdf, SceneCorners, SceneMaterial, SceneMesh, SceneNormals};
+use crate::phiphx::scene::{SceneBsdf, SceneCornerList, SceneMaterial, SceneMesh, SceneNormalList};
 use crate::scene::{BObject3D, BShading};
 use gpui::white;
 
@@ -12,8 +12,8 @@ fn card(material: SceneMaterial) -> BObject3D {
         mesh: std::sync::Arc::new(SceneMesh {
             vertices: vec![[0.0; 3], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             indices: vec![0, 1, 2],
-            normals: SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]]),
-            corners: SceneCorners::default(),
+            normals: SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]]),
+            corners: SceneCornerList::default(),
         }),
         location: [0.0; 3],
         scale: [1.0; 3],

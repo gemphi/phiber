@@ -7,7 +7,7 @@
 //! Collection, with a still motion each so playback leaves them be.
 
 use crate::phiphx::blend::{BlendMotion, ObjectTransformRaw};
-use crate::phiphx::scene::{SceneCollection, SceneMesh, SceneModel, SceneNormals, SceneObject};
+use crate::phiphx::scene::{SceneCollection, SceneMesh, SceneModel, SceneNormalList, SceneObject};
 use std::path::Path;
 
 /// The extensions `read` takes.
@@ -36,8 +36,8 @@ pub fn read(path: &str) -> Result<Vec<SceneObject>, String> {
             let up = |p: [f32; 3]| if y_up { [p[0], -p[2], p[1]] } else { p };
             let name = if mesh.name.is_empty() || mesh.name == "Default" { if i == 0 { stem.clone() } else { format!("{stem}.{i:03}") } } else { mesh.name.clone() };
             let normals = match &mesh.normals {
-                Some(n) if n.len() == mesh.positions.len() => SceneNormals::PerVertex(n.iter().map(|n| up(*n)).collect()),
-                _ => SceneNormals::PerFace(mesh.indices.iter().map(|_| [0.0, 0.0, 1.0]).collect()),
+                Some(n) if n.len() == mesh.positions.len() => SceneNormalList::PerVertex(n.iter().map(|n| up(*n)).collect()),
+                _ => SceneNormalList::PerFace(mesh.indices.iter().map(|_| [0.0, 0.0, 1.0]).collect()),
             };
             SceneObject::identity(
                 name,

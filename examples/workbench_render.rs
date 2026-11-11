@@ -39,8 +39,8 @@ fn main() {
             let n = |c: usize, v: usize| -> [f32; 3] {
                 let raw = match &mesh.normals {
                     _ if !mesh.corners.is_empty() => mesh.corners.normal(c),
-                    phiber::phiphx::scene::SceneNormals::PerVertex(n) => n.get(v).copied().unwrap_or_default(),
-                    phiber::phiphx::scene::SceneNormals::PerFace(_) => [0.0; 3],
+                    phiber::phiphx::scene::SceneNormalList::PerVertex(n) => n.get(v).copied().unwrap_or_default(),
+                    phiber::phiphx::scene::SceneNormalList::PerFace(_) => [0.0; 3],
                 };
                 if raw == [0.0; 3] { raw } else { (nm * glam::Vec3::from(raw)).normalize_or_zero().to_array() }
             };

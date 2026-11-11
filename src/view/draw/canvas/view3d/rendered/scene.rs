@@ -8,7 +8,7 @@ use super::super::mesh::BMeshPalette;
 use super::vert::BRayVerts;
 use crate::scene::camera::{BViewSetup, SCREEN};
 use crate::scene::{BObject3D, MESH_SCALE};
-use crate::phiphx::scene::SceneNormals;
+use crate::phiphx::scene::SceneNormalList;
 use crate::phiphx::spatial::SpatialObject3D;
 use glam::Vec3;
 use gpui::Hsla;
@@ -135,8 +135,8 @@ fn build_with(scene: &[BObject3D], palette: &BMeshPalette, images: bool) -> Scen
                     // Per-face normals are flat shading: a zero normal tells the tracer to use the face normal.
                     match &mesh.normals {
                         _ if !mesh.corners.is_empty() => (mesh.corners.id(c), mesh.corners.normal(c)),
-                        SceneNormals::PerVertex(n) => (0, n.get(v).copied().unwrap_or_default()),
-                        SceneNormals::PerFace(_) => (0, [0.0; 3]),
+                        SceneNormalList::PerVertex(n) => (0, n.get(v).copied().unwrap_or_default()),
+                        SceneNormalList::PerFace(_) => (0, [0.0; 3]),
                     }
                 };
                 let count = mesh.vertices.len();

@@ -22,7 +22,7 @@ pub mod phx {
 }
 pub use phiphx::{
     AssetImportResult, AssetImporter, ImportedCollection, ImportedMaterial, ImportedObject, Mesh,
-    PointCloud, PointCloudError, SampledPoint, Vertex, VertexAttributes,
+    PointCloud, PointCloudError, SampledPoint, Vertex, VertexAttributeList,
 };
 pub use phiphx::Result as PhxResult;
 

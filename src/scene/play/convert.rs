@@ -3,18 +3,18 @@
 //! the base colour (and the emission, when it glows); a part as an object
 //! standing where the part says.
 
-use crate::phiphx::scene::{SceneBsdf, SceneCorners, SceneMap, SceneMaps, SceneMaterial, SceneMesh, SceneNormals, SceneObject, SceneTexture};
+use crate::phiphx::scene::{SceneBsdf, SceneCornerList, SceneMap, SceneMapList, SceneMaterial, SceneMesh, SceneNormalList, SceneObject, SceneTexture};
 use phiplay::build::{BImage, BMat, BMesh, BPart};
 use std::sync::Arc;
 
 pub fn mesh(m: &BMesh) -> SceneMesh {
-    SceneMesh { vertices: m.positions.clone(), indices: m.indices.clone(), normals: SceneNormals::PerVertex(m.normals.clone()), corners: SceneCorners::default() }
+    SceneMesh { vertices: m.positions.clone(), indices: m.indices.clone(), normals: SceneNormalList::PerVertex(m.normals.clone()), corners: SceneCornerList::default() }
 }
 
 /// An empty mesh: what an object is made with before its shared mesh is
 /// put in.
 fn placeholder() -> SceneMesh {
-    SceneMesh { vertices: Vec::new(), indices: Vec::new(), normals: SceneNormals::PerVertex(Vec::new()), corners: SceneCorners::default() }
+    SceneMesh { vertices: Vec::new(), indices: Vec::new(), normals: SceneNormalList::PerVertex(Vec::new()), corners: SceneCornerList::default() }
 }
 
 pub fn texture(image: &BImage) -> SceneTexture {
@@ -42,7 +42,7 @@ pub fn material(m: &BMat) -> SceneMaterial {
         base_color_texture: image.as_ref().map(|_| m.name.clone()),
         texture: image,
         bsdf,
-        maps: SceneMaps { emit, ..Default::default() },
+        maps: SceneMapList { emit, ..Default::default() },
         ..SceneMaterial::neutral()
     }
 }

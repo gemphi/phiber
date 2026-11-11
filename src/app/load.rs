@@ -21,7 +21,7 @@ const PROGRESS_POLL_MS: u64 = 33;
 
 /// The reader's result: the base scene, and the modifier work still to finish
 /// (progressive open), or a load error.
-type ImportResult = Result<(SceneModel, Option<crate::phiphx::scene::DeferredModifiers>), SceneLoadError>;
+type ImportResult = Result<(SceneModel, Option<crate::phiphx::scene::DeferredModifierList>), SceneLoadError>;
 
 /// Messages from the reader thread to the UI poll loop.
 enum ImportMsg {

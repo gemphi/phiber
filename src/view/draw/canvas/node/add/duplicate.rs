@@ -99,7 +99,7 @@ mod tests {
     use super::super::super::{edit, remove, select};
     use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph};
     use crate::phiphx::blend::shade::socket::BSocketDefault;
-    use crate::phiphx::scene::{SceneCorners, SceneMaterial, SceneMesh, SceneModel, SceneNormals, SceneObject};
+    use crate::phiphx::scene::{SceneCornerList, SceneMaterial, SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::state::CtxKey;
 
     /// A loaded Cube whose material graph is `idnames` (one node each, named by
@@ -122,8 +122,8 @@ mod tests {
         let mesh = SceneMesh {
             vertices: vec![[0.0; 3]],
             indices: Vec::new(),
-            normals: SceneNormals::PerFace(Vec::new()),
-            corners: SceneCorners::default(),
+            normals: SceneNormalList::PerFace(Vec::new()),
+            corners: SceneCornerList::default(),
         };
         let mut object = SceneObject::identity("Cube", mesh);
         object.materials = vec![material];

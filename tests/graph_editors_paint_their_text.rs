@@ -24,7 +24,7 @@ use phiber::host::BHostType;
 use phiber::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph, BlendNodeLink};
 use phiber::phiphx::blend::shade::socket::BlendSocket;
 use phiber::phiphx::blend::{BFCurve, BKey, BNlaStrip, BNlaTrack, BlendMarker, BlendNla, EXTEND_HOLD};
-use phiber::phiphx::scene::{SceneAction, SceneMaterial, SceneMesh, SceneModel, SceneNormals, SceneObject};
+use phiber::phiphx::scene::{SceneAction, SceneMaterial, SceneMesh, SceneModel, SceneNormalList, SceneObject};
 use phiber::space::BSpaceType;
 use phiber::state::{BState, CtxKey, ModalKey};
 use std::borrow::Cow;
@@ -94,7 +94,7 @@ fn scene() -> SceneModel {
     let mesh = SceneMesh {
         vertices: vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
         indices: vec![0, 1, 2],
-        normals: SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]]),
+        normals: SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]]),
         corners: Default::default(),
     };
     let mut cube = SceneObject::identity("Cube", mesh);

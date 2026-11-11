@@ -5,7 +5,7 @@
 
 use phiber::phiphx::blend::{BFCurve, BKey, BlendMotion, BlendMotionList, ObjectTransformRaw};
 use phiber::phiphx::scene::{
-    IDENTITY_M4, SceneCamera, SceneLight, SceneMesh, SceneModel, SceneMotion, SceneNormals, SceneObject,
+    IDENTITY_M4, SceneCamera, SceneLight, SceneMesh, SceneModel, SceneMotion, SceneNormalList, SceneObject,
 };
 use phiber::{
     scene::{
@@ -26,7 +26,7 @@ fn triangle(name: &str, x: f32) -> SceneObject {
         mesh: SceneMesh {
             vertices: vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             indices: vec![0, 1, 2],
-            normals: SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]]),
+            normals: SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]]),
             corners: Default::default(),
         }
         .into(),

@@ -7,7 +7,7 @@
 //! `scene_source`. After clearing the scope the default scene is restored.
 
 use phiber::{
-    phiphx::scene::{SceneMesh, SceneModel, SceneNormals, SceneObject},
+    phiphx::scene::{SceneMesh, SceneModel, SceneNormalList, SceneObject},
     scene::{
         OBJECTS, clear_loaded_scene, scene_source, set_loaded_scene, BObject3D,
     },
@@ -21,7 +21,7 @@ fn simple_obj(name: impl Into<String>) -> SceneObject {
         mesh: SceneMesh {
             vertices: vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             indices: vec![0, 1, 2],
-            normals: SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]]),
+            normals: SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]]),
             corners: Default::default(),
         }.into(),
         location: [0.0, 0.0, 0.0],

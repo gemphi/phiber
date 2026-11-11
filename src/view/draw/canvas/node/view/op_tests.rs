@@ -40,7 +40,7 @@ fn home_frames_the_graph_of_the_loaded_material() {
     // fails if the operator is a no-op, which is what the rest of the
     // feature was missing — the framing existed and nothing invoked it.
     use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph};
-    use crate::phiphx::scene::{SceneCorners, SceneMaterial, SceneMesh, SceneModel, SceneNormals, SceneObject};
+    use crate::phiphx::scene::{SceneCornerList, SceneMaterial, SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::state::CtxKey;
 
     let at = |x: f32, y: f32| BlendNode { name: format!("n{x}"), x, y, width: 140.0, ..Default::default() };
@@ -52,8 +52,8 @@ fn home_frames_the_graph_of_the_loaded_material() {
     let mesh = SceneMesh {
         vertices: vec![[0.0; 3]],
         indices: Vec::new(),
-        normals: SceneNormals::PerFace(Vec::new()),
-        corners: SceneCorners::default(),
+        normals: SceneNormalList::PerFace(Vec::new()),
+        corners: SceneCornerList::default(),
     };
     let mut object = SceneObject::identity("Cube", mesh);
     object.materials = vec![material];
@@ -91,7 +91,7 @@ fn view_selected_frames_the_selected_nodes_alone() {
     // `NODE_OT_view_selected`: the framing follows the selection, so the
     // selected node lands inside and the unselected one need not.
     use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph};
-    use crate::phiphx::scene::{SceneCorners, SceneMaterial, SceneMesh, SceneModel, SceneNormals, SceneObject};
+    use crate::phiphx::scene::{SceneCornerList, SceneMaterial, SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::state::{CtxKey, NodeKey};
     use crate::view::draw::canvas::node::select;
 
@@ -104,8 +104,8 @@ fn view_selected_frames_the_selected_nodes_alone() {
     let mesh = SceneMesh {
         vertices: vec![[0.0; 3]],
         indices: Vec::new(),
-        normals: SceneNormals::PerFace(Vec::new()),
-        corners: SceneCorners::default(),
+        normals: SceneNormalList::PerFace(Vec::new()),
+        corners: SceneCornerList::default(),
     };
     let mut object = SceneObject::identity("Cube", mesh);
     object.materials = vec![material];
@@ -137,7 +137,7 @@ fn view_selected_frames_the_selected_nodes_alone() {
 fn view_selected_with_nothing_selected_leaves_the_view_alone() {
     // Blender reports "No nodes to view" rather than moving.
     use crate::phiphx::blend::shade::graph::{BlendNode, BlendNodeGraph};
-    use crate::phiphx::scene::{SceneCorners, SceneMaterial, SceneMesh, SceneModel, SceneNormals, SceneObject};
+    use crate::phiphx::scene::{SceneCornerList, SceneMaterial, SceneMesh, SceneModel, SceneNormalList, SceneObject};
     use crate::state::{CtxKey, NodeKey};
 
     let mut material = SceneMaterial::neutral();
@@ -148,8 +148,8 @@ fn view_selected_with_nothing_selected_leaves_the_view_alone() {
     let mesh = SceneMesh {
         vertices: vec![[0.0; 3]],
         indices: Vec::new(),
-        normals: SceneNormals::PerFace(Vec::new()),
-        corners: SceneCorners::default(),
+        normals: SceneNormalList::PerFace(Vec::new()),
+        corners: SceneCornerList::default(),
     };
     let mut object = SceneObject::identity("Cube", mesh);
     object.materials = vec![material];

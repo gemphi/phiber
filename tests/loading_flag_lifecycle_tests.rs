@@ -10,7 +10,7 @@
 
 use phiber::{
     phiphx::scene::{
-        SceneLoadError, SceneMesh, SceneModel, SceneNormals, SceneObject,
+        SceneLoadError, SceneMesh, SceneModel, SceneNormalList, SceneObject,
     },
     app::import::{ImportOutcome, settle_import},
 
@@ -28,7 +28,7 @@ fn minimal_model(path: &str) -> SceneModel {
             mesh: SceneMesh {
                 vertices: vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
                 indices: vec![0, 1, 2],
-                normals: SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]]),
+                normals: SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]]),
                 corners: Default::default(),
             }.into(),
             location: [0.0, 0.0, 0.0],

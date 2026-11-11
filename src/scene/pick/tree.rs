@@ -110,7 +110,7 @@ impl BPickTree {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::scene::SceneNormals;
+    use crate::phiphx::scene::SceneNormalList;
 
     fn grid(n: usize) -> Arc<SceneMesh> {
         // An n × n sheet of quads in the XY plane at z = 0.
@@ -128,7 +128,7 @@ mod tests {
                 i.extend([p, p + 1, p + row, p + 1, p + row + 1, p + row]);
             }
         }
-        Arc::new(SceneMesh { vertices: v, indices: i, normals: SceneNormals::PerFace(Vec::new()), corners: Default::default() })
+        Arc::new(SceneMesh { vertices: v, indices: i, normals: SceneNormalList::PerFace(Vec::new()), corners: Default::default() })
     }
 
     #[test]

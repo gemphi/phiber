@@ -11,7 +11,7 @@ fn object(name: &str, materials: Vec<SceneMaterial>) -> crate::phiphx::scene::Sc
         mesh: crate::phiphx::scene::SceneMesh {
             vertices: vec![[0.0; 3], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             indices: vec![0, 1, 2],
-            normals: crate::phiphx::scene::SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]]),
+            normals: crate::phiphx::scene::SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]]),
             corners: Default::default(),
         }
         .into(),

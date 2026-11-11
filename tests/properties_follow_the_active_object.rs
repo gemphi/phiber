@@ -3,7 +3,7 @@
 //! values are that object's. Here the switch goes through the reducer, so
 //! the rule that follows `ctx.object` is what is under test.
 
-use phiber::phiphx::scene::{SceneMaterial, SceneMesh, SceneModel, SceneNormals, SceneObject};
+use phiber::phiphx::scene::{SceneMaterial, SceneMesh, SceneModel, SceneNormalList, SceneObject};
 use phiber::scene::{clear_loaded_scene, set_loaded_scene};
 use phiber::state::{BKey as _, BState, ButsKey, CtxKey, action::apply_action};
 use phiber::view::BAction;
@@ -14,7 +14,7 @@ fn object(name: &str, location: [f32; 3], scale: [f32; 3], color: [f32; 4], roug
         mesh: SceneMesh {
             vertices: vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 2.0, 0.0], [0.0, 0.0, 3.0]],
             indices: vec![0, 1, 2],
-            normals: SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]]),
+            normals: SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]]),
             corners: Default::default(),
         }
         .into(),

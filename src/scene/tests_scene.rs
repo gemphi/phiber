@@ -2,7 +2,7 @@
 //! files stay under the 200-line cap.
 
 use super::*;
-use crate::phiphx::scene::{SceneMesh, SceneNormals, SceneObject};
+use crate::phiphx::scene::{SceneMesh, SceneNormalList, SceneObject};
 
 fn loaded_object(name: &str) -> SceneObject {
     SceneObject {
@@ -10,7 +10,7 @@ fn loaded_object(name: &str) -> SceneObject {
         mesh: SceneMesh {
             vertices: vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             indices: vec![0, 1, 2],
-            normals: SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]]),
+            normals: SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]]),
             corners: Default::default(),
         }.into(),
         location: [0.0, 0.0, 0.0],

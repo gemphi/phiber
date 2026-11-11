@@ -9,7 +9,7 @@ pub mod set;
 use super::curve::{BAxisColors, BCurveSet, BDrawnCurve};
 use super::row::{BRowKind, BTimeRow};
 use crate::phiphx::blend::BFCurve;
-use crate::phiphx::scene::SceneDrivers;
+use crate::phiphx::scene::SceneDriverList;
 use crate::state::{BState, CtxKey};
 
 impl BTimeRow {
@@ -23,7 +23,7 @@ impl BTimeRow {
 /// The shown objects' drivers, in object order.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct BDriverList {
-    pub objects: Vec<SceneDrivers>,
+    pub objects: Vec<SceneDriverList>,
 }
 
 impl BDriverList {
@@ -92,7 +92,7 @@ mod tests {
     #[test]
     fn rows_stack_each_object_over_its_drivers() {
         let list = BDriverList {
-            objects: vec![SceneDrivers { object: "rig".into(), curves: vec![curve("pose.bones[\"a\"].hide", 0), curve("location", 2)] }],
+            objects: vec![SceneDriverList { object: "rig".into(), curves: vec![curve("pose.bones[\"a\"].hide", 0), curve("location", 2)] }],
         };
         let axis = BAxisColors { x: [1.0; 3], y: [1.0; 3], z: [1.0; 3], w: [1.0; 3], other: [1.0; 3] };
         let rows = list.rows(axis);

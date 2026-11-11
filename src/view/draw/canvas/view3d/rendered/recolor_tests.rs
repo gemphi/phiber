@@ -3,7 +3,7 @@
 //! Rendered; Solid keeps the colour; and plugging an image in, swapping it
 //! or unplugging it is another scene to build, not a pose of the one held.
 
-use crate::phiphx::scene::{SceneCorners, SceneMaterial, SceneMesh, SceneNormals};
+use crate::phiphx::scene::{SceneCornerList, SceneMaterial, SceneMesh, SceneNormalList};
 use crate::scene::recolor::BRecolor;
 use crate::scene::{BObject3D, BShading};
 use gpui::white;
@@ -14,8 +14,8 @@ fn card(material: SceneMaterial) -> BObject3D {
         mesh: std::sync::Arc::new(SceneMesh {
             vertices: vec![[0.0; 3], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             indices: vec![0, 1, 2],
-            normals: SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]]),
-            corners: SceneCorners::default(),
+            normals: SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]]),
+            corners: SceneCornerList::default(),
         }),
         location: [0.0; 3],
         scale: [1.0; 3],

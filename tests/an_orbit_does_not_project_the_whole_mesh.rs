@@ -5,7 +5,7 @@
 //! mouse move of an orbit, which is what made orbiting a large scene crawl.
 
 use gpui::{TestAppContext, px, size};
-use phiber::phiphx::scene::{SceneMesh, SceneModel, SceneNormals, SceneObject};
+use phiber::phiphx::scene::{SceneMesh, SceneModel, SceneNormalList, SceneObject};
 use phiber::app::BPhiberApp;
 use phiber::space::BSpaceType;
 use phiber::scene::view_slot::BViewSlot;
@@ -28,7 +28,7 @@ fn sphere(segs: usize) -> SceneMesh {
             i.extend([p, q, p + 1, p + 1, q, q + 1]);
         }
     }
-    let normals = SceneNormals::PerVertex(v.clone());
+    let normals = SceneNormalList::PerVertex(v.clone());
     SceneMesh { vertices: v, indices: i, normals, corners: Default::default() }
 }
 

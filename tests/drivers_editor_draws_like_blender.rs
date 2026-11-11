@@ -7,7 +7,7 @@
 
 use gpui::{TestAppContext, px, size};
 use phiber::phiphx::blend::BFCurve;
-use phiber::phiphx::scene::{SceneDrivers, SceneModel};
+use phiber::phiphx::scene::{SceneDriverList, SceneModel};
 use phiber::app::BPhiberApp;
 use phiber::host::BHostType;
 use phiber::space::BSpaceType;
@@ -45,7 +45,7 @@ async fn the_drivers_editor_lists_the_drivers_and_crosses_its_cursor_at_the_orig
     let mut inverted = BFCurve::new("pose.bones[\"MCH-forearm_ik.L\"].constraints[\"IK.001\"].mute", 0, Vec::new());
     inverted.generator = Some(vec![1.0, -1.0]);
     let plain = BFCurve::new("pose.bones[\"MCH-thumb.02_drv.L\"].rotation_euler", 0, Vec::new());
-    let mut model = SceneModel { drivers: vec![SceneDrivers { object: "rig".into(), curves: vec![inverted, plain] }], ..Default::default() };
+    let mut model = SceneModel { drivers: vec![SceneDriverList { object: "rig".into(), curves: vec![inverted, plain] }], ..Default::default() };
     model.selection.selected = vec!["rig".into()];
 
     let (app, cx) = cx.add_window_view(|_, _| BPhiberApp::new());

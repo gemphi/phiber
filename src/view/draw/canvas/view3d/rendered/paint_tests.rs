@@ -1,5 +1,5 @@
 //! Color ▸ Attribute's and ▸ Texture's plumbing: a mesh's corner colours
-//! (`SceneCorners::colors`) reach the tracer's vertices as sRGB bytes
+//! (`SceneCornerList::colors`) reach the tracer's vertices as sRGB bytes
 //! (`Scene::paint`), and Solid uploads a material's base-colour image only
 //! under Texture.
 
@@ -9,7 +9,7 @@ use gpui::white;
 
 #[test]
 fn a_meshs_corner_colours_paint_the_tracers_vertices() {
-    use crate::phiphx::scene::{SceneCorners, SceneMesh, SceneNormals};
+    use crate::phiphx::scene::{SceneCornerList, SceneMesh, SceneNormalList};
     use crate::scene::BObject3D;
     let grey = white();
     let palette = super::super::mesh::BMeshPalette { shading: BShading::Solid, cube: grey, sphere: grey, gem: grey, loaded: grey, accent: grey, accent_active: grey, matcap: None, texture: false, studio: false };
@@ -18,8 +18,8 @@ fn a_meshs_corner_colours_paint_the_tracers_vertices() {
         mesh: std::sync::Arc::new(SceneMesh {
             vertices: vec![[0.0; 3], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             indices: vec![0, 1, 2],
-            normals: SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]]),
-            corners: SceneCorners { ids: Vec::new(), normals: Vec::new(), colors },
+            normals: SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]]),
+            corners: SceneCornerList { ids: Vec::new(), normals: Vec::new(), colors },
         }),
         location: [0.0; 3],
         scale: [1.0; 3],
@@ -61,7 +61,7 @@ fn solid_uploads_the_base_image_under_texture_alone() {
 #[test]
 fn an_objects_shadow_toggles_follow_the_mode() {
     use crate::phiphx::blend::BlendShadowCast;
-    use crate::phiphx::scene::{SceneCorners, SceneMesh, SceneNormals};
+    use crate::phiphx::scene::{SceneCornerList, SceneMesh, SceneNormalList};
     use crate::scene::BObject3D;
     let grey = white();
     let palette = |shading| super::super::mesh::BMeshPalette { shading, cube: grey, sphere: grey, gem: grey, loaded: grey, accent: grey, accent_active: grey, matcap: None, texture: false, studio: shading == BShading::Material };
@@ -70,8 +70,8 @@ fn an_objects_shadow_toggles_follow_the_mode() {
         mesh: std::sync::Arc::new(SceneMesh {
             vertices: vec![[0.0; 3], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
             indices: vec![0, 1, 2],
-            normals: SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]]),
-            corners: SceneCorners::default(),
+            normals: SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]]),
+            corners: SceneCornerList::default(),
         }),
         location: [0.0; 3],
         scale: [1.0; 3],

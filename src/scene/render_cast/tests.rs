@@ -1,12 +1,12 @@
 use super::*;
-use crate::phiphx::scene::{SceneCorners, SceneMesh, SceneNormals, SceneObject};
+use crate::phiphx::scene::{SceneCornerList, SceneMesh, SceneNormalList, SceneObject};
 
 fn mesh(tris: usize) -> SceneMesh {
     SceneMesh {
         vertices: vec![[0.0; 3]; 3],
         indices: (0..tris * 3).map(|i| (i % 3) as u32).collect(),
-        normals: SceneNormals::PerFace(vec![[0.0, 0.0, 1.0]; tris]),
-        corners: SceneCorners::default(),
+        normals: SceneNormalList::PerFace(vec![[0.0, 0.0, 1.0]; tris]),
+        corners: SceneCornerList::default(),
     }
 }
 

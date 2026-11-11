@@ -58,11 +58,11 @@ impl<T> BMeshKeep<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::phiphx::scene::SceneNormals;
+    use crate::phiphx::scene::SceneNormalList;
     use std::sync::atomic::{AtomicUsize, Ordering};
 
     fn mesh(n: usize) -> Arc<SceneMesh> {
-        Arc::new(SceneMesh { vertices: vec![[0.0; 3]; n], indices: Vec::new(), normals: SceneNormals::PerFace(Vec::new()), corners: Default::default() })
+        Arc::new(SceneMesh { vertices: vec![[0.0; 3]; n], indices: Vec::new(), normals: SceneNormalList::PerFace(Vec::new()), corners: Default::default() })
     }
 
     #[test]

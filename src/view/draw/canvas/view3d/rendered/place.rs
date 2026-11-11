@@ -73,9 +73,9 @@ mod tests {
     }
 
     fn loaded() -> BObject3D {
-        use crate::phiphx::scene::{SceneMesh, SceneNormals};
+        use crate::phiphx::scene::{SceneMesh, SceneNormalList};
         use std::sync::Arc;
-        let mesh = Arc::new(SceneMesh { vertices: vec![[0.0; 3], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]], indices: vec![0, 1, 2], normals: SceneNormals::PerFace(Vec::new()), corners: Default::default() });
+        let mesh = Arc::new(SceneMesh { vertices: vec![[0.0; 3], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]], indices: vec![0, 1, 2], normals: SceneNormalList::PerFace(Vec::new()), corners: Default::default() });
         BObject3D::Loaded {
             name: "Mesh".into(),
             mesh,

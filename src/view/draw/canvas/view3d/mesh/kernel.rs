@@ -6,7 +6,7 @@
 //! renderer cap.
 
 use super::BTriangle;
-use crate::phiphx::scene::SceneNormals;
+use crate::phiphx::scene::SceneNormalList;
 use crate::scene::{MESH_SCALE, project3_full};
 use gpui::{Hsla, hsla};
 
@@ -56,13 +56,13 @@ pub(super) fn triangle_from(
 /// normals give the same answer for all three, which is a flat face and
 /// correct. Falls back to +Y when the buffer is short.
 pub(super) fn loaded_normal(
-    normals: &SceneNormals,
+    normals: &SceneNormalList,
     vertex: usize,
     face: usize,
 ) -> (f32, f32, f32) {
     let normal = match normals {
-        SceneNormals::PerVertex(normals) => normals.get(vertex),
-        SceneNormals::PerFace(normals) => normals.get(face),
+        SceneNormalList::PerVertex(normals) => normals.get(vertex),
+        SceneNormalList::PerFace(normals) => normals.get(face),
     };
     normal
         .map(|normal| (normal[0], normal[1], normal[2]))
