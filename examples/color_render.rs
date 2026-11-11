@@ -9,7 +9,7 @@ use phiber::part::outliner::key::BHidden;
 use phiber::scene::{BObject3D, BShading, current_scene, source::set_loaded_scene};
 use phiber::state::BState;
 use phiber::view::draw::canvas::view3d::rendered::{BLamp, BStillLook, ENV_CDF_SLOT, ENV_SLOT, environment, still};
-use phiray::{Camera, LIGHTS, Light};
+use phiray::{Camera, MAX_LIGHT, Light};
 use std::time::Instant;
 
 const W: u32 = 720;
@@ -83,7 +83,7 @@ fn main() {
     // The file's own lights and world, the way Blender renders it. Without
     // them the studio rig takes over and the image is flat.
     let studio = shading == phiber::scene::BShading::Material;
-    let mut lights = [Light::default(); LIGHTS];
+    let mut lights = [Light::default(); MAX_LIGHT];
     // Material Preview is lit by the studio HDRI alone: Blender switches the
     // scene's lamps off there (`blender_color.py` hides them for the render),
     // so they are left out here too — with them in, every Material
@@ -92,7 +92,7 @@ fn main() {
     let usable: Vec<Light> = if studio {
         Vec::new()
     } else {
-        phiber::scene::scene_lights().iter().map(BLamp::record).filter(|l| l.color.iter().any(|c| *c > 0.0)).take(LIGHTS).collect()
+        phiber::scene::scene_lights().iter().map(BLamp::record).filter(|l| l.color.iter().any(|c| *c > 0.0)).take(MAX_LIGHT).collect()
     };
     lights[..usable.len()].copy_from_slice(&usable);
     let env_image = if studio { None } else { environment() };

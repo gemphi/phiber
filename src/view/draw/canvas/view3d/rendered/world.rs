@@ -8,7 +8,7 @@
 
 use crate::phiphx::scene::SceneLight;
 use gpui::Hsla;
-use phiray::{Camera, LIGHTS, Light};
+use phiray::{Camera, MAX_LIGHT, Light};
 
 fn rgba(c: Hsla) -> [f32; 4] {
     let c = c.to_rgb();
@@ -96,8 +96,8 @@ pub fn view_words(s: &crate::state::BState) -> [f32; 4] {
 }
 
 pub fn lit(cam: &mut Camera, look: &BRayLook) {
-    let mut lights = [Light::default(); LIGHTS];
-    let usable: Vec<Light> = look.lights.iter().map(super::lamp::BLamp::record).filter(|l| l.color.iter().any(|c| *c > 0.0)).take(LIGHTS).collect();
+    let mut lights = [Light::default(); MAX_LIGHT];
+    let usable: Vec<Light> = look.lights.iter().map(super::lamp::BLamp::record).filter(|l| l.color.iter().any(|c| *c > 0.0)).take(MAX_LIGHT).collect();
     lights[..usable.len()].copy_from_slice(&usable);
     // The file's world lights the scene as it stands — no floor. There used
     // to be one (0.25 a channel, when a scene had no usable lamp) so that a
@@ -169,5 +169,5 @@ pub fn studio_lighting(cam: &mut Camera) {
     cam.env_cdf = ENV_CDF_SLOT + 1;
     cam.env_rot = 0.0;
     cam.env_hidden = 1;
-    cam.preview = [ENV_IRRADIANCE_SLOT + 1, ENV_PREFILTERED_SLOT + 1, phiray::trace::ibl::LEVELS, 0];
+    cam.preview = [ENV_IRRADIANCE_SLOT + 1, ENV_PREFILTERED_SLOT + 1, phiray::trace::ibl::LEVEL_COUNT, 0];
 }

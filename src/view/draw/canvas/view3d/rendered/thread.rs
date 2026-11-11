@@ -114,14 +114,16 @@ pub(super) fn run(gpu: Gpu, rx: Receiver<BRayJob>, out: Arc<Mutex<Option<BRayFra
         t.set_mode(mode);
         // In slices when a sample is long, so a view posted meanwhile is
         // taken at the next slice instead of after the whole frame.
-        let at = Instant::now();
         let slices = slicer.slices(mode, w, h, coarse);
         let Some((sample, finished)) = t.sample_in(&gpu, cam, w, h, slices, || !posted.newer_than(key, scene_key)) else {
             tally.abandoned += 1;
             continue;
         };
-        let traced = at.elapsed();
-        slicer.took(mode, w, h, coarse, traced);
+        // The GPU's time for the sample, not the time to submit it: a
+        // single slice returned once queued, the slicer saw a cheap sample
+        // and the readback after it was booked the GPU's work.
+        let time = t.time();
+        slicer.took(mode, w, h, coarse, time.gpu);
         // A coarse image is never the end: the next is twice its size.
         let finished = finished && coarse.full();
         done = finished;
@@ -132,9 +134,9 @@ pub(super) fn run(gpu: Gpu, rx: Receiver<BRayJob>, out: Arc<Mutex<Option<BRayFra
         if !posted.newer_than(key, scene_key) {
             coarse.next();
         }
-        // Read back early samples, then every 4th (readback is the slow part).
+        // Read back early samples, then every 4th (a shown frame costs a copy, a CPU swap and an upload).
         if skip {
-            tally.sample(traced, Duration::ZERO, coarse.full(), full_w, full_h, mode);
+            tally.sample(time, Duration::ZERO, coarse.full(), full_w, full_h, mode);
             continue;
         }
         // Viewport Denoising: every frame shown from the start sample on is
@@ -146,7 +148,7 @@ pub(super) fn run(gpu: Gpu, rx: Receiver<BRayJob>, out: Arc<Mutex<Option<BRayFra
         }
         let read_at = Instant::now();
         let mut px = t.pixels(&gpu);
-        tally.sample(traced, read_at.elapsed(), (w, h) == (full_w, full_h), full_w, full_h, mode);
+        tally.sample(time, read_at.elapsed(), (w, h) == (full_w, full_h), full_w, full_h, mode);
         // A frame the kernel never wrote comes back all zero — no sky in it,
         // where every real frame carries the theme's sky. It is published
         // empty: the painter keeps the theme canvas and says so once, rather

@@ -1203,7 +1203,7 @@ about 25 ms, from how long the last full sample took per pixel, and `go` is
 side writes as it posts). And while views keep arriving — a drag — the next
 sample stays at the coarse size (an eighth) rather than doubling, as Cycles
 keeps a navigated viewport at its start size; it grows once the hand rests.
-`phiray/tests/slices.rs`: seven slices are the same pixels as one; a sample
+`phiray/tests/slice.rs`: seven slices are the same pixels as one; a sample
 abandoned after its first slice leaves the next at sample 0.
 
 ### The tracer accounts for itself
@@ -1234,7 +1234,7 @@ fourth word (`face_mat`, `face_inst`; 65 536 instances, the rest share the
 last). A scene built from world-space triangles has one instance at the
 identity, so every test and caller from before draws exactly as it did.
 
-`phiray/trace/trees.rs` — `Trees::build` makes a tree per instance over its
+`phiray/trace/forest.rs` — `Forest::build` makes a tree per instance over its
 faces in object space (in parallel) and a top tree over the instances'
 placed bounds (`Instance::world_box` of each root). The kernel sees one
 node array: the top tree first in `2n − 1` reserved slots (so a top tree
@@ -1266,7 +1266,7 @@ its samples. phiber's `rendered/place.rs` picks: the very same meshes,
 materials and textures (`Arc` identity) under other matrices are placed;
 otherwise posed; otherwise built.
 
-`phiray/tests/instances.rs`: a scaled, turned instance draws what the same
+`phiray/tests/instance.rs`: a scaled, turned instance draws what the same
 wall baked in world space draws (within edge rounding); a moved instance
 draws as a scene built at the new place and starts at sample 0; a new
 tree after a move keeps the samples. Measured on the software GPU in the
@@ -1997,7 +1997,7 @@ XZ plane, Generated Y is one value across the whole wall — Blender draws
 that wall as one row's slice, often all mortar, and so does this; the
 test draws its bricks on a floor.
 
-Tests: phiray `tests/textures.rs` (a red / blue Checker is those two
+Tests: phiray `tests/texture.rs` (a red / blue Checker is those two
 colours; Brick's mortar a minority of dark pixels; a Linear Gradient never
 falls left to right; Magic coloured; Wave varies; each Noise type varies
 and differs from fBm; F2 lies farther than F1; every feature and metric,

@@ -19,7 +19,7 @@
 
 use phiber::phiphx::Phx;
 use phiber::view::draw::canvas::view3d::rendered::BLamp;
-use phiray::{Atlas, Camera, Light, LIGHTS, Mode, Ray, Scene, Tracer, Tri};
+use phiray::{Atlas, Camera, Light, MAX_LIGHT, Mode, Ray, Scene, Tracer, Tri};
 
 const W: u32 = 32;
 /// Cycles' own radiance at the centre pixel, rendering **this fixture**
@@ -66,7 +66,7 @@ fn dark() -> Atlas {
 /// Straight down on the origin, orthographic, 2 m across — the frame the
 /// fixture's own camera sets (`ortho_scale = 2.0`).
 fn overhead(lamp: Light) -> Camera {
-    let mut lights = [Light::default(); LIGHTS];
+    let mut lights = [Light::default(); MAX_LIGHT];
     lights[0] = lamp;
     Camera {
         right: [1.0, 0.0, 0.0],

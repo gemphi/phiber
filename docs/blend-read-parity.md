@@ -338,7 +338,7 @@ words). A linked image replaces the socket value, so phiber sets the scalar to 1
 and the shader multiplies. Emitter sampling reads the emission image too, so a
 textured glowing surface lights the scene with its own colours. Verified against
 Blender 5.0.1 (`phiphx/tests/maps_truth.rs`, fixture `SHADE-MAPS.blend`) and on the
-GPU (`phiray/tests/maps.rs`).
+GPU (`phiray/tests/map.rs`).
 
 
 ### 0.12 One view layer, one theme bridge

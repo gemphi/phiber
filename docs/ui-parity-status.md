@@ -1507,7 +1507,7 @@ Blender's own choices.
   (the coordinate plus the node's four settings, identity by `Default`)
   and `BlendProc::mapped`, so `coordinates()` returns a value instead of
   a widening tuple.
-- Tests: phiphx `tests/texture_nodes_truth.rs`, phiray `tests/textures.rs`
+- Tests: phiphx `tests/texture_nodes_truth.rs`, phiray `tests/texture.rs`
   (a 45° turn moves the frame; a full turn changes nothing; Texture is not
   Point; Vector with no Location is). The fixture grew `Turned`, a Checker
   through a Texture-type Mapping turned 45°.
@@ -1707,7 +1707,7 @@ Blender's own choices.
   (`NodeTexNoise`, `NodeTexVoronoi`, `NodeTexGradient`, `NodeTexMagic`,
   `NodeTexWave`, `NodeTexBrick`) with Blender's defaults.
 - phiber: `rendered/surface.rs` maps every kind and setting.
-- Tests: phiray `tests/textures.rs`, `trace/proc.rs`; phiphx
+- Tests: phiray `tests/texture.rs`, `trace/proc.rs`; phiphx
   `tests/texture_nodes_truth.rs` (eight new planes in `PROCEDURAL.blend`);
   phiber `rendered/surface_tests.rs`.
 - **Suites:** see the head of this file.
@@ -2947,7 +2947,7 @@ Blender's own choices.
 
 - **Objects are instances in the tracer** (the user's third ask: instant
   move, rotate, scale). Each object's triangles stay in its own space
-  under a tree of their own (`phiray/trace/trees.rs`: a BLAS per
+  under a tree of their own (`phiray/trace/forest.rs`: a BLAS per
   instance, built in parallel), and a small top tree spans the objects'
   world bounds; a face names its instance in the top half of its material
   word (`Scene::instance`, `Scene::face`), and the kernel walks each
@@ -2965,7 +2965,7 @@ Blender's own choices.
   tree refitted, rebuilt once still); anything else builds. The journal
   says which: `Tracer: N objects placed in X ms` / `scene posed in X ms` /
   `trees rebuilt over the pose in X ms`.
-- **Tests:** `phiray/tests/instances.rs` — an instanced scene (a scaled,
+- **Tests:** `phiray/tests/instance.rs` — an instanced scene (a scaled,
   turned wall) draws what the same scene baked in world space draws; a
   moved instance draws as a scene baked at the new place and starts its
   image over; a new tree after a move keeps the image's samples.
@@ -3075,7 +3075,7 @@ Blender's own choices.
   into ~25 ms dispatches and abandoned between them when a newer view or
   scene has been posted (`BPosted`); while views keep arriving the view
   stays at its coarse size, as Cycles keeps a navigated viewport small, and
-  grows once the hand rests. `phiray/tests/slices.rs`.
+  grows once the hand rests. `phiray/tests/slice.rs`.
 - **The tracer writes its own lines to the journal**: scene build split
   into triangles vs tree and upload, pose and retree times, a tally every
   64 samples (`rendered/pace.rs`). The 184 s gets named on the next run.
