@@ -27,7 +27,7 @@ slack in it.
 | `location`, `rotation_euler`, `rotation_quaternion`, `rotation_axis_angle`, `scale` | **evaluated** | `anim/driver/read.rs`, `own_channel` |
 | `["custom_property"]` on the object | **evaluated**, and before the channel drivers, so a driver reading it resolves in the same frame | `anim/driver/pass.rs` |
 | `pose.bones[…]` — influence, mute, Armature target weight, a channel, a bone custom property | **evaluated** by the rig solver | `rig/driver/path.rs` |
-| a material's `diffuse_color`, `metallic`, `roughness`, a node socket's `default_value` | **listed only** (`anim::drivers`, the Drivers editor) | — |
+| a material's `diffuse_color`, `metallic`, `roughness`, a node socket's `default_value` | **listed only** (`anim::driver_list`, the Drivers editor) | — |
 | a modifier setting (`modifiers["Array"].count`, …) | **listed only** | — |
 | a shape key's `value` (`key_blocks[…]`) | **listed only**; phiphx has no shape keys yet | — |
 | `hide_viewport`, `hide_render`, `color` | **listed only** | — |
@@ -190,8 +190,8 @@ material slot, and the custom-property chain.
 
 Everything above measures what a driver *comes to*. For three batches
 nothing asked: the sets were read into `BlendScene::props` and left there,
-and `BMaterialDrivers::apply`, `BLightDrivers::apply` and
-`BWorldDrivers::apply` had **no caller anywhere** in phiphx or phiber.
+and `BMaterialDriverList::apply`, `BLightDriverList::apply` and
+`BWorldDriverList::apply` had **no caller anywhere** in phiphx or phiber.
 `BlendMotionList::driver_state_at` — written, as `state.rs` says, so that "a
 driver on something that is *not* an object reads the same scene the object
 drivers read" — was called once, by `raw_at`, which takes `.raw` and discards
@@ -339,7 +339,7 @@ pre-multiplied so its own radiance works out to `energy / (4 A)` instead of
 `watts / (π A)`. Point, spot and sun lights store the watts directly.
 
 A driver writes the **RNA** property, so its value is watts; Blender's RNA
-setter converts on the way to the field. `BLightDrivers::apply` therefore
+setter converts on the way to the field. `BLightDriverList::apply` therefore
 scales an area light's driven energy by `AREA_ENERGY_SCALE` (4/π) and
 nothing else, which keeps the field meaning one thing whether or not a
 driver touched it. Measured across all four area shapes: the factor is
@@ -354,7 +354,7 @@ hand and matching — so an area light read from a file reached it 4/π —
 one such lamp saved as a file; Cycles renders it at **1.861612**
 (`truth/blender_area_light.py`) and ours came out **2.430**. `BLamp::record`
 now divides an area light's energy by `AREA_ENERGY_SCALE` — the same
-constant `BLightDrivers::apply` multiplies a driven value by, so the field
+constant `BLightDriverList::apply` multiplies a driven value by, so the field
 keeps meaning the stored value on both sides of the boundary — and the
 same file then measures **1.908**, the same 2.5% the hand-fed lamp carries
 (`phiber/tests/a_files_area_light_reaches_the_kernel_at_its_watts.rs`,
@@ -454,7 +454,7 @@ truncation entirely.
 | `anim/driver/state.rs` | `BDriverState` — a frame's pass kept rather than dropped, so a driver on something that is not an object reads the same scene, after the objects |
 | `anim/driver/wire.rs` | the call that puts a non-object driver's value on the scene, how a set is matched to its target, and what is not wired yet |
 | `shade/driver.rs` | what a material driver writes, and the clamp each write path takes |
-| `shade/driver_read.rs` | `Material.adt` and `Material.nodetree->adt` → `BMaterialDrivers` |
+| `shade/driver_read.rs` | `Material.adt` and `Material.nodetree->adt` → `BMaterialDriverList` |
 | `anim/driver/socket.rs` | the socket path and socket list every datablock with a node tree shares — material, world, and whatever comes next |
 | `object/light_driver.rs` | a light's properties and each one's own hard range |
 | `object/light_driver_read.rs` | `Lamp.adt` and `World.adt` / `World.nodetree->adt` out of the file |

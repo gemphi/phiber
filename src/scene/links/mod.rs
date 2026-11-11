@@ -119,9 +119,9 @@ impl BSceneLinks {
     /// What a save writes of them (`save::gather`). The nestings go by
     /// name — collection names are unique in a file, and a path's last
     /// segment names its collection wherever earlier nestings put it.
-    pub fn edits(self) -> crate::phiphx::blend::write::BlendEdits {
+    pub fn edits(self) -> crate::phiphx::blend::write::BlendEditList {
         let name = |path: &str| path.rsplit('/').next().unwrap_or(path).to_string();
         let nested = self.nested.iter().map(|(child, parent)| (name(child), name(parent))).collect();
-        crate::phiphx::blend::write::BlendEdits { moved: self.moved, parented: self.parented, linked: self.linked, nested, ..Default::default() }
+        crate::phiphx::blend::write::BlendEditList { moved: self.moved, parented: self.parented, linked: self.linked, nested, ..Default::default() }
     }
 }

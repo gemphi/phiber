@@ -98,7 +98,7 @@ Verified: `cargo test --no-fail-fast -p phiber -p phiphx` → **466 passed, 0 fa
 
 Verified: `cargo test --no-fail-fast -p phiber -p phiphx` → **473 passed, 0 failed**.
 
-- **Reader** (`phiphx/importer/blend/ui_state.rs`): `wmWindowManager.windows` → `wmWindow.workspace_hook` → `WorkSpaceInstanceHook.active` (workspace name) / `.act_layout` → `WorkSpaceLayout.screen`; falls back to `FileGlobal.curscreen`. On that screen the **largest** `SPACE_VIEW3D` area wins; its `RGN_TYPE_WINDOW` region gives `RegionView3D.viewinv / ofs / dist / persp`, and its `View3D.shading.type` gives the saved shading mode. Stored as `BlendSceneProps.ui` plus `Scene.camera`.
+- **Reader** (`phiphx/importer/blend/ui_state.rs`): `wmWindowManager.windows` → `wmWindow.workspace_hook` → `WorkSpaceInstanceHook.active` (workspace name) / `.act_layout` → `WorkSpaceLayout.screen`; falls back to `FileGlobal.curscreen`. On that screen the **largest** `SPACE_VIEW3D` area wins; its `RGN_TYPE_WINDOW` region gives `RegionView3D.viewinv / ofs / dist / persp`, and its `View3D.shading.type` gives the saved shading mode. Stored as `BlendSceneProp.ui` plus `Scene.camera`.
 - **Reduction** (`phiphx/services/scene/ui.rs`): `SceneModel.ui = SceneUi { workspace, view: SceneView { yaw, pitch, perspective, camera_view, pivot, width, shading } }`. Yaw and pitch come from the view's back axis `viewinv[2]`. With `persp == CAMOB` the scene camera's matrix is used instead, and an ortho camera sets `width = ortho_scale`. Otherwise `width = dist × 36·2/50`, Blender's viewport sensor × initial zoom over the default lens.
 - **Apply** (`phiber/app/load_ui.rs`, called from `settle_import`):
   - Sets the workspace tab (matched by slug or by label, so "UV Editing" maps to `UvEditing`).
@@ -163,7 +163,7 @@ Verified: `cargo test --no-fail-fast -p phiber -p phiphx` → **488 passed, 0 fa
   - **Armature** (`armature_deform.cc`): vertex-group linear blend skinning with `pose_mat · arm_mat⁻¹`. Blender saves the evaluated `pose_mat`, so the saved pose shows without evaluating animation. Weights come from `CD_MDEFORMVERT` or legacy `Mesh.dvert` (`vgroups.rs`); group names from `Mesh.vertex_group_names` or `Object.defbase`.
   - **Subdivision Surface**: Catmull-Clark or Simple at the viewport `levels`. Boundaries are smoothed, or corners kept when set. Vertices are projected to the limit surface unless "Use Limit Surface" is off. Vertex-group weights are carried through, so Subdivision → Armature stacks (the most common in these rigs) still deform.
   - **Mirror** (`mesh_mirror.cc`): X/Y/Z about the origin or a mirror object; copies within tolerance are merged; winding is reversed; `.L`/`.R` groups are flipped (`flip_side`); UVs are optionally flipped and offset.
-  - The rest mesh stays untouched for the mesh ground-truth test; the viewport draws `BlendSceneProps.evaluated`. Evaluated meshes recompute their normals, since saved split normals describe the rest pose.
+  - The rest mesh stays untouched for the mesh ground-truth test; the viewport draws `BlendSceneProp.evaluated`. Evaluated meshes recompute their normals, since saved split normals describe the rest pose.
   - Speed: flat edge topology (sorted corners, no hashing), and objects evaluated in parallel (rayon). Mesh building (triangulation and normals) is also parallel now.
   - New progress stage: "Evaluating modifiers".
   - Open times, 2-core cloud machine (release, warm), now including evaluated modifiers: LAND-TYPE-15-01 1.7 s, 3.7 M verts. Mannequins 2.6 s, 3.4 M verts (Blender: 7.0 s just to load, before evaluating).

@@ -14,7 +14,7 @@
 //! file the session did not open — the default scene, a new file — has
 //! nothing to write through, and says so.
 
-use crate::phiphx::blend::write::{BlendCollectionEdit, BlendCompression, BlendDuplicate, BlendEdits, BlendNewMesh, BlendNewObject, BlendObjectEdit, BlendSaveReport};
+use crate::phiphx::blend::write::{BlendCollectionEdit, BlendCompression, BlendDuplicate, BlendEditList, BlendNewMesh, BlendNewObject, BlendObjectEdit, BlendSaveReport};
 use crate::phiphx::blend::{BlendFile, BlendVisibility};
 use crate::phiphx::scene::{SceneCollection, SceneModel};
 use crate::part::outliner::key::{is_hidden, is_render_hidden, is_unselectable, k_restrict};
@@ -56,7 +56,7 @@ fn collections(state: &BState, c: &SceneCollection, path: &str, out: &mut Vec<Bl
 }
 
 /// Everything the state holds over the file, as the writer takes it.
-pub fn gather(state: &BState, model: &SceneModel) -> BlendEdits {
+pub fn gather(state: &BState, model: &SceneModel) -> BlendEditList {
     let edit = super::edit::BSceneEdit::now(state);
     let selection = super::select::BSelection::now(state);
     let active = state.get(CtxKey::Object).unwrap_or("").to_string();
@@ -124,7 +124,7 @@ pub fn gather(state: &BState, model: &SceneModel) -> BlendEdits {
             None => duplicated.push(BlendDuplicate { copy: copy.clone(), source: source.clone(), selected: selection.contains(copy) }),
         }
     }
-    let edits = BlendEdits {
+    let edits = BlendEditList {
         added,
         duplicated,
         deleted: edit.deleted,

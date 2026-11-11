@@ -94,7 +94,7 @@ Two correctness traps found while reading `sim/blend.rs`:
   (`part/props/physics/soft.rs`), no solver.
 - **[MISSING] Force fields / effectors.** `BForceField` / `BCollider` read
   (`phiphx/blend/physics/deflect.rs`); not consumed by any solver. Effector
-  weights are read on the world (`physics/world.rs` `BEffectorWeights`) and only
+  weights are read on the world (`physics/world.rs` `BEffectorWeight`) and only
   the gravity weight has an obvious consumer (gravity scaling in the bridge).
 - **[MISSING] Particles, smoke, fluid, dynamic paint.** Modifier *names* are
   known for the "dropped modifiers" report (`phiphx/blend/modifier/report.rs`);
@@ -372,7 +372,7 @@ correctness bug.
 ### [DUPLICATED] — NOT a problem (checked)
 `scene/action/mod.rs` `BSceneActions` is a **single** state model that the dope
 sheet, graph, Action editor and NLA all edit through (`keyed`, `channels`, `nla`,
-`ranges`, `assigned`), written once by `edits()` → `BlendEdits`. Dope and graph
+`ranges`, `assigned`), written once by `edits()` → `BlendEditList`. Dope and graph
 do **not** each reimplement keyframe editing — they share `retime.rs`/`keys.rs`/
 `channel.rs`. So the earlier worry about duplicated keyframe logic is unfounded.
 

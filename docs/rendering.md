@@ -4429,7 +4429,7 @@ options.
 
 ### The chain, read from the file
 
-`SceneModel.compositor` carries the tree from load (`BlendSceneProps.
+`SceneModel.compositor` carries the tree from load (`BlendSceneProp.
 compositor`, filled in `scene/read.rs` where the DNA is to hand), so
 `composite::tree()` is a clone and a `runs()` filter rather than a reparse.
 
@@ -4718,7 +4718,7 @@ difference every §54 number carries. The record was handing the kernel
 ### The fix, and where it lives
 
 `BLamp::record` divides an area light's energy by `AREA_ENERGY_SCALE` —
-the *same* constant `BLightDrivers::apply` multiplies a driven value by on
+the *same* constant `BLightDriverList::apply` multiplies a driven value by on
 its way in. That placement is the whole point: `BlendLightData::energy`
 keeps meaning one thing (what the file stores) on both sides of the
 boundary — batch 173's design, which the driver pass depends on — and the

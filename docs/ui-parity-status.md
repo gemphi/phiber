@@ -449,7 +449,7 @@ canvas under Barbie; the brand mark 16 px, an icon's size *(batch 41)*.
   fresh address, `remove_blocks`. On the way a reader bug: `int_field`
   returned 0 for `char`-wide fields, which is what `Collection.flag` is —
   so the collection's camera and arrow toggles now read as well as write.
-- **What a save writes through** (`write/edit.rs`, `BlendEdits`): the
+- **What a save writes through** (`write/edit.rs`, `BlendEditList`): the
   frame and range (`Scene.r.cfra / sfra / efra`), each object's toggles
   (`visibility_flag` — the DNA member is spelt `restrictflag` in every
   file so far, so the writer takes whichever the file has), its name, its
@@ -507,7 +507,7 @@ canvas under Barbie; the brand mark 16 px, an icon's size *(batch 41)*.
   `Base` appended to the view layer's `object_bases`; a deleted object has
   its links taken out of every list, its `OB` block and the data after it
   dropped, and its mesh too when no other object uses it.
-- **`BlendEdits` gained `added`, `duplicated`, `deleted`** — the
+- **`BlendEditList` gained `added`, `duplicated`, `deleted`** — the
   structural edits go first (they move blocks), then the field patches
   re-find their blocks. A duplicate is a linked copy of its source (the
   same mesh, in place); the active object may be one the save just added.
@@ -618,7 +618,7 @@ canvas under Barbie; the brand mark 16 px, an icon's size *(batch 41)*.
   menu opens. Every setting is read from the file (`Scene.audio.flag`,
   `Scene.flag`, `Scene.r.flag`, `Scene.playback_loop_mode`, the active
   screen's `bScreen.redraws_flag`; phiphx `scene/playback.rs`) and written
-  back on save (`write/playback.rs`, `BlendEdits.playback`). Two of them
+  back on save (`write/playback.rs`, `BlendEditList.playback`). Two of them
   drive the app: **Limit to Frame Range** clamps a scrub into the (preview)
   range (`anim.change_frame` with `SCER_LOCK_FRAME_SELECTION`), and the
   **loop mode** decides what the ticker does at the end of the range
@@ -1916,7 +1916,7 @@ Blender's own choices.
 - phiphx: `blend/scene/border.rs` — `BlendRenderBorder { on, crop, rect }`
   read from `RenderData.mode` and `border` (`SceneProps`, `SceneRender::
   border`), `pixels(w, h)` as `render_init_from_main` truncates and clamps
-  (rows from the top); written back (`BlendEdits::border`: the two bits
+  (rows from the top); written back (`BlendEditList::border`: the two bits
   over `r.mode`, the four floats of `r.border`).
 - phiber: `scene/render_border.rs` — `BRenderBorder`: the panel's two
   switches (`use_border`, `use_crop_to_border`, now labelled as Blender's)
@@ -3295,8 +3295,8 @@ Blender's own choices.
   - `render_set::BRenderSet.film_transparent` reads the panel, the render
     plan sets `Camera::film` from it — a final render's only: the viewport
     keeps its sky, as Blender's does — and it is seeded from the file
-    (`Scene.r.alphamode == R_ALPHAPREMUL`; phiphx `BlendSceneProps::
-    film_transparent`) and written back by Ctrl S (`BlendEdits::
+    (`Scene.r.alphamode == R_ALPHAPREMUL`; phiphx `BlendSceneProp::
+    film_transparent`) and written back by Ctrl S (`BlendEditList::
     film_transparent`; `write/edit.rs`). Blender 5.0.1 reads it back from
     every fixture (`truth/saved.txt`, `film 1`).
   - `tests/render_settings_are_saved.rs` toggles it with the rest, saves,
@@ -3582,7 +3582,7 @@ Also in this batch:
   Gamma on the Render tab were seeded from nothing and read by nothing; the
   viewport and F12 used the file's. They are now seeded from the file, the
   viewport and F12 look through them (`render_set::BColorManagement`), and
-  Ctrl S writes them (`Scene.view_settings`, phiphx `BlendEdits.view`).
+  Ctrl S writes them (`Scene.view_settings`, phiphx `BlendEditList.view`).
 - **Auto keying works.** The record button and its Add & Replace / Replace
   popover stored a setting nothing read. A G, R or S kept in the viewport
   with it on now keys what it changed, at the shown frame, as Blender's
@@ -3757,7 +3757,7 @@ Also in this batch:
     viewport, take their shape from the panel. The outline's memo counts the
     resolution (`extra/memo.rs`), so a change shows at once;
   - Ctrl S writes the three back (`Scene.r.xsch / ysch / size`, phiphx
-    `BlendEdits.resolution`), only when they differ from the file's.
+    `BlendEditList.resolution`), only when they differ from the file's.
 - **Checked against Blender.** A 3.6, a 4.2 and a 5.0 file saved at 300 ×
   400, 50 %, were opened in Blender 5.0.1 (`bpy`), and every one reads back
   300, 400, 50 with all its objects.
@@ -3829,7 +3829,7 @@ Also in this batch:
 - **Add puts new objects at the cursor** (`scene/edit/rule.rs`), aligned
   to the world, as `object.add` does with its default Align.
 - **The cursor saves** (phiphx `blend/write/cursor.rs`,
-  `BlendEdits.cursor`).
+  `BlendEditList.cursor`).
   - Ctrl S writes the cursor's place, and its turn in the rotation mode the
     file already keeps it in: a quaternion, an axis and angle, or Euler
     angles in any of the six orders (`View3DCursor::set_matrix`). So the N
@@ -5594,7 +5594,7 @@ design. The suite passes whole again.
   viewport back in Object Mode. Only the 3D viewport's mode is `ctx.mode`
   now; the others are `<editor>.mode` (`SpaceAction.mode`,
   `SpaceImage.mode`).
-- **Saves** (phiphx `write/action.rs`, `BlendEdits::actions`, `assigned`,
+- **Saves** (phiphx `write/action.rs`, `BlendEditList::actions`, `assigned`,
   `ranges`): a copy is the action's ID block and every data block it owns,
   re-addressed; a new action is an empty `bAction` with Blender's first slot
   handle; an object with no `AnimData` gets one. **Blender 5.0 opens the
@@ -5640,7 +5640,7 @@ design. The suite passes whole again.
   tree, the collection tree). Undo steps all four keys.
 - **Saves**: phiphx `write/relink.rs` gained `link_object_to` and
   `nest_collection` (the `CollectionChild` node leaves its parent and joins
-  the new one, in the master's case in the scene's data); `BlendEdits`
+  the new one, in the master's case in the scene's data); `BlendEditList`
   carries `linked` and `nested`. **Blender 5.0 opens the result** with Lamps
   inside Props and the object in both collections (`blender_opens_saves`,
   case `collections`, fixture `make_collections.py`).

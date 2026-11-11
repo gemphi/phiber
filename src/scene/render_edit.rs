@@ -56,8 +56,8 @@ pub struct BRenderEdits {
 
 impl BRenderEdits {
     /// `edits` with these three fields set from here.
-    pub fn over(self, edits: crate::phiphx::blend::write::BlendEdits) -> crate::phiphx::blend::write::BlendEdits {
-        crate::phiphx::blend::write::BlendEdits { engine: self.engine, film_transparent: self.film_transparent, cycles: self.cycles, output: self.output, border: self.border, ..edits }
+    pub fn over(self, edits: crate::phiphx::blend::write::BlendEditList) -> crate::phiphx::blend::write::BlendEditList {
+        crate::phiphx::blend::write::BlendEditList { engine: self.engine, film_transparent: self.film_transparent, cycles: self.cycles, output: self.output, border: self.border, ..edits }
     }
 
     /// The panel's values that differ from `model`'s file.

@@ -95,7 +95,7 @@ impl BLamp for SceneLight {
         // radiance comes out of `energy / (4 A)` — while the kernel wants
         // watts (`phiray/tests/lamp_power.rs` fed it 100 W by hand and
         // matched Cycles). Dividing by the same constant the driver pass
-        // multiplies by on its way in (`BLightDrivers::apply`) keeps the
+        // multiplies by on its way in (`BLightDriverList::apply`) keeps the
         // field meaning one thing on both sides of this boundary; anything
         // else a file's area light reaches the kernel 27% too bright, which
         // is what it did — 2.430 against Cycles' 1.862 — before this

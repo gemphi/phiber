@@ -273,7 +273,7 @@ where it leaves that text intact. A long sleep in the container's shell
 
 **Batch 97: checking a saved file in Blender without a scratch file in the
 tree for long.** A save that writes something new (here `r.xsch / ysch /
-size`) is checked by a throwaway phiphx test that applies `BlendEdits` to a
+size`) is checked by a throwaway phiphx test that applies `BlendEditList` to a
 3.6, a 4.2 and a 5.0 file and writes them to `/tmp`, then `bpy` opens each
 and prints the fields. Delete the test and its binary
 (`target/debug/deps/zz_*`) before packing. The layout golden the machine

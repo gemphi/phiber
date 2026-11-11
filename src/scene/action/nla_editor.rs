@@ -11,7 +11,7 @@
 //! whole (`nla.rs`), so Undo steps them and a save writes them.
 
 use super::BSceneActions;
-use crate::phiphx::blend::{BNlaPick, BNlaStacks, BlendNla};
+use crate::phiphx::blend::{BNlaPick, BNlaStackList, BlendNla};
 use crate::phiphx::scene::SceneModel;
 use crate::state::{BKey as _, BPath, BState, CtxKey, OpKey, log, rule::BRule};
 
@@ -92,7 +92,7 @@ impl BSceneActions {
     /// `op` on the stacks of `shown` at `frame`; what the log says. Each
     /// stack it changed is kept.
     pub fn nla_edit(&mut self, op: &BNlaOp, shown: &[String], model: &SceneModel, frame: f32) -> Option<String> {
-        let mut stacks = BNlaStacks(shown.iter().map(|o| self.stack_of(o, model)).collect());
+        let mut stacks = BNlaStackList(shown.iter().map(|o| self.stack_of(o, model)).collect());
         let index = |object: &str| shown.iter().position(|o| o == object);
         let count = |n: usize, one: &str| if n == 1 { format!("1 {one}") } else { format!("{n} {one}s") };
         let said = match op {

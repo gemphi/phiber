@@ -1,7 +1,7 @@
 //! The Playback popover's settings (`TIME_PT_playback`), each an RNA
 //! property of the scene or the screen kept under `ctx.buts.<rna name>`
 //! like every other property row: read from the file when it opens
-//! (`seed`), written back when it saves (`now` → `BlendEdits.playback`).
+//! (`seed`), written back when it saves (`now` → `BlendEditList.playback`).
 //! The popover's layout is `panel.rs`.
 
 use crate::phiphx::blend::{BlendLoopMode, BlendPlayback, BlendSyncMode};
