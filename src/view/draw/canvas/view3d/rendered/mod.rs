@@ -10,6 +10,7 @@ mod bands;
 mod build;
 mod clock;
 mod compile;
+mod converge;
 mod job;
 mod coarse;
 mod key;
@@ -154,6 +155,10 @@ pub(super) fn paint(bounds: Bounds<Pixels>, view: BRayView, corners: Corners<Pix
         // not restart the refinement — and so joins the key by hand.
         (s.scene, w, h, view.mode as u32, bytemuck::bytes_of(&cam), view.set.preview_samples, view.aa, view.set.preview_denoise, view.set.preview_denoise_from, &*view.outline_class)
             .hash(&mut hasher);
+        // Adaptive Sampling's rows restart the refinement as the sample
+        // target does.
+        let adapt = crate::scene::render_set::BAdaptive::of_viewport(&view.set).words();
+        bytemuck::bytes_of(&adapt).hash(&mut hasher);
         let key = hasher.finish();
         let shot = |aspect| self::reframe::BShotView {
             zoom: view.zoom,
@@ -174,7 +179,7 @@ pub(super) fn paint(bounds: Bounds<Pixels>, view: BRayView, corners: Corners<Pix
         if post {
             worker.send(BRayJob::View(
                 key,
-                BRayShot { cam, w: tw, h: th, mode: view.mode, samples: view.set.preview_samples, aa: view.aa, denoise_from: view.set.preview_denoise.then_some(view.set.preview_denoise_from), outline: Arc::clone(&view.outline_class) },
+                BRayShot { cam, w: tw, h: th, mode: view.mode, samples: view.set.preview_samples, aa: view.aa, denoise_from: view.set.preview_denoise.then_some(view.set.preview_denoise_from), adapt, outline: Arc::clone(&view.outline_class) },
             ));
         }
         let frame = match wait {

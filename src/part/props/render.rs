@@ -63,7 +63,12 @@ static CONTEXT: &[BPropSpec] = &[
 // showing the control's factory zero, not Blender's value.
 
 // `CYCLES_RENDER_PT_sampling` has no rows of its own; its sub-panels do.
-static SAMPLING_VIEWPORT: &[BPropSpec] = &[i("cycles.preview_samples", "Max Samples", 0, 100000).at(1024)];
+static SAMPLING_VIEWPORT: &[BPropSpec] = &[
+    b("cycles.use_preview_adaptive_sampling", "Adaptive Sampling").on(),
+    f("cycles.preview_adaptive_threshold", "Noise Threshold", BUnit::None).about(0.1),
+    i("cycles.preview_samples", "Max Samples", 0, 100000).at(1024),
+    i("cycles.preview_adaptive_min_samples", "Min Samples", 0, 100000),
+];
 // `CYCLES_RENDER_PT_sampling_viewport_denoise`: the toggle is its header.
 // Blender ships Viewport Denoising off; Phiber ships it on — a refining
 // viewport is shown filtered from its first sample, since a noisy view of

@@ -49,6 +49,10 @@ pub struct BRenderSet {
     pub adaptive: bool,
     pub adaptive_threshold: f32,
     pub adaptive_min_samples: u32,
+    /// The viewport's own three, raw as above (`BAdaptive::of_viewport`).
+    pub preview_adaptive: bool,
+    pub preview_adaptive_threshold: f32,
+    pub preview_adaptive_min_samples: u32,
     /// `cycles.time_limit`: seconds a final render may take, `0` for no
     /// limit. Cycles (`session.cpp`, `Session::run_main_render_loop`)
     /// stops after the sample batch that crosses it, whatever Max Samples
@@ -118,6 +122,10 @@ impl Default for BRenderSet {
             adaptive: true,
             adaptive_threshold: 0.01,
             adaptive_min_samples: 0,
+            // The viewport's, from `addon/properties.py`: on, 0.1, 0.
+            preview_adaptive: true,
+            preview_adaptive_threshold: 0.1,
+            preview_adaptive_min_samples: 0,
             //   SOCKET_FLOAT(time_limit, 0.0f)
             time_limit: 0.0,
             //   SOCKET_FLOAT(sample_clamp_direct, 0.0f)
@@ -206,6 +214,9 @@ pub fn render_set(s: &BState) -> BRenderSet {
         adaptive: bool_at(s, "cycles.use_adaptive_sampling", d.adaptive),
         adaptive_threshold: float_at(s, "cycles.adaptive_threshold", d.adaptive_threshold),
         adaptive_min_samples: int_at(s, "cycles.adaptive_min_samples", d.adaptive_min_samples),
+        preview_adaptive: bool_at(s, "cycles.use_preview_adaptive_sampling", d.preview_adaptive),
+        preview_adaptive_threshold: float_at(s, "cycles.preview_adaptive_threshold", d.preview_adaptive_threshold),
+        preview_adaptive_min_samples: int_at(s, "cycles.preview_adaptive_min_samples", d.preview_adaptive_min_samples),
         time_limit: float_at(s, "cycles.time_limit", d.time_limit).max(0.0),
         clamp_direct: float_at(s, "cycles.sample_clamp_direct", d.clamp_direct).max(0.0),
         clamp_indirect: float_at(s, "cycles.sample_clamp_indirect", d.clamp_indirect).max(0.0),

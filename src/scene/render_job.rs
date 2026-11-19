@@ -209,10 +209,9 @@ pub fn plan_through(model: &SceneModel, set: BRenderSet, look: &BRayLook, plain:
     let adapt = {
         let a = super::render_set::BAdaptive::of(&set, samples);
         let traced = still_look.shading == crate::scene::BShading::Rendered;
-        if a.use_it && traced {
-            [a.threshold, a.min_samples as f32, a.step as f32, 1.0]
-        } else {
-            [0.0; 4]
+        match traced {
+            true => a.words(),
+            false => [0.0; 4],
         }
     };
     // WHICH ENGINE DREW THIS FRAME, said plainly, where the engine is

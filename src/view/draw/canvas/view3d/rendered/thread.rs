@@ -101,7 +101,7 @@ pub(super) fn run(gpu: Gpu, rx: Receiver<BRayJob>, out: Arc<Mutex<Option<BRayFra
             continue;
         }
         let (Some(t), Some((key, shot))) = (tracer.as_mut(), view.clone()) else { continue };
-        let BRayShot { cam, w: full_w, h: full_h, mode, samples, aa, denoise_from, outline } = shot;
+        let BRayShot { cam, w: full_w, h: full_h, mode, samples, aa, denoise_from, adapt, outline } = shot;
         let (w, h) = coarse.pixels(full_w, full_h);
         let cam = phiray::Camera { tile: coarse.tile(cam.tile), ..cam };
         t.set_samples(samples);
@@ -112,6 +112,10 @@ pub(super) fn run(gpu: Gpu, rx: Receiver<BRayJob>, out: Arc<Mutex<Option<BRayFra
         // switching re-records the pass, which is why the mode rides with the
         // view rather than the scene.
         t.set_mode(mode);
+        // Adaptive Sampling is the path tracer's: the other modes are one
+        // deterministic dispatch or Workbench's fixed sample count.
+        let adapt = super::converge::adaptive(mode, adapt);
+        t.set_adaptive(adapt);
         // In slices when a sample is long, so a view posted meanwhile is
         // taken at the next slice instead of after the whole frame.
         let slices = slicer.slices(mode, w, h, coarse);
@@ -125,7 +129,9 @@ pub(super) fn run(gpu: Gpu, rx: Receiver<BRayJob>, out: Arc<Mutex<Option<BRayFra
         let time = t.time();
         slicer.took(mode, w, h, coarse, time.gpu);
         // A coarse image is never the end: the next is twice its size.
-        let finished = finished && coarse.full();
+        // Every pixel settled is the end as well, whatever Max Samples
+        // says: the view stops costing the GPU anything.
+        let finished = (finished || super::converge::settled(t, &gpu, adapt, sample)) && coarse.full();
         done = finished;
         let skip = coarse.full() && !(finished || sample < 4 || sample % 4 == 3);
         // While views keep arriving — a drag — the next sample stays this

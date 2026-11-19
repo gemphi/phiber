@@ -29,6 +29,9 @@ pub(super) struct BRayShot {
     /// Viewport Denoising: the sample the shown frame is filtered from
     /// (`Tracer::denoise_shown`), or none.
     pub denoise_from: Option<u32>,
+    /// Adaptive Sampling as the viewport's rows resolve
+    /// (`BAdaptive::of_viewport`, `Tracer::set_adaptive`); all zero is off.
+    pub adapt: [f32; 4],
     /// The selection outline's class an object (`Tracer::outline`), in the
     /// scene's order. Outside `Camera`, so a new selection leaves the
     /// samples already traced standing.

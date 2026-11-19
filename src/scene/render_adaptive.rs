@@ -48,22 +48,43 @@ impl BAdaptive {
 
     /// Resolve the panel's three rows against `samples`, the render's total.
     pub fn of(set: &BRenderSet, samples: u32) -> Self {
-        if !set.adaptive {
+        Self::resolved(set.adaptive, set.adaptive_threshold, set.adaptive_min_samples, samples)
+    }
+
+    /// The viewport's own three rows (`use_preview_adaptive_sampling`,
+    /// `preview_adaptive_threshold`, `preview_adaptive_min_samples`) against
+    /// the viewport's Max Samples, by the same rules: Blender keeps a
+    /// coarser threshold for the view than for a render.
+    pub fn of_viewport(set: &BRenderSet) -> Self {
+        Self::resolved(set.preview_adaptive, set.preview_adaptive_threshold, set.preview_adaptive_min_samples, set.preview_samples)
+    }
+
+    /// What the tracer takes (`phiray::Tracer::set_adaptive`): `[threshold,
+    /// min samples, step, on]`, all zero when off.
+    pub fn words(&self) -> [f32; 4] {
+        match self.use_it {
+            true => [self.threshold, self.min_samples as f32, self.step as f32, 1.0],
+            false => [0.0; 4],
+        }
+    }
+
+    fn resolved(on: bool, row_threshold: f32, row_min: u32, samples: u32) -> Self {
+        if !on {
             return Self { use_it: false, threshold: 0.0, min_samples: 0, step: Self::STEP };
         }
         // "if (clamped_aa_samples > 0 && adaptive_threshold == 0.0f)
         //      threshold = max(0.001f, 1.0f / (float)aa_samples);"
-        let mut threshold = if samples > 0 && set.adaptive_threshold == 0.0 {
+        let mut threshold = if samples > 0 && row_threshold == 0.0 {
             0.001_f32.max(1.0 / samples as f32)
         } else {
-            set.adaptive_threshold
+            row_threshold
         };
         // "Threshold 0.1 -> 32, 0.01 -> 64, 0.001 -> 128." Taken from the
         // threshold BEFORE the ×5 below, as Cycles takes it.
-        let min_samples = if threshold > 0.0 && set.adaptive_min_samples == 0 {
+        let min_samples = if threshold > 0.0 && row_min == 0 {
             (16.0 / threshold.powf(0.3)).ceil() as u32
         } else {
-            set.adaptive_min_samples
+            row_min
         }
         .max(4);
         // "Arbitrary factor that makes the threshold more similar to what
@@ -113,6 +134,19 @@ mod adaptive_tests {
         assert_eq!(BAdaptive::of(&set(true, 0.01, 1), 2048).min_samples, 4, "max(4, …)");
 
         assert!(!BAdaptive::of(&set(false, 0.01, 0), 2048).use_it, "the switch is honoured");
+    }
+
+    /// The viewport resolves its own rows, and off packs to all zero.
+    #[test]
+    fn the_viewport_takes_its_own_rows() {
+        let d = BRenderSet::default();
+        let a = BAdaptive::of_viewport(&d);
+        assert!(a.use_it, "Blender ships the viewport's adaptive sampling on");
+        assert!((a.threshold - 0.5).abs() < 1e-6, "0.1 × 5, got {}", a.threshold);
+        assert_eq!(a.min_samples, 32, "Cycles: 0.1 -> 32");
+        assert_eq!(a.words(), [0.5, 32.0, 16.0, 1.0]);
+        let off = BRenderSet { preview_adaptive: false, ..d };
+        assert_eq!(BAdaptive::of_viewport(&off).words(), [0.0; 4]);
     }
 
     /// `need_filter`: nothing before the minimum, then every sixteenth.
