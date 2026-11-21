@@ -221,6 +221,6 @@ mod tests {
     #[test]
     fn the_compiled_in_face_describes_itself() {
         let (name, weight) = describe(super::super::font::UI_FACES[0]).expect("a readable font");
-        assert_eq!((name.as_str(), weight), ("Phiber", 300));
+        assert_eq!((name.as_str(), weight), ("Phi-Pill Open", 300));
     }
 }

@@ -1,0 +1,6 @@
+# Phi-Pill Open's starting values (Preferences > Typography), Phiber's own:
+# its x-height and line metrics match Phiber's, so the same sizes read the same.
+weight = 300   # Light, its only weight
+body = 13
+header = 14
+caption = 12

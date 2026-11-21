@@ -9,25 +9,25 @@
 //! not have falls back down its own stack, then to the system's
 //! (`Font.fallbacks`), so a choice never leaves the window blank.
 //!
-//! The default is Phiber, Light: Phi-Soft Light opened up for the interface.
-//! Phi-Soft draws its vertical stems twice as thick as its horizontal
-//! strokes; Phiber thins the verticals to 1.2x the horizontals (which keep
-//! their thickness), then makes each letter 20% wider, keeping Phi-Soft's
-//! own spacing between letters (`assets/phi-fonts/Phiber`, made by
-//! `phiberize.py`). Phi-Soft's
-//! Regular read heavy at interface sizes, its Condensed width cramped, and
-//! even its full width felt tight at 12-14 px.
+//! The default is Phi-Pill Open, Light: Phi-Pill Light with the space inside
+//! each letter 64 units wider and nothing else changed — every stroke, round
+//! and height is Phi-Pill's own (`assets/phi-fonts/Phi-Pill-Open`, made by
+//! `pillopen.py`). Phi-Pill keeps the space between two stems at 129 units
+//! in every weight, which crowds the letters at interface sizes. It is one
+//! colour, without Phi-Pill's 3D side and pills, so text takes the theme's
+//! ink: a colour font's palette would be baked into every glyph. Its
+//! x-height and line metrics match Phiber's, which it replaced as the default.
 
 use super::bundle;
 
 /// The family name the interface's face answers to (its typographic family,
 /// name ID 16, shared by every weight).
-pub const UI_FAMILY: &str = "Phiber";
+pub const UI_FAMILY: &str = "Phi-Pill Open";
 
-/// Phiber Light, compiled into the binary: the face the browser build draws
-/// in (it has no folder to read) and the one a desktop build falls back to
-/// when `assets/phi-fonts` is missing.
-pub const UI_FACES: [&[u8]; 1] = [include_bytes!("../../../assets/phi-fonts/Phiber/Phiber-Light.otf")];
+/// Phi-Pill Open Light, compiled into the binary: the face the browser build
+/// draws in (it has no folder to read) and the one a desktop build falls back
+/// to when `assets/phi-fonts` is missing.
+pub const UI_FACES: [&[u8]; 1] = [include_bytes!("../../../assets/phi-fonts/Phi-Pill-Open/PhiPillOpen-Light.otf")];
 
 /// One family Preferences offers.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -66,7 +66,7 @@ impl BFontFamily {
         BFontFamily::CascadiaCode,
         BFontFamily::JetBrainsMono,
     ];
-    pub const DEFAULT: BFontFamily = BFontFamily::Bundled("phiber");
+    pub const DEFAULT: BFontFamily = BFontFamily::Bundled("phi_pill_open");
 
     /// Every choice, in the order Preferences lists them: the bundled
     /// families, then the system's.

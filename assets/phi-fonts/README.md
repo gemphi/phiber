@@ -30,7 +30,8 @@ Any key left out keeps the theme's own value. A line is `key = number`, and `#` 
 
 | Folder | Families | Weights |
 |---|---|---|
-| Phiber | Phiber (the interface default) | Light, Regular, SemiBold, Bold |
+| Phi-Pill-Open | Phi-Pill Open (the interface default) | Light |
+| Phiber | Phiber | Light, Regular, SemiBold, Bold |
 | Phi-Soft | Phi-Soft, Phi-Soft Condensed | Light, Regular, SemiBold, Bold |
 | Phi-Sans | Phi-Sans, Phi-Sans Condensed | same |
 | Phi-Serif | Phi-Serif, Phi-Serif Condensed | same |
@@ -40,7 +41,7 @@ Any key left out keeps the theme's own value. A line is `key = number`, and `#` 
 | Loras-Spark | Lora's Spark, Lora's Spark Condensed (slug `lora_s_spark`) | same |
 | Chatty-Whims | Chatty Whims, Chatty Whims Condensed | same |
 
-The default is **Phiber Light**: Phi-Soft Light opened up for the interface. Phi-Soft draws its vertical stems twice as thick as its horizontal strokes, which crowds the inside of each letter; Phiber thins the verticals to 1.2x the horizontals (the horizontals keep their thickness exactly), then makes every letter 20% wider, so text reads at 12-14 px without feeling cramped. The space between letters stays Phi-Soft's own: each letter is set back between Phi-Soft's side bearings after it is thinned and widened, so the gaps neither shrink with the thinning nor grow with the widening, and no extra tracking is added. (An earlier build added 64 units of tracking and let the widening scale the side bearings too; the letters read spaced apart.) Phi-Soft's Regular read heavy, its Condensed width cramped, and even its full width tight.
+The default is **Phi-Pill Open Light** (below). Before it, the default was **Phiber Light**: Phi-Soft Light opened up for the interface. Phi-Soft draws its vertical stems twice as thick as its horizontal strokes, which crowds the inside of each letter; Phiber thins the verticals to 1.2x the horizontals (the horizontals keep their thickness exactly), then makes every letter 20% wider, so text reads at 12-14 px without feeling cramped. The space between letters stays Phi-Soft's own: each letter is set back between Phi-Soft's side bearings after it is thinned and widened, so the gaps neither shrink with the thinning nor grow with the widening, and no extra tracking is added. (An earlier build added 64 units of tracking and let the widening scale the side bearings too; the letters read spaced apart.) Phi-Soft's Regular read heavy, its Condensed width cramped, and even its full width tight.
 
 `Phiber/phiberize.py` makes the family from Phi-Soft's four weights (it needs `fontTools`):
 
@@ -52,5 +53,13 @@ Rerun it with other numbers to tune the openness: the width scale, the extra spa
 
 ## Notes
 
-- **The browser build** has no disk to read this folder from. It carries one face compiled into the binary, Phiber Light (`font::UI_FACES`). A desktop build whose folder is missing falls back to the same face.
+- **The browser build** has no disk to read this folder from. It carries one face compiled into the binary, Phi-Pill Open Light (`font::UI_FACES`). A desktop build whose folder is missing falls back to the same face.
 - **Windows:** our vendored DirectWrite backend (`appkit/gpu/gpui_windows`, `typographic_collection`) groups added fonts by typographic family. Without that, the two widths of a folder would merge into one family and the Condensed faces could never be reached.
+
+**Phi-Pill Open** is Phi-Pill Light with the space inside each letter 64 units wider, for reading; it is the interface default. Phi-Pill keeps the space between two stems at 129 units in every weight, so even its Light is cramped inside. Only those spaces change, and only across: every point right of a closed space inside a letter moves right by 64 (a point inside the space by its share), so each stroke, round, fillet and height is exactly Phi-Pill Light's, and a letter is 64 units wider for each space it has (an n by 64, an m by 128). A space counts when it runs at least 60 units up or down, so two round ends that only pass each other grow nothing, while the space between a v's or k's arms does. Letters with no space between strokes (c, i, l, r, t) are Phi-Pill Light's unchanged. It is one colour: Phiber's text system bakes a colour font's palette into every glyph, so Phi-Pill's 3D side and light pills are left out, and text takes the theme's ink. Its x-height and line metrics match Phiber's, so `font.toml` keeps Phiber's sizes. `Phi-Pill-Open/pillopen.py` makes it (it needs `fontTools` and `pyclipper`):
+
+```
+python pillopen.py ../Phi-Pill/PhiPill-Light.otf PhiPillOpen-Light.otf 64
+```
+
+The number is how many units each space inside grows by. Add `colour` after it to keep Phi-Pill's 3D side as a colour font, for headings drawn where the palette is wanted. (The first Phi-Pill Open thinned Phi-Pill Regular's stems instead, which changed the letters' strokes and rounds; it is in `_temp/phi-pill-open-thinning`.)
