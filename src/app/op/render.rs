@@ -58,7 +58,13 @@ impl BPhiberApp {
         // were byte for byte the file camera's one picture.
         let stand_in = |dir: glam::Vec3| {
             let (w, h) = crate::scene::render_job::render_size(&model);
-            let through = crate::scene::startup_camera::BStartupCamera::camera_from(&scene, w as f32 / h.max(1) as f32, dir);
+            // The file's own camera walked round its subject where it has
+            // one (`camera_round`); else everything in the scene, fitted.
+            use crate::scene::startup_camera::BStartupCamera;
+            let own = crate::scene::motion::active_camera_at(&model, frame);
+            let through = own
+                .and_then(|own| BStartupCamera::camera_round(&own, &scene, dir))
+                .unwrap_or_else(|| BStartupCamera::camera_from(&scene, w as f32 / h.max(1) as f32, dir));
             crate::scene::render_job::plan_through(&model, set, &look, plain, &through)
         };
         let plan = match back {

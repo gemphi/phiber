@@ -13,5 +13,9 @@ pub fn open(file: &str) -> Result<SceneModel, String> {
     if let Some(set) = file.strip_prefix("wear:") {
         return crate::scene::wear::open(set);
     }
+    // A background render is a final render: modifiers at their Render
+    // settings, as Blender evaluates them for `-b … -f`
+    // (`phiphx::blend::eval_for_render`).
+    crate::phiphx::blend::eval_for_render(true);
     Phx::open(std::path::Path::new(file)).map_err(|e| format!("{e:?}"))
 }

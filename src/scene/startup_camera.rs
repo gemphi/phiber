@@ -82,6 +82,37 @@ impl BStartupCamera {
         }
     }
 
+    /// The file's own camera `own` walked round what it looks at, to stand
+    /// off in `back`: its lens, sensor and clipping kept, and its distance.
+    ///
+    /// What it looks at is the point on its line of sight level with the
+    /// centre of `objects`. [`Self::camera_from`] fits everything in the
+    /// scene instead, and a scene with a floor is mostly floor: a
+    /// turnaround of the throne file came out with the figure a thumbnail
+    /// wide in the corner of each view. The artist has already framed the
+    /// subject once; the six views keep that framing and change only the
+    /// side it is seen from. `None` when the scene's centre is behind the
+    /// camera, where there is no such point.
+    pub fn camera_round(own: &SceneCamera, objects: &[BObject3D], back: Vec3) -> Option<SceneCamera> {
+        let all: Vec<&BObject3D> = objects.iter().collect();
+        let m = glam::Mat4::from_cols_array_2d(&own.matrix_world);
+        let eye = m.w_axis.truncate();
+        // A Blender camera looks down its own −Z.
+        let sight = -m.z_axis.truncate().normalize_or_zero();
+        let (middle, _) = bounds_of(&all)?;
+        let distance = (middle - eye).dot(sight);
+        if !(distance > own.clip_start.max(1e-3)) {
+            return None;
+        }
+        let centre = eye + sight * distance;
+        let back = back.normalize();
+        let right = if back.cross(Vec3::Z).length() < 1e-4 { Vec3::X } else { Vec3::Z.cross(back).normalize() };
+        let up = back.cross(right);
+        let at = centre + back * distance;
+        let col = |v: Vec3| [v.x, v.y, v.z, 0.0];
+        Some(SceneCamera { name: Self::NAME.into(), location: at.to_array(), matrix_world: [col(right), col(up), col(back), [at.x, at.y, at.z, 1.0]], ..own.clone() })
+    }
+
     /// A model with that camera alone — what a render plan reads when no
     /// file is open: the camera, named as the scene's.
     pub fn model(objects: &[BObject3D]) -> SceneModel {
