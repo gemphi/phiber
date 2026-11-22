@@ -60,9 +60,9 @@ pub fn seed_render_props(state: &mut BState, model: &SceneModel) {
     // fill in what the file never saved, and the Render panel SHOWS them,
     // so what is on screen is what will render. A count the file saved is
     // its own, fewer or more; a count typed afterwards is believed.
+    let saved = |name: &str| cycles.get(name).and_then(BIdValue::as_int).map(|n| n.max(0) as u32);
     for (name, _) in crate::scene::render_quality::BRenderQuality::OPENING {
-        let saved = cycles.get(name).and_then(BIdValue::as_int).map(|n| n.max(0) as u32);
-        let (Some(count), Some(spec)) = (crate::scene::render_quality::BRenderQuality::opening(name, saved), spec_of(&format!("cycles.{name}"))) else { continue };
+        let (Some(count), Some(spec)) = (crate::scene::render_quality::BRenderQuality::opening_in(name, saved), spec_of(&format!("cycles.{name}"))) else { continue };
         state.set(ButsKey::Value(spec.key), BValue::Int(i64::from(count)).encode());
     }
 }

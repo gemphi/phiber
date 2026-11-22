@@ -49,12 +49,17 @@ impl BPhiberApp {
         // when the file has no camera — Blender reports "No camera found in
         // scene" and stops; a render is what this workspace is for, so the
         // stand-in takes the shot and the log says so. Deliberate divergence.
+        //
+        // Planned THROUGH the stand-in, not looked up by its name. It used
+        // to be pushed onto the file's cameras and named as the scene's
+        // (`BStartupCamera::NAME`, "Camera") — the name most files give
+        // their own camera, which comes first in the list and so won the
+        // lookup: a turnaround of the throne file wrote six files that
+        // were byte for byte the file camera's one picture.
         let stand_in = |dir: glam::Vec3| {
-            let mut with = model.clone();
-            let (w, h) = crate::scene::render_job::render_size(&with);
-            with.cameras.push(crate::scene::startup_camera::BStartupCamera::camera_from(&scene, w as f32 / h.max(1) as f32, dir));
-            with.render.camera = crate::scene::startup_camera::BStartupCamera::NAME.into();
-            crate::scene::render_job::plan_at(&with, set, &look, plain, frame)
+            let (w, h) = crate::scene::render_job::render_size(&model);
+            let through = crate::scene::startup_camera::BStartupCamera::camera_from(&scene, w as f32 / h.max(1) as f32, dir);
+            crate::scene::render_job::plan_through(&model, set, &look, plain, &through)
         };
         let plan = match back {
             Some(dir) => stand_in(dir),

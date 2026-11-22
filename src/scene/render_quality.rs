@@ -62,6 +62,22 @@ impl BRenderQuality {
         Some(saved.unwrap_or(quality))
     }
 
+    /// [`Self::opening`] for a whole file, `saved` reading any of its counts.
+    ///
+    /// One count leans on another: the Min Samples fill-in (256) is never
+    /// more than the Max Samples the file opens at. The throne file saves
+    /// Max 20 and no minimum, and its panel read Max Samples 20 over Min
+    /// Samples 256 — a minimum above the maximum, which says adaptive
+    /// sampling is on while making sure it can never stop a pixel. A
+    /// minimum the file saved itself is left alone, whatever it is.
+    pub fn opening_in(name: &str, saved: impl Fn(&str) -> Option<u32>) -> Option<u32> {
+        let count = Self::opening(name, saved(name))?;
+        match (name, saved(name)) {
+            ("adaptive_min_samples", None) => Some(count.min(Self::opening("samples", saved("samples")).unwrap_or(count))),
+            _ => Some(count),
+        }
+    }
+
     /// The samples a render actually takes: **what was asked for**, and
     /// the default only when nothing asked. A render takes at least one.
     ///
@@ -114,6 +130,26 @@ mod tests {
         assert_eq!(BRenderQuality::opening("adaptive_min_samples", None), Some(256));
         // Everything else is the file's.
         assert_eq!(BRenderQuality::opening("diffuse_bounces", Some(1)), None);
+    }
+
+    #[test]
+    fn the_minimum_fill_in_never_passes_the_maximum() {
+        let throne = |name: &str| match name {
+            "samples" => Some(20),
+            _ => None,
+        };
+        assert_eq!(BRenderQuality::opening_in("samples", throne), Some(20));
+        assert_eq!(BRenderQuality::opening_in("adaptive_min_samples", throne), Some(20), "256 would sit above Max Samples");
+        // Nothing saved: the quality counts, 256 under 2048.
+        assert_eq!(BRenderQuality::opening_in("adaptive_min_samples", |_| None), Some(256));
+        // A minimum the file saved is the file's, even above its maximum.
+        let own = |name: &str| match name {
+            "samples" => Some(20),
+            "adaptive_min_samples" => Some(64),
+            _ => None,
+        };
+        assert_eq!(BRenderQuality::opening_in("adaptive_min_samples", own), Some(64));
+        assert_eq!(BRenderQuality::opening_in("diffuse_bounces", own), None);
     }
 
     #[test]

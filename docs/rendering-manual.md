@@ -73,18 +73,17 @@ in the same order, including **Open Recent**, **Revert** and **Recover**.
 
 Do this **before** you render, not after a frame comes out flat.
 
-**File ▸ External Data** carries Blender's full set:
+Phiber has **no File ▸ External Data menu** (checked 22 November 2026;
+`tests/menu_truth.rs` lists it as left out). What it does instead:
 
-![File ▸ External Data](images/02-external-data.jpg)
+| Blender's entry | Phiber |
+|---|---|
+| **Report Missing Files** | done on every open: the Info editor, and the command line, list each image that cannot be read and the folder it was looked for in |
+| **Find Missing Files** | done on every open, without asking: a missing image is looked for by file name under the `.blend`'s own folder and under a `textures` folder beside it, four levels deep (`phiphx/src/scene/texture_find.rs`). There is no way yet to point it at another folder |
+| Pack / Unpack, Make Paths Relative / Absolute | not built |
 
-| Entry | What it does | Blender reference |
-|---|---|---|
-| Automatically Pack Resources | pack on every save | `topbar.rst` |
-| Pack / Unpack Resources | put external files inside the `.blend`, or write them back out | " |
-| Pack / Unpack Linked Libraries | the same for linked libraries | " |
-| Make Paths Relative / Absolute | rewrite every external path | " |
-| **Report Missing Files** | warn, in the Info editor, about links to files that no longer exist | " |
-| **Find Missing Files** | pick a folder; every missing file found under it, recursively, is recovered as an absolute path | " |
+So to bring a missing image back, copy its folder beside the `.blend` or
+into `textures/` next to it, and reopen.
 
 For pose 26 this is the step that decides whether the render looks like the
 reference. The file points at
@@ -100,9 +99,9 @@ a missing texture magenta and so does Phiber — deliberately, and for the same
 reason (`blend/shade/world.rs`: reading it as white instead made a scene with
 a missing HDRI about twice as bright as Blender's).
 
-If you still have those folders, point **Find Missing Files** at them. If you
-do not, the patterns cannot come back and the render will differ from the
-reference no matter what the renderer does.
+If you still have those folders, copy them beside the file. If you do not,
+the patterns cannot come back and the render will differ from the reference
+no matter what the renderer does.
 
 ---
 
@@ -133,13 +132,16 @@ to the command line alike (they used to apply only to the command line):
   the Engine row reads **Phiray**. `BLENDER_WORKBENCH` is the exception:
   Workbench is an engine Phiber really has, so a file saved under it still
   rasterizes `Scene.display.shading`.
-- **2048 samples is the floor.** A file saved below it opens *at* the floor,
-  and the Max Samples row shows that number — so what is on screen is what
-  will render. Typing your own count over it still wins, so a quick look is
-  always available. On the command line, `--draft` lifts the floor.
+- **The file's own samples win.** A file opens at the Max Samples it
+  saved — pose 26 at 20 — and the row shows that number, so what is on
+  screen is what will render. 2048 fills in only where a file saved no
+  count, and the Min Samples fill-in (256) is never more than Max Samples.
+  A count typed over it is believed. The command line follows the same
+  rule: without `--samples` it takes the file's count.
 
-The screenshot above is the old behaviour: Max Samples reading **20**,
-straight from the file. After the change the same file opens at 2048.
+For a time a file saved below 2048 opened at 2048 ("the floor"); that was
+taken out on 27 October 2026, and the screenshot above — Max Samples
+reading **20** — is the behaviour now.
 
 ---
 
@@ -147,9 +149,12 @@ straight from the file. After the change the same file opens at 2048.
 
 **Render ▸ Render Image** (`F12`).
 
-The render opens in a window titled *Phiber Render* hosting the Image editor
-on the Render Result, as Blender's `render_display_type == 'WINDOW'` does
-(`render_view.cc`). Across the top is the render info line, Blender's
+The render shows in the workspace's own Image editor on the Render Result:
+an area turns into one (`app/op/render_open.rs`), as Blender's
+`render_display_type == 'AREA'` does (`render_view.cc`). There is no
+separate render window. The editor opens on Color and Alpha, so a Film ▸
+Transparent render reads against the checker. Across the top is the render
+info line, Blender's
 `make_renderinfo_string`:
 
 ```
@@ -194,8 +199,8 @@ phiber.exe -b "…\CHATTY-POSES-RENDER-SCENE-03_Duo pose 26_1.blend" ^
 | `-E, --engine` | `-E help` lists them; Phiray is the default |
 | `-F, --render-format` | `-F help` lists them |
 | `-x`, `-t`, `-q`, `-S` | extension, threads, quiet, scene |
-| `--samples` | the count, clamped up to the 2048 floor |
-| `--draft` | lift the floor, so `--samples` below it is honoured |
+| `--samples` | the count, taken as given; without it, the file's own Max Samples (2048 where it saved none) |
+| `--draft` | accepted for older scripts; changes nothing |
 
 ---
 
@@ -246,10 +251,10 @@ Measured on pose 26, not assumed.
 | Missing textures | magenta | magenta | the same `IMB` invalid colour; **the data is missing, not the feature** |
 | Missing world HDRI | magenta dome | magenta dome | deliberate — reading it as white doubled the scene's brightness |
 | Engine | as saved | Phiray (Workbench excepted) | Phiber has one tracer and one rasterizer |
-| Samples | as saved | at least 2048 | the quality default |
-| Adaptive sampling, time limit | applied | read, saved, not applied | every pixel takes Max Samples |
+| Samples | as saved | as saved; 2048 where none was saved | the file wins |
+| Adaptive sampling, time limit | applied | applied | Cycles' own rules (`scene/render_adaptive.rs`) |
 | Motion blur, volumes, caustics | yes | no | not built |
-| Find Missing Files | yes | menu entry present | see §2 |
+| Find Missing Files | on command, any folder | on open, the file's folder and `textures/` only | see §2 |
 
 **The gap that matters for this file is not the renderer — it is the missing
 texture and HDRI folders.** With them restored, the remaining differences are

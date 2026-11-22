@@ -61,6 +61,19 @@ impl BHeadlessRender {
         BRenderQuality::samples(self.samples, self.draft)
     }
 
+    /// The samples this render takes of `model`: `--samples` when given,
+    /// else the file's own Max Samples, and the default only where the
+    /// file saved none — the rule the app's F12 already follows
+    /// (`BRenderQuality::opening`). A silent command line used to take
+    /// 2048 whatever the file said, so `phiber -b pose26.blend -f 1`
+    /// rendered a file saved at 20 samples a hundred times over.
+    pub fn samples_of(&self, model: &crate::phiphx::scene::SceneModel) -> u32 {
+        use crate::phiphx::blend::BIdValue;
+        let saved = |name: &str| model.render.cycles.get(name).and_then(BIdValue::as_int).map(|n| n.max(0) as u32);
+        let file = BRenderQuality::opening_in("samples", saved).unwrap_or(BRenderQuality::SAMPLE_FLOOR);
+        self.samples.map_or(file, |asked| asked.max(1)).max(1)
+    }
+
     /// Where frame `frame` is written, by Blender's own rule
     /// (`BLI_path_frame`, `BKE_image_path_from_imformat`): the last
     /// component of `-o` is a **name prefix**, not a folder, unless the
@@ -167,7 +180,7 @@ impl BHeadlessRender {
         let model = std::sync::Arc::new(model);
         set_loaded_at(Some(model.clone()), &state);
         let mut set = render_set(&state);
-        set.samples = self.sample_count();
+        set.samples = self.samples_of(&model);
 
         let scale = self.look.scale.max(1);
         let plain = gpui::hsla(0.0, 0.0, 0.8, 1.0);

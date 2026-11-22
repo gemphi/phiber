@@ -99,8 +99,8 @@ impl BRenderEdits {
         // as an edit would write phiber's counts into the user's `.blend` on
         // the next save (`render_quality::BRenderQuality::OPENING`). A count
         // they type themselves is still an edit.
-        let saved = model.render.cycles.get(name).and_then(BIdValue::as_int).map(|n| n.max(0) as u32);
-        if let Some(opened) = super::render_quality::BRenderQuality::opening(name, saved) {
+        let saved = |name: &str| model.render.cycles.get(name).and_then(BIdValue::as_int).map(|n| n.max(0) as u32);
+        if let Some(opened) = super::render_quality::BRenderQuality::opening_in(name, saved) {
             let shown = BValue::parse(BValueKind::Int, s.get(ButsKey::Value(spec.key))?)?;
             if shown == BValue::Int(i64::from(opened)) {
                 return None;

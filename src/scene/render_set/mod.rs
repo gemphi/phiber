@@ -199,12 +199,30 @@ fn engine_at(s: &BState) -> super::render_engine::BRenderEngine {
     }
 }
 
+/// The count a sample row falls back to when the panel holds nothing it
+/// can read: the loaded file's own, else the quality count
+/// (`BRenderQuality::opening`), else `factory`.
+///
+/// A row is unreadable while it is being typed into — a click on Max
+/// Samples blanks it until the edit is confirmed. The fallback was the
+/// factory 4096, so entering the Rendering workspace with the field open
+/// rendered the throne file, saved at 20 samples, at 4096: 79 seconds for
+/// a frame the file asks 4 for.
+fn count_of_file(name: &str, factory: u32) -> u32 {
+    use crate::phiphx::blend::BIdValue;
+    use super::render_quality::BRenderQuality;
+    super::source::with_loaded(|m| {
+        let saved = |name: &str| m.and_then(|m| m.render.cycles.get(name).and_then(BIdValue::as_int).map(|n| n.max(0) as u32));
+        BRenderQuality::opening_in(name, saved).unwrap_or(factory)
+    })
+}
+
 /// Read the Render panel.
 pub fn render_set(s: &BState) -> BRenderSet {
     let d = BRenderSet::default();
     BRenderSet {
-        samples: int_at(s, "cycles.samples", d.samples),
-        preview_samples: int_at(s, "cycles.preview_samples", d.preview_samples),
+        samples: int_at(s, "cycles.samples", count_of_file("samples", d.samples)),
+        preview_samples: int_at(s, "cycles.preview_samples", count_of_file("preview_samples", d.preview_samples)),
         diffuse_bounces: int_at(s, "cycles.diffuse_bounces", d.diffuse_bounces),
         max_bounces: int_at(s, "cycles.max_bounces", d.max_bounces),
         transparent_bounces: int_at(s, "cycles.transparent_max_bounces", d.transparent_bounces),

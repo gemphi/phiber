@@ -128,7 +128,7 @@ fn render(cli: &BCli) -> i32 {
             "Rendering {} frame(s) on {} at {} samples -> {}",
             render.frame.len(),
             cli.engine_name(),
-            render.sample_count(),
+            render.samples_of(&model),
             render.out
         );
     }

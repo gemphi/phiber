@@ -32,7 +32,12 @@ pub const NORMAL: &str = "Normal";
 pub const DIFFUSE_COLOR: &str = "DiffCol";
 /// `sima->display_channels`, in Blender's order.
 pub const CHANNELS: [&str; 6] = ["Color and Alpha", "Color", "Alpha", "Red", "Green", "Blue"];
-pub const CHANNEL_DEFAULT: &str = "Color";
+/// `image_create` (`space_image.cc`) sets `SI_USE_ALPHA`, so a fresh Image
+/// editor shows Color and Alpha: a Film ▸ Transparent render reads against
+/// the checker. It was "Color", which painted the cut-away background as
+/// solid black — the throne render looked like a white strip in a black
+/// frame while its saved PNG was transparent there.
+pub const CHANNEL_DEFAULT: &str = "Color and Alpha";
 
 /// The passes the render at hand can show: Combined, then whichever extras
 /// the shot carries.
