@@ -103,6 +103,17 @@ pub fn action_for(stroke: &BKeystroke, state: &BState) -> Option<(BAction, Strin
             return Some(hit);
         }
     }
+    // Under an open modal a plain key is typing, not an operator of
+    // whichever editor the pointer happens to be over. With the Save As
+    // browser up and its name field not yet clicked, a file name typed
+    // at it ran the letters as the editor's shortcuts: the render was
+    // saved under the default name and a turnaround started. Chords,
+    // function keys, Escape and Enter still reach their bindings.
+    let modal = state.get(crate::state::ModalKey::Open).is_some_and(|open| !open.is_empty());
+    let plain = !stroke.control && !stroke.alt && (stroke.key.chars().count() == 1 || stroke.key == "space");
+    if modal && plain {
+        return None;
+    }
     let over = crate::view::draw::host::BPointer::host();
     set::bindings(over).into_iter().find(|binding| binding.stroke == *stroke).map(|binding| ((binding.action)(state), binding.name))
 }
