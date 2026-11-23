@@ -44,6 +44,7 @@ pub mod render_audit;
 pub mod render_border;
 pub mod render_cast;
 pub mod render_engine;
+pub mod render_eval;
 pub mod render_play;
 pub mod render_slot;
 pub mod render_job;

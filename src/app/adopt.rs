@@ -11,6 +11,7 @@ impl BPhiberApp {
         crate::scene::warm::BWarm::of(&model).start();
         self.scene_cache = Some((key, model));
         crate::scene::render_job::forget();
+        crate::scene::render_eval::forget();
         crate::scene::image_list::BImageList::forget();
         self.render_on_entry();
     }
