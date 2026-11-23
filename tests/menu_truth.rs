@@ -85,7 +85,6 @@ const DROPPED: &[(&str, &str, &str)] = &[
     ("File", "Link...", "no .blend libraries are read"),
     ("File", "Append...", "no .blend libraries are read"),
     ("File", "Data Previews", "no previews to make or clear"),
-    ("File", "External Data", "nothing is packed and no paths are kept"),
     ("File", "Clean Up", "no orphan data is kept"),
     ("File", "Defaults", "no startup file; Load Factory Settings is in the Phiber menu"),
     ("File", "Export All Collections", "the last entry of File ▸ Export"),

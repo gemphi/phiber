@@ -29,6 +29,10 @@ pub enum BFilePurpose {
     /// `IMAGE_OT_open` under the Material tab's Base Color: the image
     /// plugged into the active object's first material (`scene::recolor`).
     BaseColorImage,
+    /// `FILE_OT_find_missing_files` - a folder to search for the images
+    /// the file could not read (`phiphx`'s `texture_find`). The browser
+    /// commits the folder it shows, not a file in it.
+    FindMissing,
 }
 
 impl BFilePurpose {
@@ -45,6 +49,7 @@ impl BFilePurpose {
             Self::Mixdown => "mixdown",
             Self::OpenImage => "open_image",
             Self::BaseColorImage => "base_color_image",
+            Self::FindMissing => "find_missing",
         }
     }
     /// Modal title.
@@ -60,6 +65,7 @@ impl BFilePurpose {
             Self::SaveImage => "Save Image",
             Self::Mixdown => "Mixdown",
             Self::OpenImage | Self::BaseColorImage => "Open Image",
+            Self::FindMissing => "Find Missing Files",
         }
     }
     /// Execute-button label.
@@ -75,6 +81,7 @@ impl BFilePurpose {
             Self::SaveImage => "Save As Image",
             Self::Mixdown => "Mixdown",
             Self::OpenImage | Self::BaseColorImage => "Open Image",
+            Self::FindMissing => "Search This Folder",
         }
     }
     pub fn from_slug(s: &str) -> Option<Self> {
@@ -90,6 +97,7 @@ impl BFilePurpose {
             Self::Mixdown,
             Self::OpenImage,
             Self::BaseColorImage,
+            Self::FindMissing,
         ]
         .into_iter()
         .find(|p| p.slug() == s)

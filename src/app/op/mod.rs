@@ -7,6 +7,7 @@
 //! a menu fires is a rule (`state/rule.rs`); this is the rest, in one place.
 
 pub(crate) mod close;
+mod external;
 mod file;
 mod render;
 pub(crate) mod render_open;
@@ -59,6 +60,7 @@ impl BPhiberApp {
             Some(OpKey::Redo) => self.redo(),
             Some(OpKey::NewFile) => self.new_file(value, cx),
             Some(OpKey::Revert) => self.revert(value, cx),
+            Some(OpKey::External) => self.report_missing(),
             Some(OpKey::Save) => self.save_document(value == "incremental"),
             Some(OpKey::FileClose) => self.handle_file_close(value, None, cx),
             Some(OpKey::UndoHistory) => self.undo_to(value.parse().unwrap_or(0)),

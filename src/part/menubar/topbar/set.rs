@@ -77,6 +77,14 @@ static EXPORT: &[BMenuItem] = &[
     op_export("Export All Collections", "gltf"),
 ];
 
+// ── File > External Data: `TOPBAR_MT_file_external_data`, the two entries
+// about images the file could not read. Nothing is packed and no paths are
+// rewritten, so the pack and path entries are not here.
+static EXTERNAL: &[BMenuItem] = &[
+    fire("Report Missing Files", "", OpKey::External, "report"),
+    op_file("Find Missing Files...", "", "find_missing"),
+];
+
 // ── Top-level Topbar menus ─────────────────────────────────────────────────
 
 // Phiber's own menu: the app, not the file.
@@ -101,6 +109,8 @@ static FILE_ITEMS: &[BMenuItem] = &[
     SEP,
     sub("Import", IMPORT),
     sub("Export", EXPORT),
+    SEP,
+    sub("External Data", EXTERNAL),
 ];
 
 // Blender ref: `TOPBAR_MT_edit` in `bl_ui/space_topbar.py`.

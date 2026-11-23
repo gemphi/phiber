@@ -35,15 +35,19 @@ fn filename(s: &BState) -> BView {
 /// the action reducer turns into an import + recent-list entry.
 fn execute_btn(s: &BState) -> BView {
     let dir = listing::current_dir(s);
+    // Find Missing Files searches a folder: the one shown, whatever file in
+    // it happens to be picked (`FILE_OT_find_missing_files` takes a
+    // directory).
+    let folder = purpose(s) == super::purpose::BFilePurpose::FindMissing;
     let target = Some(super::op::picked(s))
-        .filter(|p| !p.is_empty())
+        .filter(|p| !p.is_empty() && !folder)
         .map(str::to_string)
         .unwrap_or_else(|| {
             let name = s.get(&FileKey::Filename.path()).unwrap_or("");
-            if name.is_empty() {
-                String::new()
-            } else {
-                listing::join(&dir, name)
+            match (folder, name.is_empty()) {
+                (true, _) => dir.clone(),
+                (false, true) => String::new(),
+                (false, false) => listing::join(&dir, name),
             }
         });
     // Blender's execute button is the dialog's one lit button.
@@ -97,7 +101,7 @@ pub fn has_purpose(s: &BState) -> bool {
     s.get(&FileKey::Purpose.path()).is_some()
         && matches!(
             purpose(s),
-            BFilePurpose::Open | BFilePurpose::SaveAs | BFilePurpose::SaveCopy | BFilePurpose::Import | BFilePurpose::Export | BFilePurpose::SaveImage | BFilePurpose::Mixdown | BFilePurpose::OpenImage | BFilePurpose::BaseColorImage
+            BFilePurpose::Open | BFilePurpose::SaveAs | BFilePurpose::SaveCopy | BFilePurpose::Import | BFilePurpose::Export | BFilePurpose::SaveImage | BFilePurpose::Mixdown | BFilePurpose::OpenImage | BFilePurpose::BaseColorImage | BFilePurpose::FindMissing
         )
 }
 

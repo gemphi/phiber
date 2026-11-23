@@ -73,6 +73,10 @@ impl BPhiberApp {
                     Err(why) => info::push(&mut self.state, BReportLevel::Error, format!("Cannot open image: {why}")),
                 }
             }
+            BFilePurpose::FindMissing => {
+                self.state.remove(&FileKey::Purpose.path());
+                self.find_missing_in(path, cx);
+            }
             BFilePurpose::Mixdown => {
                 self.state.remove(&FileKey::Purpose.path());
                 self.mixdown_to(path, cx);

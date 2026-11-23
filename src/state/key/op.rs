@@ -24,6 +24,8 @@ pub enum OpKey {
     NewFile,
     /// `wm.revert_mainfile`.
     Revert,
+    /// File - External Data: `report` (`file.report_missing_files`).
+    External,
     /// `screen.workspace_cycle`: `+1` / `-1`.
     SpaceStep,
     /// `object.select_all`: `all` / `none` / `invert`, or `extend:<name>`.
