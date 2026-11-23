@@ -178,7 +178,12 @@ impl BSurface<'_> {
                 // A material that is a volume and no surface: its faces
                 // are the medium's boundary (`Tri::with_medium`).
                 if let Some(v) = self.slot.filter(|m| m.bsdf.alpha <= 0.0).and_then(|m| m.volume) {
-                    return Tri::new([[0.0; 3]; 3], [[0.0; 3]; 3], [0.0; 4]).with_medium(v.scatter, v.extinction, v.anisotropy);
+                    let tri = Tri::new([[0.0; 3]; 3], [[0.0; 3]; 3], [0.0; 4]).with_medium(v.scatter, v.extinction, v.anisotropy);
+                    // A Density a texture drives: the texture in the
+                    // first slot, which a boundary has no colour to use
+                    // for (`volume.wgsl`'s `fog_density`).
+                    let density = self.slot.and_then(|m| m.procedural.density.as_ref()).map(|p| p.slot(0, out, ids));
+                    return tri.with_procs(density, None);
                 }
                 let bsdf = self.slot.map(|m| &m.bsdf);
                 self.procedural(self.textured(self.lobe(self.color, bsdf, self.pbr(bsdf)), out, ids), out, ids)

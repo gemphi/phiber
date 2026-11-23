@@ -67,7 +67,7 @@ fn procedural_textures_land_in_the_lobes_slots() {
     // The Principled is the second lobe: its textures go there, the factor's
     // to the first, which the tracer reads the weight from.
     material.mix = Some(BlendMix { first: mirror, second: red, fac: 0.5, principled: Some(1) });
-    material.procedural = BlendProcedural { base: Some(noise), base_mix: None, mix: Some(fac), bump: Some(BlendBump { height: voronoi, strength: 0.6, distance: 0.3 }) };
+    material.procedural = BlendProcedural { base: Some(noise), base_mix: None, mix: Some(fac), bump: Some(BlendBump { height: voronoi, strength: 0.6, distance: 0.3 }), density: None };
     let grey = white();
     let palette = |shading| super::super::mesh::BMeshPalette { shading, cube: grey, sphere: grey, gem: grey, loaded: grey, accent: grey, accent_active: grey, matcap: None, texture: false, studio: shading == BShading::Material };
     let mut unramped = material.clone();
