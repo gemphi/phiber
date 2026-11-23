@@ -175,6 +175,11 @@ impl BSurface<'_> {
                 first.with_second(other, mix.fac)
             }
             None => {
+                // A material that is a volume and no surface: its faces
+                // are the medium's boundary (`Tri::with_medium`).
+                if let Some(v) = self.slot.filter(|m| m.bsdf.alpha <= 0.0).and_then(|m| m.volume) {
+                    return Tri::new([[0.0; 3]; 3], [[0.0; 3]; 3], [0.0; 4]).with_medium(v.scatter, v.extinction, v.anisotropy);
+                }
                 let bsdf = self.slot.map(|m| &m.bsdf);
                 self.procedural(self.textured(self.lobe(self.color, bsdf, self.pbr(bsdf)), out, ids), out, ids)
             }
