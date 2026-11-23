@@ -1088,13 +1088,13 @@ down the whole right side (339 px) — no Outliner.
 | 4 | Render info bar (`Frame:1 \| Time: … \| Mem: … \| Scene, ViewLayer \| Sample n/N`) | `draw_render_info`, `ED_region_info_draw`, `make_renderinfo_string` | **done** | §21; a quarter-black bar `UI_UNIT_Y` tall across the top, `Finished` once done |
 | 5 | Display channels and passes | `sima->display_channels`, `iuser->pass` | **done** | Color and Alpha (checker behind), Color, Alpha, Red, Green, Blue; Combined, Depth, Normal, DiffCol as raw, clipped values — what Blender shows |
 | 6 | Sidebar: Image / Tool / View / Scopes | `IMAGE_PT_image_properties`, `IMAGE_PT_view_display`, scopes | **todo** | the tab rail exists; no panels |
-| 7 | Render slots (8) and pass switching in the header | `template_image_layers` | **todo** | passes render (§17) and save; the header cannot switch what the window shows |
-| 8 | Render border | `image.render_border` | **todo** | |
+| 7 | Render slots (8) and pass switching in the header | `template_image_layers` | **partial** | passes render (§17) and save; the header cannot switch what the window shows 2026-11-23: slots exist in code (`scene/render_slot.rs`, the header's slot control); not re-tried in the window. |
+| 8 | Render border | `image.render_border` | **partial** | 2026-11-23: the border exists in code (`ImageKey::BorderArm`, `View3dKey::RenderBorder`, `scene/render_border.rs`); not re-tried in the window. |
 | 9 | Render, save, passes, camera, DoF, background job | §11–§17 | **done** | |
 | 10 | Rendered mode against Cycles: linear accumulation, GGX, MIS, env NEE, denoiser | §7–§10, §18–§19 | **partial** | THYMUS figure mean 61.4 vs Cycles 56.5 |
 | 11 | Multiscatter GGX, dielectric specular energy conservation, F82 Fresnel | `microfacet.h`, `principled.h` | **todo** | §19 |
-| 12 | Node-network evaluation (procedural textures) or baking | `svm_*.h` | **todo** | §5 |
-| 13 | Motion blur, panoramic cameras, volumes, adaptive sampling, clamping | Cycles integrator | **todo** | |
+| 12 | Node-network evaluation (procedural textures) or baking | `svm_*.h` | **partial** | §5 2026-11-23: procedural textures are evaluated per pixel (`procedural.wgsl`) and the Base Color, Roughness and Subsurface Scale chains are baked (`phiphx` `shade/bake.rs`, `scene/texture_rough.rs`, `scene/texture_scale.rs`). |
+| 13 | Motion blur, panoramic cameras, volumes, adaptive sampling, clamping | Cycles integrator | **partial** | 2026-11-23: adaptive sampling and clamping are in (`adapt.wgsl`, `clamp_light`), and subsurface is a random walk (`subsurface.wgsl`). Motion blur, panoramic cameras and volumes are not started. |
 | 14 | Real GPU timing against Cycles | — | **todo** | never measured where it counts |
 
 ---
