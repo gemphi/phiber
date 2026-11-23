@@ -93,7 +93,7 @@ fn a_file_opens_at_its_own_counts_and_a_typed_count_is_believed() {
     let (s, samples) = seeded(Some(25));
     assert_eq!(samples, 25, "a file saved at 25 opens at 25");
     assert_eq!(render_set(&s).preview_samples, 1024, "a viewport count it never saved: Blender's 1024");
-    assert_eq!(render_set(&s).adaptive_min_samples, 256, "a Min Samples it never saved: 256");
+    assert_eq!(render_set(&s).adaptive_min_samples, 25, "a Min Samples it never saved: 256, held to the file's Max");
     let (_, samples) = seeded(Some(8192));
     assert_eq!(samples, 8192, "a file asking for more keeps its count");
 
