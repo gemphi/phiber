@@ -1,0 +1,18 @@
+# How far each hour's numeral turns on a dial, with the clock, in
+# degrees: the top half's figures lean out along the dial, the bottom
+# half's lean in, so none stands on its head (6 and 12 stay upright).
+# Read by `build.py` for the mock's and the specimen's dial.
+#
+# hour	turn
+12	0
+1	30
+2	60
+3	90
+4	-60
+5	-30
+6	0
+7	30
+8	60
+9	-90
+10	-60
+11	-30

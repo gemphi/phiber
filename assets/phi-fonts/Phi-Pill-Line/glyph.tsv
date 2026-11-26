@@ -1,0 +1,225 @@
+# Phi-Pill Line and Phi-Pill Link: watch-face numerals and the letters a
+# dial needs, after the outline numerals of the Hermès Apple Watch face
+# (the user, 27 November 2026) but drawn on the house's construction,
+# never traced. `line.py` builds both families from these rows alone.
+#
+# name	part	what
+#
+# One construction, the one Phi-Pill is made on: a closed outline led
+# from corner to corner, each corner as round as its radius says (as
+# appkit's `script/icon.py` reads a `fill`), every round a true circle,
+# each circle joined to the next by the line that touches both (as
+# Phiogy's `script/chain.py` draws). Two corners of the same circle (a
+# bar's end, a link's end) become that one circle: a pill.
+#
+# Phi-Pill Link fills the outline. Phi-Pill Line draws the outline only,
+# as one thin line with every turn round: the outline taken out by half
+# the line and in by half the line, the same circles with their radii
+# grown and shrunk, so every curve of the line is still a true arc.
+#
+# The measures:
+#   take  read from a Phi-Pill file: `FILE GLYPH what`, what being
+#         cap (the file's cap height), top (the glyph's highest ink),
+#         bottom (its lowest), left (its first ink),
+#         wide (its ink's width), or `y|x AT ink|gap K`: a straight cut
+#         across the glyph at AT, and the K-th run of ink (or of space
+#         between inks) it meets, counted from 0
+#   let   a measure made of others: + - * / and brackets, no spaces
+#
+# The faces:
+#   face  `line|solid STYLE WEIGHT`: the family in the name column
+#
+# The glyphs (the outline's corners `x y r`, apart by commas, taken with
+# the clock, y up from the baseline, x from the glyph's first ink):
+#   char    the character, as hex
+#   wide    the ink's width; the side bearing is Phi-Pill's either side
+#   fill    the outline of ink
+#   cut     the outline of a space inside it, also taken with the clock
+#   turn    another glyph's outlines turned half round (9 is 6 turned)
+#   mirror  another glyph's outlines mirrored left to right (5 is 2)
+#
+# --- measures, from Phi-Pill Regular (Light for the line) ---
+cap	take	PhiPill-Regular zero cap
+side	take	PhiPill-Regular zero left
+w	take	PhiPill-Regular zero wide
+stem	take	PhiPill-Regular one y 300 ink 0
+bar	take	PhiPill-Regular zero x 297 ink 0
+counter	take	PhiPill-Regular zero y 317 gap 0
+dot	take	PhiPill-Regular period wide
+xh	take	PhiPill-Regular x top
+d	take	PhiPill-Regular p bottom
+spot	take	PhiPill-Regular i top
+ms	take	PhiPill-Regular m y 200 ink 0
+mc	take	PhiPill-Regular m y 200 gap 0
+hair	take	PhiPill-Light zero x 242 ink 0
+#
+h	let	cap
+s	let	stem
+b	let	bar
+c	let	counter
+e	let	bar/2
+R	let	stem
+r	let	counter/2
+m	let	cap/2
+line	let	hair/2
+# where the middle bars sit: Phi-Pill's 8 and hyphen hang theirs at mid
+# plus half a bar
+mid	let	cap/2+bar/2
+# a link's end, half the bowl's height (6, 9); a's bowl holds one round
+# space, so its link is two bars and a counter high (a, and e its turn)
+bowl	let	cap/2+bar/2
+link	let	bowl/2
+abowl	let	2*bar+counter
+alink	let	abowl/2
+# s: two bowls, each turn half a bowl round
+smid	let	xh/2+bar/2
+sR	let	smid/2
+# the narrower letters (j l r t) leave out a bar's width
+nw	let	w-bar
+# m and w: Phi-Pill's own narrower stems and counters
+mw	let	3*ms+2*mc
+# v: where the stems bend so the foot is one round of half a stem
+vo	let	w/2+stem/2-stem*0.70710678
+#
+# --- the faces ---
+Phi-Pill Line	face	line Light 300
+Phi-Pill Link	face	solid Regular 400
+#
+# --- numerals: every one as wide as 0, so a dial's figures line up ---
+space	char	0020
+space	wide	c
+#
+zero	char	0030
+zero	fill	0 h R, w h R, w 0 R, 0 0 R
+zero	cut	s h-b r, w-s h-b r, w-s b r, s b r
+#
+# 1: a flag with a pill end, the stem's foot a pill end
+one	char	0031
+one	fill	(w-s-c)/2 h e, (w+s+c)/2 h b, (w+s+c)/2 0 s/2, (w+s+c)/2-s 0 s/2, (w+s+c)/2-s h-b e, (w-s-c)/2 h-b e
+#
+# 2: bars with pill ends, the turns round outside and pill-round inside
+two	char	0032
+two	fill	0 h e, w h R, w mid-b R, s mid-b r, s b r, w b e, w 0 e, 0 0 R, 0 mid R, w-s mid r, w-s h-b r, 0 h-b e
+#
+three	char	0033
+three	fill	0 h e, w h R, w 0 R, 0 0 e, 0 b e, w-s b r, w-s mid-b r, s mid-b e, s mid e, w-s mid r, w-s h-b r, 0 h-b e
+#
+# 4: the left stem turns round into the bar; the right stem runs through
+four	char	0034
+four	fill	0 h s/2, s h s/2, s mid r, w-s mid r, w-s h s/2, w h s/2, w 0 s/2, w-s 0 s/2, w-s mid-b r, 0 mid-b R
+#
+five	char	0035
+five	mirror	two
+#
+# 6: a chain link: the bowl a ring whose right end and foot are round
+# by half its height, its space a pill, the stem leaving it as a hook
+six	char	0036
+six	fill	0 h R, w h e, w h-b e, s h-b r, s bowl r, w bowl link, w 0 link, 0 0 link
+six	cut	s bowl-b r, w-s bowl-b r, w-s b r, s b r
+#
+seven	char	0037
+seven	fill	0 h e, w h R, w 0 s/2, w-s 0 s/2, w-s h-b r, 0 h-b e
+#
+# 8: the link with its stud: two spaces, the bar between them a stud
+eight	char	0038
+eight	fill	0 h R, w h R, w 0 R, 0 0 R
+eight	cut	s h-b r, w-s h-b r, w-s mid r, s mid r
+eight	cut	s mid-b r, w-s mid-b r, w-s b r, s b r
+#
+nine	char	0039
+nine	turn	six
+#
+# --- marks a time and a date need ---
+period	char	002E
+period	wide	dot
+period	fill	0 dot dot/2, dot dot dot/2, dot 0 dot/2, 0 0 dot/2
+#
+colon	char	003A
+colon	wide	dot
+colon	fill	0 m-dot/2 dot/2, dot m-dot/2 dot/2, dot m-dot*3/2 dot/2, 0 m-dot*3/2 dot/2
+colon	fill	0 m+dot*3/2 dot/2, dot m+dot*3/2 dot/2, dot m+dot/2 dot/2, 0 m+dot/2 dot/2
+#
+hyphen	char	002D
+hyphen	wide	s+c
+hyphen	fill	0 mid e, s+c mid e, s+c mid-b e, 0 mid-b e
+#
+# --- the letters a dial names: days, months, am and pm ---
+# Phi-Pill's x-height, ascender and descender; one case only
+a	char	0061
+a	fill	w 0 alink, 0 0 alink, 0 abowl alink, w-s abowl e, w-s xh-b e, 0 xh-b e, 0 xh e, w xh R
+a	cut	s abowl-b r, w-s abowl-b r, w-s b r, s b r
+#
+b	char	0062
+b	fill	0 h s/2, s h s/2, s xh e, w xh R, w 0 R, 0 0 e
+b	cut	s xh-b r, w-s xh-b r, w-s b r, s b r
+#
+c	char	0063
+c	fill	0 xh R, w xh e, w xh-b e, s xh-b r, s b r, w b e, w 0 e, 0 0 R
+#
+d	char	0064
+d	mirror	b
+#
+e	char	0065
+e	turn	a
+#
+f	char	0066
+f	fill	0 h R, w h e, w h-b e, s h-b e, s xh-b e, s+c xh-b e, s+c xh-2*b e, s xh-2*b e, s 0 s/2, 0 0 s/2
+#
+g	char	0067
+g	fill	0 xh R, w xh R, w d R, 0 d e, 0 d+b e, w-s d+b r, w-s 0 r, 0 0 R
+g	cut	s xh-b r, w-s xh-b r, w-s b r, s b r
+#
+h	char	0068
+h	fill	0 h s/2, s h s/2, s xh e, w xh R, w 0 s/2, w-s 0 s/2, w-s xh-b r, s xh-b r, s 0 s/2, 0 0 s/2
+#
+i	char	0069
+i	wide	s
+i	fill	0 xh s/2, s xh s/2, s 0 s/2, 0 0 s/2
+i	fill	0 spot s/2, s spot s/2, s spot-s s/2, 0 spot-s s/2
+#
+j	char	006A
+j	wide	nw
+j	fill	nw-s xh s/2, nw xh s/2, nw d R, 0 d e, 0 d+b e, nw-s d+b r
+j	fill	nw-s spot s/2, nw spot s/2, nw spot-s s/2, nw-s spot-s s/2
+#
+l	char	006C
+l	wide	nw
+l	fill	0 h s/2, s h s/2, s b r, nw b e, nw 0 e, 0 0 R
+#
+m	char	006D
+m	wide	mw
+m	fill	0 xh e, mw xh ms, mw 0 ms/2, mw-ms 0 ms/2, mw-ms xh-b mc/2, 2*ms+mc xh-b mc/2, 2*ms+mc 0 ms/2, ms+mc 0 ms/2, ms+mc xh-b mc/2, ms xh-b mc/2, ms 0 ms/2, 0 0 ms/2
+#
+n	char	006E
+n	fill	0 xh e, w xh R, w 0 s/2, w-s 0 s/2, w-s xh-b r, s xh-b r, s 0 s/2, 0 0 s/2
+#
+o	char	006F
+o	fill	0 xh R, w xh R, w 0 R, 0 0 R
+o	cut	s xh-b r, w-s xh-b r, w-s b r, s b r
+#
+p	char	0070
+p	fill	0 xh e, w xh R, w 0 R, s 0 e, s d s/2, 0 d s/2
+p	cut	s xh-b r, w-s xh-b r, w-s b r, s b r
+#
+r	char	0072
+r	wide	nw
+r	fill	0 xh e, nw xh e, nw xh-b e, s xh-b r, s 0 s/2, 0 0 s/2
+#
+s	char	0073
+s	fill	w xh-b e, s xh-b e, s smid e, w smid sR, w 0 sR, 0 0 e, 0 b e, w-s b e, w-s smid-b e, 0 smid-b sR, 0 xh sR, w xh e
+#
+t	char	0074
+t	wide	nw
+t	fill	0 h s/2, s h s/2, s xh e, s+c xh e, s+c xh-b e, s xh-b e, s b r, nw b e, nw 0 e, 0 0 R
+#
+u	char	0075
+u	turn	n
+#
+v	char	0076
+v	fill	0 xh s/2, s xh s/2, s vo r, w/2 vo+s-w/2 e, w-s vo r, w-s xh s/2, w xh s/2, w vo R, w-vo 0 s/2, vo 0 s/2, 0 vo R
+#
+w	char	0077
+w	turn	m
+#
+y	char	0079
+y	fill	0 xh s/2, s xh s/2, s b r, w-s b r, w-s xh s/2, w xh s/2, w d R, 0 d e, 0 d+b e, w-s d+b r, w-s 0 r, 0 0 R

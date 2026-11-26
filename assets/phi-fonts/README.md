@@ -39,6 +39,7 @@ Any key left out keeps the theme's own value. A line is `key = number`, and `#` 
 | Phi-Walt | Phi-Walt, Phi-Walt Condensed | same |
 | Loras-Spark | Lora's Spark, Lora's Spark Condensed (slug `lora_s_spark`) | same |
 | Chatty-Whims | Chatty Whims, Chatty Whims Condensed | same |
+| Phi-Pill-Line | Phi-Pill Line, Phi-Pill Link (watch-face figures and lower case) | Light (Line), Regular (Link) |
 
 The default is **Phiber Light**: Phi-Soft Light opened up for the interface. Phi-Soft draws its vertical stems twice as thick as its horizontal strokes, which crowds the inside of each letter; Phiber thins the verticals to 1.2x the horizontals (the horizontals keep their thickness exactly), then makes every letter 20% wider, so text reads at 12-14 px without feeling cramped. The space between letters stays Phi-Soft's own: each letter is set back between Phi-Soft's side bearings after it is thinned and widened, so the gaps neither shrink with the thinning nor grow with the widening, and no extra tracking is added. (An earlier build added 64 units of tracking and let the widening scale the side bearings too; the letters read spaced apart.) Phi-Soft's Regular read heavy, its Condensed width cramped, and even its full width tight.
 
@@ -49,6 +50,22 @@ python phiberize.py ../Phi-Soft/PhiSoft-Light.otf Phiber-Light.otf 1.20 0 Light 
 ```
 
 Rerun it with other numbers to tune the openness: the width scale, the extra spacing in font units, and the stem ratio (vertical stem thickness as a multiple of the horizontal stroke, measured on H and E). No stroke is thinned below a horizontal's thickness. Phi-Soft's SemiBold and Bold draw M and W as solid stencil shapes by design, and Phiber keeps them. It redraws the outlines, keeps the side bearings, scales any kerning, and renames the family so it registers beside Phi-Soft.
+
+## Phi-Pill Line and Phi-Pill Link - watch-face faces
+
+Two families for dials, after the outline numerals of a Hermès Apple Watch face (the user, 27 November 2026), drawn on the house's construction, never traced from it. **Phi-Pill Line** draws every figure as one thin line with every turn round; **Phi-Pill Link** fills the same outline. They carry 0-9, `. : -`, space, and the lower case a dial names (days, months, am, pm: a b c d e f g h i j l m n o p r s t u v w y). One case only.
+
+Everything is data: `Phi-Pill-Line/glyph.tsv` gives each glyph as the corners of its outline (`x y r`, each corner as round as its radius), and `line.py` makes each corner the circle touching both its sides and joins the circles by the lines that touch them, as Phiogy's `appkit/app/phiogy/script/chain.py` draws (its `touch` and `spot` are used, so the build needs the phikit checkout). Two corners on one circle become that circle, which is how bar ends and links come out as pills. The Line face is the same chain with every radius grown and shrunk by half the line, so its curves stay true arcs.
+
+The measures are read from Phi-Pill's own files, not written in: cap 635, x-height 495, descender -272, stem 170, bar 85 and counter 130 from Phi-Pill Regular, the side bearing 62, and the line, 29, half of Phi-Pill Light's bar. Figures are all as wide as Phi-Pill's 0, so a dial's numbers line up. 6 and 9 are chain links (the bowl a ring round at its end and foot, its space a pill; 9 is 6 turned), 8 is the stud link, 5 is 2 mirrored, e is a turned, d is b mirrored, u is n turned and w is m turned.
+
+```
+python line.py                  # writes PhiPillLine-Light.otf and PhiPillLink-Regular.otf
+python line.py --mock out.png   # draws the glyphs from the geometry, no font made
+python line.py --sheet out.png  # a specimen set in the built files, with a dial
+```
+
+`dial.tsv` says how far each hour's figure turns on the specimen's dial (the top half leans out along the ring, the bottom half in, so 6 and 12 stand upright).
 
 ## Notes
 
