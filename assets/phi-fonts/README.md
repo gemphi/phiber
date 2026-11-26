@@ -67,6 +67,8 @@ python line.py --sheet out.png  # a specimen set in the built files, with a dial
 
 `dial.tsv` says how far each hour's figure turns on the specimen's dial (the top half leans out along the ring, the bottom half in, so 6 and 12 stand upright).
 
+`python watch.py OUT_FOLDER` draws the sixteen watches of `watch.tsv` set in the two faces (case, crown and hands as pills and rounded boxes, four band makes, figures turned along the dial), one picture each and a sheet of all. The pictures are not kept in the repository.
+
 ## Notes
 
 - **The browser build** has no disk to read this folder from. It carries one face compiled into the binary, Phiber Light (`font::UI_FACES`). A desktop build whose folder is missing falls back to the same face.

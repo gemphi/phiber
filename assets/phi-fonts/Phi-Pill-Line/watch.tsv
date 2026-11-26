@@ -1,0 +1,37 @@
+# Sixteen watches set in Phi-Pill Line and Phi-Pill Link (the user, 27
+# November 2026: "make 16 watches afterwards"). `watch.py` draws each
+# from its row: a case of one radius, a crown and a button as pills, a
+# band of one of four makes, and a dial whose figures turn along the ring
+# as `dial.tsv` says. The time is the one watches are shown at.
+#
+# --- measures: the picture's size, then the watch on it ---
+page	measure	460 900
+case	measure	300 360 76
+rim	measure	6
+screen	measure	22 56
+band	measure	210
+figure	measure	38
+time	measure	10 9 32
+#
+# --- the watches ---
+# name	case rim band band2 make dial ink accent figures hands date
+#   make     sport (pill holes), knit (stripes), link (ridges), plain (stitched)
+#   figures  line, link, mixed (3 6 9 12 solid), four (only 3 6 9 12, solid), digital
+#   hands    line (drawn as a line) or solid
+#   date     none, box (the day of the month at 3), day (the day's name at 6)
+navy knit	watch	#3a3a3e #56565c #2b3550 #6f8fc4 knit #000000 #e8dccb #3d8fb0 mixed line box
+green sport	watch	#c9c3b8 #e2ddd4 #1f8a3a #176b2d sport #000000 #ffffff #39c06a line line none
+tan link	watch	#d9c3a0 #eadbc0 #a8875a #8d6f47 link #000000 #efe4d0 #c8913f four solid day
+taupe sport	watch	#bdb7ad #d6d1c8 #8a7d72 #6e6259 sport #000000 #f2eee8 #ff7a2f line line box
+black digital	watch	#1c1c1e #3a3a3c #2a2a2d #1c1c1e sport #000000 #ffffff #ff453a digital solid day
+cream knit	watch	#d6d6d8 #ececee #e9e1d3 #b9a98f knit #000000 #f4efe6 #c9a46a link solid box
+red knit	watch	#2c2c2e #48484c #7d1f24 #c7393f knit #000000 #f3e6e0 #ff5a5f mixed line day
+ocean link	watch	#9aa7b3 #c3ccd5 #24527a #1b3f5f link #000000 #cfe3f2 #4fc3f7 four line none
+orange sport	watch	#3a3a3c #58585c #f26b1d #c9520f sport #000000 #ffffff #f26b1d line solid box
+lilac link	watch	#e3dfe8 #f1eef4 #a593c9 #8a78b0 link #000000 #efe8ff #b9a2f0 link line day
+olive knit	watch	#c9c3b8 #e2ddd4 #4b5a32 #8a9a5b knit #000000 #eef0e2 #a8c46a mixed solid none
+pink sport	watch	#e7c2b3 #f3dcd2 #f2a7b5 #d98597 sport #000000 #ffffff #ff6f91 line line box
+midnight link	watch	#26282c #44474d #1d2433 #141a26 link #000000 #dfe8ff #6aa8ff digital line box
+yellow sport	watch	#2c2c2e #48484c #f2c230 #cf9f12 sport #000000 #ffffff #f2c230 four solid box
+brown plain	watch	#d9c3a0 #eadbc0 #6b4226 #8d5c3a plain #000000 #f0e2c8 #d08a3c line line day
+white link	watch	#ecebe7 #f8f7f4 #f4f3ef #d9d7d0 link #000000 #ffffff #2fa66a mixed line none
